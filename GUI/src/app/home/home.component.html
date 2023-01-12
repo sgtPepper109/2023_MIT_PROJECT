@@ -1,4 +1,4 @@
-<!-- <br />
+<br />
 <br />
 <br />
 <br />
@@ -27,9 +27,21 @@
                 <label for="floatingInput">validation</label>
             </div>
         </div>
+        <!-- <form #formSubmitter="ngForm" (ngSubmit)="signup(formSubmitter.value)">
+            <input type="text" placeholder="Enter Name: ">
+            <input type="text" placeholder="Enter Name: ">
+            <input type="text" placeholder="Enter Name: ">
+            <button>Signup</button>
+        </form> -->
         <br/>
         <div class="text-center">
-            <button routerLink="page2" style="text-align: center;" type="button" class="btn btn-primary">Start Process</button>
+            <button 
+                routerLink="page2" 
+                style="text-align: center;" 
+                type="button" 
+                class="btn btn-primary"
+                (click)="submit()"
+            >Start Process</button>
         </div>
         <br/>
         <div class="text-center">
@@ -39,5 +51,4 @@
             </span>
         </div>
     </section>
-</div> -->
-<router-outlet></router-outlet>
+</div>
