@@ -7,12 +7,14 @@
         <h1>Traffic Predictor</h1>
         <hr style="height: 2px;" />
         <label for="myfile">Browse dataset: </label>
-        <br />
+        <br /> <!-- Input File of type csv -->
         <input type="file" accept=".csv" id="myfile" name="myfile">
         <br />
         <br/>
         <label for="traintestval">Specify the training, testing and validation ratio: </label>
         <br />
+
+        <!-- Form for input of training testing and validation ratios -->
         <div class="row">
             <div class="col form-floating">
                 <input type="text" class="form-control" id="traininginput" placeholder="training ratio">
@@ -27,13 +29,9 @@
                 <label for="floatingInput">validation</label>
             </div>
         </div>
-        <!-- <form #formSubmitter="ngForm" (ngSubmit)="signup(formSubmitter.value)">
-            <input type="text" placeholder="Enter Name: ">
-            <input type="text" placeholder="Enter Name: ">
-            <input type="text" placeholder="Enter Name: ">
-            <button>Signup</button>
-        </form> -->
         <br/>
+
+        <!-- Button that navigates to page 2 and inserts data into MySQL database -->
         <div class="text-center">
             <button 
                 routerLink="page2" 
@@ -41,6 +39,7 @@
                 type="button" 
                 class="btn btn-primary"
                 (click)="submit()"
+                onclick="insert()"
             >Start Process</button>
         </div>
         <br/>
