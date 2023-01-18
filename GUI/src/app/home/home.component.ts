@@ -28,9 +28,9 @@ export class HomeComponent {
 	// for displaying if validations are not correct
 	toggleErrorString = false;
 
-	public addOperation(): Observable<> {
-		return this.http.post
-	}
+	// public addOperation(): Observable<> {
+	// 	return this.http.post
+	// }
 
 	// on clicking button 'process data'
 	manageInfo() {
