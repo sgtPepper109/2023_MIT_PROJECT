@@ -29,7 +29,7 @@ export class HomeComponent {
 	toggleErrorString = false;
 
 	public addOperation(): Observable<> {
-		return http.post
+		return this.http.post
 	}
 
 	// on clicking button 'process data'
