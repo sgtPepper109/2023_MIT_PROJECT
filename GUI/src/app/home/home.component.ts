@@ -19,12 +19,17 @@ export class HomeComponent {
 	inputtrainratio :string = ""
 	inputtestratio :string = ""
 	inputvalratio :string = ""
+	http :HttpClient
 
 	// error message to be displayed on the screen
 	errorstring :string = ""
 
 	// for displaying if validations are not correct
 	toggleErrorString = false;
+
+	public addOperation(): Observable<> {
+		return http.post
+	}
 
 	// on clicking button 'process data'
 	manageInfo() {
@@ -38,6 +43,7 @@ export class HomeComponent {
 				console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)	
 				
 				// navigate to page2
+				
 				this.router.navigate(['/page2'])
 			} else {
 				this.errorstring = "Note: The ratios don't add up to 1"
