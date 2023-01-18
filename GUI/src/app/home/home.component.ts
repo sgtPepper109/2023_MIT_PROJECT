@@ -1,5 +1,7 @@
-import { Component, isDevMode } from '@angular/core';
+import { Component, EventEmitter, isDevMode, NgModule, Output } from '@angular/core';
 import { createPool, Pool } from 'mysql'
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 let pool:Pool;
 
@@ -8,23 +10,42 @@ let pool:Pool;
 	templateUrl: './home.component.html',
 	styleUrls: ['./home.component.css']
 })
-export class HomeComponent{
-	submit(): void {
-		const trainRatio = parseInt((<HTMLInputElement>document.getElementById('traininginput')).value)
-		const testRatio = parseInt((<HTMLInputElement>document.getElementById('testinginput')).value)
-		const valRatio = parseInt((<HTMLInputElement>document.getElementById('valinput')).value)
-		
-		try {
-			pool = createPool({
-				host: "localhost",
-				user: "root",
-				password: "1990",
-				database: "project"
-			});
-			console.log('MySQL adapter pool generated Successfully');
-		} catch (error) {
-			console.error('[mysql.connector][init][Error]: ', error);
-			throw new Error('failed to initialized pool');
+
+export class HomeComponent {
+	constructor(private router: Router) {}
+
+	// declaring all the input field variables with help of ngModel
+	dataset :string = ""
+	inputtrainratio :string = ""
+	inputtestratio :string = ""
+	inputvalratio :string = ""
+
+	// error message to be displayed on the screen
+	errorstring :string = ""
+
+	// for displaying if validations are not correct
+	toggleErrorString = false;
+
+	// on clicking button 'process data'
+	manageInfo() {
+
+		if (this.dataset !== "" && this.inputtestratio !== "" && this.inputtrainratio !== "" && this.inputvalratio !== "") {
+			var trainratio = parseFloat(this.inputtrainratio)
+			var testratio = parseFloat(this.inputtestratio)
+			var valratio = parseFloat(this.inputvalratio)
+			
+			if (trainratio + testratio + valratio === 1.0) {
+				console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)	
+				
+				// navigate to page2
+				this.router.navigate(['/page2'])
+			} else {
+				this.errorstring = "Note: The ratios don't add up to 1"
+				this.toggleErrorString = true
+			}
+		} else {
+			this.errorstring = "Note: All fields are required"
+			this.toggleErrorString = true
 		}
 	}
 }
