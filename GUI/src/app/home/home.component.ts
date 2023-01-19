@@ -2,8 +2,8 @@ import { Component, EventEmitter, isDevMode, NgModule, Output } from '@angular/c
 import { createPool, Pool } from 'mysql'
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http'
-import { HttpClient } from '@angular/common/http'
+import { HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 let pool:Pool;
 
@@ -14,7 +14,7 @@ let pool:Pool;
 })
 
 export class HomeComponent {
-	constructor(private router: Router, private http: HttpClient) {}
+	constructor(private router: Router) {}
 
 	// declaring all the input field variables with help of ngModel
 	dataset :string = ""

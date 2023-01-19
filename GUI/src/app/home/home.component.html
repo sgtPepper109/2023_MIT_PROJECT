@@ -36,7 +36,7 @@
         </div>
         <br />
 
-        <!-- Button that navigates to page 2 and inserts data into MySQL database -->
+        <!-- Button for validation and manipulation of data -->
         <div class="text-center">
             <button style="text-align: center;" type="button" class="btn btn-primary" (click)="manageInfo()">Start
                 Process</button>
@@ -48,6 +48,8 @@
                 <a href="#" class="link-info">About</a>
             </span>
         </div>
+        
+        <!-- Display error message when validation suggests errors -->
         <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
             {{ errorstring }}
         </div>
