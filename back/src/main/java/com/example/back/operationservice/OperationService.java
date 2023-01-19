@@ -12,29 +12,36 @@ import java.util.List;
 public class OperationService {
     private final OperationRepo operationRepo;
 
+    // Manipulation of operations to and from operationRepo
     @Autowired
     public OperationService(OperationRepo operationRepo) {
         this.operationRepo = operationRepo;
     }
 
+    // Save an operation passed as argument in operationRepo
     public Operation addOperation(Operation operation) {
         // id and user_id not added yet
         return operationRepo.save(operation);
     }
 
+    // Find all operations from operationRepo
     public List<Operation> findAllOperations() {
         return operationRepo.findAll();
     }
 
+    // Update an operation that's passed in the argument
     public Operation updateOperation(Operation operation) {
         return operationRepo.save(operation);
     }
 
+    // Find a single operation that has id mentioned
     public Operation findOperation(Long id) {
+        // Exception is defined as a class separately
         return operationRepo.findOperationById(id)
                 .orElseThrow(() -> new OperationNotFoundException("An operation with provided id " + id + " was not found"));
     }
 
+    // Delete an operation that has mentioned id
     public void deleteOperation(Long id) {
         operationRepo.deleteOperationById(id);
     }

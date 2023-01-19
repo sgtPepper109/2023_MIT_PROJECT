@@ -5,6 +5,8 @@ import java.io.Serializable;
 
 @Entity
 public class Operation implements Serializable {
+
+    // This is the stucture of Operation class that will be reflected into the database
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
@@ -14,6 +16,8 @@ public class Operation implements Serializable {
     private Float testratio;
     private Float valratio;
 
+    // The user_id will be linked to the id of the user in users table when logged in
+    // The users table will be made later
     @Column(nullable = false, updatable = false)
     private Long user_id;
 

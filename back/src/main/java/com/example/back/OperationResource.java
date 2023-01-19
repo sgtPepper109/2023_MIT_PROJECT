@@ -13,10 +13,12 @@ import java.util.List;
 public class OperationResource {
     private final OperationService operationService;
 
+    // query data with help of operationService class
     public OperationResource(OperationService operationService) {
         this.operationService = operationService;
     }
 
+    // Note: All functions map to corresponding functions in the OperationService class
     @GetMapping("/all")
     public ResponseEntity<List<Operation>> getAllOperations() {
         List<Operation> operations = operationService.findAllOperations();
