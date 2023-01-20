@@ -16,4 +16,8 @@ export class OperationService {
 		return this.http.get<Operation[]>(`${this.apiServerUrl}/operation/all`)
 	}
 
+	public addOperation(operation: Operation): Observable<Operation> {
+		return this.http.post<Operation>(`${this.apiServerUrl}/operation/add`, operation)
+	}
+
 }
