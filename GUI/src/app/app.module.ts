@@ -9,6 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { SignupComponent } from './signup/signup.component';
 import { HttpClientModule } from '@angular/common/http';
 import { OperationService } from './operation.service';
+import { PropService } from './prop.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTableModule } from '@angular/material/table'
+import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -21,9 +27,14 @@ import { OperationService } from './operation.service';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatTableModule,
+    MatCardModule,
+    MatSnackBarModule,
+    MatIconModule
   ],
-  providers: [OperationService],
+  providers: [OperationService, PropService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

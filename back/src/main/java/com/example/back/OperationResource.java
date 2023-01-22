@@ -2,6 +2,7 @@ package com.example.back;
 
 import com.example.back.operation.Operation;
 import com.example.back.operationservice.OperationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,5 +48,12 @@ public class OperationResource {
     public ResponseEntity<?> deleteOperation(@PathVariable("id") Long id) {
         operationService.deleteOperation(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/process")
+    public ResponseEntity<String> getData() throws JsonProcessingException {
+        String data = operationService.getData();
+        System.out.println("processing flask data");
+        return new ResponseEntity<String>(data, HttpStatus.OK);
     }
 }

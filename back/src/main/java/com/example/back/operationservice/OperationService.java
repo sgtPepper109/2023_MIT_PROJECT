@@ -1,11 +1,17 @@
 package com.example.back.operationservice;
 
+import com.example.back.GetURLContents;
 import com.example.back.operation.Operation;
 import com.example.back.operationrepo.OperationRepo;
 import com.example.back.exception.OperationNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 @Service
@@ -44,5 +50,10 @@ public class OperationService {
     // Delete an operation that has mentioned id
     public void deleteOperation(Long id) {
         operationRepo.deleteOperationById(id);
+    }
+
+    public String getData() throws JsonProcessingException {
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData("http://localhost:5000/data");
     }
 }
