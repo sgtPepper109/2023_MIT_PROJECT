@@ -28,10 +28,30 @@
                         <td mat-cell *matCellDef="let element"> {{element.Vehicles}} </td>
                     </ng-container>
 
-                    <!-- Bonus Column -->
                     <ng-container matColumnDef="ID">
                         <th mat-header-cell *matHeaderCellDef> ID </th>
                         <td mat-cell *matCellDef="let element"> {{element.ID}} </td>
+                    </ng-container>
+
+                    <!-- Bonus Column -->
+                    <ng-container matColumnDef="Year">
+                        <th mat-header-cell *matHeaderCellDef> Year </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Year}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="Month">
+                        <th mat-header-cell *matHeaderCellDef> Month </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Month}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="Day">
+                        <th mat-header-cell *matHeaderCellDef> Day </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Day}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="Hour">
+                        <th mat-header-cell *matHeaderCellDef> Hour </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Hour}} </td>
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

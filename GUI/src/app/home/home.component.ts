@@ -77,10 +77,11 @@ export class HomeComponent {
 			
 			var datasetString = this.dataset
 			var arr = datasetString.split('.')
-			if (arr[1] === 'csv' || arr[1] === 'data' || arr[1] === 'xlsx') {
+			if (arr[arr.length -1] === 'csv' || arr[arr.length -1] === 'data' || arr[arr.length -1] === 'xlsx') {
 
 				if (trainratio + testratio + valratio === 1.0) {
 					// console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)
+					// console.log((<HTMLInputElement>document.getElementById('myfile')).files)
 
 					// Create an object of type Operation specified in ../operation.ts to pass it to backend
 					let operation: Operation = {

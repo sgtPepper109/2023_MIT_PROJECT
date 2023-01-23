@@ -10,6 +10,7 @@
         <br /> <!-- Input File of type csv -->
         <input type="file" accept=".csv" id="myfile" name="myfile" [(ngModel)]="dataset">
         <br />
+        <p style="margin-top: 5px; color: red">Only .csv, .xlsx and .data files allowed</p>
         <br />
         <label for="traintestval">Specify the training, testing and validation ratio: </label>
         <br />
@@ -44,14 +45,41 @@
         <br />
         <div class="text-center">
             <span>
-                <a href="#" style="margin-right: 10px;" class="link-danger">Help</a>
-                <a href="#" class="link-info">About</a>
+                <a href="#" style="margin-right: 10px;" class="link-danger" data-bs-toggle="offcanvas"
+                    href="#offcanvasExample" role="button" aria-controls="offcanvasExample">Help</a>
+                <a href="#" class="link-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                    aria-controls="offcanvasRight">About</a>
             </span>
         </div>
 
+
+        <!-- Left Offcanvas -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+            aria-labelledby="offcanvasExampleLabel">
+            <div class="offcanvas-header">
+                <h1 class="offcanvas-title" id="offcanvasExampleLabel">Help</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+            </div>
+        </div>
+
+
+        <!-- Right Offcanvas -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h1 class="offcanvas-title" id="offcanvasRightLabel">About</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <h3>This is an application for the prediction of traffic intensity at provided junctions</h3>
+            </div>
+        </div>
+
+
         <!-- Display error message when validation suggests errors -->
-        <!-- <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
+        <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
             {{ errorstring }}
-        </div> -->
+        </div>
     </section>
 </div>
