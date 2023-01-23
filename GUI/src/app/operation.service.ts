@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Operation } from './operation';
+import { PropService } from './prop.service';
 
 @Injectable({
 	providedIn: 'root'
@@ -10,7 +11,7 @@ import { Operation } from './operation';
 export class OperationService {
 	private apiServerUrl = environment.apiBaseUrl
 
-	constructor(private http: HttpClient) { }
+	constructor(private http: HttpClient, private propService: PropService) {}
 
 	public getOperations(): Observable<Operation[]> {
 		return this.http.get<Operation[]>(`${this.apiServerUrl}/operation/all`)
@@ -26,6 +27,10 @@ export class OperationService {
 
 	public getPlot() {
 		return this.http.get(`${this.apiServerUrl}/operation/plot`)
+	}
+
+	public predict(obj: string) {
+		return this.http.get(`${this.apiServerUrl}/operation/predict/${obj}`)
 	}
 
 }

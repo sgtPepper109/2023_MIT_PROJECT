@@ -2,11 +2,13 @@ package com.example.back;
 
 import com.example.back.operation.Operation;
 import com.example.back.operationservice.OperationService;
+import com.example.back.predictionDetails.PredictionDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -61,6 +63,13 @@ public class OperationResource {
     public ResponseEntity<String> getPlot() throws JsonProcessingException {
         String data = operationService.getPlot();
         System.out.println("processing flask data");
+        return new ResponseEntity<String>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/predict/{junction_months}")
+    public ResponseEntity<String> predict(@PathVariable("junction_months") String junction_months) throws JsonProcessingException {
+        String data = operationService.predict(junction_months);
+        System.out.println("predict");
         return new ResponseEntity<String>(data, HttpStatus.OK);
     }
 }

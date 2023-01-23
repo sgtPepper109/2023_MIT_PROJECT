@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root'
 })
 export class PropService {
-  public data: object = {};
-
-  constructor() {}
+	public data: object = {};
+	public obj: object = {};
+	constructor() { }
 }

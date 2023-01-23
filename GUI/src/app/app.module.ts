@@ -15,6 +15,8 @@ import { MatTableModule } from '@angular/material/table'
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatTableModule,
     MatCardModule,
     MatSnackBarModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonToggleModule,
+    MatInputModule
   ],
   providers: [OperationService, PropService],
   bootstrap: [AppComponent]

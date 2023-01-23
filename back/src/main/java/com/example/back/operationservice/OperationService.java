@@ -4,6 +4,7 @@ import com.example.back.GetURLContents;
 import com.example.back.operation.Operation;
 import com.example.back.operationrepo.OperationRepo;
 import com.example.back.exception.OperationNotFoundException;
+import com.example.back.predictionDetails.PredictionDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,5 +61,15 @@ public class OperationService {
     public String getPlot() throws JsonProcessingException {
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData("http://localhost:5000/plot");
+    }
+
+    public String predict(String junction_months) {
+        GetURLContents getURLContents = new GetURLContents();
+        String arr[] = junction_months.split("_");
+        String junction = arr[0], months = arr[1];
+        System.out.println(junction + ' ' + months);
+        String path = "http://localhost:5000/predict/" + junction + '/' + months;
+        System.out.println(path);
+        return getURLContents.getData(path);
     }
 }
