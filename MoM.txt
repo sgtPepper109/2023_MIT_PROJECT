@@ -1,0 +1,88 @@
+Date: 09-Jan-2023, 10:30 am
+Attendees: Abdulrahim Shaikh, Vedang Avaghade, Vaishali Jaiswal
+Key Takeaways:
+    - Create a GUI (web application) concerning road extraction from satellite images and add more features
+    - Can make a feature of traffic intensity prediction
+course of action assigned:
+    - Improve the accuracy of currently available model and algorigthm
+    - Create a program which takes one image as input and predicts the output
+    - Learn how the code is written
+    - Explore about Traffic intensity prediction
+
+
+Date: 10-Jan-2023, 11:00 am
+Attendees: Abdulrahim Shaikh, Vedang Avaghade, Vaishali Jaiswal
+Key Takeaways:
+    - Dropped the idea of Road Extraction as accuracy was quite low on complex roads which is not satisfactory
+    - Going ahead with the idea of Traffic Intensity Prediction
+course of action assigned:
+    - Build an example GUI for demonstration
+        - takes input of dataset, ratio and then trains on it
+    - Explore programming for traffic intensity prediction
+
+
+Date: 11-Jan-2023, 11:00 am
+Attendees: Abdulrahim Shaikh, Vedang Avaghade, Vaishali Jaiswal
+Key Takeaways:
+    - Learn how to properly document the project and all its aspect
+    - There are different diagrams to describe the differenct aspects of the project
+        - ER diagram, ...
+    - Software Requirement Specification
+    - Installation Guide for test
+course of action assigned:
+    - Documentation of the project
+    - One main project repository
+    - Integrate the available model into the GUI
+    
+
+Date: 17-Jan-2023, 10.20 am
+Attendees: Abdulrahim Shaikh, Vaishali Jaiswal
+Key Takeaways and course of action assigned:
+    - Try to fix which one is more comfortable and clear the confusion on Angular and React (Frontend part)
+    - Then try to fix which backend technology
+
+
+Date 18-Jan-2023, 11.00 am
+Attendees: Abdulrahim Shaikh, Vaishali Jaiswal
+Key Takeaways:
+    - Finalized work in Angular
+    - Finalized work in Spring Boot
+    - Project Version 1 review scheduled by Guide on 19-Jan-2023
+course of action assigned:
+    - Complete all the UI design and validations
+    - Update the document (add technology stack)
+    - When done, assemble code in one folder and mount it on a pen drive
+
+
+
+Date 19-Jan-2023, 11.00 am
+Attendees: Abdulrahim Shaikh, Miss Vaishali Jaiswal, Mr. Rushikesh Kale
+Key Takeways and course of action assigned:
+    - Try to design UI using Angular-Material
+    - Add something to home and about
+    - Validation on the type of file input for dataset
+    - Mention instructions for choosing dataset
+    - Individual validations
+    - Ids should be serialized
+    - Encryption can be used
+    - Fine tune the structure (create sub-components if possible)
+    - Document all the validations, diagrams, minutes of meeting
+
+
+
+Date 20-Jan-2023, Online
+Attendees: Abdulrahim Shaikh, Mr. Rushikesh Kale
+Key Takeaways:
+    - Had difficulty in displaying data in table
+    - Got suggestion of using mat-table from angular-material by Mr. Rushikesh Kale
+    - Problem solved
+
+
+
+Date 23-Jan-2023, 11:00 am
+Attendees: Abdulrahim Shaikh, Vedang Avaghade, Rushikesh Kale
+Key Takeaways:
+    - There are multiple ways to read file from input
+    - Explore on how to read input file
+    - Reviewed some more validations
+    - Try to complete task before deadline
