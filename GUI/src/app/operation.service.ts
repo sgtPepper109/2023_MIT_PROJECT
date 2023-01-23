@@ -20,8 +20,12 @@ export class OperationService {
 		return this.http.post<Operation>(`${this.apiServerUrl}/operation/add`, operation)
 	}
 
-	public getData() {
+	public getTableData() {
 		return this.http.get(`${this.apiServerUrl}/operation/process`)
+	}
+
+	public getPlot() {
+		return this.http.get(`${this.apiServerUrl}/operation/plot`)
 	}
 
 }

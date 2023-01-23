@@ -56,4 +56,9 @@ public class OperationService {
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData("http://localhost:5000/data");
     }
+
+    public String getPlot() throws JsonProcessingException {
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData("http://localhost:5000/plot");
+    }
 }

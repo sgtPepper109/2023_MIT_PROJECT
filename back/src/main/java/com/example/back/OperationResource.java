@@ -56,4 +56,11 @@ public class OperationResource {
         System.out.println("processing flask data");
         return new ResponseEntity<String>(data, HttpStatus.OK);
     }
+
+    @GetMapping("/plot")
+    public ResponseEntity<String> getPlot() throws JsonProcessingException {
+        String data = operationService.getPlot();
+        System.out.println("processing flask data");
+        return new ResponseEntity<String>(data, HttpStatus.OK);
+    }
 }

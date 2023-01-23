@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Operation } from '../operation';
 import { OperationService } from '../operation.service';
 import { PropService } from '../prop.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -81,7 +81,7 @@ export class HomeComponent {
 
 				if (trainratio + testratio + valratio === 1.0) {
 					// console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)
-					// console.log((<HTMLInputElement>document.getElementById('myfile')).files)
+					console.log((<HTMLInputElement>document.getElementById('myfile')).files)
 
 					// Create an object of type Operation specified in ../operation.ts to pass it to backend
 					let operation: Operation = {
@@ -93,10 +93,14 @@ export class HomeComponent {
 					}
 
 					this.addOperation(operation)
-					this.operationService.getData().subscribe(
+					this.operationService.getTableData().subscribe(
 						(response) => {
-							console.log(typeof response, response)
+							// console.log(typeof response, response)
+
+							// this is a service file shared with page2 component
 							this.propService.data = response
+
+							// navigate to page2
 							this.router.navigate(['/page2'])
 						},
 						(error: HttpErrorResponse) => {
