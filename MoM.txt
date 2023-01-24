@@ -86,3 +86,17 @@ Key Takeaways:
     - Explore on how to read input file
     - Reviewed some more validations
     - Try to complete task before deadline
+
+
+
+Date 24-Jan-2023, 11:00 am
+Attendees: Abdulrahim Shaikh, Vedang Avaghade, Rushikesh Kale
+Key Takeaways and course of action assigned:
+    - change date format
+    - Add prediction validation
+    - use dynamic values
+    - make it faster
+    - chart js
+    - Explore on how to send data file to backend
+    - Can add paginator
+    - enhance the document
