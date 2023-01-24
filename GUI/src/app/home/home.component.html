@@ -8,12 +8,15 @@
         <hr style="height: 2px;" />
         <label for="myfile">Browse dataset: </label>
         <br /> <!-- Input File of type csv -->
-        <input type="file" accept=".csv" id="myfile" name="myfile" [(ngModel)]="dataset">
+        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" (change)="fileChangeListener($event)">
         <br />
         <p style="margin-top: 5px; color: red">Only .csv, .xlsx and .data files allowed</p>
         <br />
         <label for="traintestval">Specify the training, testing and validation ratio: </label>
         <br />
+        
+        <!-- <img [src]="url" />
+        <input type="file" (change)="onSelectFile($event)" /> -->
 
         <!-- Form for input of training testing and validation ratios -->
         <div class="container text-center">

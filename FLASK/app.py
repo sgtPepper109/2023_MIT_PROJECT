@@ -1,6 +1,7 @@
 from flask import Flask, make_response
 from flask_cors import CORS
 
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -78,11 +79,16 @@ class Model:
         return f'<({self.name}: [R² Score: {self.r2}], [RMSE: {self.rmse}])>'
 
 
+guiAssetsFolder = 'C:/Users/Acer/2023MitProject/GUI/src/assets/'
+for file in os.listdir(guiAssetsFolder):
+    os.remove(os.path.join(guiAssetsFolder, file))
+
+
 @app.route("/data")
 def hello():
     arr = []
-    df = pd.read_csv('C:/Users/Acer/traffic/traffic.csv')
-    tempdf = pd.read_csv('C:/Users/Acer/traffic/traffic.csv', parse_dates=True, index_col='DateTime')
+    df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
+    tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
     tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
     # extract month from date
     tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
@@ -92,69 +98,10 @@ def hello():
     tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
     tempdf.drop('ID', axis=1, inplace=True)
 
-    year = tempdf['Year']
-    month = tempdf['Month']
-    day = tempdf['Day']
-    hour = tempdf['Hour']
-
-    year = np.array(year)
-    month = np.array(month)
-    day = np.array(day)
-    hour = np.array(hour)
-
-    df['Year'] = year
-    df['Month'] = month
-    df['Day'] = day
-    df['Hour'] = hour
-
-    df = df.head()
-    data2 = df.to_dict()
-    anycol = ""
-    for i in data2:
-        anycol = i
-        break
-    for i in range(len(data2[anycol])):
-        field = {}
-        for j in data2:
-            field[j] = data2[j][i]
-        arr.append(field)
-    return make_response(arr)
-
-
-def histogram(df, junction):
-    temp = df[df['Junction'] == junction]
-    f, ax = plt.subplots(figsize=(17, 5))
-    ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
-    ax.set_title(f'Plot show the distribution of data in junction {junction}')
-    ax.grid(True, ls='-.', alpha=0.75)
-    path = 'C:/Users/Acer/2023MitProject/GUI/src/assets/histogram' + str(junction) + '.png'
-    plt.savefig(path)
-    return path
-
-
-@app.route("/plot")
-def plot():
-    arr = []
-    df = pd.read_csv('C:/Users/Acer/traffic/traffic.csv')
-    tempdf = pd.read_csv('C:/Users/Acer/traffic/traffic.csv', parse_dates=True, index_col='DateTime')
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # extract month from date
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # extract day from date
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # extract hour from date
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    tempdf.drop('ID', axis=1, inplace=True)
-
-    year = tempdf['Year']
-    month = tempdf['Month']
-    day = tempdf['Day']
-    hour = tempdf['Hour']
-
-    year = np.array(year)
-    month = np.array(month)
-    day = np.array(day)
-    hour = np.array(hour)
+    year = np.array(tempdf['Year'])
+    month = np.array(tempdf['Month'])
+    day = np.array(tempdf['Day'])
+    hour = np.array(tempdf['Hour'])
 
     df['Year'] = year
     df['Month'] = month
@@ -172,13 +119,53 @@ def plot():
         for j in data2:
             field[j] = data2[j][i]
         arr.append(field)
-    
+    # print(df)
+    return make_response(arr)
+
+
+def histogram(df, junction):
+    temp = df[df['Junction'] == junction]
+    f, ax = plt.subplots(figsize=(17, 5))
+    ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
+    ax.set_title(f'Plot show the distribution of data in junction {junction}')
+    ax.grid(True, ls='-.', alpha=0.75)
+    path = 'C:/Users/Acer/2023MitProject/GUI/src/assets/histogram' + str(junction) + '.png'
+    plt.savefig(path)
+    return path
+
+
+@app.route("/plot")
+def plot():
+
+    # print('\n', df.head(2), '\n')
+    # print(junction, '\n')
+
     # temp = df[df['Junction'] == 2]
     # f, ax = plt.subplots(figsize=(17, 5))
     # ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
     # ax.set_title('Plot show the distribution of data in junction 2')
     # ax.grid(True, ls='-.', alpha=0.75)
     # plt.savefig('C:/Users/Acer/2023MitProject/GUI/src/assets/histogram1.png')
+    df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
+    tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
+    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+    # extract month from date
+    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+    # extract day from date
+    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+    # extract hour from date
+    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+    tempdf.drop('ID', axis=1, inplace=True)
+
+    year = np.array(tempdf['Year'])
+    month = np.array(tempdf['Month'])
+    day = np.array(tempdf['Day'])
+    hour = np.array(tempdf['Hour'])
+
+    df['Year'] = year
+    df['Month'] = month
+    df['Day'] = day
+    df['Hour'] = hour
     savedFigFor1 = histogram(df, 1)
     savedFigFor2 = histogram(df, 2)
     savedFigFor3 = histogram(df, 3)
@@ -204,7 +191,7 @@ def get_list_data(dataf, drop=[]):
     return dataf
 
 
-def make_time_series_plot3(new_data, junction=4):
+def make_time_series_plot3(new_data, junction):
     f, ax = plt.subplots(figsize=(17, 5))
     data=new_data[new_data.Junction == junction]
     ax = sns.lineplot(data=data, y='Vehicles', x='DateTime', ax=ax)
@@ -219,25 +206,34 @@ def make_time_series_plot3(new_data, junction=4):
 
 @app.route('/predict/<junction>/<months>')
 def predict(junction=None, months=None):
+    df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
+    tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
+    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+    # extract month from date
+    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+    # extract day from date
+    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+    # extract hour from date
+    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+    tempdf.drop('ID', axis=1, inplace=True)
+
+    year = np.array(tempdf['Year'])
+    month = np.array(tempdf['Month'])
+    day = np.array(tempdf['Day'])
+    hour = np.array(tempdf['Hour'])
+
+    df['Year'] = year
+    df['Month'] = month
+    df['Day'] = day
+    df['Hour'] = hour
     junction = int(junction)
     months = int(months)
-    df = pd.read_csv('C:/Users/Acer/traffic/traffic.csv', parse_dates=True, index_col='DateTime')
-    df['Year'] = pd.Series(df.index).apply(lambda x: x.year).to_list()
-
-    # extract month from date
-    df['Month'] = pd.Series(df.index).apply(lambda x: x.month).to_list()
-
-    # extract day from date
-    df['Day'] = pd.Series(df.index).apply(lambda x: x.day).to_list()
-
-    # extract hour from date
-    df['Hour'] = pd.Series(df.index).apply(lambda x: x.hour).to_list()
-    df.drop('ID', axis=1, inplace=True)
+    print('\n', junction, '\n')
     standardization = lambda x: StandardScaler().fit_transform(x)
-    z_df = df.copy()
+    z_df = tempdf.copy()
     z_df['Vehicles'] = standardization(z_df.Vehicles.values.reshape(-1, 1))
     z_df.head()
-    data = get_list_data(df)
+    data = get_list_data(tempdf)
     z_data = get_list_data(z_df)
 
     models = [None]
@@ -264,9 +260,9 @@ def predict(junction=None, months=None):
             )
         ]
     
-    lag_df = df.copy()
+    lag_df = tempdf.copy()
     for i in range(1, 3):
-        lag_df[f'Vehicles_lag_{i}'] = df.Vehicles.shift(i)
+        lag_df[f'Vehicles_lag_{i}'] = tempdf.Vehicles.shift(i)
 
     # drop all rows with nan, because lag data cause nan
     lag_df.dropna(inplace=True)
@@ -287,7 +283,7 @@ def predict(junction=None, months=None):
 
     cur_time = lag_data[junction].tail(1).index[0] # get the current time, the last time of that dataset
     print(cur_time)
-    end_time = pd.Timestamp(2017, 11, 1, 0, 0, 0) # the end time after 4 months that we want to predict
+    end_time = cur_time + pd.DateOffset(months=months) # the end time after 4 months that we want to predict
     print(end_time)
     new_data = lag_data[junction].copy() # create a copy of dataset with that junction
     features = lag_models[junction].features # get features of each models in that junction
@@ -302,26 +298,28 @@ def predict(junction=None, months=None):
         cur_time += timedelta(hours=1) # add to a cur_time 1 hour
     new_data.index = pd.date_range(
         start=lag_data[junction].head(1).index.values[0],
-        end=pd.Timestamp(2017, 11, 1, 0, 0, 0),
+        end=end_time,
         freq='H'
     ) # reassign index with the new time range with start is the start of data
     # and end time is the end time that initialize in start of the loop
     new_data.to_csv(f'C:/Users/Acer/programs/vehicles_for_next_4_months_in_junction_{junction}.csv') # to csv that file
     print(f'|==Predicted for Junction {junction}==|')
 
-    new_data = pd.read_csv('C:/Users/Acer/vehicles_for_next_4_months_in_junction_' + str(junction) + '.csv')
+    new_data = pd.read_csv('C:/Users/Acer/programs/vehicles_for_next_4_months_in_junction_' + str(junction) + '.csv')
+    print('\n', new_data.head(), '\n')
     new_data['DateTime'] = new_data['Unnamed: 0']
     junctionarr = []
-    for i in range(7297):
+    for i in range(new_data.shape[0]):
         junctionarr.append(junction)
     series = pd.Series(junctionarr)
     new_data['Junction'] = series
     year = []
-    for i in range(7297):
+    for i in range(new_data.shape[0]):
         year.append(2017)
     series2 = pd.Series(year)
     new_data['Year'] = year
     new_data = new_data.set_index('DateTime')
+    # print(new_data.tail(1))
     predictedImagePath = make_time_series_plot3(new_data, junction)
     result = { "predictedImagePath": predictedImagePath }
     return make_response(result)

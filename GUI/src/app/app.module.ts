@@ -17,6 +17,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
+import { NgxCsvParserModule } from 'ngx-csv-parser';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { MatInputModule } from '@angular/material/input';
     MatSnackBarModule,
     MatIconModule,
     MatButtonToggleModule,
-    MatInputModule
+    MatInputModule,
+    NgxCsvParserModule
   ],
   providers: [OperationService, PropService],
   bootstrap: [AppComponent]

@@ -4,8 +4,8 @@
         <hr style="height: 2px;" />
         <br />
         <h4><strong>How your data looks: </strong></h4>
-        <mat-card sytle="background-color: white">
-            <mat-card-content style="background-color: white">
+        <mat-card>
+            <mat-card-content style="background-color: white;">
                 <table style="background-color: white;" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
                     <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row definition" -->
@@ -62,42 +62,54 @@
         <br />
         <!-- <button (click)="fetchPlot()">show plot</button> -->
         <br />
-        <h4><strong>Check the probability line plots:</strong></h4>
-        <mat-button-toggle-group name="fontStyle" aria-label="Font Style" style="text-align: center; margin-left: 425px;">
-            <mat-button-toggle (click)="show1()">Junction 1</mat-button-toggle>
-            <mat-button-toggle (click)="show2()">Junction 2</mat-button-toggle>
-            <mat-button-toggle (click)="show3()">Junction 3</mat-button-toggle>
-            <mat-button-toggle (click)="show4()">Junction 4</mat-button-toggle>
-        </mat-button-toggle-group>
-        <br />
-        <div *ngIf="plotReadyFor1">
-            <br />
-            <h5 style="font-style: italic;">Probability of number of vehicles at junction 1</h5>
-            <img *ngIf="plotReadyFor1" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-        </div>
-        <div *ngIf="plotReadyFor2">
-            <br />
-            <h5 style="font-style: italic;">Probability of number of vehicles at junction 2</h5>
-            <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-        </div>
-        <div *ngIf="plotReadyFor3">
-            <br />
-            <h5 style="font-style: italic;">Probability of number of vehicles at junction 3</h5>
-            <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-        </div>
-        <div *ngIf="plotReadyFor4">
-            <br />
-            <h5 style="font-style: italic;">Probability of number of vehicles at junction 4</h5>
-            <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-        </div>
-        <!-- <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-        <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-        <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" /> -->
+        <mat-card sytle="background-color: white;">
+            <mat-card-content style="background-color: white;">
+                <h4><strong>Check the probability line plots:</strong></h4>
+                <!-- <mat-button-toggle-group name="fontStyle" aria-label="Font Style" style="text-align: center; margin-left: 425px;">
+                    <mat-button-toggle style="background-color: white; color: black;" (click)="show1()">Junction 1</mat-button-toggle>
+                    <mat-button-toggle style="background-color: white; color: black;" (click)="show2()">Junction 2</mat-button-toggle>
+                    <mat-button-toggle style="background-color: white; color: black;" (click)="show3()">Junction 3</mat-button-toggle>
+                    <mat-button-toggle style="background-color: white; color: black;" (click)="show4()">Junction 4</mat-button-toggle>
+                </mat-button-toggle-group> -->
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination" style="margin-left: 425px;">
+                        <li class="page-item" (click)="show1()" style="cursor: pointer;"><a class="page-link">Junction 1</a></li>
+                        <li class="page-item" (click)="show2()" style="cursor: pointer;"><a class="page-link">Junction 2</a></li>
+                        <li class="page-item" (click)="show3()" style="cursor: pointer;"><a class="page-link">Junction 3</a></li>
+                        <li class="page-item" (click)="show4()" style="cursor: pointer;"><a class="page-link">Junction 4</a></li>
+                    </ul>
+                </nav>
+                <div *ngIf="plotReadyFor1">
+                    <br />
+                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 1</h4>
+                    <img *ngIf="plotReadyFor1" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                </div>
+                <div *ngIf="plotReadyFor2">
+                    <br />
+                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 2</h4>
+                    <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                </div>
+                <div *ngIf="plotReadyFor3">
+                    <br />
+                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 3</h4>
+                    <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                </div>
+                <div *ngIf="plotReadyFor4">
+                    <br />
+                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 4</h4>
+                    <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                </div>
+                <!-- <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" /> -->
+            </mat-card-content>
+        </mat-card>
         <br />
         <br />
         <h2>PREDICTION</h2>
         <div class="row">
-            <select class="col form-select" aria-label="Default select example" style="height: 60px;" [(ngModel)]="inputJunction">
+            <select class="col form-select" aria-label="Default select example" style="height: 60px;"
+                [(ngModel)]="inputJunction">
                 <option selected>Choose Junction</option>
                 <option value=1>1</option>
                 <option value=2>2</option>
@@ -108,12 +120,25 @@
                 <input type="number" step="0" class="form-control" placeholder="Number" [(ngModel)]="inputMonths">
                 <label style="margin-left: 10px;" for="floatingInput">Number of months to predict</label>
             </div>
-            
+
             <br /><br /><br /><br />
             <div class="text-center">
-                <button style="text-align: center;" type="button" class="btn btn-primary" (click)="start()">Start</button>
+                <button style="text-align: center;" type="button" class="btn btn-primary"
+                    (click)="start()">Start</button>
             </div>
-            <img *ngIf="predictionImageReady" style="width: 1300px;" src="assets/predicted4.png" />
+            <br />
+            <br />
+            <br />
+
+            <div *ngIf="startedTraining" class="d-flex align-items-center">
+                Loading...
+                <div  style="margin-left: 10px;" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
+            </div>
+            <img *ngIf="predictionImageReady" style="width: 1300px;" src="assets/predicted{{inputJunction}}.png" />
+
+            <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
+                {{ errorstring }}
+            </div>
         </div>
     </section>
 </div>

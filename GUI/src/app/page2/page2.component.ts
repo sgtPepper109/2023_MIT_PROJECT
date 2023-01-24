@@ -3,6 +3,7 @@ import { PropService } from '../prop.service';
 import { OperationService } from '../operation.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -13,16 +14,18 @@ import { Router } from '@angular/router';
 export class Page2Component implements OnInit {
 	constructor(
 		private propService: PropService, 
-		private operationService: OperationService
+		private operationService: OperationService,
+		private _snackBar: MatSnackBar
 	) {
-		console.log(this.propService.data)
+		// console.log("this.propService.data", this.propService.data)
+		// console.log("Object.values(this.propService.data)", Object.values(this.propService.data))
 		this.operationService.getPlot().subscribe(
 			(response) => {
 				this.junction1plot = Object.values(response)[0]
 				this.junction2plot = Object.values(response)[1]
 				this.junction3plot = Object.values(response)[2]
 				this.junction4plot = Object.values(response)[3]
-				console.log(this.junction1plot, this.junction2plot, this.junction3plot, this.junction4plot)
+				// console.log(this.junction1plot, this.junction2plot, this.junction3plot, this.junction4plot)
 			},
 			(error: HttpErrorResponse) => {
 				console.log(error.message)
@@ -31,6 +34,14 @@ export class Page2Component implements OnInit {
 			}
 		)
 	}
+
+	// error message to be displayed on the screen
+	errorstring: string = ""
+
+	// for displaying if validations are not correct
+	toggleErrorString = false;
+
+	startedTraining = false;
 
 	inputJunction = "Choose Junction"
 	inputMonths = ""
@@ -84,9 +95,11 @@ export class Page2Component implements OnInit {
 		if (this.inputJunction !== "Choose Junction" && this.inputMonths !== "") {
 			this.propService.obj = {junction: this.inputJunction, months: this.inputMonths}
 
+			this.startedTraining = true;
 			this.operationService.predict(this.inputJunction + '_' + this.inputMonths).subscribe(
 				(response) => {
-					console.log(response)
+					// console.log(response)
+					this.startedTraining = false;
 					this.predictionImageReady = true
 				},
 				(error: HttpErrorResponse) => {
@@ -95,7 +108,9 @@ export class Page2Component implements OnInit {
 			)
 
 		} else {
-
+			this.errorstring = "Note: All fields are required"
+			this.toggleErrorString = true
+			this._snackBar.open("Note: All fields are required", '\u2716')
 		}
 	}
 

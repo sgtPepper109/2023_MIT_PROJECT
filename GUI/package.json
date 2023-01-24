@@ -27,8 +27,11 @@
     "events": "^3.3.0",
     "express": "^4.18.2",
     "lodash": "^4.17.21",
+    "mat-table-exporter": "^10.2.4",
     "mysql": "^2.18.1",
     "mysql2": "^3.0.0",
+    "ngx-csv": "^0.3.2",
+    "ngx-csv-parser": "^1.2.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"

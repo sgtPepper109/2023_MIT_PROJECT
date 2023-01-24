@@ -5,6 +5,8 @@ import { Operation } from '../operation';
 import { OperationService } from '../operation.service';
 import { PropService } from '../prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
+import { ngxCsv } from 'ngx-csv';
 
 
 @Component({
@@ -18,10 +20,49 @@ export class HomeComponent {
 		private router: Router,
 		private operationService: OperationService,
 		private propService: PropService,
-		private _snackBar: MatSnackBar
-	) {}
+		private _snackBar: MatSnackBar,
+		private ngxCsvParser: NgxCsvParser
+	) { }
 
 	public operations: Operation[] = [];
+
+	csvRecords: any
+	header = true
+	fileName = ""
+	datasetPath = ""
+
+	fileChangeListener($event: any): void {
+
+		const files = $event.srcElement.files;
+		this.fileName = files[0]['name']
+		this.header = (this.header as unknown as string) === 'true' || this.header === true;
+
+		this.ngxCsvParser.parse(files[0], { header: this.header, delimiter: ',', encoding: 'utf8' })
+			.pipe().subscribe({
+				next: (result): void => {
+					console.log('Result', Object.values(result)[0]);
+					this.csvRecords = Object.values(result);
+					var options = { 
+						fieldSeparator: ',',
+						quoteStrings: '',
+						decimalseparator: '.',
+						showLabels: true,
+						useBom: true,
+						noDownload: false,
+						headers: Object.keys(Object.values(result)[0])
+					};
+					new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
+					this.datasetPath = "C:/Users/Acer/Downloads/" + this.fileName
+					console.log(this.datasetPath)
+					this.dataset = this.datasetPath
+					// this.dataset = "C:/Users/Acer/Downloads/" + this.fileName
+					// new ngxCsv(this.csvRecords, 'C:/Users/Acer/programs/temp')
+				},
+				error: (error: NgxCSVParserError): void => {
+					console.log('Error', error);
+				}
+			});
+	}
 
 	// declaring all the input field variables with help of ngModel
 	dataset: string = ""
@@ -56,7 +97,7 @@ export class HomeComponent {
 		this.operationService.addOperation(operation).subscribe(
 			(response: Operation) => {
 				// console.log(response)
-				
+
 				// on success, navigate to page2
 				this.getOperations()
 			},
@@ -74,13 +115,13 @@ export class HomeComponent {
 			var trainratio = parseFloat(this.inputtrainratio)
 			var testratio = parseFloat(this.inputtestratio)
 			var valratio = parseFloat(this.inputvalratio)
-			
+
 			var datasetString = this.dataset
 			var arr = datasetString.split('.')
-			if (arr[arr.length -1] === 'csv' || arr[arr.length -1] === 'data' || arr[arr.length -1] === 'xlsx') {
+			if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
 
 				if (trainratio + testratio + valratio === 1.0) {
-					// console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)
+					console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)
 					console.log((<HTMLInputElement>document.getElementById('myfile')).files)
 
 					// Create an object of type Operation specified in ../operation.ts to pass it to backend
@@ -106,7 +147,7 @@ export class HomeComponent {
 						(error: HttpErrorResponse) => {
 							console.log(error.message)
 							alert(error.message)
-							
+
 						}
 					)
 
