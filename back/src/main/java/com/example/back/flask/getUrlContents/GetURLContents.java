@@ -1,4 +1,4 @@
-package com.example.back;
+package com.example.back.flask.getUrlContents;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

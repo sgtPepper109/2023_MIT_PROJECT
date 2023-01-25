@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { PropService } from '../prop.service';
 import { OperationService } from '../operation.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FlaskService } from '../flask.service';
 
 
 @Component({
@@ -15,11 +15,12 @@ export class Page2Component implements OnInit {
 	constructor(
 		private propService: PropService, 
 		private operationService: OperationService,
-		private _snackBar: MatSnackBar
+		private _snackBar: MatSnackBar,
+		private flaskService: FlaskService
 	) {
 		// console.log("this.propService.data", this.propService.data)
 		// console.log("Object.values(this.propService.data)", Object.values(this.propService.data))
-		this.operationService.getPlot().subscribe(
+		this.flaskService.getPlot().subscribe(
 			(response) => {
 				this.junction1plot = Object.values(response)[0]
 				this.junction2plot = Object.values(response)[1]
@@ -96,7 +97,7 @@ export class Page2Component implements OnInit {
 			this.propService.obj = {junction: this.inputJunction, months: this.inputMonths}
 
 			this.startedTraining = true;
-			this.operationService.predict(this.inputJunction + '_' + this.inputMonths).subscribe(
+			this.flaskService.predict(this.inputJunction + '_' + this.inputMonths).subscribe(
 				(response) => {
 					// console.log(response)
 					this.startedTraining = false;

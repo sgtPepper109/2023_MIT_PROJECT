@@ -1,4 +1,4 @@
-package com.example.back.predictionDetails;
+package com.example.back.flask.predictionDetails;
 
 public class PredictionDetails {
     private String junction;

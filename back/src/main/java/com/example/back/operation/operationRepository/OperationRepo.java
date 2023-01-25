@@ -1,15 +1,15 @@
-package com.example.back.operationrepo;
+package com.example.back.operation.operationRepository;
 
-import com.example.back.operation.Operation;
+import com.example.back.operation.operationModel.OperationModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
 // The interface is used for holding the operations
-public interface OperationRepo extends JpaRepository<Operation, Long> {
+public interface OperationRepo extends JpaRepository<OperationModel, Long> {
     // Delete operation by id (not recognized in OperationService)
     void deleteOperationById(Long id);
 
     // Find operation by id (not recognized in OperationService)
-    Optional<Operation> findOperationById(Long id);
+    Optional<OperationModel> findOperationById(Long id);
 }

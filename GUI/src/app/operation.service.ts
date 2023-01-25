@@ -21,16 +21,4 @@ export class OperationService {
 		return this.http.post<Operation>(`${this.apiServerUrl}/operation/add`, operation)
 	}
 
-	public getTableData() {
-		return this.http.get(`${this.apiServerUrl}/operation/process`)
-	}
-
-	public getPlot() {
-		return this.http.get(`${this.apiServerUrl}/operation/plot`)
-	}
-
-	public predict(obj: string) {
-		return this.http.get(`${this.apiServerUrl}/operation/predict/${obj}`)
-	}
-
 }

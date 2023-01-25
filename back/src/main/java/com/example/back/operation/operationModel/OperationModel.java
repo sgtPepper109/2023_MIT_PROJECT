@@ -1,10 +1,10 @@
-package com.example.back.operation;
+package com.example.back.operation.operationModel;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity
-public class Operation implements Serializable {
+public class OperationModel implements Serializable {
 
     // This is the stucture of Operation class that will be reflected into the database
     @Id
@@ -21,8 +21,8 @@ public class Operation implements Serializable {
     @Column(nullable = false, updatable = false)
     private Long user_id;
 
-    public Operation() {}
-    public Operation(Long id, String dataset, Float trainratio, Float testratio, Float valratio, Long user_id) {
+    public OperationModel() {}
+    public OperationModel(Long id, String dataset, Float trainratio, Float testratio, Float valratio, Long user_id) {
         this.id = id;
         this.dataset = dataset;
         this.trainratio = trainratio;

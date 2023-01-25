@@ -10,7 +10,6 @@
     - Implemented the solution of ngx-csv-parser and ngx-csv
     - Modified Python code to predict using given dynamic values from front end
     - Added some more validations to the front end
-    - Added screenshots to the document
     ========================================================================
     Pending works (expected):
     - Data must be in date format

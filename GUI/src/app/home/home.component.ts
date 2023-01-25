@@ -7,6 +7,7 @@ import { PropService } from '../prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { ngxCsv } from 'ngx-csv';
+import { FlaskService } from '../flask.service';
 
 
 @Component({
@@ -21,8 +22,9 @@ export class HomeComponent {
 		private operationService: OperationService,
 		private propService: PropService,
 		private _snackBar: MatSnackBar,
-		private ngxCsvParser: NgxCsvParser
-	) { }
+		private ngxCsvParser: NgxCsvParser,
+		private flaskService: FlaskService
+	) {}
 
 	public operations: Operation[] = [];
 
@@ -37,31 +39,39 @@ export class HomeComponent {
 		this.fileName = files[0]['name']
 		this.header = (this.header as unknown as string) === 'true' || this.header === true;
 
-		this.ngxCsvParser.parse(files[0], { header: this.header, delimiter: ',', encoding: 'utf8' })
-			.pipe().subscribe({
-				next: (result): void => {
-					console.log('Result', Object.values(result)[0]);
-					this.csvRecords = Object.values(result);
-					var options = { 
-						fieldSeparator: ',',
-						quoteStrings: '',
-						decimalseparator: '.',
-						showLabels: true,
-						useBom: true,
-						noDownload: false,
-						headers: Object.keys(Object.values(result)[0])
-					};
-					new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
-					this.datasetPath = "C:/Users/Acer/Downloads/" + this.fileName
-					console.log(this.datasetPath)
-					this.dataset = this.datasetPath
-					// this.dataset = "C:/Users/Acer/Downloads/" + this.fileName
-					// new ngxCsv(this.csvRecords, 'C:/Users/Acer/programs/temp')
-				},
-				error: (error: NgxCSVParserError): void => {
-					console.log('Error', error);
-				}
-			});
+		var arr = this.fileName.split('.')
+			if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
+
+			this.ngxCsvParser.parse(files[0], { header: this.header, delimiter: ',', encoding: 'utf8' })
+				.pipe().subscribe({
+					next: (result): void => {
+						console.log('Result', Object.values(result)[0]);
+						this.csvRecords = Object.values(result);
+						var options = { 
+							fieldSeparator: ',',
+							quoteStrings: '',
+							decimalseparator: '.',
+							showLabels: true,
+							useBom: true,
+							noDownload: false,
+							headers: Object.keys(Object.values(result)[0])
+						};
+						new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
+						this.datasetPath = "C:/Users/Acer ads/" + this.fileName
+						console.log(this.datasetPath)
+						this.dataset = this.datasetPath
+						// this.dataset = "C:/Users/Acer/Downloads/" + this.fileName
+						// new ngxCsv(this.csvRecords, 'C:/Users/Acer/programs/temp')
+					},
+					error: (error: NgxCSVParserError): void => {
+						console.log('Error', error);
+					}
+				});
+			} else {
+				this.errorstring = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
+				this.toggleErrorString = true
+				this._snackBar.open("Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file", 'x') 
+			}
 	}
 
 	// declaring all the input field variables with help of ngModel
@@ -134,7 +144,7 @@ export class HomeComponent {
 					}
 
 					this.addOperation(operation)
-					this.operationService.getTableData().subscribe(
+					this.flaskService.getTableData().subscribe(
 						(response) => {
 							// console.log(typeof response, response)
 
