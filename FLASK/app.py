@@ -84,41 +84,44 @@ for file in os.listdir(guiAssetsFolder):
     os.remove(os.path.join(guiAssetsFolder, file))
 
 
+arr = []
+df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
+tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
+tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+# extract month from date
+tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+# extract day from date
+tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+# extract hour from date
+tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+tempdf.drop('ID', axis=1, inplace=True)
+
+year = np.array(tempdf['Year'])
+month = np.array(tempdf['Month'])
+day = np.array(tempdf['Day'])
+hour = np.array(tempdf['Hour'])
+
+df['Year'] = year
+df['Month'] = month
+df['Day'] = day
+df['Hour'] = hour
+
+head = df.head()
+data2 = head.to_dict()
+anycol = ""
+for i in data2:
+    anycol = i
+    break
+for i in range(len(data2[anycol])):
+    field = {}
+    for j in data2:
+        field[j] = data2[j][i]
+    arr.append(field)
+
+
 @app.route("/data")
 def hello():
-    arr = []
-    df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
-    tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # extract month from date
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # extract day from date
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # extract hour from date
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    tempdf.drop('ID', axis=1, inplace=True)
-
-    year = np.array(tempdf['Year'])
-    month = np.array(tempdf['Month'])
-    day = np.array(tempdf['Day'])
-    hour = np.array(tempdf['Hour'])
-
-    df['Year'] = year
-    df['Month'] = month
-    df['Day'] = day
-    df['Hour'] = hour
-
-    head = df.head()
-    data2 = head.to_dict()
-    anycol = ""
-    for i in data2:
-        anycol = i
-        break
-    for i in range(len(data2[anycol])):
-        field = {}
-        for j in data2:
-            field[j] = data2[j][i]
-        arr.append(field)
+    
     # print(df)
     return make_response(arr)
 
@@ -146,26 +149,29 @@ def plot():
     # ax.set_title('Plot show the distribution of data in junction 2')
     # ax.grid(True, ls='-.', alpha=0.75)
     # plt.savefig('C:/Users/Acer/2023MitProject/GUI/src/assets/histogram1.png')
-    df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
-    tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # extract month from date
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # extract day from date
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # extract hour from date
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    tempdf.drop('ID', axis=1, inplace=True)
+    # df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
+    # tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
+    # tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+    # # extract month from date
+    # tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+    # # extract day from date
+    # tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+    # # extract hour from date
+    # tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+    # tempdf.drop('ID', axis=1, inplace=True)
 
-    year = np.array(tempdf['Year'])
-    month = np.array(tempdf['Month'])
-    day = np.array(tempdf['Day'])
-    hour = np.array(tempdf['Hour'])
+    # year = np.array(tempdf['Year'])
+    # month = np.array(tempdf['Month'])
+    # day = np.array(tempdf['Day'])
+    # hour = np.array(tempdf['Hour'])
 
-    df['Year'] = year
-    df['Month'] = month
-    df['Day'] = day
-    df['Hour'] = hour
+    # df['Year'] = year
+    # df['Month'] = month
+    # df['Day'] = day
+    # df['Hour'] = hour
+    global df
+    global tempdf
+    
     savedFigFor1 = histogram(df, 1)
     savedFigFor2 = histogram(df, 2)
     savedFigFor3 = histogram(df, 3)
@@ -206,26 +212,28 @@ def make_time_series_plot3(new_data, junction):
 
 @app.route('/predict/<junction>/<months>')
 def predict(junction=None, months=None):
-    df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
-    tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # extract month from date
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # extract day from date
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # extract hour from date
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    tempdf.drop('ID', axis=1, inplace=True)
+    # df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
+    # tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
+    # tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+    # # extract month from date
+    # tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+    # # extract day from date
+    # tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+    # # extract hour from date
+    # tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+    # tempdf.drop('ID', axis=1, inplace=True)
 
-    year = np.array(tempdf['Year'])
-    month = np.array(tempdf['Month'])
-    day = np.array(tempdf['Day'])
-    hour = np.array(tempdf['Hour'])
+    # year = np.array(tempdf['Year'])
+    # month = np.array(tempdf['Month'])
+    # day = np.array(tempdf['Day'])
+    # hour = np.array(tempdf['Hour'])
 
-    df['Year'] = year
-    df['Month'] = month
-    df['Day'] = day
-    df['Hour'] = hour
+    # df['Year'] = year
+    # df['Month'] = month
+    # df['Day'] = day
+    # df['Hour'] = hour
+    global df
+    global tempdf
     junction = int(junction)
     months = int(months)
     print('\n', junction, '\n')

@@ -8,8 +8,8 @@ import { HomeComponent } from './home/home.component';
 import { FormsModule } from '@angular/forms';
 import { SignupComponent } from './signup/signup.component';
 import { HttpClientModule } from '@angular/common/http';
-import { OperationService } from './operation.service';
-import { PropService } from './prop.service';
+import { OperationService } from './services/operationService/operation.service';
+import { PropService } from './services/propService/prop.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material/table'
 import { MatCardModule } from '@angular/material/card';

@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Operation } from '../operation';
-import { OperationService } from '../operation.service';
-import { PropService } from '../prop.service';
+import { Operation } from '../services/operationService/operation'
+import { OperationService } from '../services/operationService/operation.service';
+import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { ngxCsv } from 'ngx-csv';
-import { FlaskService } from '../flask.service';
+import { FlaskService } from '../services/flaskService/flask.service';
 
 
 @Component({

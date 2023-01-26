@@ -109,8 +109,8 @@
         <h2>PREDICTION</h2>
         <div class="row">
             <select class="col form-select" aria-label="Default select example" style="height: 60px;"
-                [(ngModel)]="inputJunction">
-                <option selected>Choose Junction</option>
+                [(ngModel)]="inputJunction" (change)="disablePredictionImage()">
+                <option selected value="Choose Junction">Choose Junction</option>
                 <option value=1>1</option>
                 <option value=2>2</option>
                 <option value=3>3</option>

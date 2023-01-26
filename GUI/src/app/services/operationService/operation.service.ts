@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Operation } from './operation';
-import { PropService } from './prop.service';
+import { PropService } from '../propService/prop.service';
 
 @Injectable({
 	providedIn: 'root'

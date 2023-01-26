@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { PropService } from '../prop.service';
-import { OperationService } from '../operation.service';
+import { PropService } from '../services/propService/prop.service';
+import { OperationService } from '../services/operationService/operation.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FlaskService } from '../flask.service';
+import { FlaskService } from '../services/flaskService/flask.service';
 
 
 @Component({
@@ -92,14 +92,18 @@ export class Page2Component implements OnInit {
 		this.plotReadyFor4 = true
 	}
 
+	disablePredictionImage() {
+		this.predictionImageReady = false
+	}
+
 	start() {
 		if (this.inputJunction !== "Choose Junction" && this.inputMonths !== "") {
 			this.propService.obj = {junction: this.inputJunction, months: this.inputMonths}
-
+			console.log(this.inputJunction)
 			this.startedTraining = true;
 			this.flaskService.predict(this.inputJunction + '_' + this.inputMonths).subscribe(
 				(response) => {
-					// console.log(response)
+					console.log(response)
 					this.startedTraining = false;
 					this.predictionImageReady = true
 				},
