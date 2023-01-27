@@ -1,5 +1,9 @@
-from flask import Flask, make_response
+import requests
+from flask import Flask, make_response, jsonify
 from flask_cors import CORS
+import simplejson
+import json
+import config
 
 import os
 import numpy as np
@@ -79,55 +83,95 @@ class Model:
         return f'<({self.name}: [R² Score: {self.r2}], [RMSE: {self.rmse}])>'
 
 
-guiAssetsFolder = 'C:/Users/Acer/2023MitProject/GUI/src/assets/'
+guiAssetsFolder = config.guiAssets
 for file in os.listdir(guiAssetsFolder):
     os.remove(os.path.join(guiAssetsFolder, file))
 
 
-arr = []
-df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
-tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
-tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-# extract month from date
-tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-# extract day from date
-tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-# extract hour from date
-tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-tempdf.drop('ID', axis=1, inplace=True)
-
-year = np.array(tempdf['Year'])
-month = np.array(tempdf['Month'])
-day = np.array(tempdf['Day'])
-hour = np.array(tempdf['Hour'])
-
-df['Year'] = year
-df['Month'] = month
-df['Day'] = day
-df['Hour'] = hour
-
-head = df.head()
-data2 = head.to_dict()
-anycol = ""
-for i in data2:
-    anycol = i
-    break
-for i in range(len(data2[anycol])):
-    field = {}
-    for j in data2:
-        field[j] = data2[j][i]
-    arr.append(field)
+trainRatio = 0
+testRatio = 0
+valRatio = 0
+dataset = ""
+df = pd.DataFrame()
+tempdf = pd.DataFrame()
 
 
-@app.route("/data")
-def hello():
+@app.route("/setData")
+def setData():
+    global df
+    global tempdf
+    if df.empty and tempdf.empty:
+        url = config.springUrl + '/operation/findLast'
+    
+        try:
+            uResponse = requests.get(url)
+        except:
+            return "Connection Error"
+        JResponse = uResponse.text
+        operationData = json.loads(JResponse)
+        # print(operationData)
+        
+        global dataset
+        global trainRatio
+        global testRatio
+        global valRatio
+        # print(operationData)
+        dataset = operationData["dataset"]
+        trainRatio = float(operationData['trainratio'])
+        testRatio = float(operationData['testratio'])
+        valRatio = float(operationData['valratio'])
+        # print(type(operationData['testratio']), type(trainRatio), type(valRatio))
+        # print(trainRatio, testRatio, valRatio)
+        df = pd.read_csv(dataset)
+        tempdf = pd.read_csv(dataset, parse_dates=True, index_col='DateTime')
+        tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+        # extract month from date
+        tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+        # extract day from date
+        tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+        # extract hour from date
+        tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+        tempdf.drop('ID', axis=1, inplace=True)
+        # print("df: ", df)
+        # print("tempdf: ", tempdf)
+        return(operationData)
+    else:
+        return {}
+
+
+@app.route("/getTableData")
+def getTableData():
     
     # print(df)
+    arr = []
+
+    df2 = df
+    year = np.array(tempdf['Year'])
+    month = np.array(tempdf['Month'])
+    day = np.array(tempdf['Day'])
+    hour = np.array(tempdf['Hour'])
+
+    df2['Year'] = year
+    df2['Month'] = month
+    df2['Day'] = day
+    df2['Hour'] = hour
+
+    head = df2.head()
+    data2 = head.to_dict()
+    anycol = ""
+    for i in data2:
+        anycol = i
+        break
+    for i in range(len(data2[anycol])):
+        field = {}
+        for j in data2:
+            field[j] = data2[j][i]
+        arr.append(field)
     return make_response(arr)
 
 
-def histogram(df, junction):
-    temp = df[df['Junction'] == junction]
+def histogram(dataframe, junction):
+    temp = dataframe[dataframe['Junction'] == junction]
     f, ax = plt.subplots(figsize=(17, 5))
     ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
     ax.set_title(f'Plot show the distribution of data in junction {junction}')
@@ -139,36 +183,6 @@ def histogram(df, junction):
 
 @app.route("/plot")
 def plot():
-
-    # print('\n', df.head(2), '\n')
-    # print(junction, '\n')
-
-    # temp = df[df['Junction'] == 2]
-    # f, ax = plt.subplots(figsize=(17, 5))
-    # ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
-    # ax.set_title('Plot show the distribution of data in junction 2')
-    # ax.grid(True, ls='-.', alpha=0.75)
-    # plt.savefig('C:/Users/Acer/2023MitProject/GUI/src/assets/histogram1.png')
-    # df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
-    # tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
-    # tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # # extract month from date
-    # tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # # extract day from date
-    # tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # # extract hour from date
-    # tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    # tempdf.drop('ID', axis=1, inplace=True)
-
-    # year = np.array(tempdf['Year'])
-    # month = np.array(tempdf['Month'])
-    # day = np.array(tempdf['Day'])
-    # hour = np.array(tempdf['Hour'])
-
-    # df['Year'] = year
-    # df['Month'] = month
-    # df['Day'] = day
-    # df['Hour'] = hour
     global df
     global tempdf
     
@@ -212,62 +226,44 @@ def make_time_series_plot3(new_data, junction):
 
 @app.route('/predict/<junction>/<months>')
 def predict(junction=None, months=None):
-    # df = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv')
-    # tempdf = pd.read_csv('C:/Users/Acer/Downloads/traffic.csv', parse_dates=True, index_col='DateTime')
-    # tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # # extract month from date
-    # tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # # extract day from date
-    # tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # # extract hour from date
-    # tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    # tempdf.drop('ID', axis=1, inplace=True)
-
-    # year = np.array(tempdf['Year'])
-    # month = np.array(tempdf['Month'])
-    # day = np.array(tempdf['Day'])
-    # hour = np.array(tempdf['Hour'])
-
-    # df['Year'] = year
-    # df['Month'] = month
-    # df['Day'] = day
-    # df['Hour'] = hour
     global df
     global tempdf
     junction = int(junction)
     months = int(months)
     print('\n', junction, '\n')
     standardization = lambda x: StandardScaler().fit_transform(x)
-    z_df = tempdf.copy()
-    z_df['Vehicles'] = standardization(z_df.Vehicles.values.reshape(-1, 1))
-    z_df.head()
-    data = get_list_data(tempdf)
-    z_data = get_list_data(z_df)
+    # z_df = tempdf.copy()
+    # z_df['Vehicles'] = standardization(z_df.Vehicles.values.reshape(-1, 1))
+    # z_df.head()
+    # data = get_list_data(tempdf)
+    # z_data = get_list_data(z_df)
 
-    models = [None]
-    for i in range(1, 5):
-        models += [
-            Model(
-                ml_model=RandomForestRegressor(),
-                name=f'Dataset of junction {i}',
-                data=data[i],
-                predict_features='Vehicles',
-                test_size=1/4
-            )
-        ]
+    # models = [None]
+    # for i in range(1, 5):
+    #     models += [
+    #         Model(
+    #             ml_model=RandomForestRegressor(),
+    #             name=f'Dataset of junction {i}',
+    #             data=data[i],
+    #             predict_features='Vehicles',
+    #             test_size=1/4
+    #         )
+    #     ]
     
-    z_models = [None]
-    for i in range(1, 5):
-        z_models += [
-            Model(
-                ml_model=RandomForestRegressor(),
-                name=f'Dataset of junction {i}',
-                data=z_data[i],
-                predict_features='Vehicles',
-                test_size=1/4
-            )
-        ]
+    # z_models = [None]
+    # for i in range(1, 5):
+    #     z_models += [
+    #         Model(
+    #             ml_model=RandomForestRegressor(),
+    #             name=f'Dataset of junction {i}',
+    #             data=z_data[i],
+    #             predict_features='Vehicles',
+    #             test_size=1/4
+    #         )
+    #     ]
     
+    global testRatio
+    print("testRatio: ", testRatio)
     lag_df = tempdf.copy()
     for i in range(1, 3):
         lag_df[f'Vehicles_lag_{i}'] = tempdf.Vehicles.shift(i)
@@ -278,6 +274,7 @@ def predict(junction=None, months=None):
     lag_data = get_list_data(lag_df, drop=['Year'])
 
     lag_models = [None]
+    print("testRatio in predict: ", testRatio)
     for i in range(1, 5):
         lag_models += [
             Model(
@@ -285,7 +282,7 @@ def predict(junction=None, months=None):
                 name=f'Dataset of junction {i} with lag data',
                 data=lag_data[i],
                 predict_features='Vehicles',
-                test_size=1/3
+                test_size=testRatio
             )
         ]
 

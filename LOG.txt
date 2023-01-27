@@ -1,4 +1,4 @@
-1)24-Jan-2023 (Tuesday)
+1) 24-Jan-2023 (Tuesday)
     - Extensively explored on how to send file from Angular to python
     - Discarded the idea of php as it is not possible
     - Came up with two more solution

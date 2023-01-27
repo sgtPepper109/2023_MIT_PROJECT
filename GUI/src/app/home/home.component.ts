@@ -144,22 +144,39 @@ export class HomeComponent {
 					}
 
 					this.addOperation(operation)
-					this.flaskService.getTableData().subscribe(
+
+					this.flaskService.setData().subscribe(
 						(response) => {
-							// console.log(typeof response, response)
+							console.log('setData', response)
 
-							// this is a service file shared with page2 component
-							this.propService.data = response
+							this.flaskService.getTableData().subscribe(
+								(response) => {
+									console.log('getTableData', this.propService.data)
+									console.log('response: ', response)
+									console.log('this.propservice.data: ', this.propService.data)
+		
+									// this is a service file shared with page2 component
+									// this.propService.data = {}
+									this.propService.data = response
+		
+									// navigate to page2
+									this.router.navigate(['/page2'])
+								},
+								(error: HttpErrorResponse) => {
+									console.log(error.message)
+									alert(error.message)
+		
+								}
+							)
 
-							// navigate to page2
-							this.router.navigate(['/page2'])
 						},
 						(error: HttpErrorResponse) => {
-							console.log(error.message)
+							console.log('setDataError', error.message)
 							alert(error.message)
-
 						}
 					)
+
+					
 
 				} else {
 					this.errorstring = "Note: The ratios don't add up to 1"

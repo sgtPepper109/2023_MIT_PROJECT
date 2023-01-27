@@ -21,7 +21,7 @@ public class FlaskController {
     public String getData() throws JsonProcessingException {
         System.out.println("localhost:8080/process/readData");
         GetURLContents getURLContents = new GetURLContents();
-        return getURLContents.getData(flaskUrl + "/data");
+        return getURLContents.getData(flaskUrl + "/getTableData");
     }
 
     @GetMapping("/getPlot")
@@ -39,6 +39,13 @@ public class FlaskController {
         String junction = arr[0], months = arr[1];
         String path = flaskUrl + "/predict/" + junction + '/' + months;
         return getURLContents.getData(path);
+    }
+
+    @GetMapping("/setData")
+    public String setData() throws JsonProcessingException {
+        System.out.println("localhost:8080/process/setData");
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/setData");
     }
 
 }

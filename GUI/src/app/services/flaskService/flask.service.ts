@@ -23,4 +23,8 @@ export class FlaskService {
 	public predict(obj: string) {
 		return this.http.get(`${this.apiServerUrl}/process/getPredicted/${obj}`)
 	}
+
+	public setData() {
+		return this.http.get(`${this.apiServerUrl}/process/setData`)
+	}
 }
