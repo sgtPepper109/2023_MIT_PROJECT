@@ -57,7 +57,7 @@ export class HomeComponent {
 							headers: Object.keys(Object.values(result)[0])
 						};
 						new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
-						this.datasetPath = "C:/Users/Acer ads/" + this.fileName
+						this.datasetPath = "C:/Users/Acer/Downloads/" + this.fileName
 						console.log(this.datasetPath)
 						this.dataset = this.datasetPath
 						// this.dataset = "C:/Users/Acer/Downloads/" + this.fileName

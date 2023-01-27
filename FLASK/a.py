@@ -6,7 +6,7 @@ cors = CORS(app)
 
 @app.route('/')
 def get_data():
-    return requests.get('http://localhost:8080/operation/all').content
+    return requests.get('http://localhost:8080/operation/findLast').content
 
 if __name__ == "__main__":
     app.run()

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OperationService {
@@ -44,5 +45,10 @@ public class OperationService {
     // Delete an operation that has mentioned id
     public void deleteOperation(Long id) {
         operationRepo.deleteOperationById(id);
+    }
+
+    public OperationModel findLastOperation() {
+        List<OperationModel> operationModels = operationRepo.findAll();
+        return operationModels.get(operationModels.size() -1);
     }
 }
