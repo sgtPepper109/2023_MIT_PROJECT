@@ -1,8 +1,7 @@
-package com.example.back.operation.operationResource;
+package com.example.back.operation.operationController;
 
 import com.example.back.operation.operationModel.OperationModel;
 import com.example.back.operation.operationService.OperationService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +10,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/operation")
-public class OperationResource {
+public class OperationController {
     private final OperationService operationService;
 
     // query data with help of operationService class
-    public OperationResource(OperationService operationService) {
+    public OperationController(OperationService operationService) {
         this.operationService = operationService;
     }
 

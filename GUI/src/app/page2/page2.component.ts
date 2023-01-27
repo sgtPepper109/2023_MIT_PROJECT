@@ -42,23 +42,32 @@ export class Page2Component implements OnInit {
 	// for displaying if validations are not correct
 	toggleErrorString = false;
 
+    // for loading symbol when training starts
 	startedTraining = false;
 
+    // input variables for junction and months
 	inputJunction = "Choose Junction"
 	inputMonths = ""
+
+    // object to be passed to the back-end that comprises of junction and months
 	obj = {}
+
 
 	junction1plot: any
 	junction2plot: any
 	junction3plot: any
 	junction4plot: any
 
+    // boolean switches for showing plots
+    // if plotReadyFor1 is true then only plot for junction 1 shows
 	plotReadyFor1 = false
 	plotReadyFor2 = false
 	plotReadyFor3 = false
 	plotReadyFor4 = false
+
 	str = ""
 
+    // to show the prediction image when training ends 
 	predictionImageReady = false
 
 	ngOnInit() {}
@@ -92,18 +101,27 @@ export class Page2Component implements OnInit {
 		this.plotReadyFor4 = true
 	}
 
+    // if new input is given then this function fires to switch off the predicted image 
 	disablePredictionImage() {
 		this.predictionImageReady = false
 	}
 
+    // on click predict button
 	start() {
+
+        // check whether the fields have no value
 		if (this.inputJunction !== "Choose Junction" && this.inputMonths !== "") {
+
+            // set the object to be sent to back-end
 			this.propService.obj = {junction: this.inputJunction, months: this.inputMonths}
-			console.log(this.inputJunction)
+			//console.log(this.inputJunction)
+
 			this.startedTraining = true;
 			this.flaskService.predict(this.inputJunction + '_' + this.inputMonths).subscribe(
 				(response) => {
 					console.log(response)
+
+                    // if prediction image is ready then turn off loading message
 					this.startedTraining = false;
 					this.predictionImageReady = true
 				},

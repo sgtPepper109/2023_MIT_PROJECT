@@ -1,4 +1,4 @@
-package com.example.back.flask.flaskService;
+package com.example.back.flask.flaskController;
 
 import com.example.back.flask.getUrlContents.GetURLContents;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,12 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 @RestController
 @RequestMapping("/process")
-public class FlaskService {
+public class FlaskController {
 
-    public FlaskService() {}
+    public FlaskController() {}
 
     @GetMapping("/readData")
     public String getData() throws JsonProcessingException {
