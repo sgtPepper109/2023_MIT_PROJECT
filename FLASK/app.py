@@ -156,7 +156,7 @@ def getTableData():
     df2['Day'] = day
     df2['Hour'] = hour
 
-    head = df2.head()
+    head = df2
     data2 = head.to_dict()
     anycol = ""
     for i in data2:
@@ -181,6 +181,16 @@ def histogram(dataframe, junction):
     return path
 
 
+def createDict(junction):
+    global df
+    data = df[df.Junction == junction]
+    vehicles = list(data.Vehicles)
+    datetime = list(data.DateTime)
+    dictionary = dict()
+    dictionary['vehicles'] = vehicles
+    dictionary['datetime'] = datetime
+    return dictionary
+
 @app.route("/plot")
 def plot():
     global df
@@ -190,14 +200,18 @@ def plot():
     savedFigFor2 = histogram(df, 2)
     savedFigFor3 = histogram(df, 3)
     savedFigFor4 = histogram(df, 4)
-    result = {
-        "junction1plot": savedFigFor1,
-        "junction2plot": savedFigFor2,
-        "junction3plot": savedFigFor3,
-        "junction4plot": savedFigFor4,
-    }
+
+    response = []
+    for i in range(1, 5):
+        response.append(createDict(i))
+    # result = {
+    #     "junction1plot": savedFigFor1,
+    #     "junction2plot": savedFigFor2,
+    #     "junction3plot": savedFigFor3,
+    #     "junction4plot": savedFigFor4,
+    # }
     # print(result)
-    return make_response(result)
+    return make_response(response)
 
 
 def get_list_data(dataf, drop=[]):

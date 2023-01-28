@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { PropService } from '../services/propService/prop.service';
 import { OperationService } from '../services/operationService/operation.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FlaskService } from '../services/flaskService/flask.service';
+import { MatPaginator } from '@angular/material/paginator';
+import { Chart } from 'chart.js/auto';
+import { getRelativePosition } from 'chart.js/helpers'
 
 
 @Component({
@@ -18,14 +21,14 @@ export class Page2Component implements OnInit {
 		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService
 	) {
-		// console.log("this.propService.data", this.propService.data)
+		console.log("this.propService.data", Object.values(this.propService.data).slice(1, 3))
+		this.displayedColumns = ['DateTime', 'Junction', 'Vehicles', 'ID', 'Year', 'Month', 'Day', 'Hour'];
+		this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
+		// console.log(Object.values(this.propService.data).length)
 		// console.log("Object.values(this.propService.data)", Object.values(this.propService.data))
 		this.flaskService.getPlot().subscribe(
 			(response) => {
-				this.junction1plot = Object.values(response)[0]
-				this.junction2plot = Object.values(response)[1]
-				this.junction3plot = Object.values(response)[2]
-				this.junction4plot = Object.values(response)[3]
+				console.log(Object.values(response)[0]['datetime'])
 				// console.log(this.junction1plot, this.junction2plot, this.junction3plot, this.junction4plot)
 			},
 			(error: HttpErrorResponse) => {
@@ -34,6 +37,7 @@ export class Page2Component implements OnInit {
 				
 			}
 		)
+		if (this.index !== 0) { this.classForPreviousButton = "page-item" }
 	}
 
 	// error message to be displayed on the screen
@@ -67,10 +71,37 @@ export class Page2Component implements OnInit {
 
 	str = ""
 
+	index = 0
+	previousDisabled = true
+	classForPreviousButton = "page-item disabled"
+	classForNextButton = "page-item"
+	displayedColumns: string[] = []
+	dataSource: any
+
     // to show the prediction image when training ends 
 	predictionImageReady = false
+	myChart: any
 
-	ngOnInit() {}
+	ngOnInit() {
+		this.myChart = new Chart("myChart", {
+			type: 'bar',
+			data: {
+			  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+			  datasets: [{
+				label: '# of Votes',
+				data: [12, 19, 3, 5, 2, 3],
+				borderWidth: 1
+			  }]
+			},
+			options: {
+			  scales: {
+				y: {
+				  beginAtZero: true
+				}
+			  }
+			}
+		  });
+	}
 
 	show1() {
 		this.str = "1"
@@ -99,6 +130,34 @@ export class Page2Component implements OnInit {
 		this.plotReadyFor2 = false
 		this.plotReadyFor3 = false
 		this.plotReadyFor4 = true
+	}
+
+	next() {
+		console.log('next')
+		if (this.classForNextButton !== "page-item disabled") {
+			this.index = this.index + 5
+			this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
+			if (this.index === Object.values(this.propService.data).length - 5) {
+				this.classForNextButton = "page-item disabled"
+			}
+		}
+
+		if (this.index >= 5) {
+			this.classForPreviousButton = "page-item"
+		}
+	}
+
+	previous() {
+		console.log('prev')
+		if(this.classForPreviousButton !== "page-item disabled") {
+			this.index = this.index - 5
+			this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
+			if (this.index === 0) {
+				this.classForPreviousButton = "page-item disabled"
+			} else {
+				this.classForPreviousButton = "page-item"
+			}
+		}
 	}
 
     // if new input is given then this function fires to switch off the predicted image 
@@ -136,7 +195,4 @@ export class Page2Component implements OnInit {
 			this._snackBar.open("Note: All fields are required", '\u2716')
 		}
 	}
-
-	displayedColumns: string[] = ['DateTime', 'Junction', 'Vehicles', 'ID', 'Year', 'Month', 'Day', 'Hour'];
-	dataSource = Object.values(this.propService.data)
 }

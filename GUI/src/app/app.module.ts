@@ -18,13 +18,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { NgxCsvParserModule } from 'ngx-csv-parser';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
     AppComponent,
     Page2Component,
     HomeComponent,
-    SignupComponent
+    SignupComponent,
+    // Chart
   ],
   imports: [
     BrowserModule,
@@ -38,7 +40,8 @@ import { NgxCsvParserModule } from 'ngx-csv-parser';
     MatIconModule,
     MatButtonToggleModule,
     MatInputModule,
-    NgxCsvParserModule
+    NgxCsvParserModule,
+    MatPaginatorModule
   ],
   providers: [OperationService, PropService],
   bootstrap: [AppComponent]

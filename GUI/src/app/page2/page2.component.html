@@ -57,6 +57,17 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
+                <br />
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        <li [ngClass]="classForPreviousButton" (click)="previous()" style="cursor: pointer;">
+                            <a class="page-link">{{'\u21E6'}}</a>
+                        </li>
+                        <li [ngClass]="classForNextButton" (click)="next()" style="cursor: pointer;">
+                            <a class="page-link">{{'\u21E8'}}</a>
+                        </li>
+                    </ul>
+                </nav>
             </mat-card-content>
         </mat-card>
         <br />
@@ -73,10 +84,14 @@
                 </mat-button-toggle-group> -->
                 <nav aria-label="Page navigation example">
                     <ul class="pagination" style="margin-left: 425px;">
-                        <li class="page-item" (click)="show1()" style="cursor: pointer;"><a class="page-link">Junction 1</a></li>
-                        <li class="page-item" (click)="show2()" style="cursor: pointer;"><a class="page-link">Junction 2</a></li>
-                        <li class="page-item" (click)="show3()" style="cursor: pointer;"><a class="page-link">Junction 3</a></li>
-                        <li class="page-item" (click)="show4()" style="cursor: pointer;"><a class="page-link">Junction 4</a></li>
+                        <li class="page-item" (click)="show1()" style="cursor: pointer;"><a class="page-link">Junction
+                                1</a></li>
+                        <li class="page-item" (click)="show2()" style="cursor: pointer;"><a class="page-link">Junction
+                                2</a></li>
+                        <li class="page-item" (click)="show3()" style="cursor: pointer;"><a class="page-link">Junction
+                                3</a></li>
+                        <li class="page-item" (click)="show4()" style="cursor: pointer;"><a class="page-link">Junction
+                                4</a></li>
                     </ul>
                 </nav>
                 <div *ngIf="plotReadyFor1">
@@ -132,7 +147,7 @@
 
             <div *ngIf="startedTraining" class="d-flex align-items-center">
                 Loading...
-                <div  style="margin-left: 10px;" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
+                <div style="margin-left: 10px;" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
             </div>
             <img *ngIf="predictionImageReady" style="width: 1300px;" src="assets/predicted{{inputJunction}}.png" />
 
@@ -140,5 +155,11 @@
                 {{ errorstring }}
             </div>
         </div>
+        <a>hello</a>
+        <div style="width: 600px; height: 600px;">
+            <canvas id="myChart"></canvas>
+        </div>
+        <a>hello</a>
+        <!-- <button (click)="show()">click me</button> -->
     </section>
 </div>

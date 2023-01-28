@@ -9,7 +9,6 @@ import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { ngxCsv } from 'ngx-csv';
 import { FlaskService } from '../services/flaskService/flask.service';
 
-
 @Component({
 	selector: 'app-home',
 	templateUrl: './home.component.html',
@@ -45,7 +44,7 @@ export class HomeComponent {
 			this.ngxCsvParser.parse(files[0], { header: this.header, delimiter: ',', encoding: 'utf8' })
 				.pipe().subscribe({
 					next: (result): void => {
-						console.log('Result', Object.values(result)[0]);
+						// console.log('Result', Object.values(result)[0]);
 						this.csvRecords = Object.values(result);
 						var options = { 
 							fieldSeparator: ',',
@@ -58,7 +57,7 @@ export class HomeComponent {
 						};
 						new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
 						this.datasetPath = "C:/Users/Acer/Downloads/" + this.fileName
-						console.log(this.datasetPath)
+						// console.log(this.datasetPath)
 						this.dataset = this.datasetPath
 						// this.dataset = "C:/Users/Acer/Downloads/" + this.fileName
 						// new ngxCsv(this.csvRecords, 'C:/Users/Acer/programs/temp')
@@ -131,8 +130,8 @@ export class HomeComponent {
 			if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
 
 				if (trainratio + testratio + valratio === 1.0) {
-					console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)
-					console.log((<HTMLInputElement>document.getElementById('myfile')).files)
+					// console.log(this.dataset, ' ', this.inputtrainratio, this.inputtestratio, this.inputvalratio)
+					// console.log((<HTMLInputElement>document.getElementById('myfile')).files)
 
 					// Create an object of type Operation specified in ../operation.ts to pass it to backend
 					let operation: Operation = {
@@ -147,13 +146,13 @@ export class HomeComponent {
 
 					this.flaskService.setData().subscribe(
 						(response) => {
-							console.log('setData', response)
+							// console.log('setData', response)
 
 							this.flaskService.getTableData().subscribe(
 								(response) => {
-									console.log('getTableData', this.propService.data)
-									console.log('response: ', response)
-									console.log('this.propservice.data: ', this.propService.data)
+									// console.log('getTableData', this.propService.data)
+									// console.log('response: ', response)
+									// console.log('this.propservice.data: ', this.propService.data)
 		
 									// this is a service file shared with page2 component
 									// this.propService.data = {}
@@ -194,4 +193,9 @@ export class HomeComponent {
 			this._snackBar.open("Note: All fields are required", '\u2716')
 		}
 	}
+
+
+	
+
+
 }
