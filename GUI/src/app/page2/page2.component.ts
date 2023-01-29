@@ -28,7 +28,11 @@ export class Page2Component implements OnInit {
 		// console.log("Object.values(this.propService.data)", Object.values(this.propService.data))
 		this.flaskService.getPlot().subscribe(
 			(response) => {
-				console.log(Object.values(response)[0]['datetime'])
+				// console.log(Object.values(response)[0]['datetime'])
+				// console.log(Object.values(response)[0]['vehicles'])
+				this.datetime = Object.values(response)[0]['datetime']
+				this.vehicles = Object.values(response)[0]['vehicles']
+				this.LineChart(this.datetime, this.vehicles)
 				// console.log(this.junction1plot, this.junction2plot, this.junction3plot, this.junction4plot)
 			},
 			(error: HttpErrorResponse) => {
@@ -39,6 +43,9 @@ export class Page2Component implements OnInit {
 		)
 		if (this.index !== 0) { this.classForPreviousButton = "page-item" }
 	}
+
+	vehicles = []
+	datetime = []
 
 	// error message to be displayed on the screen
 	errorstring: string = ""
@@ -82,14 +89,16 @@ export class Page2Component implements OnInit {
 	predictionImageReady = false
 	myChart: any
 
-	ngOnInit() {
+	LineChart(x: any, y: any) {
+		// console.log("this.vehicles", this.vehicles)
+		// console.log("this.datetime", this.datetime)
 		this.myChart = new Chart("myChart", {
-			type: 'bar',
+			type: 'line',
 			data: {
-			  labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+			  labels: x,
 			  datasets: [{
 				label: '# of Votes',
-				data: [12, 19, 3, 5, 2, 3],
+				data: y,
 				borderWidth: 1
 			  }]
 			},
@@ -102,6 +111,8 @@ export class Page2Component implements OnInit {
 			}
 		  });
 	}
+	
+	ngOnInit(): void {}
 
 	show1() {
 		this.str = "1"
