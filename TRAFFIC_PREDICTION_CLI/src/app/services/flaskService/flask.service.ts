@@ -27,4 +27,16 @@ export class FlaskService {
 	public setData() {
 		return this.http.get(`${this.apiServerUrl}/process/setData`)
 	}
+
+	public sendCsvData(csvData: object) {
+		return this.http.post(`${this.apiServerUrl}/process/setCsvData`, csvData)
+	}
+
+	public getResultTable() {
+		return this.http.get(`${this.apiServerUrl}/process/getResultTable`)
+	}
+
+	public getAccuracy() {
+		return this.http.get(`${this.apiServerUrl}/process/getAccuracy`)
+	}
 }

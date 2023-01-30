@@ -22,3 +22,31 @@
     - Encryption
     - Help page
     - About page
+
+2) 27-Jan-2023 (Friday)
+    - Get data from spring mysql jpa to python
+    - Removed all hardcoded parts and used dynamic values
+    - Made use of config files in angular, spring and python
+    - Explored chart js
+    =========================================================================
+    Pending works (expected):
+    - complete prediction part
+    - Refine the project folder
+    - enhance documentation
+    - Installation steps
+
+3) 28-Jan-2023 (Saturday)
+    - Implemented chart js
+    - was stuck on chart js
+    ========================================================================
+    Pending Works (expected):
+    - continued 27-Jan-2023
+
+4) 29-Jan-2023 (Sunday)
+    - Done sending csv data from angular to python instead of downloading csv
+	file and sending the path
+    - Manipulate the csv data recieved in python from angular for further operations
+    ========================================
+    Pending Works (expected):
+    - continued 28-Jan-2023
+    - ** complete the target of prediction

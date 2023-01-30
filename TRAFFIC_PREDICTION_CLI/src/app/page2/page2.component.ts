@@ -21,19 +21,18 @@ export class Page2Component implements OnInit {
 		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService
 	) {
-		console.log("this.propService.data", Object.values(this.propService.data).slice(1, 3))
+		// console.log("this.propService.data", Object.values(this.propService.data).slice(1, 3))
 		this.displayedColumns = ['DateTime', 'Junction', 'Vehicles', 'ID', 'Year', 'Month', 'Day', 'Hour'];
 		this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
 		// console.log(Object.values(this.propService.data).length)
 		// console.log("Object.values(this.propService.data)", Object.values(this.propService.data))
 		this.flaskService.getPlot().subscribe(
 			(response) => {
-				// console.log(Object.values(response)[0]['datetime'])
-				// console.log(Object.values(response)[0]['vehicles'])
-				this.datetime = Object.values(response)[0]['datetime']
-				this.vehicles = Object.values(response)[0]['vehicles']
-				this.LineChart(this.datetime, this.vehicles)
-				// console.log(this.junction1plot, this.junction2plot, this.junction3plot, this.junction4plot)
+				this.recievedPlotData = response
+				this.plotReady = true
+				// this.datetime = Object.values(response)[0]['datetime']
+				// this.vehicles = Object.values(response)[0]['vehicles']
+				// this.LineChart(this.datetime, this.vehicles)
 			},
 			(error: HttpErrorResponse) => {
 				console.log(error.message)
@@ -43,6 +42,8 @@ export class Page2Component implements OnInit {
 		)
 		if (this.index !== 0) { this.classForPreviousButton = "page-item" }
 	}
+
+	recievedPlotData: object = {}
 
 	vehicles = []
 	datetime = []
@@ -62,8 +63,6 @@ export class Page2Component implements OnInit {
 
     // object to be passed to the back-end that comprises of junction and months
 	obj = {}
-
-
 	junction1plot: any
 	junction2plot: any
 	junction3plot: any
@@ -71,33 +70,38 @@ export class Page2Component implements OnInit {
 
     // boolean switches for showing plots
     // if plotReadyFor1 is true then only plot for junction 1 shows
-	plotReadyFor1 = false
-	plotReadyFor2 = false
-	plotReadyFor3 = false
-	plotReadyFor4 = false
-
-	str = ""
-
+	plotReady = false
+	accuracyScore: any
 	index = 0
+	indexResult = 0
+	resultTableReady = false
 	previousDisabled = true
 	classForPreviousButton = "page-item disabled"
 	classForNextButton = "page-item"
+	classForPreviousButtonResult = "page-item disabled"
+	classForNextButtonResult = "page-item"
 	displayedColumns: string[] = []
+	displayedColumnsResult: string[] = []
 	dataSource: any
+	dataSourceResult: any
+	tableResult: object = {}
+	gotAccuracy = false
 
     // to show the prediction image when training ends 
 	predictionImageReady = false
 	myChart: any
+	plot: any
+
 
 	LineChart(x: any, y: any) {
-		// console.log("this.vehicles", this.vehicles)
+		// console.log(x)
 		// console.log("this.datetime", this.datetime)
-		this.myChart = new Chart("myChart", {
+		this.plot = new Chart("plot", {
 			type: 'line',
 			data: {
 			  labels: x,
 			  datasets: [{
-				label: '# of Votes',
+				label: '# of Vehicles',
 				data: y,
 				borderWidth: 1
 			  }]
@@ -115,32 +119,30 @@ export class Page2Component implements OnInit {
 	ngOnInit(): void {}
 
 	show1() {
-		this.str = "1"
-		this.plotReadyFor1 = true
-		this.plotReadyFor2 = false
-		this.plotReadyFor3 = false
-		this.plotReadyFor4 = false
+		// console.log("this.recievedPlotData: ", this.recievedPlotData)
+		this.datetime = Object.values(this.recievedPlotData)[0]['datetime']
+		this.vehicles = Object.values(this.recievedPlotData)[0]['vehicles']
+		// console.log(this.datetime, this.vehicles)
+		if (this.plot != null) { this.plot.destroy() }
+		this.LineChart(this.datetime, this.vehicles)
 	}
 	show2() {
-		this.str = "2"
-		this.plotReadyFor1 = false
-		this.plotReadyFor2 = true
-		this.plotReadyFor3 = false
-		this.plotReadyFor4 = false
+		this.datetime = Object.values(this.recievedPlotData)[1]['datetime']
+		this.vehicles = Object.values(this.recievedPlotData)[1]['vehicles']
+		if (this.plot != null) { this.plot.destroy() }
+		this.LineChart(this.datetime, this.vehicles)
 	}
 	show3() {
-		this.str = "3"
-		this.plotReadyFor1 = false
-		this.plotReadyFor2 = false
-		this.plotReadyFor3 = true
-		this.plotReadyFor4 = false
+		this.datetime = Object.values(this.recievedPlotData)[2]['datetime']
+		this.vehicles = Object.values(this.recievedPlotData)[2]['vehicles']
+		if (this.plot != null) { this.plot.destroy() }
+		this.LineChart(this.datetime, this.vehicles)
 	}
 	show4() {
-		this.str = "4"
-		this.plotReadyFor1 = false
-		this.plotReadyFor2 = false
-		this.plotReadyFor3 = false
-		this.plotReadyFor4 = true
+		this.datetime = Object.values(this.recievedPlotData)[3]['datetime']
+		this.vehicles = Object.values(this.recievedPlotData)[3]['vehicles']
+		if (this.plot != null) { this.plot.destroy() }
+		this.LineChart(this.datetime, this.vehicles)
 	}
 
 	next() {
@@ -171,6 +173,34 @@ export class Page2Component implements OnInit {
 		}
 	}
 
+	nextResult() {
+		console.log('nextres')
+		if (this.classForNextButtonResult !== "page-item disabled") {
+			this.indexResult = this.indexResult + 10
+			this.dataSourceResult = Object.values(this.tableResult).slice(this.indexResult, this.indexResult + 10)
+			if (this.indexResult === Object.values(this.tableResult).length - 10) {
+				this.classForNextButtonResult = "page-item disabled"
+			}
+		}
+
+		if (this.indexResult >= 10) {
+			this.classForPreviousButtonResult = "page-item"
+		}
+	}
+
+	previousResult() {
+		console.log('prevres')
+		if(this.classForPreviousButtonResult !== "page-item disabled") {
+			this.indexResult = this.indexResult - 10
+			this.dataSourceResult = Object.values(this.tableResult).slice(this.indexResult, this.indexResult + 10)
+			if (this.indexResult === 0) {
+				this.classForPreviousButtonResult = "page-item disabled"
+			} else {
+				this.classForPreviousButtonResult = "page-item"
+			}
+		}
+	}
+
     // if new input is given then this function fires to switch off the predicted image 
 	disablePredictionImage() {
 		this.predictionImageReady = false
@@ -189,11 +219,59 @@ export class Page2Component implements OnInit {
 			this.startedTraining = true;
 			this.flaskService.predict(this.inputJunction + '_' + this.inputMonths).subscribe(
 				(response) => {
-					console.log(response)
-
-                    // if prediction image is ready then turn off loading message
+					console.log("predict", response)
 					this.startedTraining = false;
 					this.predictionImageReady = true
+					this.datetime = Object.values(response)[0]['datetime']
+					this.vehicles = Object.values(response)[0]['vehicles']
+					this.predictionImageReady = true
+					// console.log(this.datetime, this.vehicles)
+					this.myChart = new Chart("myChart", {
+						type: 'line',
+						data: {
+						  labels: this.datetime,
+						  datasets: [{
+							label: '# of Vehicles',
+							data: this.vehicles,
+							borderWidth: 1
+						  }]
+						},
+						options: {
+						  scales: {
+							y: {
+							  beginAtZero: true
+							}
+						  }
+						}
+					  });
+
+                    // if prediction image is ready then turn off loading message
+					this.flaskService.getResultTable().subscribe(
+						(response) => {
+							this.resultTableReady = true
+							// console.log('resultTable', response)
+							this.tableResult = response
+							this.displayedColumnsResult = ['DateTime', 'Junction', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+							this.dataSourceResult = Object.values(response).slice(this.index, this.index + 10)
+						},
+						(error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error.message)
+						}
+					)
+
+					this.flaskService.getAccuracy().subscribe(
+						(response) => {
+							console.log(response)
+							this.gotAccuracy = true
+							this.accuracyScore = Object.values(response)
+						},
+						(error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error.message)
+						}
+					)
+					
 				},
 				(error: HttpErrorResponse) => {
 					console.log(error.message)

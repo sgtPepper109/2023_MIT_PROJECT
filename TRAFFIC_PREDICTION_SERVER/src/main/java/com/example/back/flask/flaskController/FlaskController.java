@@ -2,15 +2,19 @@ package com.example.back.flask.flaskController;
 
 import com.example.back.flask.getUrlContents.GetURLContents;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.hibernate.mapping.Any;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/process")
 public class FlaskController {
+
+    private Object csvData;
 
     @Value("${flask.url}")
     private String flaskUrl;
@@ -46,6 +50,44 @@ public class FlaskController {
         System.out.println("localhost:8080/process/setData");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/setData");
+    }
+
+//    @PostMapping(value = "/getCsvJson")
+//    public List<?> getCsvJson(@RequestBody Object response) throws JsonProcessingException {
+//        System.out.println("getCsvJson");
+//        System.out.println(response);
+//        List<String> l = new ArrayList<>();
+//        l.add("hello");
+//        l.add("hello2");
+//        return l;
+//    }
+
+    @PostMapping("/setCsvData")
+    public String getCsvData(@RequestBody Object response) throws JsonProcessingException {
+        System.out.println("localhost:8080/process/csvData");
+        this.csvData = response;
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/getCsvData");
+    }
+
+    @GetMapping("/exchangeCsvData")
+    public Object exhangeCsvData() throws JsonProcessingException {
+        System.out.println("localhost:8080/process/exchangeCsvData");
+        return this.csvData;
+    }
+
+    @GetMapping("/getResultTable")
+    public String getResultTable() throws JsonProcessingException {
+        System.out.println("localhost:8080/process/getResultTable");
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/getResultTable");
+    }
+
+    @GetMapping("/getAccuracy")
+    public String getAccuracy() throws JsonProcessingException {
+        System.out.println("localhost:8080/process/getAccuracy");
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/getAccuracy");
     }
 
 }

@@ -100,3 +100,12 @@ Key Takeaways and course of action assigned:
     - Explore on how to send data file to backend
     - Can add paginator
     - enhance the document
+
+Date 25-Jan-2023, 11:00 am
+Attendees: Abdulrahim Shaikh, Vedang Avaghade, Rushikesh Kale
+Key Takeaways and course of action assigned:
+    - Button toggle
+    - reset
+    - MVC structure
+    - proper folder structure
+    - Add more different types of data visualizations

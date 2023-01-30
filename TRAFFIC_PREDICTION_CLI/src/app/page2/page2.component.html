@@ -13,7 +13,7 @@
                     <!-- e_id Column -->
                     <ng-container matColumnDef="DateTime">
                         <th mat-header-cell *matHeaderCellDef> DateTime </th>
-                        <td mat-cell *matCellDef="let element"> {{element.DateTime}} </td>
+                        <td mat-cell *matCellDef="let element"> {{element.DateTime | date: 'dd/MM/yyyy'}} </td>
                     </ng-container>
 
                     <!-- Age Column -->
@@ -58,7 +58,7 @@
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
                 <br />
-                <nav aria-label="Page navigation example">
+                <!-- <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-end">
                         <li [ngClass]="classForPreviousButton" (click)="previous()" style="cursor: pointer;">
                             <a class="page-link">{{'\u21E6'}}</a>
@@ -67,7 +67,12 @@
                             <a class="page-link">{{'\u21E8'}}</a>
                         </li>
                     </ul>
-                </nav>
+                </nav> -->
+                <div style="float:right;" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <button type="button" [ngClass]="classForPreviousButton" (click)="previous()" class="btn btn-outline-primary">{{'\u21E6'}}</button>
+                    <button type="button" class="btn btn-outline-primary" disabled>where</button>
+                    <button type="button" [ngClass]="classForNextButton" (click)="next()" class="btn btn-outline-primary">{{'\u21E8'}}</button>
+                </div>
             </mat-card-content>
         </mat-card>
         <br />
@@ -94,26 +99,20 @@
                                 4</a></li>
                     </ul>
                 </nav>
-                <div *ngIf="plotReadyFor1">
-                    <br />
-                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 1</h4>
-                    <img *ngIf="plotReadyFor1" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                <div *ngIf="plotReady">
+                    <div>
+                        <canvas id="plot"></canvas>
+                    </div>
                 </div>
-                <div *ngIf="plotReadyFor2">
-                    <br />
-                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 2</h4>
-                    <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                <!-- <div *ngIf="plotReadyFor2">
+                    <canvas id="plotFor2"></canvas>
                 </div>
                 <div *ngIf="plotReadyFor3">
-                    <br />
-                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 3</h4>
-                    <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
+                    <canvas id="plotFor3"></canvas>
                 </div>
                 <div *ngIf="plotReadyFor4">
-                    <br />
-                    <h4 style="font-style: italic;">Probability of number of vehicles at junction 4</h4>
-                    <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-                </div>
+                    <canvas id="plotFor4"></canvas>
+                </div> -->
                 <!-- <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
                 <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
                 <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" /> -->
@@ -145,21 +144,97 @@
             <br />
             <br />
 
-            <div *ngIf="startedTraining" class="d-flex align-items-center">
-                Loading...
-                <div style="margin-left: 10px;" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
-            </div>
-            <img *ngIf="predictionImageReady" style="width: 1300px;" src="assets/predicted{{inputJunction}}.png" />
-
             <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
                 {{ errorstring }}
             </div>
         </div>
-        <a>hello</a>
-        <div style="width: 1000px; height: 600px;">
-            <canvas id="myChart"></canvas>
+        <mat-card *ngIf="resultTableReady">
+            <mat-card-content style="background-color: white;">
+                <table style="background-color: white;" mat-table [dataSource]="dataSourceResult"
+                    class="mat-elevation-z8">
+                    <!--- Note that these columns can be defined in any order.
+                  The actual rendered columns are set as a property on the row definition" -->
+
+                    <!-- e_id Column -->
+                    <ng-container matColumnDef="DateTime">
+                        <th mat-header-cell *matHeaderCellDef> DateTime </th>
+                        <td mat-cell *matCellDef="let element"> {{element.DateTime | date: 'dd/MM/yyyy'}} </td>
+                    </ng-container>
+
+                    <!-- Age Column -->
+                    <ng-container matColumnDef="Junction">
+                        <th mat-header-cell *matHeaderCellDef> Junction </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Junction}} </td>
+                    </ng-container>
+
+                    <!-- salary Column -->
+                    <ng-container matColumnDef="Vehicles">
+                        <th mat-header-cell *matHeaderCellDef> Vehicles </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Vehicles}} </td>
+                    </ng-container>
+
+                    <!-- Bonus Column -->
+                    <ng-container matColumnDef="Year">
+                        <th mat-header-cell *matHeaderCellDef> Year </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Year}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="Month">
+                        <th mat-header-cell *matHeaderCellDef> Month </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Month}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="Day">
+                        <th mat-header-cell *matHeaderCellDef> Day </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Day}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="Hour">
+                        <th mat-header-cell *matHeaderCellDef> Hour </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Hour}} </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsResult"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsResult;"></tr>
+                </table>
+                <br />
+                <!-- <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        <li [ngClass]="classForPreviousButtonResult" (click)="previousResult()"
+                            style="cursor: pointer;">
+                            <a class="page-link">{{'\u21E6'}}</a>
+                        </li>
+                        <li [ngClass]="classForNextButtonResult" (click)="nextResult()" style="cursor: pointer;">
+                            <a class="page-link">{{'\u21E8'}}</a>
+                        </li>
+                    </ul>
+                </nav> -->
+                <div style="float:right" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-primary">{{'\u21E6'}}</button>
+                    <button type="button" class="btn btn-outline-primary" disabled>where</button>
+                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-primary">{{'\u21E8'}}</button>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <div *ngIf="startedTraining" class="d-flex align-items-center">
+            Loading...
+            <div style="margin-left: 10px;" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
         </div>
-        <a>hello</a>
+        <img *ngIf="predictionImageReady" style="width: 1300px;" src="assets/predicted{{inputJunction}}.png" />
+
+        <div>
+            <div>
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        <div *ngIf="gotAccuracy">
+            <h4>Accuracy Score: </h4>
+            <h3>{{ accuracyScore }}</h3>
+        </div>
+        <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
+            {{ errorstring }}
+        </div>
+
         <!-- <button (click)="show()">click me</button> -->
     </section>
 </div>

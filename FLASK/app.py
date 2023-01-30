@@ -54,6 +54,10 @@ class Model:
         self.r2 = r2_score(self.ytest, self.ypredict)
         return self.r2
 
+    def accuracy_score(self):
+        self.acc = r2_score(self.ytest, self.ypredict)
+        return self.acc
+
     def do_things(self) -> None:
         self.prequisite(self.test_size)
         self.fit()
@@ -94,49 +98,89 @@ valRatio = 0
 dataset = ""
 df = pd.DataFrame()
 tempdf = pd.DataFrame()
+dfResult = pd.DataFrame()
+accuracyScore = np.float64()
+
+
+@app.route("/getCsvData")
+def getCsvData():
+    success = True
+    url = config.springUrl + '/process/exchangeCsvData'
+    try:
+        uResponse = requests.get(url)
+    except:
+        print('here')
+        success = False
+        return {getCsvData: "Connection Error"}
+    
+    JResponse = uResponse.text
+    csvData = json.loads(JResponse)
+
+    global df
+    global tempdf
+
+    df = pd.DataFrame.from_dict(csvData)
+    df = df._convert(numeric=True)
+    tempdf = df.copy()
+
+    tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
+    tempdf = tempdf.set_index('DateTime')
+
+    # print(df.head())
+    # print(tempdf.head())
+
+    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+    # extract month from date
+    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+    # extract day from date
+    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+    # extract hour from date
+    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+    tempdf.drop('ID', axis=1, inplace=True)
+
+    dictionary = dict()
+    if success:
+        dictionary['getCsvData'] = "success"
+        return make_response(dictionary)
+    else:
+        dictionary['getCsvData'] = "fail"
+        return make_response(dictionary)
 
 
 @app.route("/setData")
 def setData():
-    global df
-    global tempdf
-    if df.empty and tempdf.empty:
-        url = config.springUrl + '/operation/findLast'
+    success = True
+    url = config.springUrl + '/operation/findLast'
+
+    try:
+        uResponse = requests.get(url)
+    except:
+        return "Connection Error"
+    JResponse = uResponse.text
+    operationData = json.loads(JResponse)
+    # print(operationData)
     
-        try:
-            uResponse = requests.get(url)
-        except:
-            return "Connection Error"
-        JResponse = uResponse.text
-        operationData = json.loads(JResponse)
-        # print(operationData)
-        
-        global dataset
-        global trainRatio
-        global testRatio
-        global valRatio
-        # print(operationData)
-        dataset = operationData["dataset"]
-        trainRatio = float(operationData['trainratio'])
-        testRatio = float(operationData['testratio'])
-        valRatio = float(operationData['valratio'])
-        # print(type(operationData['testratio']), type(trainRatio), type(valRatio))
-        # print(trainRatio, testRatio, valRatio)
-        df = pd.read_csv(dataset)
-        tempdf = pd.read_csv(dataset, parse_dates=True, index_col='DateTime')
-        tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-        # extract month from date
-        tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-        # extract day from date
-        tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-        # extract hour from date
-        tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-        tempdf.drop('ID', axis=1, inplace=True)
-        # print("df: ", df)
-        # print("tempdf: ", tempdf)
-        return(operationData)
+    global dataset
+    global trainRatio
+    global testRatio
+    global valRatio
+    # print(operationData)
+    dataset = operationData["dataset"]
+    trainRatio = float(operationData['trainratio'])
+    testRatio = float(operationData['testratio'])
+    valRatio = float(operationData['valratio'])
+    # print(type(operationData['testratio']), type(trainRatio), type(valRatio))
+    # print(trainRatio, testRatio, valRatio)
+    
+    # print("df: ", df)
+    # print("tempdf: ", tempdf)
+    dictionary = dict()
+    if success:
+        dictionary['setData'] = "success"
+        return make_response(dictionary)
     else:
-        return {}
+        dictionary['setData'] = "fail"
+        return make_response(dictionary)
 
 
 @app.route("/getTableData")
@@ -145,7 +189,7 @@ def getTableData():
     # print(df)
     arr = []
 
-    df2 = df
+    df2 = df.copy()
     year = np.array(tempdf['Year'])
     month = np.array(tempdf['Month'])
     day = np.array(tempdf['Day'])
@@ -155,6 +199,9 @@ def getTableData():
     df2['Month'] = month
     df2['Day'] = day
     df2['Hour'] = hour
+
+    # print("df2")
+    # print(df2)
 
     head = df2
     data2 = head.to_dict()
@@ -170,22 +217,22 @@ def getTableData():
     return make_response(arr)
 
 
-def histogram(dataframe, junction):
-    temp = dataframe[dataframe['Junction'] == junction]
-    f, ax = plt.subplots(figsize=(17, 5))
-    ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
-    ax.set_title(f'Plot show the distribution of data in junction {junction}')
-    ax.grid(True, ls='-.', alpha=0.75)
-    path = 'C:/Users/Acer/2023MitProject/GUI/src/assets/histogram' + str(junction) + '.png'
-    plt.savefig(path)
-    return path
+# def histogram(dataframe, junction):
+#     temp = dataframe[dataframe['Junction'] == junction]
+#     f, ax = plt.subplots(figsize=(17, 5))
+#     ax = sns.histplot(temp['Vehicles'], kde=True, stat='probability')
+#     ax.set_title(f'Plot show the distribution of data in junction {junction}')
+#     ax.grid(True, ls='-.', alpha=0.75)
+#     path = 'C:/Users/Acer/2023MitProject/GUI/src/assets/histogram' + str(junction) + '.png'
+#     plt.savefig(path)
+#     return path
 
 
 def createDict(junction):
     global df
-    data = df[df.Junction == junction]
-    vehicles = list(data.Vehicles)
-    datetime = list(data.DateTime)
+    data = df[df['Junction'] == junction]
+    vehicles = list(data['Vehicles'])
+    datetime = list(data['DateTime'])
     dictionary = dict()
     dictionary['vehicles'] = vehicles
     dictionary['datetime'] = datetime
@@ -195,22 +242,16 @@ def createDict(junction):
 def plot():
     global df
     global tempdf
+    # print('df in plot: \n', df)
     
-    savedFigFor1 = histogram(df, 1)
-    savedFigFor2 = histogram(df, 2)
-    savedFigFor3 = histogram(df, 3)
-    savedFigFor4 = histogram(df, 4)
+    # savedFigFor1 = histogram(df, 1)
+    # savedFigFor2 = histogram(df, 2)
+    # savedFigFor3 = histogram(df, 3)
+    # savedFigFor4 = histogram(df, 4)
 
     response = []
     for i in range(1, 5):
         response.append(createDict(i))
-    # result = {
-    #     "junction1plot": savedFigFor1,
-    #     "junction2plot": savedFigFor2,
-    #     "junction3plot": savedFigFor3,
-    #     "junction4plot": savedFigFor4,
-    # }
-    # print(result)
     return make_response(response)
 
 
@@ -231,11 +272,38 @@ def make_time_series_plot3(new_data, junction):
     ax = sns.lineplot(data=data, y='Vehicles', x='DateTime', ax=ax)
     start = data.head(1)
     end = data.tail(1)
-    ax.set_title(f'Plot show amounts of Vehicles in junction {junction} from {start.Month[0]}-{start.Year[0]} to {end.Month[0]}-{end.Year[0]}', fontsize=15)
+    # ax.set_title(f'Plot show amounts of Vehicles in junction {junction} from {start.Month[0]}-{start.Year[0]} to {end.Month[0]}-{end.Year[0]}', fontsize=15)
     ax.grid(True, ls='-.', alpha=0.75)
-    path = 'C:/Users/Acer/2023MitProject/GUI/src/assets/predicted' + str(junction) + '.png'
+    path = config.guiAssets + 'predicted' + str(junction) + '.png'
     plt.savefig(path)
     return path
+
+
+@app.route('/getResultTable')
+def getResultTable():
+    arr = []
+    global dfResult
+    head = dfResult
+    data2 = head.to_dict()
+    anycol = ""
+    for i in data2:
+        anycol = i
+        break
+    for i in range(len(data2[anycol])):
+        field = {}
+        for j in data2:
+            field[j] = data2[j][i]
+        arr.append(field)
+    # print(arr)
+    return make_response(arr)
+
+
+@app.route('/getAccuracy')
+def getAccuracy():
+    global accuracyScore
+    dictionary = dict()
+    dictionary['accuracy'] = accuracyScore
+    return make_response(dictionary)
 
 
 @app.route('/predict/<junction>/<months>')
@@ -244,7 +312,7 @@ def predict(junction=None, months=None):
     global tempdf
     junction = int(junction)
     months = int(months)
-    print('\n', junction, '\n')
+    # print('\n', junction, '\n')
     standardization = lambda x: StandardScaler().fit_transform(x)
     # z_df = tempdf.copy()
     # z_df['Vehicles'] = standardization(z_df.Vehicles.values.reshape(-1, 1))
@@ -277,8 +345,12 @@ def predict(junction=None, months=None):
     #     ]
     
     global testRatio
-    print("testRatio: ", testRatio)
+    # print("testRatio: ", testRatio)
     lag_df = tempdf.copy()
+    # print("tempdf")
+    # print(tempdf.head())
+    # print("lag_df")
+    # print(lag_df)
     for i in range(1, 3):
         lag_df[f'Vehicles_lag_{i}'] = tempdf.Vehicles.shift(i)
 
@@ -286,9 +358,10 @@ def predict(junction=None, months=None):
     lag_df.dropna(inplace=True)
 
     lag_data = get_list_data(lag_df, drop=['Year'])
+    # print("lag data: ", lag_data)
 
     lag_models = [None]
-    print("testRatio in predict: ", testRatio)
+    # print("testRatio in predict: ", testRatio)
     for i in range(1, 5):
         lag_models += [
             Model(
@@ -299,12 +372,25 @@ def predict(junction=None, months=None):
                 test_size=testRatio
             )
         ]
+    
+    # print("score: ")
+    print(lag_models[1].r2)
+    print(type(lag_models[1].r2))
+    global accuracyScore
+    accuracyScore = lag_models[1].r2
+    print(lag_models[1])
+    print(type(lag_models[1]))
+    print(lag_models[1].cal_r2_score)
+    print(type(lag_models[1].cal_r2_score))
 
     cur_time = lag_data[junction].tail(1).index[0] # get the current time, the last time of that dataset
     print(cur_time)
     end_time = cur_time + pd.DateOffset(months=months) # the end time after 4 months that we want to predict
     print(end_time)
     new_data = lag_data[junction].copy() # create a copy of dataset with that junction
+    # print("new_data.shape")
+    # print(new_data.shape)
+    initialNumberOfRows = new_data.shape[0]
     features = lag_models[junction].features # get features of each models in that junction
     while cur_time != end_time:
         last = new_data.tail(1).copy() # get the last row of dataset, just make a copy!
@@ -321,27 +407,61 @@ def predict(junction=None, months=None):
         freq='H'
     ) # reassign index with the new time range with start is the start of data
     # and end time is the end time that initialize in start of the loop
-    new_data.to_csv(f'C:/Users/Acer/programs/vehicles_for_next_4_months_in_junction_{junction}.csv') # to csv that file
-    print(f'|==Predicted for Junction {junction}==|')
+    # new_data.to_csv(f'C:/Users/Acer/programs/vehicles_for_next_4_months_in_junction_{junction}.csv') # to csv that file
+    # print(f'|==Predicted for Junction {junction}==|')
 
-    new_data = pd.read_csv('C:/Users/Acer/programs/vehicles_for_next_4_months_in_junction_' + str(junction) + '.csv')
-    print('\n', new_data.head(), '\n')
-    new_data['DateTime'] = new_data['Unnamed: 0']
+    # new_data = pd.read_csv('C:/Users/Acer/programs/vehicles_for_next_4_months_in_junction_' + str(junction) + '.csv')
+    # print('newdata:\n', new_data.head(), '\n')
+    new_data = new_data[initialNumberOfRows:]
+    # print(new_data.head())
+    new_data['DateTime'] = new_data.index
+    # print("new_data.shape")
+    # print(new_data.shape)
     junctionarr = []
     for i in range(new_data.shape[0]):
         junctionarr.append(junction)
     series = pd.Series(junctionarr)
-    new_data['Junction'] = series
+    # print("series:", series)
+    new_data['Junction'] = junctionarr
+    # print("new_data.head(): ")
+    # print(new_data.head())
+
     year = []
     for i in range(new_data.shape[0]):
         year.append(2017)
     series2 = pd.Series(year)
     new_data['Year'] = year
     new_data = new_data.set_index('DateTime')
+    # print("new_data.head(): ")
+    # print(new_data.head())
+    # print("new_data.tail(1):")
     # print(new_data.tail(1))
     predictedImagePath = make_time_series_plot3(new_data, junction)
     result = { "predictedImagePath": predictedImagePath }
+    data = new_data[new_data['Junction'] == junction]
+    # print("data")
+    # print(data)
+    data['DateTime'] = data.index
+    data = data.drop(['Vehicles_lag_1', 'Vehicles_lag_2'], axis='columns')
+    data = data.reset_index(drop=True)
+    global dfResult
+    dfResult = data
+    # print('with datetime')
+    # print(data)
+    # print("new_data:")
+    # print(new_data, new_data.shape)
+    # print("new_data[new_data[Junction] == junction]")
+    # print(new_data[new_data['Junction'] == junction], new_data[new_data['Junction'] == junction].shape)
+    # print("data: ")
+    # print(data)
+    vehicles = list(data['Vehicles'])
+    datetime = list(data.index)
+    dictionary = dict()
+    dictionary['vehicles'] = vehicles
+    dictionary['datetime'] = datetime
+    result = [dictionary]
     return make_response(result)
+    # return make_response(result)
 
 
 if __name__ == "__main__":

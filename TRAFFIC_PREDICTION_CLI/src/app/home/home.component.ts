@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { ngxCsv } from 'ngx-csv';
 import { FlaskService } from '../services/flaskService/flask.service';
+import { response } from 'express';
 
 @Component({
 	selector: 'app-home',
@@ -55,10 +56,22 @@ export class HomeComponent {
 							noDownload: false,
 							headers: Object.keys(Object.values(result)[0])
 						};
-						new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
-						this.datasetPath = "C:/Users/Acer/Downloads/" + this.fileName
+						// console.log(this.csvRecords)
+
+						this.flaskService.sendCsvData(result).subscribe(
+							(response) => {
+								console.log(response)
+							},
+							(error: HttpErrorResponse) => {
+								console.log(error)
+								alert(error.message)
+							}
+						)
+
+						// new ngxCsv(this.csvRecords, this.fileName.split('.')[0], options);
+						// this.datasetPath = "C:/Users/Acer/Downloads/" + this.fileName
 						// console.log(this.datasetPath)
-						this.dataset = this.datasetPath
+						// this.dataset = this.datasetPath
 						// this.dataset = "C:/Users/Acer/Downloads/" + this.fileName
 						// new ngxCsv(this.csvRecords, 'C:/Users/Acer/programs/temp')
 					},
@@ -151,7 +164,7 @@ export class HomeComponent {
 							this.flaskService.getTableData().subscribe(
 								(response) => {
 									// console.log('getTableData', this.propService.data)
-									// console.log('response: ', response)
+									console.log('response: ', response)
 									// console.log('this.propservice.data: ', this.propService.data)
 		
 									// this is a service file shared with page2 component
