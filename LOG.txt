@@ -50,3 +50,8 @@
     Pending Works (expected):
     - continued 28-Jan-2023
     - ** complete the target of prediction
+
+5) 30-Jan-2023 (Monday)
+    - Get Prediction in tabular form and chart form
+    - Get accuracy
+    - Get correct answers

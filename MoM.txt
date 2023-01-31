@@ -101,6 +101,7 @@ Key Takeaways and course of action assigned:
     - Can add paginator
     - enhance the document
 
+
 Date 25-Jan-2023, 11:00 am
 Attendees: Abdulrahim Shaikh, Vedang Avaghade, Rushikesh Kale
 Key Takeaways and course of action assigned:
@@ -109,3 +110,11 @@ Key Takeaways and course of action assigned:
     - MVC structure
     - proper folder structure
     - Add more different types of data visualizations
+
+
+Date 30-Jan-2023, 11:00 am
+Attendees: Vaishali Jaiswal, Abdulrahim Shaikh, Vedang Avaghade, Rushikesh Kale
+Key Takeaways and course of action assigned:
+    - Complete the core part
+    - prediction in tabular form and chart form
+    - Add proper installation steps
