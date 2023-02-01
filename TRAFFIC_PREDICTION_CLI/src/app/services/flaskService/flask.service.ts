@@ -39,4 +39,12 @@ export class FlaskService {
 	public getAccuracy() {
 		return this.http.get(`${this.apiServerUrl}/process/getAccuracy`)
 	}
+
+	public getActualPredicted() {
+		return this.http.get(`${this.apiServerUrl}/process/getActualPredicted`)
+	}
+
+	public getActualPredictedForPlot() {
+		return this.http.get(`${this.apiServerUrl}/process/getActualPredictedForPlot`)
+	}
 }

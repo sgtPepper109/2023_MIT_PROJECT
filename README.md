@@ -44,7 +44,8 @@ To install all the required python packages, run
 ```
 pip install -r requirements.txt
 ```
-since the repository already gives you the python environment folder.
+since the repository already gives you the python environment folder. \
+Then copy the app.py file to the flask folder
 
 ## Back-End server
 Run the main `BackApplicationMain.java` file in IntelliJ or Eclipse. The server will be active on port 8080 and has the url `http://localhost:8080/` 

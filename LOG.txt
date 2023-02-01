@@ -55,3 +55,14 @@
     - Get Prediction in tabular form and chart form
     - Get accuracy
     - Get correct answers
+
+6) 31-Jan-2023 (Tuesday)
+    - Prediction for one day
+    - clean and understandable prediction results
+    - specify number of records
+    - comparison between actual and predicted done
+	- in tabular form
+	- and in chart form
+    - remove unnecessary data from the table
+    - show accuracy
+    - properly label the charts

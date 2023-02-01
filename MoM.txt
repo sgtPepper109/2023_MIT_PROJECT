@@ -118,3 +118,15 @@ Key Takeaways and course of action assigned:
     - Complete the core part
     - prediction in tabular form and chart form
     - Add proper installation steps
+
+
+Date: 30-Jan=2023, 11:00 am
+Attendees: Vaishali Jaiswal, Abdulrahim Shaikh, Vedang Avaghade, Rushikesh Kali
+Key Takeaways and course of action assigned:
+    - Show actual and predicted values comparison
+	- in tabular
+	- and in chart form for better understanding
+    - take input as number of days (mention dropdown for month and days)
+    - specify number of records
+    - fix the chart date issue
+    - compare different junctions

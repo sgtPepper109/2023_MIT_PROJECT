@@ -90,4 +90,18 @@ public class FlaskController {
         return getURLContents.getData(flaskUrl + "/getAccuracy");
     }
 
+    @GetMapping("/getActualPredicted")
+    public String getActualPredicted() throws JsonProcessingException {
+        System.out.println("localhost:8080/process/getActualPredicted");
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/getActualPredicted");
+    }
+
+    @GetMapping("/getActualPredictedForPlot")
+    public String getActualPredictedForPlot() throws JsonProcessingException {
+        System.out.println("localhost:8080/process/getActualPredictedForPlot");
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/getActualPredictedForPlot");
+    }
+
 }
