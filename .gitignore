@@ -1,0 +1,6 @@
+/.metadata/
+./FLASK/Include
+./FLASK/Lib/
+./FLASK/__pycache__
+./FLASK/share
+./FLASK/pyvenv.cfg

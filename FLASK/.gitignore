@@ -1,7 +1,6 @@
 pyvenv.cfg
 Include/
-Lib/
 share/man/man1
-Lib/site-packages
+Lib/site-packages/
 __pycache__
 assets
