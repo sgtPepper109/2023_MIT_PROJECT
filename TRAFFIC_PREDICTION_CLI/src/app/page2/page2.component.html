@@ -1,276 +1,280 @@
 <div id="text-center" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
     <section>
         <h1>Traffic Predictor</h1>
-        <hr style="height: 2px;" />
+        <hr id="hrTag1" />
         <br />
-        <h4><strong>How your data looks: </strong></h4>
+
+
+        <!-- 
+            ** Table for displaying the csv data **
+        -->
+        <h4 id="table1-desc"><strong>How your data looks: </strong></h4>
         <mat-card>
-            <mat-card-content style="background-color: white;">
-                <table style="background-color: white;" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                    <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
-
-                    <!-- e_id Column -->
-                    <ng-container matColumnDef="DateTime">
-                        <th mat-header-cell *matHeaderCellDef> Date-Time </th>
-                        <td mat-cell *matCellDef="let element"> {{element.DateTime }} </td>
-                    </ng-container>
-
-                    <!-- salary Column -->
-                    <ng-container matColumnDef="Vehicles">
-                        <th mat-header-cell *matHeaderCellDef> Vehicles </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Vehicles}} </td>
-                    </ng-container>
-
-                    <!-- Age Column -->
-                    <ng-container matColumnDef="Junction">
-                        <th mat-header-cell *matHeaderCellDef> Junction </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Junction}} </td>
-                    </ng-container>
-
-                    <!-- Bonus Column -->
-                    <ng-container matColumnDef="Year">
-                        <th mat-header-cell *matHeaderCellDef> Year </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Year}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="Month">
-                        <th mat-header-cell *matHeaderCellDef> Month </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Month}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="Day">
-                        <th mat-header-cell *matHeaderCellDef> Day </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Day}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="Hour">
-                        <th mat-header-cell *matHeaderCellDef> Hour </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Hour}} </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <mat-card-content>
+                
+                <table class="table table-bordered border table-striped" aria-describedby="tabe1-desc">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Junction</th>
+                            <th scope="col">DateTime</th>
+                            <th scope="col">Vehicles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let record of dataSource">
+                            <th scope="row">{{ record.ID }}</th>
+                            <td>{{ record.Junction }}</td>
+                            <td>{{ record.DateTime }}</td>
+                            <td>{{ record.Vehicles }}</td>
+                        </tr>
+                    </tbody>
                 </table>
-                <br />
-                <!-- <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-end">
-                        <li [ngClass]="classForPreviousButton" (click)="previous()" style="cursor: pointer;">
-                            <a class="page-link">{{'\u21E6'}}</a>
-                        </li>
-                        <li [ngClass]="classForNextButton" (click)="next()" style="cursor: pointer;">
-                            <a class="page-link">{{'\u21E8'}}</a>
-                        </li>
-                    </ul>
-                </nav> -->
-                <div style="float:right;" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                    <button type="button" [ngClass]="classForPreviousButton" (click)="previous()" class="btn btn-outline-primary">{{'\u21E6'}}</button>
-                    <button type="button" style="font-size: 13px;" class="btn btn-outline-primary" disabled>{{index}} - {{index +5}} of {{numberOfRecords}}</button>
-                    <button type="button" [ngClass]="classForNextButton" (click)="next()" class="btn btn-outline-primary">{{'\u21E8'}}</button>
+
+                <!-- 
+                    ** Paginator for table **
+                -->
+                <div id="paginator1" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <button type="button" [ngClass]="classForPreviousButton" (click)="previous()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                    <button type="button" id="paginator1indicator" class="btn btn-outline-secondary" disabled>{{index}} - {{index +5}} of {{numberOfRecords}}</button>
+                    <button type="button" [ngClass]="classForNextButton" (click)="next()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
                 </div>
             </mat-card-content>
         </mat-card>
         <br />
-        <!-- <button (click)="fetchPlot()">show plot</button> -->
+
+        
+        <!-- 
+            ** Vehicles vs DateTime plots for all junctions **
+        -->
         <br />
-        <mat-card sytle="background-color: white;">
-            <mat-card-content style="background-color: white;">
+        <mat-card>
+            <mat-card-content>
                 <h4><strong>Number of vehicles over time</strong></h4>
-                <!-- <mat-button-toggle-group name="fontStyle" aria-label="Font Style" style="text-align: center; margin-left: 425px;">
-                    <mat-button-toggle style="background-color: white; color: black;" (click)="show1()">Junction 1</mat-button-toggle>
-                    <mat-button-toggle style="background-color: white; color: black;" (click)="show2()">Junction 2</mat-button-toggle>
-                    <mat-button-toggle style="background-color: white; color: black;" (click)="show3()">Junction 3</mat-button-toggle>
-                    <mat-button-toggle style="background-color: white; color: black;" (click)="show4()">Junction 4</mat-button-toggle>
-                </mat-button-toggle-group> -->
                 <nav aria-label="Page navigation example">
-                    <ul class="pagination" style="margin-left: 425px;">
-                        <li class="page-item" (click)="show1()" style="cursor: pointer;"><a class="page-link">Junction
-                                1</a></li>
-                        <li class="page-item" (click)="show2()" style="cursor: pointer;"><a class="page-link">Junction
-                                2</a></li>
-                        <li class="page-item" (click)="show3()" style="cursor: pointer;"><a class="page-link">Junction
-                                3</a></li>
-                        <li class="page-item" (click)="show4()" style="cursor: pointer;"><a class="page-link">Junction
-                                4</a></li>
+                    <ul class="pagination" id="toggleJunction">
+                        <li class="page-item" (click)="show1()"><a class="page-link">Junction 1</a></li>
+                        <li class="page-item" (click)="show2()"><a class="page-link">Junction 2</a></li>
+                        <li class="page-item" (click)="show3()"><a class="page-link">Junction 3</a></li>
+                        <li class="page-item" (click)="show4()"><a class="page-link">Junction 4</a></li>
                     </ul>
                 </nav>
-                <div *ngIf="plotReady">
+                <div *ngIf="plotReady">  <!-- Canvas for showing plot -->
                     <div>
                         <canvas id="plot"></canvas>
                     </div>
                 </div>
-                <!-- <div *ngIf="plotReadyFor2">
-                    <canvas id="plotFor2"></canvas>
-                </div>
-                <div *ngIf="plotReadyFor3">
-                    <canvas id="plotFor3"></canvas>
-                </div>
-                <div *ngIf="plotReadyFor4">
-                    <canvas id="plotFor4"></canvas>
-                </div> -->
-                <!-- <img *ngIf="plotReadyFor2" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-                <img *ngIf="plotReadyFor3" style="width: 1200px;" src="/assets/histogram{{str}}.png" />
-                <img *ngIf="plotReadyFor4" style="width: 1200px;" src="/assets/histogram{{str}}.png" /> -->
             </mat-card-content>
         </mat-card>
+
+
+        <!--
+            ** Prediction Part **
+        -->
         <br />
         <br />
         <h2>PREDICTION</h2>
+
+        <!--
+            ** Input junction number and number of days
+        -->
         <div class="row">
-            <select class="col form-select" aria-label="Default select example" style="height: 60px;"
-                [(ngModel)]="inputJunction" (change)="disablePredictionImage()">
-                <option selected value="Choose Junction">Choose Junction</option>
-                <option value=1>1</option>
-                <option value=2>2</option>
-                <option value=3>3</option>
-                <option value=4>4</option>
-            </select>
-            <div class="col form-floating">
-                <input type="number" step="0" class="form-control" placeholder="Number" [(ngModel)]="inputMonths">
-                <label style="margin-left: 10px;" for="floatingInput">Number of days to predict</label>
+            <div class="col input-group mb-3" id="inputJunctionTime">
+                <span class="input-group-text" id="basic-addon1" style="height:40px">Junction</span>
+                <select id="dropdown" class="col form-select" aria-label="Default select example" style="height:40px"
+                    [(ngModel)]="inputJunction" (change)="disablePredictionImage()">
+                    <option selected value="Choose Junction">Choose Junction</option>
+                    <option value=1>1</option>
+                    <option value=2>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                </select>
+            </div>
+            <div class="col input-group mb-3">
+                <span><input type="number" class="form-control" aria-label="Text input with dropdown button" [(ngModel)]="inputTime" style="height: 40px;"></span>
+                <select class="form-select" id="autoSizingSelect" [(ngModel)]="time">
+                    <option selected>Days</option>
+                    <option value="Months">Months</option>
+                    <option value="Years">Years</option>
+                </select>
+            </div>
+            
+
+            <div class="col input-group mb-3">
+                <span class="input-group-text" style="height:40px">Algorithm</span>
+                <select class="col form-select" aria-label="Default select example" [(ngModel)]="inputAlgorithm">
+                    <option selected>Random Forest Regression</option>
+                    <option value="Gradient Boosting Regression">Gradient Boosting Regression</option>
+                    <option value="Linear Regression">Linear Regression</option>
+                    <option value="Logistic Regression">Logistic Regression</option>
+                    <option value="Ridge Regression">Ridge Regression</option>
+                    <option value="Lasso Regression">Lasso Regression</option>
+                    <option value="Bayesian Ridge Regression">Bayesian Ridge Regression</option>
+                </select>
             </div>
 
-            <br /><br /><br /><br />
+
             <div class="text-center">
-                <button style="text-align: center;" type="button" class="btn btn-primary"
+                <button id="predictionStartButton" type="button" class="btn btn-primary"
                     (click)="start()">Start</button>
             </div>
-            <br />
-            <br />
-            <br />
         </div>
+          
+
+        <!--
+            ** spinner **
+        -->
         <div *ngIf="startedTraining" class="d-flex align-items-center">
             Loading...
-            <div style="margin-left: 10px;" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
+            <div id="spinner" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
         </div>
+
+
+        <!--
+            ** Table for showing predictions for provided junction and number of days
+        -->
         <mat-card *ngIf="resultTableReady">
-            <mat-card-content style="background-color: white;">
-                <h4><strong>Result for Junction {{inputJunction}} for duration of {{inputMonths}} days</strong></h4>
-                <table style="background-color: white;" mat-table [dataSource]="dataSourceResult"
-                    class="mat-elevation-z8">
-                    <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
+            <mat-card-content>
+                <h4 id="table2-desc"><strong>Result for Junction {{inputJunction}} for duration of {{inputTime}} {{time}}</strong></h4>
 
-                    <!-- e_id Column -->
-                    <ng-container matColumnDef="DateTime">
-                        <th mat-header-cell *matHeaderCellDef> DateTime </th>
-                        <td mat-cell *matCellDef="let element"> {{element.DateTime }} </td>
-                    </ng-container>
-
-                    <!-- salary Column -->
-                    <ng-container matColumnDef="Vehicles">
-                        <th mat-header-cell *matHeaderCellDef> Vehicles </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Vehicles}} </td>
-                    </ng-container>
-
-                    <!-- Bonus Column -->
-                    <ng-container matColumnDef="Year">
-                        <th mat-header-cell *matHeaderCellDef> Year </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Year}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="Month">
-                        <th mat-header-cell *matHeaderCellDef> Month </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Month}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="Day">
-                        <th mat-header-cell *matHeaderCellDef> Day </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Day}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="Hour">
-                        <th mat-header-cell *matHeaderCellDef> Hour </th>
-                        <td mat-cell *matCellDef="let element"> {{element.Hour}} </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsResult"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumnsResult;"></tr>
+                <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                    <thead>
+                        <tr>
+                            <th scope="col">DateTime</th>
+                            <th scope="col">Vehicles</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Month</th>
+                            <th scope="col">Day</th>
+                            <th scope="col">Hour</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let record of dataSourceResult">
+                            <th scope="row">{{ record.DateTime }}</th>
+                            <td>{{ record.Vehicles }}</td>
+                            <td>{{ record.Year }}</td>
+                            <td>{{ record.Month }}</td>
+                            <td>{{ record.Day }}</td>
+                            <td>{{ record.Hour }}</td>
+                        </tr>
+                    </tbody>
                 </table>
-                <br />
-                <div style="float:right" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-primary">{{'\u21E6'}}</button>
-                    <button type="button" style="font-size: 13px;" class="btn btn-outline-primary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
-                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-primary">{{'\u21E8'}}</button>
+
+
+                <!--
+                    ** Paginator for Prediction table **
+                -->
+                <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                    <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
+                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
                 </div>
             </mat-card-content>
         </mat-card>
-        <div>
-            <div>
-                <canvas id="myChart"></canvas>
-            </div>
-        </div>
+
+        <!--
+            ** Vehicles vs DateTime chart for provided junction number and number of days **
+        -->
+        <mat-card>
+            <mat-card-content>
+                <div>
+                    <div>
+                        <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
 
 
-        <mat-card style="background-color: white;">
+        <!--
+            ** Actual and Predicted values comparison on test data **
+        -->
+        <mat-card>
             <br />
             <hr />
-            <mat-card-content *ngIf="predictedTableReady" style="background-color: white;">
+            <mat-card-content *ngIf="predictedTableReady">
+                
+                <!--
+                    ** Accuracy **
+                -->
                 <div *ngIf="gotAccuracy">
-                    <h4><strong>Accuracy Score: </strong></h4>
-                    <h3>{{ accuracyScore }}</h3>
+                    <h4><strong>Visualizing the testing data: </strong></h4>
+                    <h4><strong>Accuracy Score of {{inputAlgorithm}} on {{testRatio * 100}} % of data: </strong></h4>
+                    <h3>{{ accuracyScore * 100}}</h3>
                 </div>
-                <h4><strong>Actual and predicted values:</strong></h4>
-                <table style="background-color: white; width: 1000px;" mat-table [dataSource]="dataSourcePredicted"
-                    class="mat-elevation-z8">
-                    <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
 
-                    <!-- e_id Column -->
-                    <ng-container matColumnDef="Actual">
-                        <th mat-header-cell *matHeaderCellDef> Actual </th>
-                        <td mat-cell *matCellDef="let element"> {{ element.actual }} </td>
-                    </ng-container>
-
-                    <!-- salary Column -->
-                    <ng-container matColumnDef="Predicted">
-                        <th mat-header-cell *matHeaderCellDef> Predicted </th>
-                        <td mat-cell *matCellDef="let element"> {{ element.predictedData }} </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsPredicted"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumnsPredicted;"></tr>
+                <!--
+                    ** Table for showing actual and predicted values comparison **
+                -->
+                <h4 id="table3-desc"><strong>Actual and predicted values:</strong></h4>
+                <table class="table table-bordered border table-striped-columns" aria-describedby="table3-desc">
+                    <thead>
+                        <tr>
+                            <th scope="col">Actual</th>
+                            <th scope="col">Predicted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let record of dataSourcePredicted">
+                            <th scope="row">{{ record.actual}}</th>
+                            <td>{{ record.predictedData}}</td>
+                        </tr>
+                    </tbody>
                 </table>
-                <br />
-                <div style="float:right" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                    <button type="button" [ngClass]="classForPreviousButtonPredicted" (click)="previousPredicted()" class="btn btn-outline-primary">{{'\u21E6'}}</button>
-                    <button type="button" style="font-size: 13px;" class="btn btn-outline-primary" disabled>{{predictedTableIndex}} - {{predictedTableIndex + 5}} of {{numberOfRecordsPredicted}}</button>
-                    <button type="button" [ngClass]="classForNextButtonPredicted" (click)="nextPredicted()" class="btn btn-outline-primary">{{'\u21E8'}}</button>
+
+
+
+
+                <!--
+                    ** Paginator for table **
+                -->
+                <div id="paginator3" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <button type="button" [ngClass]="classForPreviousButtonPredicted" (click)="previousPredicted()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                    <button type="button" id="paginator3indicator" class="btn btn-outline-secondary" disabled>{{predictedTableIndex}} - {{predictedTableIndex + 5}} of {{numberOfRecordsPredicted}}</button>
+                    <button type="button" [ngClass]="classForNextButtonPredicted" (click)="nextPredicted()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
                 </div>
                 
             </mat-card-content>
-            <br />
-            <br />
-
         </mat-card>
+
+
+        <!--
+            ** Chart For comparison of Actual and Predicted Values **
+        -->
         <div>
             <div>
                 <canvas id="predictedChart"></canvas>
             </div>
         </div>
         <br />
-        <div style="float: right" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-            <button type="button" [ngClass]="classForPreviousButtonPlot" (click)="previous10Plot()" class="btn btn-outline-primary">{{'\u21E6'}}</button>
-            <button type="button" style="font-size: 13px;" class="btn btn-outline-primary" disabled>{{predictedChartIndex}} - {{predictedChartIndex + 10}} of {{numberOfPlotDataEntries}}</button>
-            <button type="button" [ngClass]="classForNextButtonPlot" (click)="next10Plot()" class="btn btn-outline-primary">{{'\u21E8'}}</button>
-        </div>
 
+        <!--
+            ** Paginator for Chart **
+        -->
+        <div id="paginator4" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+            <button type="button" [ngClass]="classForPreviousButtonPlot" (click)="previous10Plot()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+            <button type="button" id="paginator4indicator" class="btn btn-outline-secondary" disabled>{{predictedChartIndex}} - {{predictedChartIndex + 10}} of {{numberOfPlotDataEntries}}</button>
+            <button type="button" [ngClass]="classForNextButtonPlot" (click)="next10Plot()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+        </div>
 
         <br />
         <br />
         <hr />
         <br />
+
+        <!--
+            ** Export To CSV option
+        -->
         <div *ngIf="predictionImageReady" class="text-center">
-            <button style="text-align: center;" type="button" class="btn btn-primary" (click)="exportToCsv()">Export To csv file</button>
+            <button id="exportButton" type="button" class="btn btn-primary" (click)="exportToCsv()">Export To csv file</button>
         </div>
 
-        <!-- <img *ngIf="predictionImageReady" style="width: 1300px;" src="assets/predicted{{inputJunction}}.png" /> -->
-
-        
-        <div *ngIf="toggleErrorString" class="alert alert-danger" role="alert" style="margin-top: 10px;">
+        <!--
+            ** Error Alert
+        -->
+        <div id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
             {{ errorstring }}
         </div>
 
-        <!-- <button (click)="show()">click me</button> -->
     </section>
 </div>

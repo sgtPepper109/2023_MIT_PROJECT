@@ -6,29 +6,33 @@ import java.io.Serializable;
 @Entity
 public class OperationModel implements Serializable {
 
-    // This is the stucture of Operation class that will be reflected into the database
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	// This is the structure of Operation class that will be reflected into the database
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Long id;
     private String dataset;
-    private Float trainratio;
-    private Float testratio;
-    private Float valratio;
+    @Column(nullable=false)
+    private Float trainRatio;
+    @Column(nullable=false)
+    private Float testRatio;
 
-    // The user_id will be linked to the id of the user in users table when logged in
+    // The userId will be linked to the id of the user in users table when logged in
     // The users table will be made later
     @Column(nullable = false, updatable = false)
-    private Long user_id;
+    private Long userId;
 
     public OperationModel() {}
-    public OperationModel(Long id, String dataset, Float trainratio, Float testratio, Float valratio, Long user_id) {
+    public OperationModel(Long id, String dataset, Float trainRatio, Float testRatio, Long userId) {
         this.id = id;
         this.dataset = dataset;
-        this.trainratio = trainratio;
-        this.testratio = testratio;
-        this.valratio = valratio;
-        this.user_id = user_id;
+        this.trainRatio = trainRatio;
+        this.testRatio = testRatio;
+        this.userId = userId;
     }
 
     public Long getId() {
@@ -47,36 +51,28 @@ public class OperationModel implements Serializable {
         this.dataset = dataset;
     }
 
-    public Float getTrainratio() {
-        return trainratio;
+    public Float getTrainRatio() {
+        return trainRatio;
     }
 
-    public void setTrainratio(Float trainratio) {
-        this.trainratio = trainratio;
+    public void setTrainRatio(Float trainRatio) {
+        this.trainRatio = trainRatio;
     }
 
-    public Float getTestratio() {
-        return testratio;
+    public Float getTestRatio() {
+        return testRatio;
     }
 
-    public void setTestratio(Float testratio) {
-        this.testratio = testratio;
+    public void setTestRatio(Float testRatio) {
+        this.testRatio = testRatio;
     }
 
-    public Float getValratio() {
-        return valratio;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setValratio(Float valratio) {
-        this.valratio = valratio;
-    }
-
-    public Long getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     @Override
@@ -84,10 +80,9 @@ public class OperationModel implements Serializable {
         return "Operation{" +
                 "id=" + id + '\'' +
                 ", dataset='" + dataset + '\'' +
-                ", trainratio='" + trainratio + '\'' +
-                ", testratio='" + testratio + '\'' +
-                ", valratio='" + valratio + '\'' +
-                ", user_id='" + user_id + '\'' +
+                ", trainRatio='" + trainRatio + '\'' +
+                ", testRatio='" + testRatio + '\'' +
+                ", userId='" + userId + '\'' +
                 '}';
     }
 }

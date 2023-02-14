@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\Acer\2023MitProject\FLASK"
+VIRTUAL_ENV="C:\Users\Acer\2023_MIT_PROJECT\FLASK"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

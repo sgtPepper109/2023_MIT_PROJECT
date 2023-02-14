@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { PropService } from '../propService/prop.service';
 
@@ -8,9 +7,9 @@ import { PropService } from '../propService/prop.service';
 	providedIn: 'root'
 })
 export class FlaskService {
-	private apiServerUrl = environment.apiBaseUrl
-
 	constructor(private http: HttpClient, private propService: PropService) { }
+
+	private apiServerUrl = environment.apiBaseUrl
 
 	public getTableData() {
 		return this.http.get(`${this.apiServerUrl}/process/readData`)
@@ -20,8 +19,8 @@ export class FlaskService {
 		return this.http.get(`${this.apiServerUrl}/process/getPlot`)
 	}
 
-	public predict(obj: string) {
-		return this.http.get(`${this.apiServerUrl}/process/getPredicted/${obj}`)
+	public predict() {
+		return this.http.get(`${this.apiServerUrl}/process/getPredicted`)
 	}
 
 	public setData() {
@@ -46,5 +45,9 @@ export class FlaskService {
 
 	public getActualPredictedForPlot() {
 		return this.http.get(`${this.apiServerUrl}/process/getActualPredictedForPlot`)
+	}
+
+	public sendInput(input: object) {
+		return this.http.post(`${this.apiServerUrl}/process/input`, input)
 	}
 }

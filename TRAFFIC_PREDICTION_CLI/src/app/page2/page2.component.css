@@ -1,3 +1,27 @@
 ng-container, th, td {
     color: black;
 }
+
+mat-card-content, mat-card, table { background-color: white; }
+
+li { cursor: pointer; }
+
+#hrTag1 { height: 2px; }
+
+#paginator1, #paginator2, #paginator3, #paginator4 { float:right; }
+
+#paginator1indicator, #paginator2indicator, #paginator3indicator, #paginator4indicator { font-size: 13px; }
+
+#dropdown { height: 60px; }
+
+#predictionLabel, #spinner { margin-left: 10px; }
+
+#predictionStartButton, #exportButton { text-align: center; }
+
+#errorAlert { margin-top: 10px; }
+
+tr, th { height: 45px; }
+
+#toggleJunction { margin-left: 425px; }
+
+#inputJunctionTime { height: 30px; }

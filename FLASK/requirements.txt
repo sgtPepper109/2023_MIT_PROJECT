@@ -8,3 +8,5 @@ datetime
 scipy
 scikit-learn
 statsmodels
+requests
+simplejson

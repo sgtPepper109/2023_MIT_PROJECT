@@ -7,14 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
 @RequestMapping("/process")
 public class FlaskController {
 
     private Object csvData;
+    private Object input;
 
     @Value("${flask.url}")
     private String flaskUrl;
@@ -34,15 +32,20 @@ public class FlaskController {
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/plot");
     }
+    
+    @PostMapping("/input")
+    public String getInput(@RequestBody Object response) throws JsonProcessingException {
+    	System.out.println("localhost:8080/process/junctiontime");
+    	this.input = response;
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/input");
+    }
 
-    @GetMapping("/getPredicted/{junction_months}")
-    public String predict(@PathVariable("junction_months") String junction_months) {
-        System.out.println("localhost:8080/process/predicted/junction/months");
+    @GetMapping("/getPredicted")
+    public String predict() {
+        System.out.println("localhost:8080/process/predicted");
         GetURLContents getURLContents = new GetURLContents();
-        String arr[] = junction_months.split("_");
-        String junction = arr[0], months = arr[1];
-        String path = flaskUrl + "/predict/" + junction + '/' + months;
-        return getURLContents.getData(path);
+        return getURLContents.getData(flaskUrl + "/predict");
     }
 
     @GetMapping("/setData")
@@ -74,6 +77,12 @@ public class FlaskController {
     public Object exhangeCsvData() throws JsonProcessingException {
         System.out.println("localhost:8080/process/exchangeCsvData");
         return this.csvData;
+    }
+    
+    @GetMapping("/exchangeInput")
+    public Object exchangeInput() throws JsonProcessingException {
+    	System.out.println("localhost:8080/process/exchangeInput");
+    	return this.input;
     }
 
     @GetMapping("/getResultTable")

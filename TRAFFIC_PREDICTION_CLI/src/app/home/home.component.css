@@ -7,3 +7,18 @@
 .text-center {
     text-align: center;
 }
+
+#hrTag { height: 2px; }
+
+#guideFileType { 
+    margin-top: 5px; 
+    color: red;
+}
+
+#labelTraining, #labelTesting, #labelValidation { margin-left: 10px; }
+
+#startProcessButton { text-align: center; }
+
+#errorAlert { margin-top: 10px; }
+
+#helpCanvas { margin-right: 10px; }

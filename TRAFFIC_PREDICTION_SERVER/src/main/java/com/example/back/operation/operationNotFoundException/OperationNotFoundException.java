@@ -1,7 +1,12 @@
 package com.example.back.operation.operationNotFoundException;
 
 public class OperationNotFoundException extends RuntimeException{
-    public OperationNotFoundException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public OperationNotFoundException(String message) {
         super(message);
     }
 }

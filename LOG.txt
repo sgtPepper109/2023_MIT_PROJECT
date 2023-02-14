@@ -66,3 +66,8 @@
     - remove unnecessary data from the table
     - show accuracy
     - properly label the charts
+
+7) 01-02-2022 (Wednesday)
+    - 1st Review by HoD
+
+8) 07-02-2022 (Tuesday)
