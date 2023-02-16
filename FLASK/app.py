@@ -43,8 +43,9 @@ tempdf = pd.DataFrame()
 dfResult = pd.DataFrame()
 accuracyScore = np.float64()
 
-testData = []
-predictedData = []
+actual = []
+predicted = []
+testAgainst = []
 
 class Model:
     def __init__(self, name, data, predict_features, test_size, ml_model):
@@ -60,14 +61,18 @@ class Model:
         self.rmse = mean_squared_error(self.ytest, self.ypredict, squared=False)
         global testData
         global predictedData
+        global testAgainst
         testData = self.ytest
         predictedData = self.ypredict
+        print(self.xtest)
         return self.rmse
 
     def prequisite(self, test_size):
         self.features = [i for i in self.data.columns if i != self.predict_features]
         self.X = self.data[self.features].values
         self.y = self.data[self.predict_features].values
+        print("x", self.X)
+        print("y", self.y)
         self.xtrain, self.xtest, self.ytrain, self.ytest = train_test_split(self.X, self.y, test_size=test_size)
         return None
 
@@ -266,13 +271,6 @@ def getResultTable():
     global dfResult
     head = dfResult
 
-    datetime = []
-    for i in head['DateTime']:
-        datetime.append(str(i))
-    
-    datetime = pd.Series(datetime)
-    head['DateTime'] = datetime
-
     data2 = head.to_dict()
     anycol = ""
     for i in data2:
@@ -296,13 +294,15 @@ def getAccuracy():
 
 @app.route('/getActualPredicted')
 def getActualPredicted():
-    global testData
-    global predictedData
+    global actual
+    global predicted
     predictedDf = pd.DataFrame()
-    predictedDf['actual'] = testData
-    predictedDf['predictedData'] = predictedData
+    predictedDf['actual'] = actual
+    predictedDf['predictedData'] = predicted
+    predictedDf = predictedDf.reset_index(drop=True)
     arr = []
     data2 = predictedDf.to_dict()
+    # print("data2: ", data2)
     anycol = ""
     for i in data2:
         anycol = i
@@ -317,17 +317,23 @@ def getActualPredicted():
 
 @app.route('/getActualPredictedForPlot')
 def getActualPredictedForPlot():
-    global testData
-    global predictedData
+    global actual
+    global predicted
+    global testAgainst
     arr = []
     labels = []
-    for i in range(1, len(testData) + 1):
+    for i in range(1, len(actual) + 1):
         labels.append(i)
     dictionary = dict()
-    dictionary['actual'] = testData.tolist()
-    dictionary['predicted'] = predictedData.tolist()
-    dictionary['labels'] = labels
+    dictionary['actual'] = actual.tolist()
+    dictionary['predicted'] = predicted.tolist()
+    dictionary['labels'] = testAgainst
     arr.append(dictionary)
+    
+    print(dictionary['actual'][:10])
+    print(dictionary['predicted'][:10])
+    print(dictionary['labels'][:10])
+
     return make_response(arr)
 
 
@@ -405,70 +411,175 @@ def predict():
     elif algorithm == "Bayesian Ridge Regression":
         model = BayesianRidge()
 
-    print("model", model)
 
-    lag_models = Model(
-            ml_model=model,
-            name=f'Dataset of junction {junction} with lag data',
-            data=lag_data[junction],
-            predict_features='Vehicles',
-            test_size=testRatio
-        )
+    # lag_models = Model(
+    #         ml_model=model,
+    #         name=f'Dataset of junction {junction} with lag data',
+    #         data=lag_data[junction],
+    #         predict_features='Vehicles',
+    #         test_size=testRatio
+    #     )
     
     global accuracyScore
-    accuracyScore = lag_models.r2
+    # accuracyScore = lag_models.r2
 
-    cur_time = lag_data[junction].tail(1).index[0] # get the current time, the last time of that dataset
+    mainData = lag_data[junction]
+    curr_time = mainData.tail(1).index[0] # get the current time, the last time of that dataset
     
     if timeFormat == "Days":
-        end_time = cur_time + pd.DateOffset(days=time) # the end time after 4 time that we want to predict
+        end_time = curr_time + pd.DateOffset(days=time) # the end time after 4 time that we want to predict
     elif timeFormat == "Months":
-        end_time = cur_time + pd.DateOffset(months=time) # the end time after 4 time that we want to predict
+        end_time = curr_time + pd.DateOffset(months=time) # the end time after 4 time that we want to predict
     else:
-        end_time = cur_time + pd.DateOffset(years=time) # the end time after 4 time that we want to predict
-    new_data = lag_data[junction].copy() # create a copy of dataset with that junction
-    initialNumberOfRows = new_data.shape[0]
-    features = lag_models.features # get features of each models in that junction
-    time_period = []
-    while cur_time != end_time:
-        time_period.append(cur_time)
-        last = new_data.tail(1).copy() # get the last row of dataset, just make a copy!
-        new_data = pd.concat([new_data, last]) # concatenate the copy dataset with it's last row
-        for i in range(1, 3): # create lag data
-            new_data[f'Vehicles_lag_{i}'] = new_data.Vehicles.shift(i) # shift by periods i
-        new_data.iloc[len(new_data) - 1, [1, 2, 3]] = [cur_time.month, cur_time.day, cur_time.hour] # assign value for those columns
-        last = new_data[features].tail(1).values # create a new last data that drop all nan
-        new_data.iloc[len(new_data) - 1, 0] = round(lag_models.ml_model.predict(last)[0]) # predicting for vehicles
-        cur_time += timedelta(minutes=60) # add to a cur_time 1 hour
-    new_data = new_data[initialNumberOfRows:]
-    new_data.index = time_period
-    new_data['DateTime'] = new_data.index
-    junctionarr = []
-    for i in range(new_data.shape[0]):
-        junctionarr.append(junction)
-    series = pd.Series(junctionarr)
-    new_data['Junction'] = junctionarr
+        end_time = curr_time + pd.DateOffset(years=time) # the end time after 4 time that we want to predict
 
-    year = []
-    for i in range(new_data.shape[0]):
-        year.append(2017)
-    series2 = pd.Series(year)
-    new_data['Year'] = year
-    new_data = new_data.set_index('DateTime')
-    data = new_data[new_data['Junction'] == junction]
-    data['DateTime'] = data.index
-    data = data.drop(['Vehicles_lag_1', 'Vehicles_lag_2'], axis='columns')
-    data = data.reset_index(drop=True)
+
+
+
+    mainData = tempdf.copy()
+    mainData = mainData[mainData.Junction == junction]
+    mainData = mainData.drop(['Junction'], axis='columns')
+
+    x = mainData.drop(['Vehicles'], axis='columns')
+    y = mainData.Vehicles
+    xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size = testRatio)
+    model.fit(xtrain, ytrain)
+
+
+    timePeriod = list()
+    while curr_time != end_time:
+        timePeriod.append(curr_time)
+        curr_time += timedelta(minutes=60)
+
+    toPredict = pd.DataFrame()
+    years = list()
+    months = list()
+    days = list()
+    hours = list()
+    dateTime = list()
+    
+    for i in timePeriod:
+        dateTime.append(i)
+        years.append(i.year)
+        months.append(i.month)
+        days.append(i.day)
+        hours.append(i.hour)
+
+    toPredict['Year'] = years
+    toPredict['Month'] = months
+    toPredict['Day'] = days
+    toPredict['Hour'] = hours
+    toPredict['DateTime'] = dateTime
+    toPredict.index = toPredict['DateTime']
+    toPredict = toPredict.drop(['DateTime'], axis='columns')
+
+    futureDatesPredicted = model.predict(toPredict)
+
+
     global dfResult
-    dfResult = data
-    vehicles = list(data['Vehicles'])
-    datetime = []
-    for i in data['DateTime']:
-        datetime.append(str(i))
+    dfResult = toPredict.copy()
+
+    columnDateTime = list()
+    for i in dateTime:
+        columnDateTime.append(str(i))
+
+    dfResult['DateTime'] = columnDateTime
+    dfResult = dfResult.reset_index(drop=True)
+    dfResult['Vehicles'] = list(futureDatesPredicted)
+
+    xtestIndex = list(xtest.index)
+    xtestIndex.sort()
+    newXtest = pd.DataFrame()
+    
+    years = list()
+    months = list()
+    days = list()
+    hours = list()
+    dateTime = list()
+    
+    for i in xtestIndex:
+        dateTime.append(i)
+        years.append(i.year)
+        months.append(i.month)
+        days.append(i.day)
+        hours.append(i.hour)
+
+    newXtest['Year'] = years
+    newXtest['Month'] = months
+    newXtest['Day'] = days
+    newXtest['Hour'] = hours
+    newXtest['DateTime'] = dateTime
+    newXtest.index = newXtest['DateTime']
+    newXtest = newXtest.drop(['DateTime'], axis='columns')
+
+    newYtest = list()
+    for i in newXtest.index:
+        newYtest.append(ytest[i])        
+
+    newYtest = pd.Series(newYtest)
+    newYtest.index = newXtest.index
+
+    global actual
+    global predicted
+    actual = newYtest
+    predicted = model.predict(newXtest)
+    accuracyScore = model.score(newXtest, newYtest)
+
+    global testAgainst
+    testAgainst2 = newXtest.index.copy()
+    for i in testAgainst2:
+        testAgainst.append(str(i))
+
     dictionary = dict()
-    dictionary['vehicles'] = vehicles
-    dictionary['datetime'] = datetime
+    dictionary['vehicles'] = list(futureDatesPredicted)
+
+    toPredictDateTime = list()
+    for i in toPredict.index:
+        toPredictDateTime.append(str(i))
+    dictionary['datetime'] = toPredictDateTime
+    
     result = [dictionary]
+
+    # print(end_time)
+    # new_data = lag_data[junction].copy() # create a copy of dataset with that junction
+    # initialNumberOfRows = new_data.shape[0]
+    # features = lag_models.features # get features of each models in that junction
+    # time_period = []
+    # while cur_time != end_time:
+    #     time_period.append(cur_time)
+    #     last = new_data.tail(1).copy() # get the last row of dataset, just make a copy!
+    #     new_data = pd.concat([new_data, last]) # concatenate the copy dataset with it's last row
+    #     for i in range(1, 3): # create lag data
+    #         new_data[f'Vehicles_lag_{i}'] = new_data.Vehicles.shift(i) # shift by periods i
+    #     new_data.iloc[len(new_data) - 1, [1, 2, 3]] = [cur_time.month, cur_time.day, cur_time.hour] # assign value for those columns
+    #     last = new_data[features].tail(1).values # create a new last data that drop all nan
+    #     new_data.iloc[len(new_data) - 1, 0] = round(lag_models.ml_model.predict(last)[0]) # predicting for vehicles
+    #     cur_time += timedelta(minutes=60) # add to a cur_time 1 hour
+    # new_data = new_data[initialNumberOfRows:]
+    # new_data.index = time_period
+    # new_data['DateTime'] = new_data.index
+    # junctionarr = []
+    # for i in range(new_data.shape[0]):
+    #     junctionarr.append(junction)
+    # series = pd.Series(junctionarr)
+    # new_data['Junction'] = junctionarr
+
+    # year = []
+    # for i in range(new_data.shape[0]):
+    #     year.append(2017)
+    # series2 = pd.Series(year)
+    # new_data['Year'] = year
+    # new_data = new_data.set_index('DateTime')
+    # data = new_data[new_data['Junction'] == junction]
+    # data['DateTime'] = data.index
+    # data = data.drop(['Vehicles_lag_1', 'Vehicles_lag_2'], axis='columns')
+    # data = data.reset_index(drop=True)
+    # global dfResult
+    # dfResult = data
+    # vehicles = list(data['Vehicles'])
+    # datetime = []
+    # for i in data['DateTime']:
+    #     datetime.append(str(i))
     return make_response(result)
 
 

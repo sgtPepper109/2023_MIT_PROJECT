@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
-import { response } from 'express';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -16,11 +16,13 @@ import { response } from 'express';
 })
 export class Page2Component implements OnInit {
 	constructor(
+		private router: Router,
 		private propService: PropService,
 		private operationService: OperationService,
 		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService
-	) { }
+	) {
+	}
 
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
 	vehicles = []  // Vehicles array to display on y axis of chart
@@ -31,6 +33,9 @@ export class Page2Component implements OnInit {
 
 	errorstring: string = "" // error message to be displayed on the screen
 
+	dataVisualizationType: string = "Table"
+	dataVisualizationJunctionName: string = "Junction 1"
+	futurePredictionsRepresentationType: string = "Table"
 	inputJunction: string = "Choose Junction"// input variables for junction and months
 	inputTime: string = ""
 	inputAlgorithm: string = "Random Forest Regression"
@@ -49,13 +54,19 @@ export class Page2Component implements OnInit {
 	predictedChartIndex: number = 0  // holds paginator index for comparison chart
 	numberOfPlotDataEntries: number = 0  // holds number of predictions for showing in paginator or comparison chart
 
+	toggleDataVisualizationTable: boolean = true
+	toggleDataVisualizationChart: boolean = false
+	toggleFuturePredictionsTable: boolean = true
+	toggleFuturePredictionsPlotHidden: boolean = true
 	toggleErrorString: boolean = false; // for displaying if validations are not correct
 	startedTraining: boolean = false;// for loading symbol when training starts
 	resultTableReady: boolean = false  // if true then renders the result table
 	predictedTableReady: boolean = false  // if true then renders the predicted values table
+	futurePredictionsReadyHidden: boolean = true
 	gotAccuracy: boolean = false  // if true then renders accuracy
-	predictionImageReady: boolean = false  // to show the prediction image when training ends 
-	plotReady: boolean = false  // if true then renders the vehicles vs datetime plot for given junction
+	futurePredictionsChartHidden: boolean = true // to show the prediction image when training ends 
+	vehiclesVsDateTimeChartHidden: boolean = true  // if true then renders the vehicles vs datetime plot for given junction
+	comparisonChartHidden: boolean = true // if true then renders the comparison chart
 
 	classForPreviousButton: string = "page-item disabled"  // class for previous button in paginator
 	classForNextButton: string = "page-item"  // class for next button in paginator
@@ -87,6 +98,7 @@ export class Page2Component implements OnInit {
 
 	ngOnInit(): void {
 
+
 		this.testRatio = this.propService.testRatio
 
 		// On Init, render table representing csv data from csv file read as input in home page
@@ -100,7 +112,6 @@ export class Page2Component implements OnInit {
 		this.flaskService.getPlot().subscribe(
 			(response) => {
 				this.recievedPlotData = response
-				this.plotReady = true
 			},
 			(error: HttpErrorResponse) => {
 				console.log(error.message)
@@ -112,7 +123,35 @@ export class Page2Component implements OnInit {
 		// if index of paginator is not 0 then enable previous button
 		// because if zero then no use of previous button
 		if (this.index !== 0) { this.classForPreviousButton = "page-item" }
+		
+
 	}
+
+
+	changeDataVisualizationType() {
+		if (this.dataVisualizationType == "Table") {
+			this.vehiclesVsDateTimeChartHidden = true
+			this.toggleDataVisualizationChart = false
+			this.toggleDataVisualizationTable = true
+		} else {
+			this.toggleDataVisualizationChart = true
+			this.toggleDataVisualizationTable = false
+		}
+	}
+
+
+	changeFuturePredictionsRepresentationType() {
+		if (this.futurePredictionsRepresentationType == "Table") {
+			this.futurePredictionsChartHidden = true
+			this.toggleFuturePredictionsTable = true
+			this.toggleFuturePredictionsPlotHidden = true
+		} else {
+			this.futurePredictionsChartHidden = false
+			this.toggleFuturePredictionsPlotHidden = false
+			this.toggleFuturePredictionsTable = false
+		}
+	}
+
 
 	LineChart(x: any, y: any) {
 		this.plot = new Chart("plot", {
@@ -144,10 +183,53 @@ export class Page2Component implements OnInit {
 			}
 		});
 	}
+	
+
+	
+
+	plotFuturePredictions(x: any, y: any) {
+		// prediction is done
+		this.futurePredictionsChartHidden = false
+
+		// plot chart (canvas) to show results
+		// destroy chart if already in use
+		if (this.myChart != null) { this.myChart.destroy() }
+		this.myChart = new Chart("myChart", {
+			type: 'line',
+			data: {
+				labels: x,
+				datasets: [{
+					label: '# of Vehicles',
+					data: y,
+					borderWidth: 1
+				}]
+			},
+			options: {
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: 'Vehicles'
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: 'Date-Time'
+						}
+					}
+				}
+			}
+		});
+	}
+
+
 
 
 	// show Line-Chart for junction 1
 	show1() {
+		this.vehiclesVsDateTimeChartHidden = false
 		this.datetime = Object.values(this.recievedPlotData)[0]['datetime']  // 0 index means junction 1
 		this.vehicles = Object.values(this.recievedPlotData)[0]['vehicles']
 
@@ -163,6 +245,7 @@ export class Page2Component implements OnInit {
 
 	// show Line-Chart for junction 2
 	show2() {
+		this.vehiclesVsDateTimeChartHidden = false
 		this.datetime = Object.values(this.recievedPlotData)[1]['datetime']  // 1 index means junction 2
 		this.vehicles = Object.values(this.recievedPlotData)[1]['vehicles']
 
@@ -179,6 +262,7 @@ export class Page2Component implements OnInit {
 
 	// show Line-Chart for junction 3
 	show3() {
+		this.vehiclesVsDateTimeChartHidden = false
 		this.datetime = Object.values(this.recievedPlotData)[2]['datetime']  // 2 index means junction 3
 		this.vehicles = Object.values(this.recievedPlotData)[2]['vehicles']
 
@@ -194,6 +278,7 @@ export class Page2Component implements OnInit {
 
 	// show Line-Chart for junction 4
 	show4() {
+		this.vehiclesVsDateTimeChartHidden = false
 		this.datetime = Object.values(this.recievedPlotData)[3]['datetime']  // 3 index means junction4
 		this.vehicles = Object.values(this.recievedPlotData)[3]['vehicles']
 
@@ -492,7 +577,7 @@ export class Page2Component implements OnInit {
 
 	// if new input is given then this function fires to switch off the predicted image 
 	disablePredictionImage() {
-		this.predictionImageReady = false
+		this.futurePredictionsChartHidden = true
 	}
 
 	// on clicking export to csv button option, download the data into a csv file
@@ -511,6 +596,14 @@ export class Page2Component implements OnInit {
 		} catch (error) {
 			alert(error)
 		}
+	}
+
+
+
+	// navigate to home button
+	navigateHome() {
+		this.router.navigate(['/']);
+
 	}
 
 
@@ -544,61 +637,27 @@ export class Page2Component implements OnInit {
 
 						// if successful
 						(response) => {
-							console.log(response)
 
 							// training has completed, disable spinner and show results
 							this.startedTraining = false;
 
-							// prediction is done
-							this.predictionImageReady = true
 
 							// set datetime and vehicles variables to values recieved from backend as response
 							// for table
 							this.datetime = Object.values(response)[0]['datetime']
 							this.vehicles = Object.values(response)[0]['vehicles']
 
-							// plot chart (canvas) to show results
-							// destroy chart if already in use
-							console.log(this.predictionImageReady)
-							if (this.myChart != null) { this.myChart.destroy() }
-							this.myChart = new Chart("myChart", {
-								type: 'line',
-								data: {
-									labels: this.datetime,
-									datasets: [{
-										label: '# of Vehicles',
-										data: this.vehicles,
-										borderWidth: 1
-									}]
-								},
-								options: {
-									scales: {
-										y: {
-											beginAtZero: true,
-											title: {
-												display: true,
-												text: 'Vehicles'
-											}
-										},
-										x: {
-											title: {
-												display: true,
-												text: 'Date-Time'
-											}
-										}
-									}
-								}
-							});
 
 
 							// get all the result data (predicted for next number of days provided)
-							this.flaskService.getResultTable().subscribe(
+							this.flaskService.getResultTable().subscribe(   // also plots the result
 
 								// if successful
 								(response) => {
 
 									// to show result table
 									this.resultTableReady = true
+									this.futurePredictionsReadyHidden = false
 
 									// set tableResult variable to response so that it can be used later
 									this.tableResult = response
@@ -611,6 +670,9 @@ export class Page2Component implements OnInit {
 
 									// get total number of records from table data
 									this.numberOfRecordsResult = Object.values(response).length
+
+									this.plotFuturePredictions(this.datetime, this.vehicles)
+
 								},
 
 								// if error
@@ -674,9 +736,10 @@ export class Page2Component implements OnInit {
 
 								// if successful						
 								(response) => {
-
+									this.comparisonChartHidden = false
 									// set it to the variable 
 									this.predictionPlotData = response
+									console.log(response)
 
 									// differentiate plot data into actual, predicted and indices
 									this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
@@ -726,7 +789,7 @@ export class Page2Component implements OnInit {
 												x: {
 													title: {
 														display: true,
-														text: 'values'
+														text: 'DateTime'
 													}
 												}
 											}

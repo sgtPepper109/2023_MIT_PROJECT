@@ -1,21 +1,42 @@
-<div id="text-center" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
+<nav id="navbar-example2" class="navbar bg-primary px-3 mb-3" aria-labelledby="navHeading" data-bs-theme="dark">
+    <ul class="nav nav-pills">
+        <li class="nav-item-primary" (click)="navigateHome()">
+            <a style="font-size: 20px;" class="nav-link">{{'\u276E'}}</a>
+        </li>
+        <a style="margin-left: 10px;" class="navbar-brand" id="navHeading">Traffic Intensity Prediction and Recommendation</a>
+    </ul>
+    <div>
+        <select class="form-select" aria-label="Default select example" style="color: black;">
+            <option value="Training">Training</option>
+            <option selected>Prediction</option>
+            <option value="Recommendation">Recommendation</option>
+        </select>
+    </div>
+</nav>
+
+
+<div class="container p-7 my-7 shadow-lg p-3 mb-5 bg-white rounded">
     <section>
-        <h1>Traffic Predictor</h1>
-        <hr id="hrTag1" />
-        <br />
-
-
         <!-- 
             ** Table for displaying the csv data **
         -->
-        <h4 id="table1-desc"><strong>How your data looks: </strong></h4>
-        <mat-card>
+        <mat-card *ngIf="toggleDataVisualizationTable">
+            <nav id="navbar-example2" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                <ul class="nav nav-pills">
+                    <a style="margin-left: 10px;" id="navHeading">How Your Data Looks</a>
+                </ul>
+                <div>
+                    <select class="form-select" aria-label="Default select example" (change)="changeDataVisualizationType()" [(ngModel)]="dataVisualizationType">
+                        <option selected>Table</option>
+                        <option value="Line Plot">Line Plot</option>
+                    </select>
+                </div>
+            </nav>
             <mat-card-content>
                 
                 <table class="table table-bordered border table-striped" aria-describedby="tabe1-desc">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
                             <th scope="col">Junction</th>
                             <th scope="col">DateTime</th>
                             <th scope="col">Vehicles</th>
@@ -23,8 +44,7 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let record of dataSource">
-                            <th scope="row">{{ record.ID }}</th>
-                            <td>{{ record.Junction }}</td>
+                            <th scope="row">{{ record.Junction }}</th>
                             <td>{{ record.DateTime }}</td>
                             <td>{{ record.Vehicles }}</td>
                         </tr>
@@ -41,14 +61,23 @@
                 </div>
             </mat-card-content>
         </mat-card>
-        <br />
 
         
         <!-- 
             ** Vehicles vs DateTime plots for all junctions **
         -->
-        <br />
-        <mat-card>
+        <mat-card *ngIf="toggleDataVisualizationChart">
+            <nav id="navbar-example2" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                <ul class="nav nav-pills">
+                    <a style="margin-left: 10px;" id="navHeading">How Your Data Looks</a>
+                </ul>
+                <div>
+                    <select class="form-select" aria-label="Default select example" (change)="changeDataVisualizationType()" [(ngModel)]="dataVisualizationType">
+                        <option selected>Table</option>
+                        <option value="Line Plot">Line Plot</option>
+                    </select>
+                </div>
+            </nav>
             <mat-card-content>
                 <h4><strong>Number of vehicles over time</strong></h4>
                 <nav aria-label="Page navigation example">
@@ -59,7 +88,7 @@
                         <li class="page-item" (click)="show4()"><a class="page-link">Junction 4</a></li>
                     </ul>
                 </nav>
-                <div *ngIf="plotReady">  <!-- Canvas for showing plot -->
+                <div [hidden]="vehiclesVsDateTimeChartHidden">  <!-- Canvas for showing plot -->
                     <div>
                         <canvas id="plot"></canvas>
                     </div>
@@ -106,7 +135,6 @@
                     <option selected>Random Forest Regression</option>
                     <option value="Gradient Boosting Regression">Gradient Boosting Regression</option>
                     <option value="Linear Regression">Linear Regression</option>
-                    <option value="Logistic Regression">Logistic Regression</option>
                     <option value="Ridge Regression">Ridge Regression</option>
                     <option value="Lasso Regression">Lasso Regression</option>
                     <option value="Bayesian Ridge Regression">Bayesian Ridge Regression</option>
@@ -131,59 +159,84 @@
 
 
         <!--
-            ** Table for showing predictions for provided junction and number of days
+            ** Future Predictions in table and in plot **
         -->
-        <mat-card *ngIf="resultTableReady">
-            <mat-card-content>
-                <h4 id="table2-desc"><strong>Result for Junction {{inputJunction}} for duration of {{inputTime}} {{time}}</strong></h4>
-
-                <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                    <thead>
-                        <tr>
-                            <th scope="col">DateTime</th>
-                            <th scope="col">Vehicles</th>
-                            <th scope="col">Year</th>
-                            <th scope="col">Month</th>
-                            <th scope="col">Day</th>
-                            <th scope="col">Hour</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let record of dataSourceResult">
-                            <th scope="row">{{ record.DateTime }}</th>
-                            <td>{{ record.Vehicles }}</td>
-                            <td>{{ record.Year }}</td>
-                            <td>{{ record.Month }}</td>
-                            <td>{{ record.Day }}</td>
-                            <td>{{ record.Hour }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-
-                <!--
-                    ** Paginator for Prediction table **
-                -->
-                <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                    <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
-                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                </div>
-            </mat-card-content>
-        </mat-card>
-
-        <!--
-            ** Vehicles vs DateTime chart for provided junction number and number of days **
-        -->
-        <mat-card>
-            <mat-card-content>
-                <div>
+        <br />
+        <div [hidden]="futurePredictionsReadyHidden">
+            <mat-card *ngIf="toggleFuturePredictionsTable">
+                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                    <ul class="nav nav-pills">
+                        <h4 id="table2-desc"><strong>Result for Junction {{inputJunction}} for duration of {{inputTime}} {{time}}</strong></h4>
+                    </ul>
                     <div>
-                        <canvas id="myChart"></canvas>
+                        <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
+                            <option selected>Table</option>
+                            <option value="Line Plot">Line Plot</option>
+                        </select>
                     </div>
-                </div>
-            </mat-card-content>
-        </mat-card>
+                </nav>
+                <mat-card-content *ngIf="resultTableReady">
+
+                    <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                        <thead>
+                            <tr>
+                                <th scope="col">DateTime</th>
+                                <th scope="col">Vehicles</th>
+                                <th scope="col">Year</th>
+                                <th scope="col">Month</th>
+                                <th scope="col">Day</th>
+                                <th scope="col">Hour</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let record of dataSourceResult">
+                                <th scope="row">{{ record.DateTime }}</th>
+                                <td>{{ record.Vehicles }}</td>
+                                <td>{{ record.Year }}</td>
+                                <td>{{ record.Month }}</td>
+                                <td>{{ record.Day }}</td>
+                                <td>{{ record.Hour }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+                    <!--
+                        ** Paginator for Prediction table **
+                    -->
+                    <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                        <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                        <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
+                        <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!--
+                ** Vehicles vs DateTime chart for provided junction number and number of days **
+            -->
+            <mat-card [hidden]="toggleFuturePredictionsPlotHidden">
+                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                    <ul class="nav nav-pills">
+                        <h4 id="table2-desc"><strong>Result for Junction {{inputJunction}} for duration of {{inputTime}} {{time}}</strong></h4>
+                    </ul>
+                    <div>
+                        <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
+                            <option selected>Table</option>
+                            <option value="Line Plot">Line Plot</option>
+                        </select>
+                    </div>
+                </nav>
+                <mat-card-content>
+                    <div [hidden]="futurePredictionsChartHidden">
+                        <div>
+                            <canvas id="myChart"></canvas>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+            
 
 
         <!--
@@ -241,7 +294,7 @@
         <!--
             ** Chart For comparison of Actual and Predicted Values **
         -->
-        <div>
+        <div [hidden]="comparisonChartHidden">
             <div>
                 <canvas id="predictedChart"></canvas>
             </div>
@@ -265,7 +318,7 @@
         <!--
             ** Export To CSV option
         -->
-        <div *ngIf="predictionImageReady" class="text-center">
+        <div *ngIf="futurePredictionsChartHidden" class="text-center">
             <button id="exportButton" type="button" class="btn btn-primary" (click)="exportToCsv()">Export To csv file</button>
         </div>
 

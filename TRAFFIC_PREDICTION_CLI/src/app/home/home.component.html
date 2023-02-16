@@ -22,7 +22,7 @@
                 <div class="input-group">
                     <div class="input-group-text">testing</div>
                     <input type="number" class="form-control" id="autoSizingInputGroup" placeholder="0" step="0.1"
-                        [(ngModel)]="inputTestRatio" (change)="changeTest()"
+                        [(ngModel)]="inputTestRatio" (change)="changeTrain()"
                     >
                 </div>
             </div>
@@ -43,6 +43,8 @@
         <div class="text-center">
             <button id="startProcessButton" type="button" class="btn btn-primary" (click)="manageInfo()">Start
                 Process</button>
+            <button style="margin-left: 10px" id="resetButton" type="button" class="btn btn-danger" (click)="reset()">Reset</button>
+            
         </div>
         <br />
         <div class="text-center">

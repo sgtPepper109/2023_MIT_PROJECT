@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit {
 
 	public operations: Operation[] = [];
 
-	csvRecords: any
+	csvRecords: object = {}
 	header: boolean = true
 	fileName: string = ""
 	datasetPath: string = ""
@@ -40,12 +40,12 @@ export class HomeComponent implements OnInit {
 	errorstring: string = ""
 
 	// for displaying if validations are not correct
-	toggleErrorString = false;
-	start = false
+	toggleErrorString: boolean = false;
+	start: boolean = false
 
 	ngOnInit() {}
 
-	changeTest() {
+	changeTrain() {
 		if (parseFloat(this.inputTestRatio) < 0) {
 			this.errorstring = "Note: ratio cannot be a negative value"
 			this.toggleErrorString = true
@@ -70,9 +70,7 @@ export class HomeComponent implements OnInit {
 				next: (result): void => {
 					this.csvRecords = Object.values(result);
 
-					this.flaskService.sendCsvData(result).subscribe(
-						(response) => { console.log(response)}
-					);
+					this.flaskService.sendCsvData(result).subscribe()
 				},
 				error: (error: NgxCSVParserError): void => {
 					console.log('Error', error);
@@ -86,6 +84,14 @@ export class HomeComponent implements OnInit {
 	}
 
 
+	reset() {
+		this.inputTrainRatio = ""
+		this.inputTestRatio = ""
+		this.dataset = ""
+		this.csvRecords = {}
+	}
+
+
 	manageInfo() {
 
 		if (this.dataset !== "" && this.inputTestRatio !== "" && this.inputTrainRatio !== "") {
@@ -96,7 +102,7 @@ export class HomeComponent implements OnInit {
 			const arr = datasetString.split('.')
 			if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
 
-				if (trainRatio + testRatio === 1.0) {
+				if (trainRatio + testRatio === 1.0 && testRatio < 1) {
 					let operation: Operation = {
 						dataset: this.dataset,
 						trainRatio: trainRatio,
@@ -116,6 +122,8 @@ export class HomeComponent implements OnInit {
 				
 											// this is a service file shared with page2 component
 											this.propService.data = response
+											this.propService.trainRatio = trainRatio
+											this.propService.dataset = this.dataset
 											this.propService.testRatio = testRatio
 				
 											// navigate to page2
@@ -146,9 +154,9 @@ export class HomeComponent implements OnInit {
 					
 
 				} else {
-					this.errorstring = "Note: The ratios don't add up to 1"
+					this.errorstring = "Note: Invalid input ratios (Must be in range of 0 to 1"
 					this.toggleErrorString = true
-					this._snackBar.open("Note: The ratios don't add up to 1", '\u2716')
+					this._snackBar.open("Note: Invalid input ratios (Must be in range of 0 to 1", '\u2716')
 				}
 			} else {
 				this.errorstring = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
