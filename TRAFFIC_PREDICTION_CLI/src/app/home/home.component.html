@@ -8,7 +8,7 @@
         <hr id="hrTag" />
         <label for="myfile">Browse dataset: </label>
         <br /> <!-- Input File of type csv -->
-        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" [(ngModel)]="dataset" (change)="fileChangeListener($event)">
+        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
         <br />
         <p id="guideFileType">Only .csv, .xlsx and .data files allowed</p>
         <br />
@@ -22,7 +22,7 @@
                 <div class="input-group">
                     <div class="input-group-text">testing</div>
                     <input type="number" class="form-control" id="autoSizingInputGroup" placeholder="0" step="0.1"
-                        [(ngModel)]="inputTestRatio" (change)="changeTrain()"
+                        [(ngModel)]="inputTestRatio" (change)="changeTrain()" required
                     >
                 </div>
             </div>
@@ -87,3 +87,12 @@
         </div>
     </section>
 </div>
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PropService } from '../services/propService/prop.service';
 import { OperationService } from '../services/operationService/operation.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -7,6 +7,8 @@ import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
 import { Router } from '@angular/router';
+
+
 
 
 @Component({
@@ -20,9 +22,8 @@ export class Page2Component implements OnInit {
 		private propService: PropService,
 		private operationService: OperationService,
 		private _snackBar: MatSnackBar,
-		private flaskService: FlaskService
-	) {
-	}
+		private flaskService: FlaskService,
+	) {}
 
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
 	vehicles = []  // Vehicles array to display on y axis of chart
@@ -35,11 +36,15 @@ export class Page2Component implements OnInit {
 
 	dataVisualizationType: string = "Table"
 	dataVisualizationJunctionName: string = "Junction 1"
+	junctionToBePlotted: string = "Junction 1"
 	futurePredictionsRepresentationType: string = "Table"
+	comparisonDataRepresentationType: string = "Table"
 	inputJunction: string = "Choose Junction"// input variables for junction and months
 	inputTime: string = ""
 	inputAlgorithm: string = "Random Forest Regression"
 	time: string = "Days"
+	modelSummary: string[] = [] 
+	keys: any
 	obj = {} // object to be passed to the back-end that comprises of junction and months
 
 
@@ -55,9 +60,11 @@ export class Page2Component implements OnInit {
 	numberOfPlotDataEntries: number = 0  // holds number of predictions for showing in paginator or comparison chart
 
 	toggleDataVisualizationTable: boolean = true
-	toggleDataVisualizationChart: boolean = false
+	toggleDataVisualizationChartHidden: boolean = true
 	toggleFuturePredictionsTable: boolean = true
 	toggleFuturePredictionsPlotHidden: boolean = true
+	toggleComparisonTable: boolean = true
+	toggleComparisonChartHidden: boolean = true
 	toggleErrorString: boolean = false; // for displaying if validations are not correct
 	startedTraining: boolean = false;// for loading symbol when training starts
 	resultTableReady: boolean = false  // if true then renders the result table
@@ -109,16 +116,14 @@ export class Page2Component implements OnInit {
 		this.numberOfRecords = Object.values(this.propService.data).length
 
 		// get all plot data i.e. vehicles vs datetime information of all junctions
-		this.flaskService.getPlot().subscribe(
-			(response) => {
-				this.recievedPlotData = response
-			},
-			(error: HttpErrorResponse) => {
-				console.log(error.message)
-				alert(error.message)
-
-			}
-		)
+		this.flaskService.getPlot().subscribe({
+			next: (response) => {
+					this.recievedPlotData = response
+					this.junctionToBePlotted = "Junction 1"
+					this.show1()
+				},
+			error: (error: HttpErrorResponse) => { console.log(error.message) }
+		})
 
 		// if index of paginator is not 0 then enable previous button
 		// because if zero then no use of previous button
@@ -131,11 +136,12 @@ export class Page2Component implements OnInit {
 	changeDataVisualizationType() {
 		if (this.dataVisualizationType == "Table") {
 			this.vehiclesVsDateTimeChartHidden = true
-			this.toggleDataVisualizationChart = false
+			this.toggleDataVisualizationChartHidden = true
 			this.toggleDataVisualizationTable = true
 		} else {
-			this.toggleDataVisualizationChart = true
+			this.toggleDataVisualizationChartHidden = false
 			this.toggleDataVisualizationTable = false
+			this.changeJunctionToBePlotted()
 		}
 	}
 
@@ -151,6 +157,53 @@ export class Page2Component implements OnInit {
 			this.toggleFuturePredictionsTable = false
 		}
 	}
+
+
+
+
+	changeComparisonDataRepresentationType() {
+		if (this.comparisonDataRepresentationType == "Table") {
+			this.toggleComparisonTable = true
+			this.toggleComparisonChartHidden = true
+			this.comparisonChartHidden = true
+		} else {
+			this.toggleComparisonTable = false
+			this.toggleComparisonChartHidden = false
+			this.comparisonChartHidden = false
+		}
+	}
+	
+
+
+
+	changeJunctionToBePlotted() {
+		if (this.junctionToBePlotted == "Junction 1") {
+			this.show1()
+		}
+		if (this.junctionToBePlotted == "Junction 2") {
+			this.show2()
+		}
+		if (this.junctionToBePlotted == "Junction 3") {
+			this.show3()
+		}
+		if (this.junctionToBePlotted == "Junction 4") {
+			this.show4()
+		}
+	}
+
+
+
+
+
+	checkPredictions() {
+		if (!this.resultTableReady) {
+			this.errorstring = "Warning: Training not done"
+			this.toggleErrorString = true
+		}
+	}
+
+
+
 
 
 	LineChart(x: any, y: any) {
@@ -649,6 +702,16 @@ export class Page2Component implements OnInit {
 
 
 
+							this.flaskService.getModelSummary().subscribe(
+								(response) => {
+									this.modelSummary = Object.values(response)
+								}, (error: HttpErrorResponse) => {
+									console.log(error)
+									alert(error.message)
+								}
+							)
+
+
 							// get all the result data (predicted for next number of days provided)
 							this.flaskService.getResultTable().subscribe(   // also plots the result
 
@@ -739,7 +802,6 @@ export class Page2Component implements OnInit {
 									this.comparisonChartHidden = false
 									// set it to the variable 
 									this.predictionPlotData = response
-									console.log(response)
 
 									// differentiate plot data into actual, predicted and indices
 									this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)

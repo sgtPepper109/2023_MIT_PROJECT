@@ -50,4 +50,8 @@ export class FlaskService {
 	public sendInput(input: object) {
 		return this.http.post(`${this.apiServerUrl}/process/input`, input)
 	}
+
+	public getModelSummary() {
+		return this.http.get(`${this.apiServerUrl}/process/getModelSummary`)
+	}
 }

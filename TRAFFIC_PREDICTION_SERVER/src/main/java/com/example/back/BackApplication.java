@@ -9,6 +9,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -16,9 +17,19 @@ public class BackApplication {
 
 	@Value("${ng.url}")
 	private String ngUrl;
+	
+	@Value("${spring.datasource.url}")
+	private static String url;
+	
+	@Value("${spring.datasource.username}")
+	private static String username;
+	
+	@Value("${spring.datasource.password}")
+	private static String password;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		SpringApplication.run(BackApplication.class, args);
+		
 	}
 
 	@Bean

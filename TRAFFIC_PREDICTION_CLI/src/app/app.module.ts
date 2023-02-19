@@ -19,6 +19,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { NgxCsvParserModule } from 'ngx-csv-parser';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import {MatStepperModule} from '@angular/material/stepper';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatButtonToggleModule,
     MatInputModule,
     NgxCsvParserModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatStepperModule
   ],
   providers: [OperationService, PropService],
   bootstrap: [AppComponent]
