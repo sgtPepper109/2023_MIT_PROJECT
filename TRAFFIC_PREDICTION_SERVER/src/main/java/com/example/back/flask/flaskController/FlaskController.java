@@ -2,9 +2,7 @@ package com.example.back.flask.flaskController;
 
 import com.example.back.flask.getUrlContents.GetURLContents;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.hibernate.mapping.Any;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -55,16 +53,6 @@ public class FlaskController {
         return getURLContents.getData(flaskUrl + "/setData");
     }
 
-//    @PostMapping(value = "/getCsvJson")
-//    public List<?> getCsvJson(@RequestBody Object response) throws JsonProcessingException {
-//        System.out.println("getCsvJson");
-//        System.out.println(response);
-//        List<String> l = new ArrayList<>();
-//        l.add("hello");
-//        l.add("hello2");
-//        return l;
-//    }
-
     @PostMapping("/setCsvData")
     public String getCsvData(@RequestBody Object response) throws JsonProcessingException {
         System.out.println("localhost:8080/process/csvData");
@@ -111,6 +99,13 @@ public class FlaskController {
         System.out.println("localhost:8080/process/getActualPredictedForPlot");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/getActualPredictedForPlot");
+    }
+    
+    @GetMapping("/getModelSummary")
+    public String getModelSummary() throws JsonProcessingException {
+    	System.out.println("localhost:8080/process/getModelSummary");
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/getModelSummary"); 
     }
 
 }

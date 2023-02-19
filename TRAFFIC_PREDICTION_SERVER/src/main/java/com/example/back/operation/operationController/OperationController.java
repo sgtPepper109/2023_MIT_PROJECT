@@ -60,4 +60,11 @@ public class OperationController {
         OperationModel operationModel = operationService.findLastOperation();
         return new ResponseEntity<>(operationModel, HttpStatus.OK);
     }
+    
+    @GetMapping("/getttAll")
+    public ResponseEntity<List<OperationModel>> getttAll() {
+        System.out.println("GET: localhost:8080/operation/getttAll");
+        List<OperationModel> operationModels = operationService.getttAll();
+        return new ResponseEntity<>(operationModels, HttpStatus.OK);
+    }
 }

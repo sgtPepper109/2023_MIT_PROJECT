@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "GUI": {
+    "TRAFFIC_PREDICTION_CLI": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/gui",
+            "outputPath": "dist/traffic-prediction-cli",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -25,9 +25,8 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/purple-green.css",
-              "src/styles.css",
-              "src/theme.scss"
+              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/styles.css"
             ],
             "scripts": []
           },
@@ -62,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "GUI:build:production"
+              "browserTarget": "TRAFFIC_PREDICTION_CLI:build:production"
             },
             "development": {
-              "browserTarget": "GUI:build:development"
+              "browserTarget": "TRAFFIC_PREDICTION_CLI:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -73,7 +72,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "GUI:build"
+            "browserTarget": "TRAFFIC_PREDICTION_CLI:build"
           }
         },
         "test": {
@@ -89,7 +88,7 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/purple-green.css",
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -99,6 +98,6 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": "b9fbcb37-bc2d-4315-b443-f2b84378bcc3"
   }
 }

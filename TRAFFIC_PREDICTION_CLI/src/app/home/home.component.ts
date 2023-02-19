@@ -43,7 +43,9 @@ export class HomeComponent implements OnInit {
 	toggleErrorString: boolean = false;
 	start: boolean = false
 
-	ngOnInit() {}
+	ngOnInit() { 
+		/* TODO document why this method 'ngOnInit' is empty */
+	}
 
 	changeTrain() {
 		if (parseFloat(this.inputTestRatio) < 0) {
@@ -110,16 +112,17 @@ export class HomeComponent implements OnInit {
 						userId: 1234567890
 					}
 
-					this.operationService.addOperation(operation).subscribe(
-						(response: Operation) => {
-			
-							// on success, navigate to page2
-							this.flaskService.setData().subscribe(
-								(response) => {
-		
-									this.flaskService.getTableData().subscribe(
-										(response) => {
-				
+
+
+					this.operationService.addOperation(operation).subscribe({
+						next: (response: Operation) => {
+
+							this.flaskService.setData().subscribe({
+								next: (response) => {
+
+									this.flaskService.getTableData().subscribe({
+										next: (response) => {
+
 											// this is a service file shared with page2 component
 											this.propService.data = response
 											this.propService.trainRatio = trainRatio
@@ -129,29 +132,23 @@ export class HomeComponent implements OnInit {
 											// navigate to page2
 											this.router.navigate(['/page2'])
 										},
-										(error: HttpErrorResponse) => {
-											console.log(error.message)
+										error: (error: HttpErrorResponse) => {
+											console.log(error)
 											alert(error.message)
-				
 										}
-									)
-		
+									})
 								},
-								(error: HttpErrorResponse) => {
-									console.log('setDataError', error.message)
+								error: (error: HttpErrorResponse) => {
+									console.log(error)
 									alert(error.message)
 								}
-							)
+							})
 						},
-						(error: HttpErrorResponse) => {
-							this.errorstring = "Note: Error encountered while connecting to server"
-							this.toggleErrorString = true
+						error: (error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error.message)
 						}
-					)
-
-					
-
-					
+					})
 
 				} else {
 					this.errorstring = "Note: Invalid input ratios (Must be in range of 0 to 1"

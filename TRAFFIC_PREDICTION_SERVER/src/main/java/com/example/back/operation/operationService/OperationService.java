@@ -10,6 +10,9 @@ import java.util.List;
 
 @Service
 public class OperationService {
+	
+	List<OperationModel> all;
+	
     private final OperationRepo operationRepo;
 
     // Manipulation of operations to and from operationRepo
@@ -50,4 +53,9 @@ public class OperationService {
         List<OperationModel> operationModels = operationRepo.findAll();
         return operationModels.get(operationModels.size() -1);
     }
+    
+    public List<OperationModel> getttAll() {
+    	return operationRepo.getttAll();
+    }
+    
 }
