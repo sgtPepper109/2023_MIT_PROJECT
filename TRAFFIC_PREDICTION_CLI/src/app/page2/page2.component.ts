@@ -653,11 +653,11 @@ export class Page2Component implements OnInit {
 
 
 
-	// navigate to home button
+	// navigate to home
 	navigateHome() {
 		this.router.navigate(['/']);
-
 	}
+
 
 
 
@@ -683,13 +683,23 @@ export class Page2Component implements OnInit {
 			this.startedTraining = true;
 
 
-			this.flaskService.sendInput(this.propService.obj).subscribe(
-				(response) => {
-					// send input junction and months to the backend via function call in flask service
-					this.flaskService.predict().subscribe(
 
-						// if successful
-						(response) => {
+
+
+
+
+
+
+
+
+
+
+			this.flaskService.sendInput(this.propService.obj).subscribe({
+				next: (response) => {
+
+					// send input junction and months to the backend via function call in flask service
+					this.flaskService.predict().subscribe({
+						next: (response) => {
 
 							// training has completed, disable spinner and show results
 							this.startedTraining = false;
@@ -700,23 +710,21 @@ export class Page2Component implements OnInit {
 							this.datetime = Object.values(response)[0]['datetime']
 							this.vehicles = Object.values(response)[0]['vehicles']
 
-
-
-							this.flaskService.getModelSummary().subscribe(
-								(response) => {
+							this.flaskService.getModelSummary().subscribe({
+								next: (response) => {
 									this.modelSummary = Object.values(response)
-								}, (error: HttpErrorResponse) => {
+								},
+								error: (error: HttpErrorResponse) => {
 									console.log(error)
 									alert(error.message)
 								}
-							)
+							})
+
 
 
 							// get all the result data (predicted for next number of days provided)
-							this.flaskService.getResultTable().subscribe(   // also plots the result
-
-								// if successful
-								(response) => {
+							this.flaskService.getResultTable().subscribe({
+								next: (response) => {
 
 									// to show result table
 									this.resultTableReady = true
@@ -735,22 +743,18 @@ export class Page2Component implements OnInit {
 									this.numberOfRecordsResult = Object.values(response).length
 
 									this.plotFuturePredictions(this.datetime, this.vehicles)
-
 								},
-
-								// if error
-								(error: HttpErrorResponse) => {
+								error: (error: HttpErrorResponse) => {
 									console.log(error)
 									alert(error.message)
 								}
-							)
+							})
+
 
 
 							// get accuracy of the junction from the backend
-							this.flaskService.getAccuracy().subscribe(
-
-								// if successful
-								(response) => {
+							this.flaskService.getAccuracy().subscribe({
+								next: (response) => {
 
 									// switch to display accuracy on the UI
 									this.gotAccuracy = true
@@ -758,20 +762,17 @@ export class Page2Component implements OnInit {
 									// get accuracy in a variable
 									this.accuracyScore = Object.values(response)
 								},
-
-								// if error
-								(error: HttpErrorResponse) => {
+								error: (error: HttpErrorResponse) => {
 									console.log(error)
 									alert(error.message)
 								}
-							)
+							})
+
 
 
 							// get comparison data (actual vs predicted) from backend
-							this.flaskService.getActualPredicted().subscribe(
-
-								// if successful
-								(response) => {
+							this.flaskService.getActualPredicted().subscribe({
+								next: (response) => {
 
 									// switch to display comparison table
 									this.predictedTableReady = true
@@ -785,20 +786,19 @@ export class Page2Component implements OnInit {
 									// get total number of records
 									this.numberOfRecordsPredicted = Object.values(response).length
 								},
-
-								// if error
-								(error: HttpErrorResponse) => {
+								error: (error: HttpErrorResponse) => {
 									console.log(error)
 									alert(error.message)
 								}
-							)
+							})
+
+
 
 
 							// get comparison data (actual vs predicted for plotting) from backend
-							this.flaskService.getActualPredictedForPlot().subscribe(
+							this.flaskService.getActualPredictedForPlot().subscribe({
+								next: (response) => {
 
-								// if successful						
-								(response) => {
 									this.comparisonChartHidden = false
 									// set it to the variable 
 									this.predictionPlotData = response
@@ -858,27 +858,27 @@ export class Page2Component implements OnInit {
 										}
 									});
 								},
-
-								// if error
-								(error: HttpErrorResponse) => {
+								error: (error: HttpErrorResponse) => {
 									console.log(error)
 									alert(error.message)
 								}
-							)
+							})
 
+
+
+							
 						},
-
-						// if error
-						(error: HttpErrorResponse) => {
-							console.log(error.message)
+						error: (error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error.message)
 						}
-					)
+					})
 				},
-				(error: HttpErrorResponse) => {
+				error: (error: HttpErrorResponse) => {
 					console.log(error)
 					alert(error.message)
 				}
-			)
+			})
 		}
 
 		// if error in validation
