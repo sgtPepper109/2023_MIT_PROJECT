@@ -54,6 +54,10 @@ export class FlaskService {
 	public getModelSummary() {
 		return this.http.get(`${this.apiServerUrl}/process/getModelSummary`)
 	}
+	
+	public getAccuracies() {
+		return this.http.get(`${this.apiServerUrl}/process/getAccuracies`)
+	}
 
 	public getAllJunctions() {
 		return this.http.get(`${this.apiServerUrl}/process/getAllJunctions`)

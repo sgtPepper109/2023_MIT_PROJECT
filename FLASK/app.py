@@ -46,6 +46,7 @@ junction = 0
 time = 0
 timeFormat = ""
 algorithm = ""
+accuracies = list()
 df = pd.DataFrame()
 tempdf = pd.DataFrame()
 dfResult = pd.DataFrame()
@@ -323,6 +324,12 @@ def getModelSummary():
 
 
 
+@app.route('/getAccuracies')
+def getAccuracies():
+    global accuracies
+    return make_response(accuracies)
+
+
 @app.route('/predict')
 def predict():
     global df
@@ -366,7 +373,14 @@ def predict():
         model = BayesianRidge()
 
 
-    
+    global accuracies
+    model1 = RandomForestRegressor()
+    model2 = GradientBoostingRegressor()
+    model3 = LinearRegression()
+    model5 = Ridge(alpha=1.0)
+    model6 = Lasso(alpha=0.1)
+    model7 = BayesianRidge()
+
     global accuracyScore
 
     mainData = lag_data[junction]
@@ -390,6 +404,12 @@ def predict():
     y = mainData.Vehicles
     xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size = testRatio)
     model.fit(xtrain, ytrain)
+    model1.fit(xtrain, ytrain)
+    model2.fit(xtrain, ytrain)
+    model3.fit(xtrain, ytrain)
+    model5.fit(xtrain, ytrain)
+    model6.fit(xtrain, ytrain)
+    model7.fit(xtrain, ytrain)
 
 
     timePeriod = list()
@@ -420,6 +440,12 @@ def predict():
     toPredict = toPredict.drop(['DateTime'], axis='columns')
 
     futureDatesPredicted = model.predict(toPredict)
+    futureDatesPredicted1 = model1.predict(toPredict)
+    futureDatesPredicted2 = model2.predict(toPredict)
+    futureDatesPredicted3 = model3.predict(toPredict)
+    futureDatesPredicted5 = model5.predict(toPredict)
+    futureDatesPredicted6 = model6.predict(toPredict)
+    futureDatesPredicted7 = model7.predict(toPredict)
 
 
     global dfResult
@@ -471,6 +497,49 @@ def predict():
     predicted = model.predict(newXtest)
     accuracyScore = model.score(newXtest, newYtest)
 
+
+    predicted1 = model1.predict(newXtest)
+    predicted2 = model2.predict(newXtest)
+    predicted3 = model3.predict(newXtest)
+    predicted5 = model5.predict(newXtest)
+    predicted6 = model6.predict(newXtest)
+    predicted7 = model7.predict(newXtest)
+    accuracyScore1 = model1.score(newXtest, newYtest)
+    accuracyScore2 = model2.score(newXtest, newYtest)
+    accuracyScore3 = model3.score(newXtest, newYtest)
+    accuracyScore5 = model5.score(newXtest, newYtest)
+    accuracyScore6 = model6.score(newXtest, newYtest)
+    accuracyScore7 = model7.score(newXtest, newYtest)
+
+
+    accuracies = []
+    tempaccuracy = dict()
+    tempaccuracy['model'] = 'Random Forest Regression'
+    tempaccuracy['accuracyscore'] = accuracyScore1
+    accuracies.append(tempaccuracy)
+    tempaccuracy = dict()
+    tempaccuracy['model'] = 'Gradient Boosting Regression'
+    tempaccuracy['accuracyscore'] = accuracyScore2
+    accuracies.append(tempaccuracy)
+    tempaccuracy = dict()
+    tempaccuracy['model'] = 'Linear Regression'
+    tempaccuracy['accuracyscore'] = accuracyScore3
+    accuracies.append(tempaccuracy)
+    tempaccuracy = dict()
+    tempaccuracy['model'] = 'Ridge Regression'
+    tempaccuracy['accuracyscore'] = accuracyScore5
+    accuracies.append(tempaccuracy)
+    tempaccuracy = dict()
+    tempaccuracy['model'] = 'Lasso Regression'
+    tempaccuracy['accuracyscore'] = accuracyScore6
+    accuracies.append(tempaccuracy)
+    tempaccuracy = dict()
+    tempaccuracy['model'] = 'Bayesian Ridge Regression'
+    tempaccuracy['accuracyscore'] = accuracyScore7
+    accuracies.append(tempaccuracy)
+
+
+
     global testAgainst
     testAgainst2 = newXtest.index.copy()
     for i in testAgainst2:
@@ -488,10 +557,10 @@ def predict():
     newXtrain = xtrain
     newYtrain = ytrain
     newXtrain = sm.add_constant(newXtrain)
-    model2 = sm.OLS(newYtrain, newXtrain).fit()
+    model8 = sm.OLS(newYtrain, newXtrain).fit()
 
     global modelSummary
-    modelSummary = model2.summary()
+    modelSummary = model8.summary()
     modelSummary = str(modelSummary)
     
     modelSummary = modelSummary.split('\n')
