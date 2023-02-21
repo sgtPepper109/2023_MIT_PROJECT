@@ -10,45 +10,52 @@ from matplotlib.dates import DateFormatter
 if __name__ == '__main__':
     times = sys.argv[1:]
 
-    startTime = datetime.datetime.now()
+    startTime = '2015-11-01 01:00:00'
+    startTime = pd.to_datetime(startTime)
 
     data = list()
     for i in times:
-        if i == 'daily' or i == 'days':
-            daysData = pd.DataFrame()
-            numberOfDays = 100
 
-            decidedEndTime = startTime + pd.DateOffset(days=numberOfDays)
+        csvData = pd.DataFrame()
+        for junction in range(1, 5):
+            tempdf = pd.DataFrame()
+            if i == 'daily' or i == 'days':
+                entries = 1000
+                timeskip = 1
+                decidedEndTime = startTime + pd.DateOffset(days=entries)
+            if i == 'weekly' or i == 'weeks':
+                entries = 100
+                timeskip = 7
+                decidedEndTime = startTime + pd.DateOffset(days=entries * 7)
+            if i == 'monthly' or i == 'months':
+                entries = 24
+                timeskip = 30
+                decidedEndTime = startTime + pd.DateOffset(days=entries * 30)
+
             time_period = list()
 
             startTimeCopy = startTime
             while startTimeCopy != decidedEndTime:
                 time_period.append(startTimeCopy)
-                startTimeCopy += timedelta(days=1)
+                startTimeCopy += timedelta(days=timeskip)
             
-            daysData['DateTime'] = time_period
             vehicles = list()
-            for i in range(len(time_period)):
+            for j in range(len(time_period)):
                 vehicles.append(np.random.choice(np.arange(100)))
-            daysData['Vehicles'] = vehicles
-            daysData.to_csv('traffic_daily.csv')
-            print(daysData)
-        
-        if i == 'weekly' or i == 'weeks':
-            weeksData = pd.DataFrame()
-            numberOfWeeks = 50
 
-            decidedEndTime = startTime + pd.DateOffset(days=numberOfWeeks * 7)
-            time_period = list()
+            ids = list()
+            for k in range(len(time_period)):
+                ids.append(np.random.choice(np.arange(100)))
 
-            startTimeCopy = startTime
-            while startTimeCopy != decidedEndTime:
-                time_period.append(startTimeCopy)
-                startTimeCopy += timedelta(days=7)
-            weeksData['DateTime'] = time_period
-            vehicles = list()
-            for i in range(len(time_period)):
-                vehicles.append(np.random.choice(np.arange(100)))
-            weeksData['Vehicles'] = vehicles
-            weeksData.to_csv('traffic_weekly.csv')
-            print(weeksData)
+            junctions = list()
+            junctions = [junction for i in range(entries)]
+
+            tempdf['DateTime'] = time_period
+            tempdf['Junction'] = junctions
+            tempdf['Vehicles'] = vehicles
+            tempdf['ID'] = ids
+            if csvData.empty:
+                csvData = tempdf
+            else:
+                csvData = pd.concat([csvData, tempdf])
+        csvData.to_csv('traffic_' + i + '.csv', index=False)

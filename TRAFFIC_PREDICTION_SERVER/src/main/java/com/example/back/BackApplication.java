@@ -1,6 +1,5 @@
 package com.example.back;
 
-//import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,7 +8,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -27,9 +25,8 @@ public class BackApplication {
 	@Value("${spring.datasource.password}")
 	private static String password;
 
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
 		SpringApplication.run(BackApplication.class, args);
-		
 	}
 
 	@Bean

@@ -1,6 +1,8 @@
 import requests
 from flask import Flask, make_response, jsonify
 from flask_cors import CORS
+import logging
+
 import simplejson
 import json
 import config
@@ -95,6 +97,16 @@ def getCsvData():
     else:
         dictionary['getCsvData'] = "fail"
         return make_response(dictionary)
+
+
+
+@app.route('/getAllJunctions')
+def getAllJunctions():
+    global df
+    junctions = list()
+    for i in list(np.unique(df.Junction)):
+        junctions.append(int(i))
+    return make_response(junctions)
 
 
 @app.route("/setData")

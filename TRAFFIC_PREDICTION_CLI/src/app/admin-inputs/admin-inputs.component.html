@@ -1,0 +1,24 @@
+<br />
+<br />
+<br />
+<br />
+<div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
+    <section>
+        <div class="container text-center" *ngFor="let junction of junctions">
+            <div class="row">
+                <div class="col">
+                    <mat-card>
+                        <mat-card-content> Junction {{ junction }}</mat-card-content>
+                    </mat-card>
+                </div>
+                <div class="col-10">
+                    <div class="form-floating mb-3">
+                        <input #district type="text" class="form-control" id="floatingInput" placeholder="Enter District" (change)="assignDistrict(junction, district.value)">
+                        <label for="floatingInput">Enter District for {{ junction }}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button (click)="submit()">submit</button>
+    </section>
+</div>
