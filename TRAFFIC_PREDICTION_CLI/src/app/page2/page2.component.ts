@@ -7,6 +7,7 @@ import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
 import { Router } from '@angular/router';
+import { tick } from '@angular/core/testing';
 
 
 
@@ -31,6 +32,8 @@ export class Page2Component implements OnInit {
 	actual: Array<number> = []  // Actual values array for plotting on chart for comparison
 	predicted: Array<number> = []  // Predicted values array for plotting on chart for comparison
 	labels = []  // Index (prediction number) array for plotting
+	maxLimitArray: number[] = []
+	maxInPlotArray: number[] = []
 
 	errorstring: string = "" // error message to be displayed on the screen
 
@@ -103,34 +106,6 @@ export class Page2Component implements OnInit {
 	x: any
 	testRatio: number = 0
 
-	ngOnInit(): void {
-
-
-		this.testRatio = this.propService.testRatio
-
-		// On Init, render table representing csv data from csv file read as input in home page
-		// The csv data is stored in 'this.propservice.data' variable
-
-		this.displayedColumns = ['DateTime', 'Junction', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
-		this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
-		this.numberOfRecords = Object.values(this.propService.data).length
-
-		// get all plot data i.e. vehicles vs datetime information of all junctions
-		this.flaskService.getPlot().subscribe({
-			next: (response) => {
-					this.recievedPlotData = response
-					this.junctionToBePlotted = "Junction 1"
-					this.show1()
-				},
-			error: (error: HttpErrorResponse) => { console.log(error.message) }
-		})
-
-		// if index of paginator is not 0 then enable previous button
-		// because if zero then no use of previous button
-		if (this.index !== 0) { this.classForPreviousButton = "page-item" }
-		
-
-	}
 
 
 	changeDataVisualizationType() {
@@ -242,22 +217,80 @@ export class Page2Component implements OnInit {
 
 	plotFuturePredictions(x: any, y: any) {
 		// prediction is done
+		const maxValue = Math.max(...y)
 		this.futurePredictionsChartHidden = false
+
+		for (let i = 0; i < y.length; i++) {
+			this.maxLimitArray.push(this.propService.maxVehicles)
+		}
+		for (let i = 0; i < y.length; i++) {
+			this.maxInPlotArray.push(Math.max(...y))
+		}
 
 		// plot chart (canvas) to show results
 		// destroy chart if already in use
 		if (this.myChart != null) { this.myChart.destroy() }
+		// this.myChart = new Chart("myChart", {
+		// 	type: 'line',
+		// 	data: {
+		// 		labels: x,
+		// 		datasets: [{
+		// 			label: '# of Vehicles',
+		// 			data: y,
+		// 			borderWidth: 1
+		// 		}],
+		// 	},
+		// 	options: {
+		// 		scales: {
+		// 			y: {
+		// 				beginAtZero: true,
+		// 				max: maxValue + 1,
+		// 				title: {
+		// 					display: true,
+		// 					text: 'Vehicles'
+		// 				}
+		// 			},
+		// 			x: {
+		// 				title: {
+		// 					display: true,
+		// 					text: 'Date-Time'
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// });
+
+
 		this.myChart = new Chart("myChart", {
 			type: 'line',
 			data: {
 				labels: x,
-				datasets: [{
-					label: '# of Vehicles',
-					data: y,
-					borderWidth: 1
-				}]
+				datasets: [
+					{
+						label: 'Vehicles Vs DateTime',
+						data: y,
+						borderWidth: 1,
+						borderColor: '#900',
+						fill: false
+					},
+					{
+						label: 'Max Vehicles at Junction ' + this.inputJunction + ' before prediction',
+						data: this.maxLimitArray,
+						borderWidth: 1,
+						borderColor: '#0000FF',
+						fill: false
+					},
+					{
+						label: 'Max Value in prediction',
+						data: this.maxInPlotArray,
+						borderWidth: 1,
+						borderColor: '#090',
+						fill: false
+					}
+				]
 			},
 			options: {
+				maintainAspectRatio: true,
 				scales: {
 					y: {
 						beginAtZero: true,
@@ -269,12 +302,67 @@ export class Page2Component implements OnInit {
 					x: {
 						title: {
 							display: true,
-							text: 'Date-Time'
+							text: 'DateTime'
 						}
 					}
 				}
 			}
-		});
+		})
+
+
+
+
+
+
+
+		// this.predictedChart = new Chart("predictedChart", {
+		// 	type: 'line',
+		// 	data: {
+		// 		labels: labels,
+		// 		datasets: [
+		// 			{
+		// 				label: "actual",
+		// 				backgroundColor: "white",
+		// 				borderWidth: 1,
+		// 				borderColor: "#900",
+		// 				fill: false,
+		// 				data: actual
+		// 			},
+		// 			{
+		// 				label: "predicted",
+		// 				backgroundColor: "white",
+		// 				borderWidth: 1,
+		// 				borderColor: "#090",
+		// 				fill: false,
+		// 				data: predicted
+		// 			}
+		// 		]
+		// 	},
+		// 	options: {
+		// 		maintainAspectRatio: true,
+		// 		scales: {
+		// 			y: {
+		// 				beginAtZero: true,
+		// 				title: {
+		// 					display: true,
+		// 					text: 'Vehicles'
+		// 				}
+		// 			},
+		// 			x: {
+		// 				title: {
+		// 					display: true,
+		// 					text: 'values'
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// });
+
+
+
+
+
+
 	}
 
 
@@ -653,8 +741,8 @@ export class Page2Component implements OnInit {
 
 
 
-	// navigate to home
-	navigateHome() {
+	// navigate to training
+	navigateTraining() {
 		this.router.navigate(['/']);
 	}
 
@@ -662,230 +750,65 @@ export class Page2Component implements OnInit {
 
 
 	// on click predict button
-	start() {
+	ngOnInit() {
 
-		// check whether the fields have no value
-		if (this.inputJunction !== "Choose Junction" && this.inputTime !== "") {
+		this.inputJunction = this.propService.inputJunction
+		this.inputTime = this.propService.inputTime
+		this.time = this.propService.time
 
-			// set the object to be sent to back-end
-			this.propService.obj = { 
-				junction: this.inputJunction, 
-				time: this.inputTime,
-				timeFormat: this.time,
-				algorithm: this.inputAlgorithm
+		// no errors in validation
+		// hence don't show error alert
+		this.toggleErrorString = false
+
+		// set startedTraining to true to show spinner till training and processing has completed
+		this.startedTraining = true;
+
+
+		// get all the result data (predicted for next number of days provided)
+		this.flaskService.getResultTable().subscribe({
+			next: (response) => {
+
+				// to show result table
+				this.resultTableReady = true
+				this.futurePredictionsReadyHidden = false
+
+				// set tableResult variable to response so that it can be used later
+				this.tableResult = response
+
+				// display only these columns
+				this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+
+				// get all row values from the response recieved to show in table
+				this.dataSourceResult = Object.values(response).slice(this.index, this.index + 10)
+
+				// get total number of records from table data
+				this.numberOfRecordsResult = Object.values(response).length
+
+				this.plotFuturePredictions(this.propService.datetime, this.propService.vehicles)
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
 			}
-
-			// no errors in validation
-			// hence don't show error alert
-			this.toggleErrorString = false
-
-			// set startedTraining to true to show spinner till training and processing has completed
-			this.startedTraining = true;
+		})
 
 
 
+		// get accuracy of the junction from the backend
+		this.flaskService.getAccuracy().subscribe({
+			next: (response) => {
 
+				// switch to display accuracy on the UI
+				this.gotAccuracy = true
 
-
-
-
-
-
-
-
-
-			this.flaskService.sendInput(this.propService.obj).subscribe({
-				next: (response) => {
-
-					// send input junction and months to the backend via function call in flask service
-					this.flaskService.predict().subscribe({
-						next: (response) => {
-
-							// training has completed, disable spinner and show results
-							this.startedTraining = false;
-
-
-							// set datetime and vehicles variables to values recieved from backend as response
-							// for table
-							this.datetime = Object.values(response)[0]['datetime']
-							this.vehicles = Object.values(response)[0]['vehicles']
-
-							this.flaskService.getModelSummary().subscribe({
-								next: (response) => {
-									this.modelSummary = Object.values(response)
-								},
-								error: (error: HttpErrorResponse) => {
-									console.log(error)
-									alert(error.message)
-								}
-							})
-
-
-
-							// get all the result data (predicted for next number of days provided)
-							this.flaskService.getResultTable().subscribe({
-								next: (response) => {
-
-									// to show result table
-									this.resultTableReady = true
-									this.futurePredictionsReadyHidden = false
-
-									// set tableResult variable to response so that it can be used later
-									this.tableResult = response
-
-									// display only these columns
-									this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
-
-									// get all row values from the response recieved to show in table
-									this.dataSourceResult = Object.values(response).slice(this.index, this.index + 10)
-
-									// get total number of records from table data
-									this.numberOfRecordsResult = Object.values(response).length
-
-									this.plotFuturePredictions(this.datetime, this.vehicles)
-								},
-								error: (error: HttpErrorResponse) => {
-									console.log(error)
-									alert(error.message)
-								}
-							})
-
-
-
-							// get accuracy of the junction from the backend
-							this.flaskService.getAccuracy().subscribe({
-								next: (response) => {
-
-									// switch to display accuracy on the UI
-									this.gotAccuracy = true
-
-									// get accuracy in a variable
-									this.accuracyScore = Object.values(response)
-								},
-								error: (error: HttpErrorResponse) => {
-									console.log(error)
-									alert(error.message)
-								}
-							})
-
-
-
-							// get comparison data (actual vs predicted) from backend
-							this.flaskService.getActualPredicted().subscribe({
-								next: (response) => {
-
-									// switch to display comparison table
-									this.predictedTableReady = true
-
-									// get data in a variable
-									this.tablePredicted = response
-
-									// get the row data from table data recieved as response
-									this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-
-									// get total number of records
-									this.numberOfRecordsPredicted = Object.values(response).length
-								},
-								error: (error: HttpErrorResponse) => {
-									console.log(error)
-									alert(error.message)
-								}
-							})
-
-
-
-
-							// get comparison data (actual vs predicted for plotting) from backend
-							this.flaskService.getActualPredictedForPlot().subscribe({
-								next: (response) => {
-
-									this.comparisonChartHidden = false
-									// set it to the variable 
-									this.predictionPlotData = response
-
-									// differentiate plot data into actual, predicted and indices
-									this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-									this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-									this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-									// get total number of records
-									this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
-
-									// destroy comparison chart if already in use
-									if (this.predictedChart != null) { this.predictedChart.destroy() }
-
-									// then plot comparison chart
-									this.predictedChart = new Chart("predictedChart", {
-										type: 'line',
-										data: {
-											labels: this.labels,
-											datasets: [
-												{
-													label: "actual",
-													backgroundColor: "white",
-													borderWidth: 1,
-													borderColor: "#900",
-													fill: false,
-													data: this.actual
-												},
-												{
-													label: "predicted",
-													backgroundColor: "white",
-													borderWidth: 1,
-													borderColor: "#090",
-													fill: false,
-													data: this.predicted
-												}
-											]
-										},
-										options: {
-											maintainAspectRatio: true,
-											scales: {
-												y: {
-													beginAtZero: true,
-													title: {
-														display: true,
-														text: 'Vehicles'
-													}
-												},
-												x: {
-													title: {
-														display: true,
-														text: 'DateTime'
-													}
-												}
-											}
-										}
-									});
-								},
-								error: (error: HttpErrorResponse) => {
-									console.log(error)
-									alert(error.message)
-								}
-							})
-
-
-
-							
-						},
-						error: (error: HttpErrorResponse) => {
-							console.log(error)
-							alert(error.message)
-						}
-					})
-				},
-				error: (error: HttpErrorResponse) => {
-					console.log(error)
-					alert(error.message)
-				}
-			})
-		}
-
-		// if error in validation
-		else {
-			this.errorstring = "Note: All fields are required"
-			this.toggleErrorString = true
-			this._snackBar.open("Note: All fields are required", '\u2716')
-		}
+				// get accuracy in a variable
+				this.accuracyScore = Object.values(response)
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
 	}
+
 }

@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Page2Component } from './page2/page2.component';
-import { HomeComponent } from './home/home.component';
+import { TrainingComponent } from './training/training.component';
 import { AdminInputsComponent } from './admin-inputs/admin-inputs.component';
 import { FormsModule } from '@angular/forms';
 import { SignupComponent } from './signup/signup.component';
@@ -24,14 +24,15 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDividerModule } from '@angular/material/divider';
 
 @NgModule({
   declarations: [
     AppComponent,
     Page2Component,
-    HomeComponent,
     SignupComponent,
     AdminInputsComponent,
+    TrainingComponent,
   ],
   imports: [
     BrowserModule,
@@ -51,6 +52,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonModule,
     MatGridListModule,
     MatFormFieldModule,
+    MatDividerModule
   ],
   providers: [OperationService, PropService],
   bootstrap: [AppComponent]

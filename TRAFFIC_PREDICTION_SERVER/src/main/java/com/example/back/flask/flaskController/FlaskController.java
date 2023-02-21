@@ -120,5 +120,12 @@ public class FlaskController {
     	GetURLContents getURLContents = new GetURLContents();
     	return getURLContents.getData(flaskUrl + "/getAllJunctions"); 
     }
+    
+    @GetMapping("/getAccuracies")
+    public String getAccuracies() {
+    	log.info("GET: localhost:8080/process/getAccuracies");
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/getAccuracies"); 
+    }
 
 }

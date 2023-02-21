@@ -1,0 +1,410 @@
+<div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
+    <section>
+        <h1>Traffic Predictor</h1>
+        <hr id="hrTag" />
+        <label for="myfile">Browse dataset: </label>
+        <br /> <!-- Input File of type csv -->
+        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
+        <br />
+        <p id="guideFileType">Only .csv, .xlsx and .data files allowed</p>
+        <br />
+        <label for="traintestval">Specify the training, testing and validation ratio: </label>
+        <br />
+
+        <!-- Form for input of training testing and validation ratios -->
+        <div class="row">
+            <div class="col">
+                <label class="visually-hidden" for="autoSizingInputGroup">testing</label>
+                <div class="input-group">
+                    <div class="input-group-text">testing</div>
+                    <input type="number" class="form-control" id="autoSizingInputGroup" placeholder="0" step="0.1"
+                        [(ngModel)]="inputTestRatio" (change)="changeTrain()" required
+                    >
+                </div>
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="autoSizingInputGroup">training</label>
+                <div class="input-group">
+                    <div class="input-group-text">training</div>
+                    <input type="number" class="form-control" id="autoSizingInputGroup" placeholder="0" step="0.1"
+                        [(ngModel)]="inputTrainRatio" disabled
+                    >
+                </div>
+            </div>
+        </div>
+        <br />
+
+
+        <!-- Button for validation and manipulation of data -->
+        <div class="text-center">
+            <button mat-raised-button color="primary" (click)="manageInfo()">Start Process</button>
+            <button mat-raised-button color="warn" (click)="reset()" style="margin-left: 10px;">Reset</button>
+            
+        </div>
+        <br />
+
+
+
+
+
+
+
+
+        <div *ngIf="csvDataParsed" class="accordion" id="accordionExample">
+
+
+            <br />
+            <mat-divider></mat-divider>
+            <br />
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <strong>Visualization</strong>
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <!-- 
+                            ** Table for displaying the csv data **
+                        -->
+                        <mat-card *ngIf="toggleDataVisualizationTable">
+                            <nav id="navbar-example2" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                <ul class="nav nav-pills">
+                                    <a style="margin-left: 10px;" id="navHeading"><strong>How Your Data Looks</strong></a>
+                                </ul>
+                                <div>
+                                    <select class="form-select" aria-label="Default select example" (change)="changeDataVisualizationType()" [(ngModel)]="dataVisualizationType">
+                                        <option selected>Table</option>
+                                        <option value="Line Plot">Line Plot</option>
+                                    </select>
+                                </div>
+                            </nav>
+                            <mat-card-content>
+                                
+                                <table class="table table-success table-bordered" aria-describedby="tabe1-desc">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Junction</th>
+                                            <th scope="col">DateTime</th>
+                                            <th scope="col">Vehicles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let record of dataSource">
+                                            <th scope="row">{{ record.Junction }}</th>
+                                            <td>{{ record.DateTime }}</td>
+                                            <td>{{ record.Vehicles }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- 
+                                    ** Paginator for table **
+                                -->
+                                <div id="paginator1" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                                    <button type="button" [ngClass]="classForPreviousButton" (click)="previous()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                    <button type="button" id="paginator1indicator" class="btn btn-outline-secondary" disabled>{{index}} - {{index +5}} of {{numberOfRecords}}</button>
+                                    <button type="button" [ngClass]="classForNextButton" (click)="next()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+
+                        
+                        <!-- 
+                            ** Vehicles vs DateTime plots for all junctions **
+                        -->
+                        <mat-card [hidden]="toggleDataVisualizationChartHidden">
+                            <nav id="navbar-example2" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                <ul class="nav nav-pills">
+                                    <a style="margin-left: 10px;" id="navHeading">How Your Data Looks</a>
+                                </ul>
+                                <div>
+                                    <select class="form-select" aria-label="Default select example" (change)="changeDataVisualizationType()" [(ngModel)]="dataVisualizationType">
+                                        <option selected>Table</option>
+                                        <option value="Line Plot">Line Plot</option>
+                                    </select>
+                                </div>
+                            </nav>
+                            <mat-card-content>
+                                <div class="row">
+                                    <div class="col">
+                                        <h4><strong>Number of vehicles over time</strong></h4>
+                                    </div>
+                                    
+                                    <div class="col">
+                                        <select class="form-select btn-btn-primary" aria-label="Default select example" (change)="changeJunctionToBePlotted()" [(ngModel)]="junctionToBePlotted">
+                                            <option selected>Junction 1</option>
+                                            <option value="Junction 2">Junction 2</option>
+                                            <option value="Junction 3">Junction 3</option>
+                                            <option value="Junction 4">Junction 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div [hidden]="vehiclesVsDateTimeChartHidden">  <!-- Canvas for showing plot -->
+                                    <div>
+                                        <canvas id="plot"></canvas>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        <strong>Training</strong>
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <!--
+                            ** Prediction Part **
+                        -->
+                        <!--
+                            ** Input junction number and number of days
+                        -->
+                        <div class="row">
+                            <div class="col input-group mb-3" id="inputJunctionTime">
+                                <span class="input-group-text" id="basic-addon1" style="height:40px">Junction</span>
+                                <select id="dropdown" class="col form-select" aria-label="Default select example" style="height:40px"
+                                    [(ngModel)]="inputJunction" (change)="disablePredictionImage()">
+                                    <option selected value="Choose Junction">Choose Junction</option>
+                                    <option value=1>1</option>
+                                    <option value=2>2</option>
+                                    <option value=3>3</option>
+                                    <option value=4>4</option>
+                                </select>
+                            </div>
+                            <div class="col input-group mb-3">
+                                <span><input type="number" class="form-control" aria-label="Text input with dropdown button" placeholder="Enter No. of Days" [(ngModel)]="inputTime" style="height: 40px;"></span>
+                                <select class="form-select" id="autoSizingSelect" [(ngModel)]="time">
+                                    <option selected>Days</option>
+                                    <option value="Months">Months</option>
+                                    <option value="Years">Years</option>
+                                </select>
+                            </div>
+                            
+
+                            <div class="col input-group mb-3">
+                                <span class="input-group-text" style="height:40px">Algorithm</span>
+                                <select class="col form-select" aria-label="Default select example" [(ngModel)]="inputAlgorithm">
+                                    <option selected>Random Forest Regression</option>
+                                    <option value="Gradient Boosting Regression">Gradient Boosting Regression</option>
+                                    <option value="Linear Regression">Linear Regression</option>
+                                    <option value="Ridge Regression">Ridge Regression</option>
+                                    <option value="Lasso Regression">Lasso Regression</option>
+                                    <option value="Bayesian Ridge Regression">Bayesian Ridge Regression</option>
+                                </select>
+                            </div>
+
+
+                            <div class="text-center">
+                                <button mat-raised-button color="primary" (click)="start()">Start Training</button>
+                            </div>
+                        </div>
+                        
+
+                        <!--
+                            ** spinner **
+                        -->
+                        <br />
+                        <mat-divider></mat-divider>
+                        <div *ngIf="startedTraining" class="d-flex align-items-center">
+                            Loading...
+                            <div id="spinner" class="spinner-grow ml-auto" role="status" aria-hidden="true"></div>
+                        </div>
+
+
+                        <!--
+                            ** Future Predictions in table and in plot **
+                        -->
+                        <br />
+
+                        <div [hidden]="futurePredictionsReadyHidden">
+
+
+                            <!-- 
+                                ** Model Summary
+                            -->
+                            <h4 *ngIf="!startedTraining">Training Summary</h4>
+                            <div *ngIf="!startedTraining">
+                                <div *ngFor="let line of modelSummary">
+                                    <pre style="text-align: center; font-size: 14px; font-family: monospace">{{line}}</pre>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div *ngIf="!futurePredictionsReadyHidden" class="text-center">
+                            <button mat-raised-button color="primary" (click)="navigateToPage2()">See Predictions</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div [hidden]="futurePredictionsReadyHidden" class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        <strong>Accuracy (Actual-values Vs Predicted-values)</strong>
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <!--
+                            ** Actual and Predicted values comparison on test data **
+                        -->
+                        <nav id="navbar-example4" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                            <ul class="nav nav-pills">
+                                <h4 id="table2-desc"><strong>Visualize Actual values vs Predicted values of the trained model</strong></h4>
+                            </ul>
+                            <div>
+                                <select class="form-select" aria-label="Default select example" (change)="changeComparisonDataRepresentationType()" [(ngModel)]="comparisonDataRepresentationType">
+                                    <option selected>Table</option>
+                                    <option value="Line Plot">Line Plot</option>
+                                </select>
+                            </div>
+                        </nav>
+
+                        <mat-card *ngIf="toggleComparisonTable">
+                            <mat-card-content *ngIf="predictedTableReady">
+                                
+                                <!--
+                                    ** Table for showing actual and predicted values comparison **
+                                -->
+                                
+                                <h4 id="table3-desc"><strong>Actual and predicted values:</strong></h4>
+                                <table class="table table-bordered border table-striped-columns" aria-describedby="table3-desc">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Actual</th>
+                                            <th scope="col">Predicted</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let record of dataSourcePredicted">
+                                            <th scope="row">{{ record.actual}}</th>
+                                            <td>{{ record.predictedData}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+
+
+
+                                <!--
+                                    ** Paginator for table **
+                                -->
+                                <div id="paginator3" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                                    <button type="button" [ngClass]="classForPreviousButtonPredicted" (click)="previousPredicted()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                    <button type="button" id="paginator3indicator" class="btn btn-outline-secondary" disabled>{{predictedTableIndex}} - {{predictedTableIndex + 5}} of {{numberOfRecordsPredicted}}</button>
+                                    <button type="button" [ngClass]="classForNextButtonPredicted" (click)="nextPredicted()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                </div>
+                                
+                            </mat-card-content>
+                        </mat-card>
+
+
+                        <!--
+                            ** Chart For comparison of Actual and Predicted Values **
+                        -->
+                        <div [hidden]="toggleComparisonChartHidden">
+                            <div [hidden]="comparisonChartHidden">
+                                <div>
+                                    <canvas id="predictedChart"></canvas>
+                                </div>
+                            </div>
+                            <!--
+                                ** Paginator for Chart **
+                            -->
+                            <div id="paginator4" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <button type="button" [ngClass]="classForPreviousButtonPlot" (click)="previous10Plot()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                <button type="button" id="paginator4indicator" class="btn btn-outline-secondary" disabled>{{predictedChartIndex}} - {{predictedChartIndex + 10}} of {{numberOfPlotDataEntries}}</button>
+                                <button type="button" [ngClass]="classForNextButtonPlot" (click)="next10Plot()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div [hidden]="futurePredictionsReadyHidden" class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        <strong>Compare Algorithms</strong>
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <table class="table table-success table-bordered" aria-describedby="tabe1-desc">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Algorithm</th>
+                                    <th scope="col">Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let record of accuracies">
+                                    <td scope="row">{{ record.model }}</td>
+                                    <td>{{ record.accuracyscore }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="text-center">
+            <div *ngIf="csvDataParsed">
+                <br /><br />
+            </div>
+            <span>
+                <a href="#" id="helpCanvas" class="link-danger" data-bs-toggle="offcanvas"
+                    href="#offcanvasExample" role="button" aria-controls="offcanvasExample">Help</a>
+                <a href="#" id="aboutCanvas" class="link-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                    aria-controls="offcanvasRight">About</a>
+            </span>
+        </div>
+
+
+        <!-- Left Offcanvas -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+            aria-labelledby="offcanvasExampleLabel">
+            <div class="offcanvas-header">
+                <h1 class="offcanvas-title" id="offcanvasExampleLabel">Help</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+            </div>
+        </div>
+
+
+        <!-- Right Offcanvas -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h1 class="offcanvas-title" id="offcanvasRightLabel">About</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <h3>This is an application for the prediction of traffic intensity at provided junctions</h3>
+            </div>
+        </div>
+        <!-- Display error message when validation suggests errors -->
+        <div id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
+            {{ errorstring }}
+        </div>
+    </section>
+</div>

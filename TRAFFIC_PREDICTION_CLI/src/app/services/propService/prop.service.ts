@@ -9,5 +9,14 @@ export class PropService {
 	public trainRatio: number = 0
 	public testRatio: number = 0
 	public dataset: string = ""
+	public inputJunction: string = ""
+	public inputTime: string = ""
+	public time: string = ""
+	public maxVehicles: number = 0
+
+	public datetime: any
+	public vehicles: any
+
+
 	constructor() { }
 }
