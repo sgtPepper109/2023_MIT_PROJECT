@@ -85,4 +85,8 @@ public class OperationModel implements Serializable {
                 ", userId='" + userId + '\'' +
                 '}';
     }
+    
+    public static void main(String[] args) {
+    	
+    }
 }

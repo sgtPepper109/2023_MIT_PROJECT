@@ -23,6 +23,7 @@
     "chart.js": "^4.2.1",
     "ngx-csv": "^0.3.2",
     "ngx-csv-parser": "^1.2.2",
+    "recharts": "^2.4.3",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"

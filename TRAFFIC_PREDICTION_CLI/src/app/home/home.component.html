@@ -41,9 +41,8 @@
 
         <!-- Button for validation and manipulation of data -->
         <div class="text-center">
-            <button id="startProcessButton" type="button" class="btn btn-primary" (click)="manageInfo()">Start
-                Process</button>
-            <button style="margin-left: 10px" id="resetButton" type="button" class="btn btn-danger" (click)="reset()">Reset</button>
+            <button mat-raised-button color="primary" (click)="manageInfo()">StartProcess</button>
+            <button mat-raised-button color="warn" (click)="reset()" style="margin-left: 10px;">Reset</button>
             
         </div>
         <br />

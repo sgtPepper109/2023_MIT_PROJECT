@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 // The interface is used for holding the operations
-public interface OperationRepo extends JpaRepository<OperationModel, Long> {
+public interface OperationRepository extends JpaRepository<OperationModel, Long> {
     // Delete operation by id (not recognized in OperationService)
     void deleteOperationById(Long id);
 
     // Find operation by id (not recognized in OperationService)
     Optional<OperationModel> findOperationById(Long id);
     
-	@Query("select u from OperationModel u")
-	List<OperationModel> getttAll();
-    
+	@Query(value = "SELECT * FROM operation_model;", nativeQuery = true)
+	List<Object> test();
+	
 }

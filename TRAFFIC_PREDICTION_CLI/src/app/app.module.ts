@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Page2Component } from './page2/page2.component';
 import { HomeComponent } from './home/home.component';
+import { AdminInputsComponent } from './admin-inputs/admin-inputs.component';
 import { FormsModule } from '@angular/forms';
 import { SignupComponent } from './signup/signup.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -19,7 +20,10 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { NgxCsvParserModule } from 'ngx-csv-parser';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import {MatStepperModule} from '@angular/material/stepper';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -27,7 +31,7 @@ import {MatStepperModule} from '@angular/material/stepper';
     Page2Component,
     HomeComponent,
     SignupComponent,
-    // Chart
+    AdminInputsComponent,
   ],
   imports: [
     BrowserModule,
@@ -43,7 +47,10 @@ import {MatStepperModule} from '@angular/material/stepper';
     MatInputModule,
     NgxCsvParserModule,
     MatPaginatorModule,
-    MatStepperModule
+    MatStepperModule,
+    MatButtonModule,
+    MatGridListModule,
+    MatFormFieldModule,
   ],
   providers: [OperationService, PropService],
   bootstrap: [AppComponent]

@@ -26,10 +26,10 @@ export class Page2Component implements OnInit {
 	) {}
 
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
-	vehicles = []  // Vehicles array to display on y axis of chart
+	vehicles: Array<number> = []  // Vehicles array to display on y axis of chart
 	datetime = []  // DateTime array to display on x axis of chart
-	actual = []  // Actual values array for plotting on chart for comparison
-	predicted = []  // Predicted values array for plotting on chart for comparison
+	actual: Array<number> = []  // Actual values array for plotting on chart for comparison
+	predicted: Array<number> = []  // Predicted values array for plotting on chart for comparison
 	labels = []  // Index (prediction number) array for plotting
 
 	errorstring: string = "" // error message to be displayed on the screen
@@ -43,7 +43,7 @@ export class Page2Component implements OnInit {
 	inputTime: string = ""
 	inputAlgorithm: string = "Random Forest Regression"
 	time: string = "Days"
-	modelSummary: string[] = [] 
+	modelSummary: Array<string> = [] 
 	keys: any
 	obj = {} // object to be passed to the back-end that comprises of junction and months
 
@@ -84,9 +84,9 @@ export class Page2Component implements OnInit {
 	classForPreviousButtonPredicted: string = "page-item disabled"  // class for previous button in paginator of predicted values table
 	classForNextButtonPredicted: string = "page-item"  // class for next button in paginator of predicted values table
 
-	displayedColumns: string[] = []  // array that holds all column values that will be shown in mat-table
-	displayedColumnsResult: string[] = []  // array that holds all column values that will be shown in result mat-table
-	displayedColumnsPredicted: string[] = ['Actual', 'Predicted']  // only two columns for predicted values table
+	displayedColumns: Array<string> = []  // array that holds all column values that will be shown in mat-table
+	displayedColumnsResult: Array<string> = []  // array that holds all column values that will be shown in result mat-table
+	displayedColumnsPredicted: Array<string> = ['Actual', 'Predicted']  // only two columns for predicted values table
 
 	dataSource: any  // holds data for rendering row values in table
 	dataSourceResult: any  // holds data for rendering row values in result table
