@@ -39,24 +39,8 @@ for file in os.listdir(guiAssetsFolder):
 
 
 trainRatio = 0
-testRatio = 0
 valRatio = 0
 dataset = ""
-junction = 0
-time = 0
-timeFormat = ""
-algorithm = ""
-accuracies = list()
-df = pd.DataFrame()
-tempdf = pd.DataFrame()
-dfResult = pd.DataFrame()
-accuracyScore = np.float64()
-modelSummary = []
-modelSummary2 = dict()
-
-actual = []
-predicted = []
-testAgainst = []
 
 
 @app.route("/getCsvData")
@@ -332,278 +316,369 @@ def getAccuracies():
 
 @app.route('/predict')
 def predict():
-    global df
-    global tempdf
-    global junction
-    global time
-    global timeFormat
-    global testRatio
+    with app.app_context():
+        global df
+        global tempdf
+        global junction
+        global time
+        global timeFormat
+        global testRatio
 
-    junction = int(junction)
-    time = int(time)
+        junction = int(junction)
+        time = int(time)
+        
+
+        # Create Lag Data
+        lag_df = tempdf.copy()
+        for i in range(1, 3):
+            lag_df[f'Vehicles_lag_{i}'] = tempdf.Vehicles.shift(i)
+
+
+        # drop all null rows
+        lag_df.dropna(inplace=True)
+
+
+        lag_data = get_list_data(lag_df, drop=['Year'])
+
+        global algorithm
+
+        if algorithm == "Random Forest Regression":
+            model = RandomForestRegressor()
+        elif algorithm == "Gradient Boosting Regression":
+            model = GradientBoostingRegressor()
+        elif algorithm == "Linear Regression":
+            model = LinearRegression()
+        elif algorithm == "Logistic Regression":
+            model = LogisticRegression()
+        elif algorithm == "Ridge Regression":
+            model = Ridge(alpha=1.0)
+        elif algorithm == "Lasso Regression":
+            model = Lasso(alpha=0.1)
+        elif algorithm == "Bayesian Ridge Regression":
+            model = BayesianRidge()
+
+
+        global accuracies
+        model1 = RandomForestRegressor()
+        model2 = GradientBoostingRegressor()
+        model3 = LinearRegression()
+        model5 = Ridge(alpha=1.0)
+        model6 = Lasso(alpha=0.1)
+        model7 = BayesianRidge()
+
+        global accuracyScore
+
+        mainData = lag_data[junction]
+        curr_time = mainData.tail(1).index[0] # get the current time, the last time of that dataset
+        
+        if timeFormat == "Days":
+            end_time = curr_time + pd.DateOffset(days=time) # the end time after 4 time that we want to predict
+        elif timeFormat == "Months":
+            end_time = curr_time + pd.DateOffset(months=time) # the end time after 4 time that we want to predict
+        else:
+            end_time = curr_time + pd.DateOffset(years=time) # the end time after 4 time that we want to predict
+
+
+
+
+        mainData = tempdf.copy()
+        mainData = mainData[mainData.Junction == junction]
+        mainData = mainData.drop(['Junction'], axis='columns')
+
+        x = mainData.drop(['Vehicles'], axis='columns')
+        y = mainData.Vehicles
+        xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size = testRatio)
+        model.fit(xtrain, ytrain)
+        model1.fit(xtrain, ytrain)
+        model2.fit(xtrain, ytrain)
+        model3.fit(xtrain, ytrain)
+        model5.fit(xtrain, ytrain)
+        model6.fit(xtrain, ytrain)
+        model7.fit(xtrain, ytrain)
+
+
+        timePeriod = list()
+        while curr_time != end_time:
+            timePeriod.append(curr_time)
+            curr_time += timedelta(minutes=60)
+
+        toPredict = pd.DataFrame()
+        years = list()
+        months = list()
+        days = list()
+        hours = list()
+        dateTime = list()
+        
+        for i in timePeriod:
+            dateTime.append(i)
+            years.append(i.year)
+            months.append(i.month)
+            days.append(i.day)
+            hours.append(i.hour)
+
+        toPredict['Year'] = years
+        toPredict['Month'] = months
+        toPredict['Day'] = days
+        toPredict['Hour'] = hours
+        toPredict['DateTime'] = dateTime
+        toPredict.index = toPredict['DateTime']
+        toPredict = toPredict.drop(['DateTime'], axis='columns')
+
+        futureDatesPredicted = model.predict(toPredict)
+
+
+        global dfResult
+        dfResult = toPredict.copy()
+
+        columnDateTime = list()
+        for i in dateTime:
+            columnDateTime.append(str(i))
+
+        dfResult['DateTime'] = columnDateTime
+        dfResult = dfResult.reset_index(drop=True)
+        dfResult['Vehicles'] = list(futureDatesPredicted)
+
+        xtestIndex = list(xtest.index)
+        xtestIndex.sort()
+        newXtest = pd.DataFrame()
+        
+        years = list()
+        months = list()
+        days = list()
+        hours = list()
+        dateTime = list()
+        
+        for i in xtestIndex:
+            dateTime.append(i)
+            years.append(i.year)
+            months.append(i.month)
+            days.append(i.day)
+            hours.append(i.hour)
+
+        newXtest['Year'] = years
+        newXtest['Month'] = months
+        newXtest['Day'] = days
+        newXtest['Hour'] = hours
+        newXtest['DateTime'] = dateTime
+        newXtest.index = newXtest['DateTime']
+        newXtest = newXtest.drop(['DateTime'], axis='columns')
+
+        newYtest = list()
+        for i in newXtest.index:
+            newYtest.append(ytest[i])        
+
+        newYtest = pd.Series(newYtest)
+        newYtest.index = newXtest.index
+
+        global actual
+        global predicted
+        actual = newYtest
+        predicted = model.predict(newXtest)
+        accuracyScore = model.score(newXtest, newYtest)
+
+
+        accuracyScore1 = model1.score(newXtest, newYtest)
+        accuracyScore2 = model2.score(newXtest, newYtest)
+        accuracyScore3 = model3.score(newXtest, newYtest)
+        accuracyScore5 = model5.score(newXtest, newYtest)
+        accuracyScore6 = model6.score(newXtest, newYtest)
+        accuracyScore7 = model7.score(newXtest, newYtest)
+
+
+        accuracies = []
+        tempaccuracy = dict()
+        tempaccuracy['model'] = 'Random Forest Regression'
+        tempaccuracy['accuracyscore'] = accuracyScore1
+        accuracies.append(tempaccuracy)
+        tempaccuracy = dict()
+        tempaccuracy['model'] = 'Gradient Boosting Regression'
+        tempaccuracy['accuracyscore'] = accuracyScore2
+        accuracies.append(tempaccuracy)
+        tempaccuracy = dict()
+        tempaccuracy['model'] = 'Linear Regression'
+        tempaccuracy['accuracyscore'] = accuracyScore3
+        accuracies.append(tempaccuracy)
+        tempaccuracy = dict()
+        tempaccuracy['model'] = 'Ridge Regression'
+        tempaccuracy['accuracyscore'] = accuracyScore5
+        accuracies.append(tempaccuracy)
+        tempaccuracy = dict()
+        tempaccuracy['model'] = 'Lasso Regression'
+        tempaccuracy['accuracyscore'] = accuracyScore6
+        accuracies.append(tempaccuracy)
+        tempaccuracy = dict()
+        tempaccuracy['model'] = 'Bayesian Ridge Regression'
+        tempaccuracy['accuracyscore'] = accuracyScore7
+        accuracies.append(tempaccuracy)
+
+
+
+        global testAgainst
+        testAgainst = []
+        testAgainst2 = newXtest.index.copy()
+        for i in testAgainst2:
+            testAgainst.append(str(i))
+
+        dictionary = dict()
+        dictionary['vehicles'] = list(futureDatesPredicted)
+
+        toPredictDateTime = list()
+        for i in toPredict.index:
+            toPredictDateTime.append(str(i))
+        dictionary['datetime'] = toPredictDateTime
+        
+        result = [dictionary]
+        newXtrain = xtrain
+        newYtrain = ytrain
+        newXtrain = sm.add_constant(newXtrain)
+        model8 = sm.OLS(newYtrain, newXtrain).fit()
+
+        global modelSummary
+        modelSummary = model8.summary()
+        modelSummary = str(modelSummary)
+        
+        modelSummary = modelSummary.split('\n')
+        
+
+        anotherSummary = dict()
+        anotherSummary['Dep. Variable: '] = 'Vehicles'
+        anotherSummary['Model: '] = str(model)
+        anotherSummary['Accuracy: '] = accuracyScore
+        anotherSummary['R-squared: '] = r2_score(newYtest, predicted)
+        anotherSummary['Date & Time: '] = datetime.now()
+        anotherSummary['No. Observations: '] = df.shape[0]
+
+        fstatistic = f_test(newYtest, predicted)
+        anotherSummary['F-Statistic: '] = fstatistic[0]
+        anotherSummary['(prob) F-Statistic: '] = fstatistic[1]
+        anotherSummary['Explained Variance: '] = metrics.explained_variance_score(newYtest, predicted)
+        anotherSummary['Mean Absolute Error: '] = metrics.mean_absolute_error(newYtest, predicted)
+        anotherSummary['Mean Squared Error: '] = metrics.mean_squared_error(newYtest, predicted)
+        anotherSummary['Mean Squared Log Error: '] = metrics.mean_squared_log_error(newYtest, predicted)
+        anotherSummary['Median Absolute Error: '] = metrics.median_absolute_error(newYtest, predicted)
+        anotherSummary['Skew: '] = skew(list(df.Vehicles), axis=0, bias=True)
+        anotherSummary['Kurtosis: '] = kurtosis(list(df.Vehicles), axis=0, bias=True)
+        anotherSummary['Jarque-Bera (JB): '] = str(jarque_bera(np.array(df.Vehicles)))
+        anotherSummary['Durbin Watson: '] = durbin_watson(np.array(df.Vehicles))
+
+
+
+        global modelSummary2
+        if algorithm == 'Linear Regression':
+            modelSummary2 = modelSummary
+        else:
+            listStrings = list()
+            for i in anotherSummary:
+                s = ""
+                s += i
+                s += ": "
+                s += str(anotherSummary[i])
+                listStrings.append(s)
+            modelSummary2 = listStrings
+
+        global plotData
+        plotData = result
+        
+
+        return make_response(result)
+
+
+
+
+
+
+
+@app.route('/getAllJunctionsAccuracies')
+def getAllJunctionsAccuracies():
+    global allJunctionsAccuracies
+    return make_response(allJunctionsAccuracies)
     
 
-    # Create Lag Data
-    lag_df = tempdf.copy()
-    for i in range(1, 3):
-        lag_df[f'Vehicles_lag_{i}'] = tempdf.Vehicles.shift(i)
+@app.route('/getAllJunctionsAccuracyScore')
+def getAllJunctionsAccuracyScore():
+    global allJunctionsAccuracyScore
+    return make_response(allJunctionsAccuracyScore)
 
 
-    # drop all null rows
-    lag_df.dropna(inplace=True)
+@app.route('/getAllJunctionsPredictedTableData')
+def getAllJunctionsPredictedTableData():
+    global allJunctionsPredictedTableData
+    return make_response(allJunctionsPredictedTableData)
 
+@app.route('/getAllJunctionsPlotData')
+def getAllJunctionsPlotData():
+    global allJunctionsPlotData
+    return make_response(allJunctionsPlotData)
 
-    lag_data = get_list_data(lag_df, drop=['Year'])
-
-    global algorithm
-
-    if algorithm == "Random Forest Regression":
-        model = RandomForestRegressor()
-    elif algorithm == "Gradient Boosting Regression":
-        model = GradientBoostingRegressor()
-    elif algorithm == "Linear Regression":
-        model = LinearRegression()
-    elif algorithm == "Logistic Regression":
-        model = LogisticRegression()
-    elif algorithm == "Ridge Regression":
-        model = Ridge(alpha=1.0)
-    elif algorithm == "Lasso Regression":
-        model = Lasso(alpha=0.1)
-    elif algorithm == "Bayesian Ridge Regression":
-        model = BayesianRidge()
-
-
-    global accuracies
-    model1 = RandomForestRegressor()
-    model2 = GradientBoostingRegressor()
-    model3 = LinearRegression()
-    model5 = Ridge(alpha=1.0)
-    model6 = Lasso(alpha=0.1)
-    model7 = BayesianRidge()
-
-    global accuracyScore
-
-    mainData = lag_data[junction]
-    curr_time = mainData.tail(1).index[0] # get the current time, the last time of that dataset
-    
-    if timeFormat == "Days":
-        end_time = curr_time + pd.DateOffset(days=time) # the end time after 4 time that we want to predict
-    elif timeFormat == "Months":
-        end_time = curr_time + pd.DateOffset(months=time) # the end time after 4 time that we want to predict
-    else:
-        end_time = curr_time + pd.DateOffset(years=time) # the end time after 4 time that we want to predict
-
-
-
-
-    mainData = tempdf.copy()
-    mainData = mainData[mainData.Junction == junction]
-    mainData = mainData.drop(['Junction'], axis='columns')
-
-    x = mainData.drop(['Vehicles'], axis='columns')
-    y = mainData.Vehicles
-    xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size = testRatio)
-    model.fit(xtrain, ytrain)
-    model1.fit(xtrain, ytrain)
-    model2.fit(xtrain, ytrain)
-    model3.fit(xtrain, ytrain)
-    model5.fit(xtrain, ytrain)
-    model6.fit(xtrain, ytrain)
-    model7.fit(xtrain, ytrain)
-
-
-    timePeriod = list()
-    while curr_time != end_time:
-        timePeriod.append(curr_time)
-        curr_time += timedelta(minutes=60)
-
-    toPredict = pd.DataFrame()
-    years = list()
-    months = list()
-    days = list()
-    hours = list()
-    dateTime = list()
-    
-    for i in timePeriod:
-        dateTime.append(i)
-        years.append(i.year)
-        months.append(i.month)
-        days.append(i.day)
-        hours.append(i.hour)
-
-    toPredict['Year'] = years
-    toPredict['Month'] = months
-    toPredict['Day'] = days
-    toPredict['Hour'] = hours
-    toPredict['DateTime'] = dateTime
-    toPredict.index = toPredict['DateTime']
-    toPredict = toPredict.drop(['DateTime'], axis='columns')
-
-    futureDatesPredicted = model.predict(toPredict)
-    futureDatesPredicted1 = model1.predict(toPredict)
-    futureDatesPredicted2 = model2.predict(toPredict)
-    futureDatesPredicted3 = model3.predict(toPredict)
-    futureDatesPredicted5 = model5.predict(toPredict)
-    futureDatesPredicted6 = model6.predict(toPredict)
-    futureDatesPredicted7 = model7.predict(toPredict)
-
-
-    global dfResult
-    dfResult = toPredict.copy()
-
-    columnDateTime = list()
-    for i in dateTime:
-        columnDateTime.append(str(i))
-
-    dfResult['DateTime'] = columnDateTime
-    dfResult = dfResult.reset_index(drop=True)
-    dfResult['Vehicles'] = list(futureDatesPredicted)
-
-    xtestIndex = list(xtest.index)
-    xtestIndex.sort()
-    newXtest = pd.DataFrame()
-    
-    years = list()
-    months = list()
-    days = list()
-    hours = list()
-    dateTime = list()
-    
-    for i in xtestIndex:
-        dateTime.append(i)
-        years.append(i.year)
-        months.append(i.month)
-        days.append(i.day)
-        hours.append(i.hour)
-
-    newXtest['Year'] = years
-    newXtest['Month'] = months
-    newXtest['Day'] = days
-    newXtest['Hour'] = hours
-    newXtest['DateTime'] = dateTime
-    newXtest.index = newXtest['DateTime']
-    newXtest = newXtest.drop(['DateTime'], axis='columns')
-
-    newYtest = list()
-    for i in newXtest.index:
-        newYtest.append(ytest[i])        
-
-    newYtest = pd.Series(newYtest)
-    newYtest.index = newXtest.index
-
-    global actual
-    global predicted
-    actual = newYtest
-    predicted = model.predict(newXtest)
-    accuracyScore = model.score(newXtest, newYtest)
-
-
-    predicted1 = model1.predict(newXtest)
-    predicted2 = model2.predict(newXtest)
-    predicted3 = model3.predict(newXtest)
-    predicted5 = model5.predict(newXtest)
-    predicted6 = model6.predict(newXtest)
-    predicted7 = model7.predict(newXtest)
-    accuracyScore1 = model1.score(newXtest, newYtest)
-    accuracyScore2 = model2.score(newXtest, newYtest)
-    accuracyScore3 = model3.score(newXtest, newYtest)
-    accuracyScore5 = model5.score(newXtest, newYtest)
-    accuracyScore6 = model6.score(newXtest, newYtest)
-    accuracyScore7 = model7.score(newXtest, newYtest)
-
-
-    accuracies = []
-    tempaccuracy = dict()
-    tempaccuracy['model'] = 'Random Forest Regression'
-    tempaccuracy['accuracyscore'] = accuracyScore1
-    accuracies.append(tempaccuracy)
-    tempaccuracy = dict()
-    tempaccuracy['model'] = 'Gradient Boosting Regression'
-    tempaccuracy['accuracyscore'] = accuracyScore2
-    accuracies.append(tempaccuracy)
-    tempaccuracy = dict()
-    tempaccuracy['model'] = 'Linear Regression'
-    tempaccuracy['accuracyscore'] = accuracyScore3
-    accuracies.append(tempaccuracy)
-    tempaccuracy = dict()
-    tempaccuracy['model'] = 'Ridge Regression'
-    tempaccuracy['accuracyscore'] = accuracyScore5
-    accuracies.append(tempaccuracy)
-    tempaccuracy = dict()
-    tempaccuracy['model'] = 'Lasso Regression'
-    tempaccuracy['accuracyscore'] = accuracyScore6
-    accuracies.append(tempaccuracy)
-    tempaccuracy = dict()
-    tempaccuracy['model'] = 'Bayesian Ridge Regression'
-    tempaccuracy['accuracyscore'] = accuracyScore7
-    accuracies.append(tempaccuracy)
-
-
-
-    global testAgainst
-    testAgainst2 = newXtest.index.copy()
-    for i in testAgainst2:
-        testAgainst.append(str(i))
-
-    dictionary = dict()
-    dictionary['vehicles'] = list(futureDatesPredicted)
-
-    toPredictDateTime = list()
-    for i in toPredict.index:
-        toPredictDateTime.append(str(i))
-    dictionary['datetime'] = toPredictDateTime
-    
-    result = [dictionary]
-    newXtrain = xtrain
-    newYtrain = ytrain
-    newXtrain = sm.add_constant(newXtrain)
-    model8 = sm.OLS(newYtrain, newXtrain).fit()
-
-    global modelSummary
-    modelSummary = model8.summary()
-    modelSummary = str(modelSummary)
-    
-    modelSummary = modelSummary.split('\n')
-    
-
-    anotherSummary = dict()
-    anotherSummary['Dep. Variable: '] = 'Vehicles'
-    anotherSummary['Model: '] = str(model)
-    anotherSummary['Accuracy: '] = accuracyScore
-    anotherSummary['R-squared: '] = r2_score(newYtest, predicted)
-    anotherSummary['Date & Time: '] = datetime.now()
-    anotherSummary['No. Observations: '] = df.shape[0]
-
-    fstatistic = f_test(newYtest, predicted)
-    anotherSummary['F-Statistic: '] = fstatistic[0]
-    anotherSummary['(prob) F-Statistic: '] = fstatistic[1]
-    anotherSummary['Explained Variance: '] = metrics.explained_variance_score(newYtest, predicted)
-    anotherSummary['Mean Absolute Error: '] = metrics.mean_absolute_error(newYtest, predicted)
-    anotherSummary['Mean Squared Error: '] = metrics.mean_squared_error(newYtest, predicted)
-    anotherSummary['Mean Squared Log Error: '] = metrics.mean_squared_log_error(newYtest, predicted)
-    anotherSummary['Median Absolute Error: '] = metrics.median_absolute_error(newYtest, predicted)
-    anotherSummary['Skew: '] = skew(list(df.Vehicles), axis=0, bias=True)
-    anotherSummary['Kurtosis: '] = kurtosis(list(df.Vehicles), axis=0, bias=True)
-    anotherSummary['Jarque-Bera (JB): '] = str(jarque_bera(np.array(df.Vehicles)))
-    anotherSummary['Durbin Watson: '] = durbin_watson(np.array(df.Vehicles))
-
-
-
-    global modelSummary2
-    if algorithm == 'Linear Regression':
-        modelSummary2 = modelSummary
-    else:
-        listStrings = list()
-        for i in anotherSummary:
-            s = ""
-            s += i
-            s += ": "
-            s += str(anotherSummary[i])
-            listStrings.append(s)
-        modelSummary2 = listStrings
-
-    return make_response(result)
 
 
 if __name__ == "__main__":
+
+    global df
+    global tempdf
+    global time
+    global timeFormat
+    global testRatio
+    global junction
+    global algorithm
+    global accuracies
+    global accuracyScore
+    global dfResult
+    global actual
+    global predicted
+    global testAgainst
+    global modelSummary
+    global modelSummary2
+    global ploData
+
+
+    df = pd.DataFrame()
+    tempdf = pd.DataFrame()
+    df = pd.read_csv(config.whereDataset)
+    tempdf = pd.read_csv(config.whereDataset, parse_dates=True, index_col='DateTime')
+    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+    tempdf.drop('ID', axis=1, inplace=True)
+
+    junctions = np.unique(df.Junction)
+
+    global allJunctionsAccuracies
+    global allJunctionsAccuracyScore
+    global allJunctionsPredictedTableData
+    global allJunctionsPlotData
+
+    allJunctionsAccuracies = list()
+    allJunctionsAccuracyScore = list()
+    allJunctionsPredictedTableData = list()
+    allJunctionsPlotData = list()
+
+    for i in junctions:
+        junction = i
+        time = 2
+        timeFormat = 'Days'
+        testRatio = 0.1
+        algorithm = 'Random Forest Regression'
+        predict()
+        allJunctionsAccuracies.append(accuracies)
+        allJunctionsAccuracyScore.append(accuracyScore)
+        allJunctionsPlotData.append(plotData)
+
+
+        arr = []
+        head = dfResult
+
+        data2 = head.to_dict()
+        anycol = ""
+        for i in data2:
+            anycol = i
+            break
+        for i in range(len(data2[anycol])):
+            field = {}
+            for j in data2:
+                field[j] = data2[j][i]
+            arr.append(field)
+        allJunctionsPredictedTableData.append(arr)
+    
     app.run()

@@ -4,11 +4,10 @@ import { OperationService } from '../services/operationService/operation.service
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FlaskService } from '../services/flaskService/flask.service';
+import { FlaskAutopredictedService } from '../services/flaskAutoPredictedService/flask.autopredicted.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
-import { Router } from '@angular/router';
-import { tick } from '@angular/core/testing';
-
+import { Routes, Router, RouterModule } from '@angular/router';
 
 
 
@@ -24,6 +23,7 @@ export class Page2Component implements OnInit {
 		private operationService: OperationService,
 		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService,
+		private flaskAutoPredictedService: FlaskAutopredictedService
 	) {}
 
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
@@ -35,7 +35,14 @@ export class Page2Component implements OnInit {
 	maxLimitArray: number[] = []
 	maxInPlotArray: number[] = []
 
+	plotDataReady: boolean = false
+
+	vehiclesToBePlotted: any
+	dateTimeToBePlotted: any
 	errorstring: string = "" // error message to be displayed on the screen
+	junctionToBeRendered: string = "Junction 1"
+	allJunctionsPlotData: any
+	currentJunctionPlotData: any
 
 	dataVisualizationType: string = "Table"
 	dataVisualizationJunctionName: string = "Junction 1"
@@ -50,6 +57,8 @@ export class Page2Component implements OnInit {
 	keys: any
 	obj = {} // object to be passed to the back-end that comprises of junction and months
 
+	allJunctionsPredictedData: any
+	currentJunctionsPredictedData: any
 
 	accuracyScore: any  // accuracy on test data
 
@@ -107,17 +116,62 @@ export class Page2Component implements OnInit {
 	testRatio: number = 0
 
 
+	navigateToTraining() {
+		this.router.navigate(['/training'])
+	}
 
-	changeDataVisualizationType() {
-		if (this.dataVisualizationType == "Table") {
-			this.vehiclesVsDateTimeChartHidden = true
-			this.toggleDataVisualizationChartHidden = true
-			this.toggleDataVisualizationTable = true
-		} else {
-			this.toggleDataVisualizationChartHidden = false
-			this.toggleDataVisualizationTable = false
-			this.changeJunctionToBePlotted()
+	
+	changeJunctionToBeRendered() {
+		if (this.junctionToBeRendered === 'Junction 1') {
+			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[0]
+			if (this.plotDataReady) {
+				this.currentJunctionPlotData = this.allJunctionsPlotData[0]
+			}
 		}
+		if (this.junctionToBeRendered === 'Junction 2') {
+			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[1]
+			if (this.plotDataReady) {
+				this.currentJunctionPlotData = this.allJunctionsPlotData[1]
+			}
+		}
+		if (this.junctionToBeRendered === 'Junction 3') {
+			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[2]
+			if (this.plotDataReady) {
+				this.currentJunctionPlotData = this.allJunctionsPlotData[2]
+			}
+		}
+		if (this.junctionToBeRendered === 'Junction 4') {
+			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[3]
+			if (this.plotDataReady) {
+				this.currentJunctionPlotData = this.allJunctionsPlotData[3]
+			}
+		}
+
+		
+		// to show result table
+		this.resultTableReady = true
+		this.futurePredictionsReadyHidden = false
+
+
+		// display only these columns
+		this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+
+		// get all row values from the response recieved to show in table
+		this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
+
+		// get total number of records from table data
+		this.numberOfRecordsResult = this.currentJunctionsPredictedData.length
+
+		
+		if (this.plotDataReady) {
+			this.setVehiclesAndDateTime(this.currentJunctionPlotData[0]['vehicles'], this.currentJunctionPlotData[0]['datetime'])
+			this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted)
+		}
+	}
+
+	setVehiclesAndDateTime(param1: any, param2: any) {
+		this.vehiclesToBePlotted = param1
+		this.dateTimeToBePlotted = param2
 	}
 
 
@@ -136,37 +190,6 @@ export class Page2Component implements OnInit {
 
 
 
-	changeComparisonDataRepresentationType() {
-		if (this.comparisonDataRepresentationType == "Table") {
-			this.toggleComparisonTable = true
-			this.toggleComparisonChartHidden = true
-			this.comparisonChartHidden = true
-		} else {
-			this.toggleComparisonTable = false
-			this.toggleComparisonChartHidden = false
-			this.comparisonChartHidden = false
-		}
-	}
-	
-
-
-
-	changeJunctionToBePlotted() {
-		if (this.junctionToBePlotted == "Junction 1") {
-			this.show1()
-		}
-		if (this.junctionToBePlotted == "Junction 2") {
-			this.show2()
-		}
-		if (this.junctionToBePlotted == "Junction 3") {
-			this.show3()
-		}
-		if (this.junctionToBePlotted == "Junction 4") {
-			this.show4()
-		}
-	}
-
-
 
 
 
@@ -179,86 +202,22 @@ export class Page2Component implements OnInit {
 
 
 
-
-
-	LineChart(x: any, y: any) {
-		this.plot = new Chart("plot", {
-			type: 'line',
-			data: {
-				labels: x,
-				datasets: [{
-					label: '# of Vehicles',
-					data: y,
-					borderWidth: 1
-				}]
-			},
-			options: {
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'Date-Time'
-						}
-					}
-				}
-			}
-		});
-	}
-	
-
 	
 
 	plotFuturePredictions(x: any, y: any) {
 		// prediction is done
-		const maxValue = Math.max(...y)
 		this.futurePredictionsChartHidden = false
 
-		for (let i = 0; i < y.length; i++) {
+		for (const element of y) {
 			this.maxLimitArray.push(this.propService.maxVehicles)
 		}
-		for (let i = 0; i < y.length; i++) {
+		for (const element of y) {
 			this.maxInPlotArray.push(Math.max(...y))
 		}
 
 		// plot chart (canvas) to show results
 		// destroy chart if already in use
 		if (this.myChart != null) { this.myChart.destroy() }
-		// this.myChart = new Chart("myChart", {
-		// 	type: 'line',
-		// 	data: {
-		// 		labels: x,
-		// 		datasets: [{
-		// 			label: '# of Vehicles',
-		// 			data: y,
-		// 			borderWidth: 1
-		// 		}],
-		// 	},
-		// 	options: {
-		// 		scales: {
-		// 			y: {
-		// 				beginAtZero: true,
-		// 				max: maxValue + 1,
-		// 				title: {
-		// 					display: true,
-		// 					text: 'Vehicles'
-		// 				}
-		// 			},
-		// 			x: {
-		// 				title: {
-		// 					display: true,
-		// 					text: 'Date-Time'
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// });
 
 
 		this.myChart = new Chart("myChart", {
@@ -273,20 +232,20 @@ export class Page2Component implements OnInit {
 						borderColor: '#900',
 						fill: false
 					},
-					{
-						label: 'Max Vehicles at Junction ' + this.inputJunction + ' before prediction',
-						data: this.maxLimitArray,
-						borderWidth: 1,
-						borderColor: '#0000FF',
-						fill: false
-					},
-					{
-						label: 'Max Value in prediction',
-						data: this.maxInPlotArray,
-						borderWidth: 1,
-						borderColor: '#090',
-						fill: false
-					}
+					// {
+					// 	label: 'Max Vehicles at Junction ' + this.inputJunction + ' before prediction',
+					// 	data: this.maxLimitArray,
+					// 	borderWidth: 1,
+					// 	borderColor: '#0000FF',
+					// 	fill: false
+					// },
+					// {
+					// 	label: 'Max Value in prediction',
+					// 	data: this.maxInPlotArray,
+					// 	borderWidth: 1,
+					// 	borderColor: '#090',
+					// 	fill: false,
+					// }
 				]
 			},
 			options: {
@@ -315,52 +274,6 @@ export class Page2Component implements OnInit {
 
 
 
-		// this.predictedChart = new Chart("predictedChart", {
-		// 	type: 'line',
-		// 	data: {
-		// 		labels: labels,
-		// 		datasets: [
-		// 			{
-		// 				label: "actual",
-		// 				backgroundColor: "white",
-		// 				borderWidth: 1,
-		// 				borderColor: "#900",
-		// 				fill: false,
-		// 				data: actual
-		// 			},
-		// 			{
-		// 				label: "predicted",
-		// 				backgroundColor: "white",
-		// 				borderWidth: 1,
-		// 				borderColor: "#090",
-		// 				fill: false,
-		// 				data: predicted
-		// 			}
-		// 		]
-		// 	},
-		// 	options: {
-		// 		maintainAspectRatio: true,
-		// 		scales: {
-		// 			y: {
-		// 				beginAtZero: true,
-		// 				title: {
-		// 					display: true,
-		// 					text: 'Vehicles'
-		// 				}
-		// 			},
-		// 			x: {
-		// 				title: {
-		// 					display: true,
-		// 					text: 'values'
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// });
-
-
-
-
 
 
 	}
@@ -368,125 +281,6 @@ export class Page2Component implements OnInit {
 
 
 
-	// show Line-Chart for junction 1
-	show1() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[0]['datetime']  // 0 index means junction 1
-		this.vehicles = Object.values(this.recievedPlotData)[0]['vehicles']
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// show Line-Chart for junction 2
-	show2() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[1]['datetime']  // 1 index means junction 2
-		this.vehicles = Object.values(this.recievedPlotData)[1]['vehicles']
-
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// show Line-Chart for junction 3
-	show3() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[2]['datetime']  // 2 index means junction 3
-		this.vehicles = Object.values(this.recievedPlotData)[2]['vehicles']
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// show Line-Chart for junction 4
-	show4() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[3]['datetime']  // 3 index means junction4
-		this.vehicles = Object.values(this.recievedPlotData)[3]['vehicles']
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// on clicking next button in paginator
-	next() {
-
-		// if next button in paginator is active (not disabled)
-		if (this.classForNextButton !== "page-item disabled") {
-
-			// go ahead 5 indices (meaning show next 5 table records accessing those indices)
-			this.index = this.index + 5
-
-			// set next 5 row values from CSV data (this.propService.data) to the dataSource variable
-			// so that it can be shown in table
-			this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
-
-			// if index is pointing to last 5 records from the csv data then disable next button in paginator
-			if (this.index === Object.values(this.propService.data).length - 5) {
-				this.classForNextButton = "page-item disabled"
-			}
-		}
-
-		// if index is not 0 (means we have some previous records to show)
-		// then enable previous button in paginator
-		if (this.index != 0) {
-			this.classForPreviousButton = "page-item"
-		}
-	}
-
-
-	// on clicking previous button in paginator
-	previous() {
-
-		// if previous button in paginator is active (not disabled)
-		if (this.classForPreviousButton !== "page-item disabled") {
-
-			// go back 5 indices (meaning show previous 5 table records accessing those indices)
-			this.index = this.index - 5
-
-			// set next 5 row values from CSV data (this.propService.data) to the dataSource variable 
-			// so that it can be shown in table
-			this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
-
-			// if index is 0 then previous button is of no use in paginator
-			// hence disable it
-			if (this.index === 0) {
-				this.classForPreviousButton = "page-item disabled"
-			}
-
-			// if index is not 0 then it must be greater than or equal to 5
-			// means we have previous indices and records to show
-			// hence keep previous button enabled
-			else {
-				this.classForPreviousButton = "page-item"
-			}
-		}
-	}
 
 
 	// on clicking next button in paginator of result table
@@ -500,7 +294,7 @@ export class Page2Component implements OnInit {
 
 			// set next 10 row values from result table data (this.tableResult) to the dataSource variable
 			// so that it can be shown in table
-			this.dataSourceResult = Object.values(this.tableResult).slice(this.indexResult, this.indexResult + 10)
+			this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
 
 			// if index is pointing to last 10 records from the csv data then disable next button in paginator
 			if (this.indexResult === Object.values(this.tableResult).length - 10) {
@@ -527,7 +321,7 @@ export class Page2Component implements OnInit {
 
 			// set next 10 row values from result table data (this.tableResult) to the dataSource variable 
 			// so that it can be shown in table
-			this.dataSourceResult = Object.values(this.tableResult).slice(this.indexResult, this.indexResult + 10)
+			this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -545,175 +339,6 @@ export class Page2Component implements OnInit {
 	}
 
 
-	// on clicking next button in paginator of comparison table
-	nextPredicted() {
-
-		// if next button in paginator is active (not disabled)
-		if (this.classForNextButtonPredicted !== "page-item disabled") {
-
-			// go ahead 5 indices (meaning show next 5 table records accessing those indices)
-			this.predictedTableIndex = this.predictedTableIndex + 5
-
-			// set next 5 row values from comparison table data (this.tablePredicted) to the dataSource variable
-			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.tablePredicted).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-
-			// if index is pointing to last 5 records from the csv data then disable next button in paginator
-			if (this.predictedTableIndex === Object.values(this.tablePredicted).length - 5) {
-				this.classForNextButtonPredicted = "page-item disabled"
-			}
-		}
-
-
-		// if index is not 0 (means we have some previous records to show)
-		// then enable previous button in paginator
-		if (this.predictedTableIndex != 0) {
-			this.classForPreviousButtonPredicted = "page-item"
-		}
-	}
-
-
-	// on clicking previous button in paginator of comparison table
-	previousPredicted() {
-
-		// if previous button in paginator is active (not disabled)
-		if (this.classForPreviousButtonPredicted !== "page-item disabled") {
-
-			// go back 5 indices (meaning show previous 5 table records accessing those indices)
-			this.predictedTableIndex = this.predictedTableIndex - 5
-
-			// set next 5 row values from comparison table data (this.tablePredicted) to the dataSource variable 
-			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.tablePredicted).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-
-			// if index is 0 then previous button is of no use in paginator
-			// hence disable it
-			if (this.predictedTableIndex === 0) {
-				this.classForPreviousButtonPredicted = "page-item disabled"
-			}
-
-			// if index is not 0 then it must be greater than or equal to 5
-			// means we have previous indices and records to show
-			// hence keep previous button enabled
-			else {
-				this.classForPreviousButtonPredicted = "page-item"
-			}
-		}
-	}
-
-
-	// on clicking next button in paginator of comparison plot
-	next10Plot() {
-
-		// if next button in paginator is active (not disabled)
-		if (this.classForNextButtonPlot !== "page-item disabled") {
-
-			// go ahead 10 indices (meaning show next 5 predictions accessing those indices)
-			this.predictedChartIndex = this.predictedChartIndex + 10
-
-			// set plot variables to get actual, predicted and labels of next 10 predictions from predictionPlotData
-			this.actual = Object.values(this.predictionPlotData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.predicted = Object.values(this.predictionPlotData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.labels = Object.values(this.predictionPlotData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-			// plot comparison chart of these indices 
-			this.compareChart(this.labels, this.actual, this.predicted)
-
-			// if index is pointing to last 5 records from the plot data then disable next button in paginator
-			if (this.predictedChartIndex === Object.values(this.predictionPlotData).length - 10) {
-				this.classForNextButtonPlot = "page-item disabled"
-			}
-		}
-
-		// if there are predictions to show or index is not 0 then enable the previous button
-		if (this.predictedChartIndex != 0) {
-			this.classForPreviousButtonPlot = "page-item"
-		}
-	}
-
-
-	// on clicking previous button in paginator of comparison plot
-	previous10Plot() {
-
-		// if previous button in paginator is enabled (not disabled)
-		if (this.classForPreviousButtonPlot !== "page-item disabled") {
-
-			// go back 10 indices (meaning show previous 5 predictions accessing those indices)
-			this.predictedChartIndex = this.predictedChartIndex - 10
-
-			// set plot variables to get actual, predicted and labels of next 10 predictions
-			this.actual = Object.values(this.predictionPlotData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.predicted = Object.values(this.predictionPlotData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.labels = Object.values(this.predictionPlotData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-
-			// plot comparison chart
-			this.compareChart(this.labels, this.actual, this.predicted)
-
-			// if index is 0 then previous button is of no use in paginator
-			// hence disable it
-			if (this.predictedChartIndex === 0) {
-				this.classForPreviousButtonPlot = "page-item disabled"
-			}
-
-			// if index is not 0 then it must be greater than or equal to 10
-			// means we have previous indices and records to show
-			// hence keep previous button enabled
-			else {
-				this.classForPreviousButtonPlot = "page-item"
-			}
-		}
-	}
-
-
-	// function to plot comparison line chart
-	compareChart(labels: number[], actual: number[], predicted: number[]) {
-
-		// if comparison chart (canvas) is in use then destroy it
-		if (this.predictedChart != null) { this.predictedChart.destroy() }
-		this.predictedChart = new Chart("predictedChart", {
-			type: 'line',
-			data: {
-				labels: labels,
-				datasets: [
-					{
-						label: "actual",
-						backgroundColor: "white",
-						borderWidth: 1,
-						borderColor: "#900",
-						fill: false,
-						data: actual
-					},
-					{
-						label: "predicted",
-						backgroundColor: "white",
-						borderWidth: 1,
-						borderColor: "#090",
-						fill: false,
-						data: predicted
-					}
-				]
-			},
-			options: {
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'values'
-						}
-					}
-				}
-			}
-		});
-	}
 
 
 	// if new input is given then this function fires to switch off the predicted image 
@@ -741,20 +366,59 @@ export class Page2Component implements OnInit {
 
 
 
-	// navigate to training
-	navigateTraining() {
-		this.router.navigate(['/']);
+
+	getPredictionInformation() {
+		this.flaskAutoPredictedService.getAllJunctionsAccuracies().subscribe({
+			next: (response) => {
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error)
+			}
+		})
+
+		this.flaskAutoPredictedService.getAllJunctionsAccuracyScore().subscribe({
+			next: (response) => {
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error)
+			}
+		})
+
+
+		this.flaskAutoPredictedService.getPredictedTableData().subscribe({
+			next: (response) => {
+				this.allJunctionsPredictedData = response
+				this.changeJunctionToBeRendered()
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error)
+			}
+		})
+
+		this.flaskAutoPredictedService.getAllJunctionsPlotData().subscribe({
+			next: (response) => {
+				this.allJunctionsPlotData = response
+				this.plotDataReady = true
+				this.changeJunctionToBeRendered()
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error)
+			}
+		})
+
+
 	}
 
-
+	
 
 
 	// on click predict button
 	ngOnInit() {
-
-		this.inputJunction = this.propService.inputJunction
-		this.inputTime = this.propService.inputTime
-		this.time = this.propService.time
+		
 
 		// no errors in validation
 		// hence don't show error alert
@@ -764,51 +428,8 @@ export class Page2Component implements OnInit {
 		this.startedTraining = true;
 
 
-		// get all the result data (predicted for next number of days provided)
-		this.flaskService.getResultTable().subscribe({
-			next: (response) => {
+		this.getPredictionInformation()
 
-				// to show result table
-				this.resultTableReady = true
-				this.futurePredictionsReadyHidden = false
-
-				// set tableResult variable to response so that it can be used later
-				this.tableResult = response
-
-				// display only these columns
-				this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
-
-				// get all row values from the response recieved to show in table
-				this.dataSourceResult = Object.values(response).slice(this.index, this.index + 10)
-
-				// get total number of records from table data
-				this.numberOfRecordsResult = Object.values(response).length
-
-				this.plotFuturePredictions(this.propService.datetime, this.propService.vehicles)
-			},
-			error: (error: HttpErrorResponse) => {
-				console.log(error)
-				alert(error.message)
-			}
-		})
-
-
-
-		// get accuracy of the junction from the backend
-		this.flaskService.getAccuracy().subscribe({
-			next: (response) => {
-
-				// switch to display accuracy on the UI
-				this.gotAccuracy = true
-
-				// get accuracy in a variable
-				this.accuracyScore = Object.values(response)
-			},
-			error: (error: HttpErrorResponse) => {
-				console.log(error)
-				alert(error.message)
-			}
-		})
 	}
 
 }

@@ -25,36 +25,40 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from  '@angular/material/menu'
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    Page2Component,
-    SignupComponent,
-    AdminInputsComponent,
-    TrainingComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    MatTableModule,
-    MatCardModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatButtonToggleModule,
-    MatInputModule,
-    NgxCsvParserModule,
-    MatPaginatorModule,
-    MatStepperModule,
-    MatButtonModule,
-    MatGridListModule,
-    MatFormFieldModule,
-    MatDividerModule
-  ],
-  providers: [OperationService, PropService],
-  bootstrap: [AppComponent]
+	declarations: [
+		AppComponent,
+		Page2Component,
+		SignupComponent,
+		AdminInputsComponent,
+		TrainingComponent,
+	],
+	imports: [
+		BrowserModule,
+		AppRoutingModule,
+		FormsModule,
+		HttpClientModule,
+		BrowserAnimationsModule,
+		MatTableModule,
+		MatCardModule,
+		MatSnackBarModule,
+		MatIconModule,
+		MatButtonToggleModule,
+		MatInputModule,
+		NgxCsvParserModule,
+		MatPaginatorModule,
+		MatStepperModule,
+		MatButtonModule,
+		MatGridListModule,
+		MatFormFieldModule,
+		MatDividerModule,
+		MatToolbarModule,
+		MatMenuModule
+	],
+	providers: [OperationService, PropService],
+	bootstrap: [AppComponent]
 })
 export class AppModule { }

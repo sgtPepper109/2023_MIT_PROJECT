@@ -260,7 +260,6 @@ export class TrainingComponent implements OnInit {
 		this.vehicles = Object.values(this.recievedPlotData)[0]['vehicles']
 
 		this.maxVehicles = Math.max(...this.vehicles)
-		console.log(this.maxVehicles)
 		this.propService.maxVehicles = this.maxVehicles
 
 		// if chart (canvas) is already in use then destroy it
@@ -273,7 +272,6 @@ export class TrainingComponent implements OnInit {
 		for (let i = 0; i < this.datetime.length; i++) {
 			this.maxLimitArray.push(this.maxVehicles)
 		}
-		console.log(this.maxLimitArray)
 		this.LineChart(this.datetime, this.vehicles)
 	}
 
@@ -285,7 +283,6 @@ export class TrainingComponent implements OnInit {
 		this.vehicles = Object.values(this.recievedPlotData)[1]['vehicles']
 
 		this.maxVehicles = Math.max(...this.vehicles)
-		console.log(this.maxVehicles)
 		this.propService.maxVehicles = this.maxVehicles
 
 		// if chart (canvas) is already in use then destroy it
@@ -298,7 +295,6 @@ export class TrainingComponent implements OnInit {
 		for (let i = 0; i < this.datetime.length; i++) {
 			this.maxLimitArray.push(this.maxVehicles)
 		}
-		console.log(this.maxLimitArray)
 		this.LineChart(this.datetime, this.vehicles)
 	}
 
@@ -310,7 +306,6 @@ export class TrainingComponent implements OnInit {
 		this.vehicles = Object.values(this.recievedPlotData)[2]['vehicles']
 
 		this.maxVehicles = Math.max(...this.vehicles)
-		console.log(this.maxVehicles)
 		this.propService.maxVehicles = this.maxVehicles
 
 		// if chart (canvas) is already in use then destroy it
@@ -323,7 +318,6 @@ export class TrainingComponent implements OnInit {
 		for (let i = 0; i < this.datetime.length; i++) {
 			this.maxLimitArray.push(this.maxVehicles)
 		}
-		console.log(this.maxLimitArray)
 		this.LineChart(this.datetime, this.vehicles)
 	}
 
@@ -335,7 +329,6 @@ export class TrainingComponent implements OnInit {
 		this.vehicles = Object.values(this.recievedPlotData)[3]['vehicles']
 
 		this.maxVehicles = Math.max(...this.vehicles)
-		console.log(this.maxVehicles)
 		this.propService.maxVehicles = this.maxVehicles
 
 		// if chart (canvas) is already in use then destroy it
@@ -348,7 +341,6 @@ export class TrainingComponent implements OnInit {
 		for (let i = 0; i < this.datetime.length; i++) {
 			this.maxLimitArray.push(this.maxVehicles)
 		}
-		console.log(this.maxLimitArray)
 		this.LineChart(this.datetime, this.vehicles)
 	}
 
@@ -591,7 +583,7 @@ export class TrainingComponent implements OnInit {
 
 	// navigate to page2
 	navigateToPage2() {
-		this.router.navigate(['/page2'])
+		this.router.navigate(['/prediction'])
 	}
 
 
@@ -649,97 +641,6 @@ export class TrainingComponent implements OnInit {
 														this.junctionToBePlotted = "Junction 1"
 														this.show1()
 
-														// get comparison data (actual vs predicted) from backend
-														this.flaskService.getActualPredicted().subscribe({
-															next: (response) => {
-
-																// switch to display comparison table
-																this.predictedTableReady = true
-
-																// get data in a variable
-																this.tablePredicted = response
-
-																// get the row data from table data recieved as response
-																this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-
-																// get total number of records
-																this.numberOfRecordsPredicted = Object.values(response).length
-															},
-															error: (error: HttpErrorResponse) => {
-																console.log(error)
-																alert(error.message)
-															}
-														})
-
-														// get comparison data (actual vs predicted for plotting) from backend
-														this.flaskService.getActualPredictedForPlot().subscribe({
-															next: (response) => {
-
-																this.comparisonChartHidden = false
-																// set it to the variable 
-																this.predictionPlotData = response
-
-																// differentiate plot data into actual, predicted and indices
-																this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-																this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-																this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-																// get total number of records
-																this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
-
-																// destroy comparison chart if already in use
-																if (this.predictedChart != null) { this.predictedChart.destroy() }
-
-																// then plot comparison chart
-																this.predictedChart = new Chart("predictedChart", {
-																	type: 'line',
-																	data: {
-																		labels: this.labels,
-																		datasets: [
-																			{
-																				label: "actual",
-																				backgroundColor: "white",
-																				borderWidth: 1,
-																				borderColor: "#900",
-																				fill: false,
-																				data: this.actual
-																			},
-																			{
-																				label: "predicted",
-																				backgroundColor: "white",
-																				borderWidth: 1,
-																				borderColor: "#090",
-																				fill: false,
-																				data: this.predicted
-																			}
-																		]
-																	},
-																	options: {
-																		maintainAspectRatio: true,
-																		scales: {
-																			y: {
-																				beginAtZero: true,
-																				title: {
-																					display: true,
-																					text: 'Vehicles'
-																				}
-																			},
-																			x: {
-																				title: {
-																					display: true,
-																					text: 'DateTime'
-																				}
-																			}
-																		}
-																	}
-																});
-															},
-															error: (error: HttpErrorResponse) => {
-																console.log(error)
-																alert(error.message)
-															}
-														})
-
 
 
 
@@ -789,6 +690,11 @@ export class TrainingComponent implements OnInit {
 	}
 
 
+
+	navigateToPredictions() {
+		this.router.navigate(['/prediction'])
+	}
+
 	
 
 	start() {
@@ -837,6 +743,102 @@ export class TrainingComponent implements OnInit {
 								next: (response) => {
 									this.futurePredictionsReadyHidden = false
 									this.modelSummary = Object.values(response)
+
+
+
+
+									// get comparison data (actual vs predicted) from backend
+									this.flaskService.getActualPredicted().subscribe({
+										next: (response) => {
+
+											// switch to display comparison table
+											this.predictedTableReady = true
+
+											// get data in a variable
+											this.tablePredicted = response
+
+											// get the row data from table data recieved as response
+											this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+
+											// get total number of records
+											this.numberOfRecordsPredicted = Object.values(response).length
+										},
+										error: (error: HttpErrorResponse) => {
+											console.log(error)
+											alert(error.message)
+										}
+									})
+
+									// get comparison data (actual vs predicted for plotting) from backend
+									this.flaskService.getActualPredictedForPlot().subscribe({
+										next: (response) => {
+
+											this.comparisonChartHidden = false
+											// set it to the variable 
+											this.predictionPlotData = response
+
+											// differentiate plot data into actual, predicted and indices
+											this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+											this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+											this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+
+											// get total number of records
+											this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
+
+											// destroy comparison chart if already in use
+											if (this.predictedChart != null) { this.predictedChart.destroy() }
+
+											// then plot comparison chart
+											this.predictedChart = new Chart("predictedChart", {
+												type: 'line',
+												data: {
+													labels: this.labels,
+													datasets: [
+														{
+															label: "actual",
+															backgroundColor: "white",
+															borderWidth: 1,
+															borderColor: "#900",
+															fill: false,
+															data: this.actual
+														},
+														{
+															label: "predicted",
+															backgroundColor: "white",
+															borderWidth: 1,
+															borderColor: "#090",
+															fill: false,
+															data: this.predicted
+														}
+													]
+												},
+												options: {
+													maintainAspectRatio: true,
+													scales: {
+														y: {
+															beginAtZero: true,
+															title: {
+																display: true,
+																text: 'Vehicles'
+															}
+														},
+														x: {
+															title: {
+																display: true,
+																text: 'DateTime'
+															}
+														}
+													}
+												}
+											});
+										},
+										error: (error: HttpErrorResponse) => {
+											console.log(error)
+											alert(error.message)
+										}
+									})
+
+
 
 
 
