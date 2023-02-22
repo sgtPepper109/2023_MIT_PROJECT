@@ -62,4 +62,5 @@ export class FlaskService {
 	public getAllJunctions() {
 		return this.http.get(`${this.apiServerUrl}/process/getAllJunctions`)
 	}
+
 }

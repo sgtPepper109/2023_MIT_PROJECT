@@ -1,13 +1,16 @@
-<nav id="navbar-example2" class="navbar bg-primary px-3 mb-3" aria-labelledby="navHeading" data-bs-theme="dark">
-    <ul class="nav nav-pills">
-        <li class="nav-item-primary text-white" (click)="navigateTraining()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-left-square" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm11.5 5.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
-            </svg>
-        </li>
-        <a style="margin-left: 20px;" class="navbar-brand" id="navHeading">Traffic Intensity Prediction and Recommendation</a>
-    </ul>
-</nav>
+<p>
+    <mat-toolbar>
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="example-icon" aria-label="Example icon-button with menu icon">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="navigateToTraining()">Training</button>
+            <button mat-menu-item>Predictions</button>
+        </mat-menu>
+        <span>Traffic Intensity Prediction and Recommendation</span>
+        <span class="example-spacer"></span>
+    </mat-toolbar>
+</p>
 
 
 <div class="container p-7 my-7 shadow-lg p-3 mb-5 bg-white rounded">
@@ -25,7 +28,7 @@
                         <mat-card *ngIf="toggleFuturePredictionsTable">
                             <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                                 <ul class="nav nav-pills">
-                                    <h4 id="table2-desc"><strong>Result for Junction {{inputJunction}} for duration of {{inputTime}} {{time}}</strong></h4>
+                                    <h4 id="table2-desc"><strong>Result for junction for duration of days</strong></h4>
                                 </ul>
                                 <div>
                                     <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
@@ -36,6 +39,15 @@
                             </nav>
                             <mat-card-content *ngIf="resultTableReady">
 
+                                <div style="float: right; width: 200px">
+                                    <select class="form-select" aria-label="Default select example" [(ngModel)]="junctionToBeRendered" (change)="changeJunctionToBeRendered()">
+                                        <option selected>Junction 1</option>
+                                        <option value="Junction 2">Junction 2</option>
+                                        <option value="Junction 3">Junction 3</option>
+                                        <option value="Junction 4">Junction 4</option>
+                                    </select>
+                                    <br />
+                                </div>
                                 <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
                                     <thead>
                                         <tr>
@@ -85,8 +97,18 @@
                                         <option value="Line Plot">Line Plot</option>
                                     </select>
                                 </div>
+                                <br />
                             </nav>
                             <mat-card-content>
+                                <div style="float: right; width: 200px">
+                                    <select class="form-select" aria-label="Default select example" [(ngModel)]="junctionToBeRendered" (change)="changeJunctionToBeRendered()">
+                                        <option selected>Junction 1</option>
+                                        <option value="Junction 2">Junction 2</option>
+                                        <option value="Junction 3">Junction 3</option>
+                                        <option value="Junction 4">Junction 4</option>
+                                    </select>
+                                    <br />
+                                </div>
                                 <div [hidden]="futurePredictionsChartHidden">
                                     <div>
                                         <canvas id="myChart"></canvas>
@@ -99,6 +121,30 @@
             </div>
 
 
+            <!-- <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button #buttonPrediction class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        <strong (click)="checkPredictions()">Check Accuracies of Junctions</strong>
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <mat-card *ngIf="toggleFuturePredictionsTable">
+                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                <ul class="nav nav-pills">
+                                    <h4 id="table2-desc"><strong>Check Accuracies of Junctions</strong></h4>
+                                </ul>
+                                <div>
+                                    <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
+                                        <option selected>Table</option>
+                                        <option value="Line Plot">Line Plot</option>
+                                    </select>
+                                </div>
+                            </nav>
+                        </mat-card>
+                    </div>
+                </div>
+            </div> -->
 
 
 

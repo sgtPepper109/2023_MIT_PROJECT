@@ -25,14 +25,14 @@ public class FlaskController {
 
     @GetMapping("/readData")
     public String getData() {
-        log.info("GET: localhost:8080/process/readData");
+        log.info("GET: /process/readData");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/getTableData");
     }
 
     @GetMapping("/getPlot")
     public String getPlot() {
-        log.info("GET: localhost:8080/process/getPlot");
+        log.info("GET: /process/getPlot");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/plot");
     }
@@ -47,14 +47,14 @@ public class FlaskController {
 
     @GetMapping("/getPredicted")
     public String predict() {
-        log.info("GET: localhost:8080/process/getPredicted");
+        log.info("GET: /process/getPredicted");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/predict");
     }
 
     @GetMapping("/setData")
     public String setData() {
-        log.info("GET: localhost:8080/process/setData");
+        log.info("GET: /process/setData");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/setData");
     }
@@ -69,63 +69,99 @@ public class FlaskController {
 
     @GetMapping("/exchangeCsvData")
     public Object exhangeCsvData() {
-        log.info("GET: localhost:8080/process/exchangeCsvData");
+        log.info("GET: /process/exchangeCsvData");
         return this.csvData;
     }
     
     @GetMapping("/exchangeInput")
     public Object exchangeInput() {
-        log.info("GET: localhost:8080/process/exchangeInput");
+        log.info("GET: /process/exchangeInput");
     	return this.input;
     }
 
     @GetMapping("/getResultTable")
     public String getResultTable() {
-        log.info("GET: localhost:8080/process/getResultTable");
+        log.info("GET: /process/getResultTable");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/getResultTable");
     }
 
     @GetMapping("/getAccuracy")
     public String getAccuracy() {
-        log.info("GET: localhost:8080/process/getAccuracy");
+        log.info("GET: /process/getAccuracy");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/getAccuracy");
     }
 
     @GetMapping("/getActualPredicted")
     public String getActualPredicted() {
-        log.info("GET: localhost:8080/process/getActualPredicted");
+        log.info("GET: /process/getActualPredicted");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/getActualPredicted");
     }
 
     @GetMapping("/getActualPredictedForPlot")
     public String getActualPredictedForPlot() {
-        log.info("GET: localhost:8080/process/getActualPredictedForPlot");
+        log.info("GET: /process/getActualPredictedForPlot");
         GetURLContents getURLContents = new GetURLContents();
         return getURLContents.getData(flaskUrl + "/getActualPredictedForPlot");
     }
     
     @GetMapping("/getModelSummary")
     public String getModelSummary() {
-        log.info("GET: localhost:8080/process/getModelSummary");
+        log.info("GET: /process/getModelSummary");
     	GetURLContents getURLContents = new GetURLContents();
     	return getURLContents.getData(flaskUrl + "/getModelSummary"); 
     }
     
     @GetMapping("/getAllJunctions")
     public String getAllJunctions() {
-    	log.info("GET: localhost:8080/process/getAllJunctions");
+    	log.info("GET: /process/getAllJunctions");
     	GetURLContents getURLContents = new GetURLContents();
     	return getURLContents.getData(flaskUrl + "/getAllJunctions"); 
     }
     
     @GetMapping("/getAccuracies")
     public String getAccuracies() {
-    	log.info("GET: localhost:8080/process/getAccuracies");
+    	log.info("GET: /process/getAccuracies");
     	GetURLContents getURLContents = new GetURLContents();
     	return getURLContents.getData(flaskUrl + "/getAccuracies"); 
+    }
+    
+    
+    
+    
+    
+    
+    
+    @GetMapping("/getAllJunctionsAccuracies")
+    public String getAllJunctionsAccuracies() {
+    	log.info("GET: /process/getAllJunctionsAccuracies");
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/getAllJunctionsAccuracies"); 
+    }
+    
+    
+    @GetMapping("/getAllJunctionsAccuracyScore")
+    public String getAllJunctionsAccuracyScore() {
+    	log.info("GET: /process/getAllJunctionsAccuracyScore");
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/getAllJunctionsAccuracyScore"); 
+    }
+    
+
+    @GetMapping("/getAllJunctionsPredictedTableData")
+    public String getPredictedTableData() {
+    	log.info("GET: /process/getPredictedTableData");
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/getAllJunctionsPredictedTableData"); 
+    }
+    
+    @GetMapping("/getAllJunctionsPlotData")
+    public String getAllJunctionsPlotData() {
+    	log.info("GET: /process/getAllJunctionsPlotData");
+    	GetURLContents getURLContents = new GetURLContents();
+    	return getURLContents.getData(flaskUrl + "/getAllJunctionsPlotData"); 
     }
 
 }
