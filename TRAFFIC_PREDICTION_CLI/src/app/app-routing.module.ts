@@ -10,7 +10,7 @@ const routes: Routes = [
 	{ path:'training', component:TrainingComponent },
 	{ path:'prediction', component:Page2Component },
 	{ path:'signup', component:SignupComponent },
-	{ path:'adminInput', component:AdminInputsComponent }
+	{ path:'junctionProperties', component:AdminInputsComponent }
 ];
 
 @NgModule({

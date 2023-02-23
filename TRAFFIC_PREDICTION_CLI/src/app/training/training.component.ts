@@ -247,6 +247,11 @@ export class TrainingComponent implements OnInit {
 
 
 
+	navigateToAdminInputs() {
+		this.router.navigate(['/junctionProperties'])
+	}
+
+
 
 
 

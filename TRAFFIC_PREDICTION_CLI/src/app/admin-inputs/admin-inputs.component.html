@@ -1,24 +1,100 @@
-<br />
-<br />
-<br />
-<br />
+<p>
+    <mat-toolbar>
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="example-icon" aria-label="Example icon-button with menu icon">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="navigateToTraining()">Training</button>
+            <button mat-menu-item (click)="navigateToPredictions()">Prediction</button>
+            <button mat-menu-item>Provide Junction Properties</button>
+        </mat-menu>
+        <span>Traffic Intensity Prediction and Recommendation</span>
+        <span class="example-spacer"></span>
+    </mat-toolbar>
+</p>
+
+
+
+
 <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
     <section>
-        <div class="container text-center" *ngFor="let junction of junctions">
-            <div class="row">
-                <div class="col">
-                    <mat-card>
-                        <mat-card-content> Junction {{ junction }}</mat-card-content>
-                    </mat-card>
+        <mat-tab-group>
+            <mat-tab label="District">
+                <br />
+                <br />
+                <div>
+                    <h3>For <strong>Junction {{currentJunctionForDistrict}}</strong></h3>
+                    <form class="example-form">
+                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
+                            <mat-label>Enter District</mat-label>
+                            <input [(ngModel)]="districtInput" matInput #message name="districtInput" maxlength="256" placeholder="Junction belongs to">
+                            <mat-hint align="start"><strong>The district Junction {{currentJunctionForDistrict}} belongs to</strong> </mat-hint>
+                            <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
+                        </mat-form-field>
+                    </form>
+                    <br />
+                    <button type="button" class="btn btn-outline-primary" (click)="previousDistrict()">Previous</button>
+                    <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextDistrict()">{{statusJunctionDistrict}}</button>
                 </div>
-                <div class="col-10">
-                    <div class="form-floating mb-3">
-                        <input #district type="text" class="form-control" id="floatingInput" placeholder="Enter District" (change)="assignDistrict(junction, district.value)">
-                        <label for="floatingInput">Enter District for {{ junction }}</label>
-                    </div>
+                <!-- Display error message when validation suggests errors -->
+                <br />
+                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
+                    {{ errorString }}
                 </div>
-            </div>
-        </div>
-        <button (click)="submit()">submit</button>
+            </mat-tab>
+
+
+
+            <mat-tab label="Roadway width">
+                <br />
+                <br />
+                <div>
+                    <h3>For <strong>Junction {{currentJunctionForRoadwayWidth}}</strong></h3>
+                    <form class="example-form">
+                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
+                            <mat-label>Enter Roadway width</mat-label>
+                            <input [(ngModel)]="roadwayWidthInput" matInput #message name="roadwayWidthInput" maxlength="256" placeholder="e.g. 20">
+                            <mat-hint align="start"><strong>Junction {{currentJunctionForRoadwayWidth}}'s roadway width</strong> </mat-hint>
+                            <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
+                        </mat-form-field>
+                    </form>
+                    <br />
+                    <button type="button" class="btn btn-outline-primary" (click)="previousRoadwayWidth()">Previous</button>
+                    <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextRoadwayWidth()">{{statusJunctionDistrict}}</button>
+                </div>
+                <!-- Display error message when validation suggests errors -->
+                <br />
+                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
+                    {{ errorString }}
+                </div>
+            </mat-tab>
+
+
+
+
+            <mat-tab label="Maximum Vehicles">
+                <br />
+                <br />
+                <div>
+                    <h3>For <strong>Junction {{currentJunctionForMaxVehicles}}</strong></h3>
+                    <form class="example-form">
+                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
+                            <mat-label>Enter Maximum Vehicles</mat-label>
+                            <input [(ngModel)]="maxVehiclesInput" matInput #message name="maxVehiclesInput" maxlength="256" placeholder="Roadway width of district">
+                            <mat-hint align="start"><strong>Junction {{currentJunctionForMaxVehicles}}'s Maximum Vehicles Intensity</strong> </mat-hint>
+                            <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
+                        </mat-form-field>
+                    </form>
+                    <br />
+                    <button type="button" class="btn btn-outline-primary" (click)="previousMaxVehicles()">Previous</button>
+                    <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextMaxVehicles()">Next</button>
+                </div>
+                <!-- Display error message when validation suggests errors -->
+                <br />
+                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
+                    {{ errorString }}
+                </div>
+            </mat-tab>
+        </mat-tab-group>
     </section>
 </div>
