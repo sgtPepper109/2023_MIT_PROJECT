@@ -10,7 +10,6 @@ import { ngxCsv } from 'ngx-csv';
 import { Routes, Router, RouterModule } from '@angular/router';
 
 
-
 @Component({
 	selector: 'app-page2',
 	templateUrl: './page2.component.html',
@@ -122,6 +121,8 @@ export class Page2Component implements OnInit {
 
 	
 	changeJunctionToBeRendered() {
+		console.log("allJunctionsPredictedData", this.allJunctionsPredictedData)
+		console.log("allJunctionsPlotData", this.allJunctionsPlotData)
 		if (this.junctionToBeRendered === 'Junction 1') {
 			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[0]
 			if (this.plotDataReady) {
@@ -170,6 +171,8 @@ export class Page2Component implements OnInit {
 	}
 
 	setVehiclesAndDateTime(param1: any, param2: any) {
+		console.log("param1", param1)
+		console.log("param2", param2)
 		this.vehiclesToBePlotted = param1
 		this.dateTimeToBePlotted = param2
 	}
@@ -207,13 +210,15 @@ export class Page2Component implements OnInit {
 	plotFuturePredictions(x: any, y: any) {
 		// prediction is done
 		this.futurePredictionsChartHidden = false
+		console.log("x", x)
+		console.log("y", y)
 
-		for (const element of y) {
-			this.maxLimitArray.push(this.propService.maxVehicles)
-		}
-		for (const element of y) {
-			this.maxInPlotArray.push(Math.max(...y))
-		}
+		// for (const element of y) {
+		// 	this.maxLimitArray.push(this.propService.maxVehicles)
+		// }
+		// for (const element of y) {
+		// 	this.maxInPlotArray.push(Math.max(...y))
+		// }
 
 		// plot chart (canvas) to show results
 		// destroy chart if already in use
@@ -401,6 +406,7 @@ export class Page2Component implements OnInit {
 		this.flaskAutoPredictedService.getAllJunctionsPlotData().subscribe({
 			next: (response) => {
 				this.allJunctionsPlotData = response
+				console.log(this.allJunctionsPlotData)
 				this.plotDataReady = true
 				this.changeJunctionToBeRendered()
 			},
@@ -418,6 +424,7 @@ export class Page2Component implements OnInit {
 
 	// on click predict button
 	ngOnInit() {
+		console.log(this.propService)
 		
 
 		// no errors in validation
@@ -427,8 +434,27 @@ export class Page2Component implements OnInit {
 		// set startedTraining to true to show spinner till training and processing has completed
 		this.startedTraining = true;
 
+		if (this.propService.dataset !== '') {
 
-		this.getPredictionInformation()
+
+			this.flaskService.getResultTable().subscribe({
+				next: (response) => {
+					this.allJunctionsPredictedData = response
+					console.log('resultTable', this.allJunctionsPredictedData)
+					this.allJunctionsPlotData = this.propService.predictionPlotData
+					this.plotDataReady = true
+					this.changeJunctionToBeRendered()
+				},
+				error: (error: HttpErrorResponse) => {
+					console.log(error)
+					alert(error)
+				}
+			})
+		} else {
+			console.log('autopredicting')
+			this.getPredictionInformation()
+		}
+
 
 	}
 

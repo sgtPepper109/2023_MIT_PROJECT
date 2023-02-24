@@ -2,6 +2,9 @@ package com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictM
 
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMap.JunctionDistrictMap;
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMapRepository.JunctionDistrictMapRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +23,7 @@ public class JunctionDistrictMapService {
 	}
 	
 	public void truncateRedundantJunctionDistrictMaps() {
-		junctionDistrictMapRepository.truncateRedundantJunctionDistrictMaps();
+		junctionDistrictMapRepository.deleteAll();
 	}
 	
 

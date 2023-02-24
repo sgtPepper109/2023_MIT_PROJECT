@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { JunctionDistrictMap } from '../services/junctionDistrictMap/junction-district-map';
 import { JunctionRoadwayWidthMap } from '../services/junctionRoadwayWidth/junction-roadway-width-map';
 import { JunctionMaxVehiclesMap } from '../services/junctionMaxVehiclesMap/junction-max-vehicles-map';
+import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
+import { PropService } from '../services/propService/prop.service';
 
 @Component({
 	selector: 'app-admin-inputs',
@@ -15,9 +17,14 @@ import { JunctionMaxVehiclesMap } from '../services/junctionMaxVehiclesMap/junct
 export class AdminInputsComponent implements OnInit {
 	constructor(
 		public flaskService: FlaskService,
+		public propService: PropService,
 		public junctionSpecificsService: JunctionSpecificsService,
+		private ngxCsvParser: NgxCsvParser,
 		public router: Router
 	) {
+		if (this.queryJunctionDistrict && this.queryJunctionRoadwayWidth && this.queryJunctionMaxVehicles) {
+			this.showSubmitButton = true
+		}
 	}
 
 	currentJunctionForDistrict: string = ""
@@ -27,6 +34,11 @@ export class AdminInputsComponent implements OnInit {
 	currentJunctionForRoadwayWidthIndex: number = 0
 	currentJunctionForMaxVehiclesIndex: number = 0
 	statusJunctionDistrict: string = "Next"
+	dataset: string = ""
+	queryJunctionDistrict: boolean = false
+	queryJunctionMaxVehicles: boolean = false
+	queryJunctionRoadwayWidth: boolean = false
+	showSubmitButton: boolean = false
 
 	junctions: Array<number> = []
 	
@@ -35,6 +47,12 @@ export class AdminInputsComponent implements OnInit {
 	maxVehiclesInput: string = ""
 	errorString: string = ""
 	toggleErrorString: boolean = false
+	errorString2: string = ""
+	toggleErrorString2: boolean = false
+	errorString3: string = ""
+	toggleErrorString3: boolean = false
+	errorString4: string = ""
+	toggleErrorString4: boolean = false
 	junctionInputGivenForDistricts: Array<string> = []
 	junctionInputGivenForRoadwayWidth: Array<string> = []
 	junctionInputGivenForMaxVehicles: Array<string> = []
@@ -59,6 +77,47 @@ export class AdminInputsComponent implements OnInit {
 				alert(error.message)
 			}
 		})
+	}
+
+
+	submitToTraining() {
+		this.propService.dataset = this.dataset
+		console.log(this.dataset)
+		if (this.dataset != "") {
+			this.router.navigate(['/training'])
+		} else {
+			this.errorString4 = "Note: Please choose a dataset"
+			this.toggleErrorString4 = true
+		}
+	}
+
+
+
+	fileChangeListener($event: any): void {
+		
+		const files = $event.srcElement.files;
+		let fileName = files[0]['name']
+		let header: boolean = true
+		header = (header as unknown as string) === 'true' || header === true;
+
+		const arr = fileName.split('.')
+		if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
+
+		this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
+			.pipe().subscribe({
+				next: (result): void => {
+					let csvRecords = Object.values(result);
+
+					this.flaskService.sendCsvData(result).subscribe()
+				},
+				error: (error: NgxCSVParserError): void => {
+					console.log('Error', error);
+				}
+			});
+		} else {
+			this.errorString4 = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
+			this.toggleErrorString4 = true
+		}
 	}
 
 
@@ -93,7 +152,10 @@ export class AdminInputsComponent implements OnInit {
 
 			this.junctionSpecificsService.addJunctionDistrictMap(this.junctionDistricts).subscribe({
 				next: (response) => {
-					console.log(response)
+					this.queryJunctionDistrict = true
+					if (this.queryJunctionDistrict && this.queryJunctionRoadwayWidth && this.queryJunctionMaxVehicles) {
+						this.showSubmitButton = true
+					}
 				},
 				error: (error: HttpErrorResponse) => {
 					console.log(error)
@@ -114,7 +176,6 @@ export class AdminInputsComponent implements OnInit {
 	}
 
 	previousDistrict() {
-		console.log(this.currentJunctionForDistrict)
 		if (this.junctionInputGivenForDistricts.includes(this.currentJunctionForDistrict) == false) {
 			let junctionDistrictObj: JunctionDistrictMap = {
 				junctionName: this.currentJunctionForDistrict,
@@ -138,7 +199,6 @@ export class AdminInputsComponent implements OnInit {
 			this.currentJunctionForDistrictIndex --
 			this.currentJunctionForDistrict = this.junctions[this.currentJunctionForDistrictIndex].toString()
 		}
-		console.log(this.junctionDistricts)
 	}
 
 
@@ -154,8 +214,8 @@ export class AdminInputsComponent implements OnInit {
 				this.junctionRoadwayWidths.push(junctionRoadwayWidthObject)
 				this.junctionInputGivenForRoadwayWidth.push(this.currentJunctionForRoadwayWidth)
 			} else {
-				this.errorString = "Enter District"
-				this.toggleErrorString = true
+				this.errorString2 = "Enter Roadway Width"
+				this.toggleErrorString2 = true
 			}
 		} else {
 			for (let element of this.junctionRoadwayWidths) {
@@ -166,14 +226,16 @@ export class AdminInputsComponent implements OnInit {
 			}
 		}
 		if (this.currentJunctionForRoadwayWidthIndex == 3) {
-			this.errorString = "Note: No More Junctions"
-			this.toggleErrorString = true
+			this.errorString2 = "Note: No More Junctions"
+			this.toggleErrorString2 = true
 
-			console.log(this.junctionRoadwayWidths)
 
 			this.junctionSpecificsService.addJunctionRoadwayWidthMap(this.junctionRoadwayWidths).subscribe({
 				next: (response) => {
-					console.log(response)
+					this.queryJunctionRoadwayWidth = true
+					if (this.queryJunctionDistrict && this.queryJunctionRoadwayWidth && this.queryJunctionMaxVehicles) {
+						this.showSubmitButton = true
+					}
 				},
 				error: (error: HttpErrorResponse) => {
 					console.log(error)
@@ -211,8 +273,8 @@ export class AdminInputsComponent implements OnInit {
 			}
 		}
 		if (this.currentJunctionForRoadwayWidthIndex == 0) {
-			this.errorString = "Note: No More Junctions"
-			this.toggleErrorString = true
+			this.errorString2 = "Note: No More Junctions"
+			this.toggleErrorString2 = true
 		} else {
 			this.currentJunctionForRoadwayWidthIndex --
 			this.currentJunctionForRoadwayWidth = this.junctions[this.currentJunctionForRoadwayWidthIndex].toString()
@@ -233,8 +295,8 @@ export class AdminInputsComponent implements OnInit {
 				this.junctionMaxVehicles.push(junctionMaxVehiclesObject)
 				this.junctionInputGivenForMaxVehicles.push(this.currentJunctionForMaxVehicles)
 			} else {
-				this.errorString = "Enter District"
-				this.toggleErrorString = true
+				this.errorString3 = "Enter MaxVehicles"
+				this.toggleErrorString3 = true
 			}
 		} else {
 			for (let element of this.junctionMaxVehicles) {
@@ -245,13 +307,16 @@ export class AdminInputsComponent implements OnInit {
 			}
 		}
 		if (this.currentJunctionForMaxVehiclesIndex == 3) {
-			this.errorString = "Note: No More Junctions"
-			this.toggleErrorString = true
+			this.errorString3 = "Note: No More Junctions"
+			this.toggleErrorString3 = true
 
 
 			this.junctionSpecificsService.addJunctionMaxVehiclesMap(this.junctionMaxVehicles).subscribe({
 				next: (response) => {
-					console.log(response)
+					this.queryJunctionMaxVehicles = true
+					if (this.queryJunctionDistrict && this.queryJunctionRoadwayWidth && this.queryJunctionMaxVehicles) {
+						this.showSubmitButton = true
+					}
 				},
 				error: (error: HttpErrorResponse) => {
 					console.log(error)
@@ -289,8 +354,8 @@ export class AdminInputsComponent implements OnInit {
 			}
 		}
 		if (this.currentJunctionForMaxVehiclesIndex == 0) {
-			this.errorString = "Note: No More Junctions"
-			this.toggleErrorString = true
+			this.errorString3 = "Note: No More Junctions"
+			this.toggleErrorString3 = true
 		} else {
 			this.currentJunctionForMaxVehiclesIndex --
 			this.currentJunctionForMaxVehicles = this.junctions[this.currentJunctionForMaxVehiclesIndex].toString()

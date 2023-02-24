@@ -113,6 +113,10 @@ def setData():
     dataset = operationData["dataset"]
     trainRatio = float(operationData['trainRatio'])
     testRatio = float(operationData['testRatio'])
+
+    global gotInput
+    gotInput.append(testRatio)
+
     dictionary = dict()
     if success:
         dictionary['setData'] = "success"
@@ -191,21 +195,32 @@ def get_list_data(dataf, drop=[]):
 
 @app.route('/getResultTable')
 def getResultTable():
-    arr = []
-    global dfResult
-    head = dfResult
 
-    data2 = head.to_dict()
-    anycol = ""
-    for i in data2:
-        anycol = i
-        break
-    for i in range(len(data2[anycol])):
-        field = {}
-        for j in data2:
-            field[j] = data2[j][i]
-        arr.append(field)
-    return make_response(arr)
+    global allJunctionsDfResult
+    global df
+    print(df.head())
+    junctions = np.unique(df.Junction)
+
+    response = list()
+    k = 0
+    for i in junctions:
+        arr = []
+        head = allJunctionsDfResult[k]
+        k += 1
+
+        data2 = head.to_dict()
+        anycol = ""
+        for i in data2:
+            anycol = i
+            break
+        for i in range(len(data2[anycol])):
+            field = {}
+            for j in data2:
+                field[j] = data2[j][i]
+            arr.append(field)
+        response.append(arr)
+    print(response)
+    return make_response(response)
 
 
 @app.route('/getAccuracy')
@@ -279,6 +294,13 @@ def getInput():
     timeFormat = mainInput['timeFormat']
     algorithm = mainInput['algorithm']
 
+    global gotInput
+    gotInput = list()
+    gotInput.append(junction)
+    gotInput.append(time)
+    gotInput.append(timeFormat)
+    gotInput.append(algorithm)
+    
     dictionary = dict()
     if success:
         dictionary['gotJunctionTime'] = "success"
@@ -316,16 +338,54 @@ def getAccuracies():
 
 @app.route('/predict')
 def predict():
+    global df
+    global tempdf
+    global junction
+    global time
+    global timeFormat
+    global testRatio
+    global dfResult
+    print("predict", testRatio)
+
+    junctions = np.unique(df.Junction)
+    allJunctionsPlotData = list()
+    global allJunctionsDfResult
+    allJunctionsDfResult = list()
+    for i in junctions:
+        junction = i
+        time = 2
+        timeFormat = 'Days'
+        testRatio = 0.1
+        algorithm = 'Random Forest Regression'
+        predict2()
+        allJunctionsDfResult.append(dfResult)
+        allJunctionsPlotData.append(plotData)
+    return make_response(allJunctionsPlotData)
+    
+
+
+def predict2():
     with app.app_context():
         global df
         global tempdf
+        global testRatio
         global junction
         global time
         global timeFormat
+        global algorithm
+        
         global testRatio
+        print(testRatio)
+        global gotInput
 
-        junction = int(junction)
-        time = int(time)
+        if gotInput != []:
+            junction = gotInput[0]
+            junction = int(junction)
+            time = gotInput[1]
+            time = int(time)
+            timeFormat = gotInput[2]
+            algorithm = gotInput[3]
+        print(junction, time, timeFormat, algorithm)
         
 
         # Create Lag Data
@@ -340,7 +400,6 @@ def predict():
 
         lag_data = get_list_data(lag_df, drop=['Year'])
 
-        global algorithm
 
         if algorithm == "Random Forest Regression":
             model = RandomForestRegressor()
@@ -579,6 +638,7 @@ def predict():
         global plotData
         plotData = result
         
+        
 
         return make_response(result)
 
@@ -629,8 +689,13 @@ if __name__ == "__main__":
     global testAgainst
     global modelSummary
     global modelSummary2
-    global ploData
+    global plotData
+    global allJunctionsDfResult
+    allJunctionsDfResult = list()
+    global gotInput
+    gotInput = list()
 
+    global junctions
 
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
@@ -660,7 +725,7 @@ if __name__ == "__main__":
         timeFormat = 'Days'
         testRatio = 0.1
         algorithm = 'Random Forest Regression'
-        predict()
+        predict2()
         allJunctionsAccuracies.append(accuracies)
         allJunctionsAccuracyScore.append(accuracyScore)
         allJunctionsPlotData.append(plotData)

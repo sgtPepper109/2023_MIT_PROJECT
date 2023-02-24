@@ -54,6 +54,7 @@ export class TrainingComponent implements OnInit {
 	classForPreviousButtonPredicted: string = "page-item disabled"  // class for previous button in paginator of predicted values table
 	classForNextButtonPredicted: string = "page-item"  // class for next button in paginator of predicted values table
 	obj = {} // object to be passed to the back-end that comprises of junction and months
+	autoTrained = true
 
 	myChart: any  // ngModel variable of canvas 'myChart'
 	plot: any  // ngModel variable of canvas 'plot' (result values)
@@ -593,6 +594,7 @@ export class TrainingComponent implements OnInit {
 
 
 	manageInfo() {
+		this.dataset = this.propService.dataset
 
 		if (this.dataset !== "" && this.inputTestRatio !== "" && this.inputTrainRatio !== "") {
 			const trainRatio = parseFloat(this.inputTrainRatio)
@@ -697,6 +699,8 @@ export class TrainingComponent implements OnInit {
 
 
 	navigateToPredictions() {
+		this.autoTrained = false
+		this.propService.autoTrained = false
 		this.router.navigate(['/prediction'])
 	}
 
@@ -734,6 +738,7 @@ export class TrainingComponent implements OnInit {
 					// send input junction and months to the backend via function call in flask service
 					this.flaskService.predict().subscribe({
 						next: (response) => {
+							console.log(response)
 
 							// training has completed, disable spinner and show results
 							this.startedTraining = false;
@@ -741,8 +746,8 @@ export class TrainingComponent implements OnInit {
 
 							// set datetime and vehicles variables to values recieved from backend as response
 							// for table
-							this.propService.datetime = Object.values(response)[0]['datetime']
-							this.propService.vehicles = Object.values(response)[0]['vehicles']
+							this.propService.predictionPlotData = Object.values(response)
+							
 
 							this.flaskService.getModelSummary().subscribe({
 								next: (response) => {
