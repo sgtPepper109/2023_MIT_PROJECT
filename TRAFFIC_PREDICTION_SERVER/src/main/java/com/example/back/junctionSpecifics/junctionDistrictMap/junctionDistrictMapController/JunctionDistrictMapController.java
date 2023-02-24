@@ -4,6 +4,8 @@ import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMa
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMapService.JunctionDistrictMapService;
 
 import lombok.extern.log4j.Log4j2;
+
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,8 @@ public class JunctionDistrictMapController {
 	@PostMapping("/addJunctionDistrictMap")
 	public ResponseEntity<JunctionDistrictMap> addJunctionDistrictMap(@RequestBody List<JunctionDistrictMap> junctionDistrictMapsToBeAdded) {
 		
-//		log.warn("DELETE: /junctionDistrict/truncateRedundantJunctionDistrictMaps");
-//		junctionDistrictMapService.truncateRedundantJunctionDistrictMaps();
+		log.warn("DELETE: /junctionDistrict/truncateRedundantJunctionDistrictMaps");
+		junctionDistrictMapService.truncateRedundantJunctionDistrictMaps();
 		
 		for (JunctionDistrictMap i: junctionDistrictMapsToBeAdded) {
 			log.warn("POST: /junctionDistrict/addJunctionDistrictMap");

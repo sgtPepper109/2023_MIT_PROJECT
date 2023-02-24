@@ -15,17 +15,9 @@
 
 <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
     <section>
-        <h1>Manage Training</h1>
-        <hr id="hrTag" />
-        <label for="myfile">Browse dataset: </label>
-        <br /> <!-- Input File of type csv -->
-        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
-        <br />
-        <p id="guideFileType">Only .csv, .xlsx and .data files allowed</p>
-        <br />
         <label for="traintestval">Specify the training, testing and validation ratio: </label>
         <br />
-
+        <br />
         <!-- Form for input of training testing and validation ratios -->
         <div class="row">
             <div class="col">

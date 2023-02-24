@@ -18,6 +18,17 @@
 
 <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
     <section>
+        <h1>Manage Training</h1>
+        <hr id="hrTag" />
+        <label for="myfile">Browse dataset: </label>
+        <br /> <!-- Input File of type csv -->
+        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
+        <br />
+        <p style="color:red">Only .csv, .xlsx and .data files allowed</p>
+        <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString4" class="alert alert-danger" role="alert">
+            {{ errorString4 }}
+        </div>
+        <mat-divider></mat-divider>
         <mat-tab-group>
             <mat-tab label="District">
                 <br />
@@ -54,7 +65,7 @@
                         <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
                             <mat-label>Enter Roadway width</mat-label>
                             <input [(ngModel)]="roadwayWidthInput" matInput #message name="roadwayWidthInput" maxlength="256" placeholder="e.g. 20">
-                            <mat-hint align="start"><strong>Junction {{currentJunctionForRoadwayWidth}}'s roadway width</strong> </mat-hint>
+                            <mat-hint align="start"><strong>Junction {{currentJunctionForRoadwayWidth}}'s roadway width in m(metres)</strong> </mat-hint>
                             <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
                         </mat-form-field>
                     </form>
@@ -64,8 +75,8 @@
                 </div>
                 <!-- Display error message when validation suggests errors -->
                 <br />
-                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
-                    {{ errorString }}
+                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString2" class="alert alert-danger" role="alert">
+                    {{ errorString2 }}
                 </div>
             </mat-tab>
 
@@ -91,10 +102,11 @@
                 </div>
                 <!-- Display error message when validation suggests errors -->
                 <br />
-                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
-                    {{ errorString }}
+                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString3" class="alert alert-danger" role="alert">
+                    {{ errorString3 }}
                 </div>
             </mat-tab>
         </mat-tab-group>
+        <button *ngIf="showSubmitButton" (click)="submitToTraining()">submit</button>
     </section>
 </div>

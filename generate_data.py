@@ -42,17 +42,11 @@ if __name__ == '__main__':
                 startTimeCopy += timedelta(days=timeskip)
             
             vehicles = list()
-            # for j in range(len(time_period)):
-            #     vehicles.append(np.random.choice(np.arange(100)))
             
             print(time_period[-2:])
             for j in time_period:
-                # print(j)
                 noOfVehicles = trafficDaily[trafficDaily['Junction'] == junction].Vehicles[trafficDaily.DateTime == j]
-                # print(noOfVehicles)
-                # print(j)
                 try:
-                    # print(noOfVehicles[noOfVehicles.index[0]])
                     noOfVehicles = noOfVehicles[noOfVehicles.index[0]]
                     vehicles.append(noOfVehicles)
                 except:
