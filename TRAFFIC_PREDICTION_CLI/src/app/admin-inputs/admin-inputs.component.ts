@@ -18,12 +18,6 @@ export class AdminInputsComponent implements OnInit {
 		public junctionSpecificsService: JunctionSpecificsService,
 		public router: Router
 	) {
-		// if (this.junctionRoadwayWidths.length == 4) {
-
-		// }
-		// if (this.junctionMaxVehicles.length == 4) {
-			
-		// }
 	}
 
 	currentJunctionForDistrict: string = ""
