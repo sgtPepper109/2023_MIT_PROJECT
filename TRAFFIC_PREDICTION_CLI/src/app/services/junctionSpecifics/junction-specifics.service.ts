@@ -26,4 +26,8 @@ export class JunctionSpecificsService {
 		console.log(" in", junctionRoadwayWidthMap)
 		return this.http.post(`${this.apiServerUrl}/junctionRoadwayWidth/addJunctionRoadwayWidthMap`, junctionRoadwayWidthMap)
 	}
+	
+	public getJunctionMaxVehiclesMap() {
+		return this.http.get(`${this.apiServerUrl}/junctionMaxVehicles/getJunctionMaxVehiclesMap`)
+	}
 }

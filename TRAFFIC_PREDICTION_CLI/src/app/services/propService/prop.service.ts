@@ -15,7 +15,7 @@ export class PropService {
 	public maxVehicles: number = 0
 	public autoTrained: boolean = true
 	public predictionPlotData: any
-
+	public junctions: any
 	public datetime: any
 	public vehicles: any
 

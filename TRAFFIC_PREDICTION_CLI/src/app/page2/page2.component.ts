@@ -8,6 +8,7 @@ import { FlaskAutopredictedService } from '../services/flaskAutoPredictedService
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
 import { Routes, Router, RouterModule } from '@angular/router';
+import { JunctionSpecificsService } from '../services/junctionSpecifics/junction-specifics.service';
 
 
 @Component({
@@ -22,9 +23,14 @@ export class Page2Component implements OnInit {
 		private operationService: OperationService,
 		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService,
-		private flaskAutoPredictedService: FlaskAutopredictedService
+		private flaskAutoPredictedService: FlaskAutopredictedService,
+		private junctionSpecificsService: JunctionSpecificsService
 	) {}
 
+	autoTrained: boolean = this.propService.autoTrained
+	accuracyComparison: any
+	isLinear: boolean = false
+	junctions: Array<number> = []
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
 	vehicles: Array<number> = []  // Vehicles array to display on y axis of chart
 	datetime = []  // DateTime array to display on x axis of chart
@@ -35,11 +41,12 @@ export class Page2Component implements OnInit {
 	maxInPlotArray: number[] = []
 
 	plotDataReady: boolean = false
+	junctionToBeRendered: number = 1
 
 	vehiclesToBePlotted: any
 	dateTimeToBePlotted: any
 	errorstring: string = "" // error message to be displayed on the screen
-	junctionToBeRendered: string = "Junction 1"
+	junctionChoice: string = "1"
 	allJunctionsPlotData: any
 	currentJunctionPlotData: any
 
@@ -50,6 +57,7 @@ export class Page2Component implements OnInit {
 	comparisonDataRepresentationType: string = "Table"
 	inputJunction: string = "Choose Junction"// input variables for junction and months
 	inputTime: string = ""
+	duration: number = 2
 	inputAlgorithm: string = "Random Forest Regression"
 	time: string = "Days"
 	modelSummary: Array<string> = [] 
@@ -119,33 +127,21 @@ export class Page2Component implements OnInit {
 		this.router.navigate(['/training'])
 	}
 
+
+	navigateToAdminInputs() {
+		this.router.navigate(['/junctionProperties'])
+	}
 	
 	changeJunctionToBeRendered() {
-		console.log("allJunctionsPredictedData", this.allJunctionsPredictedData)
-		console.log("allJunctionsPlotData", this.allJunctionsPlotData)
-		if (this.junctionToBeRendered === 'Junction 1') {
-			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[0]
-			if (this.plotDataReady) {
-				this.currentJunctionPlotData = this.allJunctionsPlotData[0]
-			}
+		this.junctionToBeRendered = parseInt(this.junctionChoice)
+		if (this.propService.autoTrained === false) {
+			this.junctionToBeRendered = 1   // 1st element in the array as there is only one junction
 		}
-		if (this.junctionToBeRendered === 'Junction 2') {
-			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[1]
-			if (this.plotDataReady) {
-				this.currentJunctionPlotData = this.allJunctionsPlotData[1]
-			}
-		}
-		if (this.junctionToBeRendered === 'Junction 3') {
-			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[2]
-			if (this.plotDataReady) {
-				this.currentJunctionPlotData = this.allJunctionsPlotData[2]
-			}
-		}
-		if (this.junctionToBeRendered === 'Junction 4') {
-			this.currentJunctionsPredictedData = this.allJunctionsPredictedData[3]
-			if (this.plotDataReady) {
-				this.currentJunctionPlotData = this.allJunctionsPlotData[3]
-			}
+		this.currentJunctionsPredictedData = this.allJunctionsPredictedData[this.junctionToBeRendered-1]
+
+
+		if (this.plotDataReady) {
+			this.currentJunctionPlotData = this.allJunctionsPlotData[this.junctionToBeRendered -1]
 		}
 
 		
@@ -165,14 +161,16 @@ export class Page2Component implements OnInit {
 
 		
 		if (this.plotDataReady) {
-			this.setVehiclesAndDateTime(this.currentJunctionPlotData[0]['vehicles'], this.currentJunctionPlotData[0]['datetime'])
+			this.setVehiclesAndDateTime(
+				this.currentJunctionPlotData[0]['vehicles'], 
+				this.currentJunctionPlotData[0]['datetime']
+			)
 			this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted)
 		}
 	}
 
+
 	setVehiclesAndDateTime(param1: any, param2: any) {
-		console.log("param1", param1)
-		console.log("param2", param2)
 		this.vehiclesToBePlotted = param1
 		this.dateTimeToBePlotted = param2
 	}
@@ -205,13 +203,43 @@ export class Page2Component implements OnInit {
 
 
 
+	barChart(param1: Array<string>, param2: Array<number>) {
+		this.accuracyComparison = new Chart("accuracyComparison", {
+			type: 'bar',
+			data: {
+				labels: param1,
+				datasets: [
+					{
+						label: "Junctions",
+						data: param2
+					}
+				]
+			},
+			options: {
+				maintainAspectRatio: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: 'Accuracy'
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: 'Junctions'
+						}
+					}
+				}
+			}
+		});
+	}
 	
 
 	plotFuturePredictions(x: any, y: any) {
 		// prediction is done
 		this.futurePredictionsChartHidden = false
-		console.log("x", x)
-		console.log("y", y)
 
 		// for (const element of y) {
 		// 	this.maxLimitArray.push(this.propService.maxVehicles)
@@ -384,6 +412,14 @@ export class Page2Component implements OnInit {
 
 		this.flaskAutoPredictedService.getAllJunctionsAccuracyScore().subscribe({
 			next: (response) => {
+				console.log('accuracyScores: ', response)
+				let junctions: Array<string> = []
+				for (let key in Object.keys(response)) {
+					let currKey = parseInt(key) + 1
+					junctions.push(currKey.toString())
+				}
+				let accuracies: Array<number> = Object.values(response)
+				this.barChart(junctions, accuracies)
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
@@ -406,7 +442,6 @@ export class Page2Component implements OnInit {
 		this.flaskAutoPredictedService.getAllJunctionsPlotData().subscribe({
 			next: (response) => {
 				this.allJunctionsPlotData = response
-				console.log(this.allJunctionsPlotData)
 				this.plotDataReady = true
 				this.changeJunctionToBeRendered()
 			},
@@ -425,7 +460,6 @@ export class Page2Component implements OnInit {
 	// on click predict button
 	ngOnInit() {
 		console.log(this.propService)
-		
 
 		// no errors in validation
 		// hence don't show error alert
@@ -434,15 +468,41 @@ export class Page2Component implements OnInit {
 		// set startedTraining to true to show spinner till training and processing has completed
 		this.startedTraining = true;
 
-		if (this.propService.dataset !== '') {
+
+		this.flaskService.getAllJunctions().subscribe({
+			next: (response) => {
+				this.propService.junctions = Object.values(response)
+				this.junctions = this.propService.junctions
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
 
 
+		// this.junctionSpecificsService.getJunctionMaxVehiclesMap().subscribe({
+		// 	next: (response) => {
+		// 		console.log(response)
+		// 	},
+		// 	error: (error: HttpErrorResponse) => {
+		// 		console.log(error)
+		// 		alert(error.message)
+		// 	}
+		// })
+
+		this.autoTrained = this.propService.autoTrained
+
+		if (this.propService.autoTrained === false) {
 			this.flaskService.getResultTable().subscribe({
 				next: (response) => {
+					this.duration = parseInt(this.propService.time)
+					this.junctionChoice = this.propService.inputJunction
 					this.allJunctionsPredictedData = response
-					console.log('resultTable', this.allJunctionsPredictedData)
 					this.allJunctionsPlotData = this.propService.predictionPlotData
 					this.plotDataReady = true
+					this.junctions = []
+					this.junctions.push(parseInt(this.junctionChoice))
 					this.changeJunctionToBeRendered()
 				},
 				error: (error: HttpErrorResponse) => {

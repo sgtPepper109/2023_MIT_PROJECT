@@ -1,11 +1,18 @@
 <p>
     <mat-toolbar>
-        <button mat-icon-button [matMenuTriggerFor]="menu" class="example-icon" aria-label="Example icon-button with menu icon">
+        <button mat-icon-button  
+            class="example-icon" 
+            data-bs-toggle="offcanvas" 
+            data-bs-target="#offcanvasExample" 
+            aria-controls="offcanvasExample" 
+            aria-label="Example icon-button with menu icon"
+        >
             <mat-icon>menu</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="navigateToTraining()">Training</button>
             <button mat-menu-item>Predictions</button>
+            <button mat-menu-item (click)="navigateToAdminInputs()">Provide Junction Properties</button>
         </mat-menu>
         <span>Traffic Intensity Prediction and Recommendation</span>
         <span class="example-spacer"></span>
@@ -13,163 +20,136 @@
 </p>
 
 
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="offcanvas-body">
+        <mat-list>
+            <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item>Predictions</mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item (click)="navigateToAdminInputs()">Provide Junction Properties</mat-list-item>
+        </mat-list>
+    </div>
+</div>
+
+
 <div class="container p-7 my-7 shadow-lg p-3 mb-5 bg-white rounded">
     <section>
-        <div class="accordion" id="accordionExample">
+        <mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
+            <mat-step>
+                <br />
+                <ng-template matStepLabel>See Predictions</ng-template>
+                <mat-card *ngIf="toggleFuturePredictionsTable">
+                    <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                        <ul class="nav nav-pills">
+                            <h4 id="table2-desc"><strong>Result for junction {{ junctionChoice }} for duration of {{ duration }} days</strong></h4>
+                        </ul>
+                        <mat-slide-toggle style="float: right" [(ngModel)]="toggleFuturePredictionsTable">Table</mat-slide-toggle>
+                    </nav>
+                    <mat-card-content *ngIf="resultTableReady">
 
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingThree">
-                    <button [disabled]="!resultTableReady" #buttonPrediction class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                        <strong (click)="checkPredictions()">See Predictions</strong>
-                    </button>
-                </h2>
-                <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <mat-card *ngIf="toggleFuturePredictionsTable">
-                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                <ul class="nav nav-pills">
-                                    <h4 id="table2-desc"><strong>Result for junction for duration of days</strong></h4>
-                                </ul>
-                                <div>
-                                    <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
-                                        <option selected>Table</option>
-                                        <option value="Line Plot">Line Plot</option>
-                                    </select>
-                                </div>
-                            </nav>
-                            <mat-card-content *ngIf="resultTableReady">
-
-                                <div style="float: right; width: 200px">
-                                    <select class="form-select" aria-label="Default select example" [(ngModel)]="junctionToBeRendered" (change)="changeJunctionToBeRendered()">
-                                        <option selected>Junction 1</option>
-                                        <option value="Junction 2">Junction 2</option>
-                                        <option value="Junction 3">Junction 3</option>
-                                        <option value="Junction 4">Junction 4</option>
-                                    </select>
-                                    <br />
-                                </div>
-                                <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">DateTime</th>
-                                            <th scope="col">Vehicles</th>
-                                            <th scope="col">Year</th>
-                                            <th scope="col">Month</th>
-                                            <th scope="col">Day</th>
-                                            <th scope="col">Hour</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let record of dataSourceResult">
-                                            <th scope="row">{{ record.DateTime }}</th>
-                                            <td>{{ record.Vehicles }}</td>
-                                            <td>{{ record.Year }}</td>
-                                            <td>{{ record.Month }}</td>
-                                            <td>{{ record.Day }}</td>
-                                            <td>{{ record.Hour }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div style="float: right; width: 200px">
 
 
-                                <!--
-                                    ** Paginator for Prediction table **
-                                -->
-                                <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                    <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
-                                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                                </div>
-                            </mat-card-content>
-                        </mat-card>
+                            <mat-form-field appearance="fill">
+                                <mat-label>Junction</mat-label>
+                                <mat-select (selectionChange)="changeJunctionToBeRendered()" [(ngModel)]="junctionChoice">
+                                    <mat-option *ngFor="let junction of junctions" [value]="junction">
+                                        {{ junction }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+
+                            <br />
+                        </div>
+                        <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                            <thead>
+                                <tr>
+                                    <th scope="col">DateTime</th>
+                                    <th scope="col">Vehicles</th>
+                                    <th scope="col">Year</th>
+                                    <th scope="col">Month</th>
+                                    <th scope="col">Day</th>
+                                    <th scope="col">Hour</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let record of dataSourceResult">
+                                    <th scope="row">{{ record.DateTime }}</th>
+                                    <td>{{ record.Vehicles }}</td>
+                                    <td>{{ record.Year }}</td>
+                                    <td>{{ record.Month }}</td>
+                                    <td>{{ record.Day }}</td>
+                                    <td>{{ record.Hour }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
 
                         <!--
-                            ** Vehicles vs DateTime chart for provided junction number and number of days **
+                            ** Paginator for Prediction table **
                         -->
-                        <mat-card [hidden]="toggleFuturePredictionsPlotHidden">
-                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                <ul class="nav nav-pills">
-                                    <h4 id="table2-desc"><strong>Result for Junction {{inputJunction}} for duration of {{inputTime}} {{time}}</strong></h4>
-                                </ul>
-                                <div>
-                                    <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
-                                        <option selected>Table</option>
-                                        <option value="Line Plot">Line Plot</option>
-                                    </select>
-                                </div>
-                                <br />
-                            </nav>
-                            <mat-card-content>
-                                <div style="float: right; width: 200px">
-                                    <select class="form-select" aria-label="Default select example" [(ngModel)]="junctionToBeRendered" (change)="changeJunctionToBeRendered()">
-                                        <option selected>Junction 1</option>
-                                        <option value="Junction 2">Junction 2</option>
-                                        <option value="Junction 3">Junction 3</option>
-                                        <option value="Junction 4">Junction 4</option>
-                                    </select>
-                                    <br />
-                                </div>
-                                <div [hidden]="futurePredictionsChartHidden">
-                                    <div>
-                                        <canvas id="myChart"></canvas>
-                                    </div>
-                                </div>
-                            </mat-card-content>
-                        </mat-card>
+                        <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                            <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
+                            <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!--
+                    ** Vehicles vs DateTime chart for provided junction number and number of days **
+                -->
+                <mat-card [hidden]="toggleFuturePredictionsTable">
+                    <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                        <ul class="nav nav-pills">
+                            <h4 id="table2-desc"><strong>Result for junction {{ junctionChoice }} for duration of {{ duration }} days</strong></h4>
+                        </ul>
+                        <mat-slide-toggle style="float: right" [(ngModel)]="toggleFuturePredictionsTable">Table</mat-slide-toggle>
+                    </nav>
+                    <mat-card-content>
+                        <div style="float: right; width: 200px">
+                            <mat-form-field appearance="fill">
+                                <mat-label>Junction</mat-label>
+                                <mat-select (selectionChange)="changeJunctionToBeRendered()" [(ngModel)]="junctionChoice" (change)="changeJunctionToBeRendered()">
+                                    <mat-option *ngFor="let junction of junctions" [value]="junction">
+                                        {{ junction }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <br />
+                        </div>
+                        <div [hidden]="futurePredictionsChartHidden">
+                            <div>
+                                <canvas id="myChart"></canvas>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </mat-step>
+
+
+
+            <mat-step *ngIf="autoTrained">
+                <ng-template matStepLabel>Accuracies of Differenct Junctions</ng-template>
+                <div>
+                    <div>
+                        <div>
+                            <canvas id="accuracyComparison"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-
-            <!-- <div class="accordion-item">
-                <h2 class="accordion-header" id="headingFour">
-                    <button #buttonPrediction class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        <strong (click)="checkPredictions()">Check Accuracies of Junctions</strong>
-                    </button>
-                </h2>
-                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <mat-card *ngIf="toggleFuturePredictionsTable">
-                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                <ul class="nav nav-pills">
-                                    <h4 id="table2-desc"><strong>Check Accuracies of Junctions</strong></h4>
-                                </ul>
-                                <div>
-                                    <select class="form-select" aria-label="Default select example" (change)="changeFuturePredictionsRepresentationType()" [(ngModel)]="futurePredictionsRepresentationType">
-                                        <option selected>Table</option>
-                                        <option value="Line Plot">Line Plot</option>
-                                    </select>
-                                </div>
-                            </nav>
-                        </mat-card>
-                    </div>
-                </div>
-            </div> -->
+            </mat-step>
 
 
 
-
-
-        </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
+        </mat-stepper>
 
 
         <br />
@@ -181,7 +161,7 @@
             ** Export To CSV option
         -->
         <div *ngIf="resultTableReady" class="text-center">
-            <button id="exportButton" type="button" class="btn btn-primary" (click)="exportToCsv()">Export To csv file</button>
+            <button id="exportButton" type="button" class="btn btn-primary" (click)="exportToCsv()">Donwload Predictions as csv file</button>
         </div>
 
         <!--
