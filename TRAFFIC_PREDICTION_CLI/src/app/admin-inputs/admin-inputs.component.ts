@@ -68,6 +68,7 @@ export class AdminInputsComponent implements OnInit {
 		this.flaskService.getAllJunctions().subscribe({
 			next: (response) => {
 				this.junctions = Object.values(response)
+				this.propService.junctions = this.junctions
 				this.currentJunctionForDistrict = this.junctions[this.currentJunctionForDistrictIndex].toString()
 				this.currentJunctionForRoadwayWidth = this.junctions[this.currentJunctionForRoadwayWidthIndex].toString()
 				this.currentJunctionForMaxVehicles = this.junctions[this.currentJunctionForMaxVehiclesIndex].toString()

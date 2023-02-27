@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
 	selector: 'app-training',
@@ -22,11 +23,21 @@ export class TrainingComponent implements OnInit {
 		private propService: PropService,
 		private _snackBar: MatSnackBar,
 		private ngxCsvParser: NgxCsvParser,
-		private flaskService: FlaskService
+		private flaskService: FlaskService,
+		private _formBuilder: FormBuilder
 	) {}
 
-	public operations: Operation[] = []
 
+
+	public operations: Operation[] = []
+	isLinear: boolean = false
+	gotAccuracies: boolean = false
+
+
+	accuracyBarChartHidden: boolean = true
+	toggleAccuracyBarChart: boolean = false
+
+	junctionChoice: string = ""
 	maxVehicles: number = 0
 	accuracies: any
 	csvRecords: object = {}
@@ -36,7 +47,7 @@ export class TrainingComponent implements OnInit {
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
 	vehicles: Array<number> = []  // Vehicles array to display on y axis of chart
 	datetime = []  // DateTime array to display on x axis of chart
-	inputJunction: string = "Choose Junction"// input variables for junction and months
+	inputJunction: string = ""// input variables for junction and months
 	inputTime: string = ""
 	inputAlgorithm: string = "Random Forest Regression"
 	time: string = "Days"
@@ -85,6 +96,7 @@ export class TrainingComponent implements OnInit {
 
 	// error message to be displayed on the screen
 	errorstring: string = ""
+	accuracyBarChart: any  // ngModel variable of canvas 'accuracyBarChart'
 
 	// for displaying if validations are not correct
 	toggleErrorString: boolean = false
@@ -101,6 +113,7 @@ export class TrainingComponent implements OnInit {
 	tablePredicted: object = {}  // holds all predicted values table data
 	labels = []  // Index (prediction number) array for plotting
 	maxLimitArray: number[] = []
+	junctions: string[] = []
 
 
 
@@ -109,6 +122,16 @@ export class TrainingComponent implements OnInit {
 
 	ngOnInit() { 
 		/* TODO document why this method 'ngOnInit' is empty */
+		this.flaskService.getAllJunctions().subscribe({
+			next: (response) => {
+				this.junctions = Object.values(response)
+				this.propService.junctions = this.junctions
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
 	}
 
 	changeTrain() {
@@ -174,20 +197,30 @@ export class TrainingComponent implements OnInit {
 
 
 	changeJunctionToBePlotted() {
-		if (this.junctionToBePlotted == "Junction 1") {
-			this.show1()
-		}
-		if (this.junctionToBePlotted == "Junction 2") {
-			this.show2()
-		}
-		if (this.junctionToBePlotted == "Junction 3") {
-			this.show3()
-		}
-		if (this.junctionToBePlotted == "Junction 4") {
-			this.show4()
-		}
+		let junctionIndex = parseInt(this.junctionChoice) -1
+		this.show(junctionIndex)
 	}
 
+	show(param1: number) {
+		this.vehiclesVsDateTimeChartHidden = false; 
+		this.datetime = Object.values(this.recievedPlotData)[param1]['datetime']  // 0 index means junction 1
+		this.vehicles = Object.values(this.recievedPlotData)[param1]['vehicles']
+
+		this.maxVehicles = Math.max(...this.vehicles)
+		this.propService.maxVehicles = this.maxVehicles
+
+		// if chart (canvas) is already in use then destroy it
+		if (this.plot != null) {
+			this.plot.destroy()
+		}
+
+		// then show the chart
+		this.maxLimitArray = []
+		for (let i = 0; i < this.datetime.length; i++) {
+			this.maxLimitArray.push(this.maxVehicles)
+		}
+		this.LineChart(this.datetime, this.vehicles)
+	}
 
 	changeComparisonDataRepresentationType() {
 		if (this.comparisonDataRepresentationType == "Table") {
@@ -254,101 +287,6 @@ export class TrainingComponent implements OnInit {
 
 
 
-
-
-
-
-
-	// show Line-Chart for junction 1
-	show1() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[0]['datetime']  // 0 index means junction 1
-		this.vehicles = Object.values(this.recievedPlotData)[0]['vehicles']
-
-		this.maxVehicles = Math.max(...this.vehicles)
-		this.propService.maxVehicles = this.maxVehicles
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.maxLimitArray = []
-		for (let i = 0; i < this.datetime.length; i++) {
-			this.maxLimitArray.push(this.maxVehicles)
-		}
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// show Line-Chart for junction 2
-	show2() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[1]['datetime']  // 1 index means junction 2
-		this.vehicles = Object.values(this.recievedPlotData)[1]['vehicles']
-
-		this.maxVehicles = Math.max(...this.vehicles)
-		this.propService.maxVehicles = this.maxVehicles
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.maxLimitArray = []
-		for (let i = 0; i < this.datetime.length; i++) {
-			this.maxLimitArray.push(this.maxVehicles)
-		}
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// show Line-Chart for junction 3
-	show3() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[2]['datetime']  // 2 index means junction 3
-		this.vehicles = Object.values(this.recievedPlotData)[2]['vehicles']
-
-		this.maxVehicles = Math.max(...this.vehicles)
-		this.propService.maxVehicles = this.maxVehicles
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.maxLimitArray = []
-		for (let i = 0; i < this.datetime.length; i++) {
-			this.maxLimitArray.push(this.maxVehicles)
-		}
-		this.LineChart(this.datetime, this.vehicles)
-	}
-
-
-	// show Line-Chart for junction 4
-	show4() {
-		this.vehiclesVsDateTimeChartHidden = false
-		this.datetime = Object.values(this.recievedPlotData)[3]['datetime']  // 3 index means junction4
-		this.vehicles = Object.values(this.recievedPlotData)[3]['vehicles']
-
-		this.maxVehicles = Math.max(...this.vehicles)
-		this.propService.maxVehicles = this.maxVehicles
-
-		// if chart (canvas) is already in use then destroy it
-		if (this.plot != null) {
-			this.plot.destroy()
-		}
-
-		// then show the chart
-		this.maxLimitArray = []
-		for (let i = 0; i < this.datetime.length; i++) {
-			this.maxLimitArray.push(this.maxVehicles)
-		}
-		this.LineChart(this.datetime, this.vehicles)
-	}
 
 
 	// on clicking next button in paginator
@@ -596,98 +534,84 @@ export class TrainingComponent implements OnInit {
 	manageInfo() {
 		this.dataset = this.propService.dataset
 
-		if (this.dataset !== "" && this.inputTestRatio !== "" && this.inputTrainRatio !== "") {
+		if (this.inputTestRatio !== "" && this.inputTrainRatio !== "") {
 			const trainRatio = parseFloat(this.inputTrainRatio)
 			const testRatio = parseFloat(this.inputTestRatio)
 
-			const datasetString = this.dataset
-			const arr = datasetString.split('.')
-			if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
-
-				if (trainRatio + testRatio === 1.0 && testRatio < 1) {
-					let operation: Operation = {
-						dataset: this.dataset,
-						trainRatio: trainRatio,
-						testRatio: testRatio,
-						userId: 1234567890
-					}
-
-
-
-					this.operationService.addOperation(operation).subscribe({
-						next: (response: Operation) => {
-
-							this.flaskService.setData().subscribe({
-								next: (response) => {
-
-									this.flaskService.getTableData().subscribe({
-										next: (response) => {
-
-											// this is a service file shared with page2 component
-											this.propService.data = response
-											this.propService.trainRatio = trainRatio
-											this.propService.dataset = this.dataset
-											this.propService.testRatio = testRatio
-				
-											this.trainingHidden = false
-											this.csvDataParsed= true
-
-											this.testRatio = this.propService.testRatio
-
-											// On Init, render table representing csv data from csv file read as input in training page
-											// The csv data is stored in 'this.propservice.data' variable
-
-											this.displayedColumns = ['DateTime', 'Junction', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
-											this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
-											this.numberOfRecords = Object.values(this.propService.data).length
-
-											// get all plot data i.e. vehicles vs datetime information of all junctions
-											this.flaskService.getPlot().subscribe({
-												next: (response) => {
-														this.recievedPlotData = response
-														this.junctionToBePlotted = "Junction 1"
-														this.show1()
-
-
-
-
-
-													},
-												error: (error: HttpErrorResponse) => { console.log(error.message) }
-											})
-
-											// if index of paginator is not 0 then enable previous button
-											// because if zero then no use of previous button
-											if (this.index !== 0) { this.classForPreviousButton = "page-item" }
-
-										},
-										error: (error: HttpErrorResponse) => {
-											console.log(error)
-											alert(error.message)
-										}
-									})
-								},
-								error: (error: HttpErrorResponse) => {
-									console.log(error)
-									alert(error.message)
-								}
-							})
-						},
-						error: (error: HttpErrorResponse) => {
-							console.log(error)
-							alert(error.message)
-						}
-					})
-
-				} else {
-					this.errorstring = "Note: Invalid input ratios (Must be in range of 0 to 1"
-					this.toggleErrorString = true
-					this._snackBar.open("Note: Invalid input ratios (Must be in range of 0 to 1", '\u2716')
+			if (trainRatio + testRatio === 1.0 && testRatio < 1) {
+				let operation: Operation = {
+					dataset: this.dataset,
+					trainRatio: trainRatio,
+					testRatio: testRatio,
+					userId: 1234567890
 				}
+
+
+
+				this.operationService.addOperation(operation).subscribe({
+					next: (response: Operation) => {
+
+						this.flaskService.setData().subscribe({
+							next: (response) => {
+
+								this.flaskService.getTableData().subscribe({
+									next: (response) => {
+
+										// this is a service file shared with page2 component
+										this.propService.data = response
+										this.propService.trainRatio = trainRatio
+										this.propService.dataset = this.dataset
+										this.propService.testRatio = testRatio
+			
+										this.trainingHidden = false
+										this.csvDataParsed= true
+
+										this.testRatio = this.propService.testRatio
+
+										// On Init, render table representing csv data from csv file read as input in training page
+										// The csv data is stored in 'this.propservice.data' variable
+
+										this.displayedColumns = ['DateTime', 'Junction', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+										this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
+										this.numberOfRecords = Object.values(this.propService.data).length
+
+										// get all plot data i.e. vehicles vs datetime information of all junctions
+										this.flaskService.getPlot().subscribe({
+											next: (response) => {
+													this.recievedPlotData = response
+													this.junctionChoice = "1"
+													this.changeJunctionToBePlotted()
+												},
+											error: (error: HttpErrorResponse) => { console.log(error.message) }
+										})
+
+										// if index of paginator is not 0 then enable previous button
+										// because if zero then no use of previous button
+										if (this.index !== 0) { this.classForPreviousButton = "page-item" }
+
+									},
+									error: (error: HttpErrorResponse) => {
+										console.log(error)
+										alert(error.message)
+									}
+								})
+							},
+							error: (error: HttpErrorResponse) => {
+								console.log(error)
+								alert(error.message)
+							}
+						})
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+
 			} else {
-				this.errorstring = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
+				this.errorstring = "Note: Invalid input ratios (Must be in range of 0 to 1"
 				this.toggleErrorString = true
-				this._snackBar.open("Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file", 'x')
+				this._snackBar.open("Note: Invalid input ratios (Must be in range of 0 to 1", '\u2716')
 			}
 		} else {
 			this.errorstring = "Note: All fields are required"
@@ -699,18 +623,48 @@ export class TrainingComponent implements OnInit {
 
 
 	navigateToPredictions() {
-		this.autoTrained = false
-		this.propService.autoTrained = false
 		this.router.navigate(['/prediction'])
 	}
 
+	barChart(param1: Array<string>, param2: Array<number>) {
+		this.accuracyBarChart = new Chart("accuracyBarChart", {
+			type: 'bar',
+			data: {
+				labels: param1,
+				datasets: [
+					{
+						label: "Algorithms",
+						data: param2
+					}
+				]
+			},
+			options: {
+				maintainAspectRatio: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: 'Vehicles'
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: 'Junctions'
+						}
+					}
+				}
+			}
+		});
+	}
 	
 
 	start() {
 
 
 		// check whether the fields have no value
-		if (this.inputJunction !== "Choose Junction" && this.inputTime !== "") {
+		if (this.inputJunction !== "" && this.inputTime !== "") {
 
 			this.propService.inputJunction = this.inputJunction
 			this.propService.inputTime = this.inputTime
@@ -738,11 +692,12 @@ export class TrainingComponent implements OnInit {
 					// send input junction and months to the backend via function call in flask service
 					this.flaskService.predict().subscribe({
 						next: (response) => {
-							console.log(response)
 
 							// training has completed, disable spinner and show results
 							this.startedTraining = false;
 
+							this.autoTrained = false
+							this.propService.autoTrained = false
 
 							// set datetime and vehicles variables to values recieved from backend as response
 							// for table
@@ -854,7 +809,17 @@ export class TrainingComponent implements OnInit {
 
 									this.flaskService.getAccuracies().subscribe({
 										next: (response) => {
+											this.gotAccuracies = true
 											this.accuracies = Object.values(response)
+											this.accuracyBarChartHidden = false
+											
+											let algorithms: Array<string> = []
+											let accuracyScores: Array<number> = []
+											for (let i of this.accuracies) {
+												algorithms.push(i.model)
+												accuracyScores.push(i.accuracyscore)
+											}
+											this.barChart(algorithms, accuracyScores)
 										},
 										error: (error: HttpErrorResponse) => {
 											console.log(error)

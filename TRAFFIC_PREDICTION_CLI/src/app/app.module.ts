@@ -6,7 +6,7 @@ import { AppComponent } from './app.component'
 import { Page2Component } from './page2/page2.component'
 import { TrainingComponent } from './training/training.component'
 import { AdminInputsComponent } from './admin-inputs/admin-inputs.component'
-import { FormsModule } from '@angular/forms'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { SignupComponent } from './signup/signup.component'
 import { HttpClientModule } from '@angular/common/http'
 import { OperationService } from './services/operationService/operation.service'
@@ -28,6 +28,10 @@ import { MatDividerModule } from '@angular/material/divider'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatMenuModule } from  '@angular/material/menu'
 import { MatTabsModule } from '@angular/material/tabs'
+import { MatSidenavModule }  from '@angular/material/sidenav'
+import { MatSelectModule } from '@angular/material/select'
+import { MatListModule } from '@angular/material/list'
+import { MatSlideToggleModule } from '@angular/material/slide-toggle'
 
 @NgModule({
 	declarations: [
@@ -41,6 +45,7 @@ import { MatTabsModule } from '@angular/material/tabs'
 		BrowserModule,
 		AppRoutingModule,
 		FormsModule,
+		ReactiveFormsModule,
 		HttpClientModule,
 		BrowserAnimationsModule,
 		MatTableModule,
@@ -58,7 +63,11 @@ import { MatTabsModule } from '@angular/material/tabs'
 		MatDividerModule,
 		MatToolbarModule,
 		MatMenuModule,
-		MatTabsModule
+		MatTabsModule,
+		MatSidenavModule,
+		MatSelectModule,
+		MatListModule,
+		MatSlideToggleModule
 	],
 	providers: [OperationService, PropService],
 	bootstrap: [AppComponent]

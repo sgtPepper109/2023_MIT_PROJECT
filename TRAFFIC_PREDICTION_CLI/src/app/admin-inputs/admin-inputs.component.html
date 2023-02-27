@@ -1,11 +1,17 @@
 <p>
     <mat-toolbar>
-        <button mat-icon-button [matMenuTriggerFor]="menu" class="example-icon" aria-label="Example icon-button with menu icon">
+        <button mat-icon-button  
+            class="example-icon" 
+            data-bs-toggle="offcanvas" 
+            data-bs-target="#offcanvasExample" 
+            aria-controls="offcanvasExample" 
+            aria-label="Example icon-button with menu icon"
+        >
             <mat-icon>menu</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="navigateToTraining()">Training</button>
-            <button mat-menu-item (click)="navigateToPredictions()">Prediction</button>
+            <button mat-menu-item (click)="navigateToPredictions()">Predictions</button>
             <button mat-menu-item>Provide Junction Properties</button>
         </mat-menu>
         <span>Traffic Intensity Prediction and Recommendation</span>
@@ -14,11 +20,28 @@
 </p>
 
 
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="offcanvas-body">
+        <mat-list>
+            <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item (click)="navigateToPredictions()">Predictions</mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item>Provide Junction Properties</mat-list-item>
+        </mat-list>
+    </div>
+</div>
+
 
 
 <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
     <section>
-        <h1>Manage Training</h1>
+        <h1>Junction Properties</h1>
         <hr id="hrTag" />
         <label for="myfile">Browse dataset: </label>
         <br /> <!-- Input File of type csv -->
@@ -31,7 +54,6 @@
         <mat-divider></mat-divider>
         <mat-tab-group>
             <mat-tab label="District">
-                <br />
                 <br />
                 <div>
                     <h3>For <strong>Junction {{currentJunctionForDistrict}}</strong></h3>
@@ -47,7 +69,7 @@
                     <button type="button" class="btn btn-outline-primary" (click)="previousDistrict()">Previous</button>
                     <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextDistrict()">{{statusJunctionDistrict}}</button>
                 </div>
-                <!-- Display error message when validation suggests errors -->
+                <br />
                 <br />
                 <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
                     {{ errorString }}
@@ -64,7 +86,7 @@
                     <form class="example-form">
                         <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
                             <mat-label>Enter Roadway width</mat-label>
-                            <input [(ngModel)]="roadwayWidthInput" matInput #message name="roadwayWidthInput" maxlength="256" placeholder="e.g. 20">
+                            <input [(ngModel)]="roadwayWidthInput" matInput #message name="roadwayWidthInput" maxlength="256" placeholder="e.g. 20" type="number">
                             <mat-hint align="start"><strong>Junction {{currentJunctionForRoadwayWidth}}'s roadway width in m(metres)</strong> </mat-hint>
                             <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
                         </mat-form-field>
@@ -91,7 +113,7 @@
                     <form class="example-form">
                         <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
                             <mat-label>Enter Maximum Vehicles</mat-label>
-                            <input [(ngModel)]="maxVehiclesInput" matInput #message name="maxVehiclesInput" maxlength="256" placeholder="Roadway width of district">
+                            <input [(ngModel)]="maxVehiclesInput" matInput #message name="maxVehiclesInput" maxlength="256" placeholder="Roadway width of district" type="number">
                             <mat-hint align="start"><strong>Junction {{currentJunctionForMaxVehicles}}'s Maximum Vehicles Intensity</strong> </mat-hint>
                             <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
                         </mat-form-field>
@@ -107,6 +129,11 @@
                 </div>
             </mat-tab>
         </mat-tab-group>
-        <button *ngIf="showSubmitButton" (click)="submitToTraining()">submit</button>
+        <mat-divider></mat-divider>
+        <br />
+
+        <div class="text-center">
+            <button mat-raised-button color="primary" *ngIf="showSubmitButton" (click)="submitToTraining()">Continue to Training</button>
+        </div>
     </section>
 </div>
