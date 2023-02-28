@@ -56,14 +56,18 @@
             <mat-tab label="District">
                 <br />
                 <div>
-                    <h3>For <strong>Junction {{currentJunctionForDistrict}}</strong></h3>
+                    <h3>For <strong>{{currentJunctionForDistrict}}</strong></h3>
                     <form class="example-form">
-                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
+
+                        <mat-form-field appearance="fill" style="width: 500px;">
                             <mat-label>Enter District</mat-label>
-                            <input [(ngModel)]="districtInput" matInput #message name="districtInput" maxlength="256" placeholder="Junction belongs to">
-                            <mat-hint align="start"><strong>The district Junction {{currentJunctionForDistrict}} belongs to</strong> </mat-hint>
-                            <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
+                            <mat-select  name="districtInput" [(ngModel)]="districtInput" (selectionChange)="setDistrictInput()">
+                                <mat-option *ngFor="let district of districtList" [value]="district">
+                                    {{district}}
+                                </mat-option>
+                            </mat-select>
                         </mat-form-field>
+
                     </form>
                     <br />
                     <button type="button" class="btn btn-outline-primary" (click)="previousDistrict()">Previous</button>

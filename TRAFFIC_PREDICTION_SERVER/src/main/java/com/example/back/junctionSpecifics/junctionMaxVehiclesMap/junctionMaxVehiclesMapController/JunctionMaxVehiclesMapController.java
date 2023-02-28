@@ -35,11 +35,10 @@ public class JunctionMaxVehiclesMapController {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	
-	@GetMapping("/getJunctionMaxVehiclesMap")
+	@GetMapping("/getAllJunctionMaxVehiclesMap")
 	public List<JunctionMaxVehiclesMap> getJunctionMaxVehiclesMap() {
 		log.warn("GET: /junctionMaxVehicles/getJunctionMaxVehiclesMap");
 		List<JunctionMaxVehiclesMap> junctionMaxVehiclesMaps = junctionMaxVehiclesMapService.findAllJunctionMaxVehiclesMap();
-		// heelo
 		return junctionMaxVehiclesMaps;
 	}
 

@@ -30,7 +30,7 @@ export class Page2Component implements OnInit {
 	autoTrained: boolean = this.propService.autoTrained
 	accuracyComparison: any
 	isLinear: boolean = false
-	junctions: Array<number> = []
+	junctions: Array<string> = []
 	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
 	vehicles: Array<number> = []  // Vehicles array to display on y axis of chart
 	datetime = []  // DateTime array to display on x axis of chart
@@ -133,17 +133,20 @@ export class Page2Component implements OnInit {
 	}
 	
 	changeJunctionToBeRendered() {
-		this.junctionToBeRendered = parseInt(this.junctionChoice)
-		if (this.propService.autoTrained === false) {
-			this.junctionToBeRendered = 1   // 1st element in the array as there is only one junction
+		this.autoTrained  
+			? this.currentJunctionsPredictedData = this.allJunctionsPredictedData[this.junctionChoice]
+			: this.currentJunctionsPredictedData = this.allJunctionsPredictedData
+		
+
+		if (this.autoTrained) {
+			if (this.plotDataReady) {
+				this.currentJunctionPlotData = this.allJunctionsPlotData[this.junctionChoice]
+			}
+		} else {
+			this.currentJunctionPlotData = this.allJunctionsPlotData
 		}
-		this.currentJunctionsPredictedData = this.allJunctionsPredictedData[this.junctionToBeRendered-1]
 
-
-		if (this.plotDataReady) {
-			this.currentJunctionPlotData = this.allJunctionsPlotData[this.junctionToBeRendered -1]
-		}
-
+		console.log('plot', this.currentJunctionPlotData)
 		
 		// to show result table
 		this.resultTableReady = true
@@ -442,6 +445,7 @@ export class Page2Component implements OnInit {
 		this.flaskAutoPredictedService.getAllJunctionsPlotData().subscribe({
 			next: (response) => {
 				this.allJunctionsPlotData = response
+				console.log('allauto', response)
 				this.plotDataReady = true
 				this.changeJunctionToBeRendered()
 			},
@@ -473,6 +477,32 @@ export class Page2Component implements OnInit {
 			next: (response) => {
 				this.propService.junctions = Object.values(response)
 				this.junctions = this.propService.junctions
+				this.autoTrained = this.propService.autoTrained
+
+				if (this.propService.autoTrained === false) {
+					this.flaskService.getResultTable().subscribe({
+						next: (response) => {
+							this.duration = parseInt(this.propService.time)
+							this.junctionChoice = this.propService.inputJunction
+							this.allJunctionsPredictedData = response
+							this.allJunctionsPredictedData = this.allJunctionsPredictedData[0]
+							this.allJunctionsPlotData = this.propService.predictionPlotData[0]
+							this.plotDataReady = true
+							this.junctions = []
+							this.junctions.push(this.junctionChoice)
+							this.changeJunctionToBeRendered()
+						},
+						error: (error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error)
+						}
+					})
+				} else {
+					console.log('autopredicting')
+					this.junctionChoice = this.junctions[0]
+					this.getPredictionInformation()
+				}
+
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
@@ -491,29 +521,6 @@ export class Page2Component implements OnInit {
 		// 	}
 		// })
 
-		this.autoTrained = this.propService.autoTrained
-
-		if (this.propService.autoTrained === false) {
-			this.flaskService.getResultTable().subscribe({
-				next: (response) => {
-					this.duration = parseInt(this.propService.time)
-					this.junctionChoice = this.propService.inputJunction
-					this.allJunctionsPredictedData = response
-					this.allJunctionsPlotData = this.propService.predictionPlotData
-					this.plotDataReady = true
-					this.junctions = []
-					this.junctions.push(parseInt(this.junctionChoice))
-					this.changeJunctionToBeRendered()
-				},
-				error: (error: HttpErrorResponse) => {
-					console.log(error)
-					alert(error)
-				}
-			})
-		} else {
-			console.log('autopredicting')
-			this.getPredictionInformation()
-		}
 
 
 	}

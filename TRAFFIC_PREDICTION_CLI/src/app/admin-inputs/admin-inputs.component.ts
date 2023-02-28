@@ -39,6 +39,7 @@ export class AdminInputsComponent implements OnInit {
 	queryJunctionMaxVehicles: boolean = false
 	queryJunctionRoadwayWidth: boolean = false
 	showSubmitButton: boolean = false
+	districtList: Array<string> = []
 
 	junctions: Array<number> = []
 	
@@ -78,6 +79,27 @@ export class AdminInputsComponent implements OnInit {
 				alert(error.message)
 			}
 		})
+
+
+		this.junctionSpecificsService.getAllDistricts().subscribe({
+			next: (response) => {
+				for (const element of Object.values(response)) {
+					this.districtList.push(element.name)
+				}
+				console.log(this.districtList)
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
+
+
+	}
+
+	
+	setDistrictInput() {
+		console.log(this.districtInput)
 	}
 
 

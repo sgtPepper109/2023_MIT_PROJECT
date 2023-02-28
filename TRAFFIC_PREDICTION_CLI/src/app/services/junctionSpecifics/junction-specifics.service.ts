@@ -30,4 +30,8 @@ export class JunctionSpecificsService {
 	public getJunctionMaxVehiclesMap() {
 		return this.http.get(`${this.apiServerUrl}/junctionMaxVehicles/getJunctionMaxVehiclesMap`)
 	}
+
+	public getAllDistricts() {
+		return this.http.get(`${this.apiServerUrl}/districts/getAllDistricts`)
+	}
 }
