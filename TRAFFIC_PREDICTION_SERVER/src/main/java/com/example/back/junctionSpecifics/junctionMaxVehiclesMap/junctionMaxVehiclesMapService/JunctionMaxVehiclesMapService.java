@@ -27,9 +27,8 @@ public class JunctionMaxVehiclesMapService {
 	}
 	
 	public List<JunctionMaxVehiclesMap> findAllJunctionMaxVehiclesMap() {
-		List<JunctionMaxVehiclesMap> list=junctionMaxVehiclesMapRepository.findAll();
-		list.stream().forEach(System.out::println);
-		return list;
+		List<JunctionMaxVehiclesMap> junctionMaxVehiclesMaps = junctionMaxVehiclesMapRepository.findAll();
+		return junctionMaxVehiclesMaps;
 	}
 	
 }

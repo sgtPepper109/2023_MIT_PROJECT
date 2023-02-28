@@ -84,7 +84,7 @@ def getAllJunctions():
     global df
     junctions = list()
     for i in list(np.unique(df.Junction)):
-        junctions.append(int(i))
+        junctions.append(i)
     return make_response(junctions)
 
 
@@ -160,7 +160,7 @@ def createDict(junction):
     dictionary = dict()
     dictionary['vehicles'] = vehicles
     dictionary['datetime'] = datetime
-    return dictionary
+    return [dictionary]
 
 
 
@@ -169,9 +169,9 @@ def plot():
     global df
     global tempdf
 
-    response = []
-    for i in range(1, 5):
-        response.append(createDict(i))
+    response = dict()
+    for i in np.unique(df.Junction):
+        response[i] = createDict(i)
     return make_response(response)
 
 
@@ -206,8 +206,6 @@ def getResultTable():
 
     response = list()
     k = 0
-    print(junctions)
-    print(len(allJunctionsDfResult))
     for i in junctions:
         arr = []
         head = allJunctionsDfResult[k]
@@ -379,27 +377,14 @@ def predict2():
         global gotInput
         if gotInput != []:
             junction = gotInput[0]
-            junction = int(junction)
+            junction = junction
             time = gotInput[1]
             time = int(time)
             timeFormat = gotInput[2]
             algorithm = gotInput[3]
-        
+
         print(junction, time, timeFormat, algorithm, testRatio)
-
-        # Create Lag Data
-        lag_df = tempdf.copy()
-        for i in range(1, 3):
-            lag_df[f'Vehicles_lag_{i}'] = tempdf.Vehicles.shift(i)
-
-
-        # drop all null rows
-        lag_df.dropna(inplace=True)
-
-
-        lag_data = get_list_data(lag_df, drop=['Year'])
-
-
+        
         if algorithm == "Random Forest Regression":
             model = RandomForestRegressor()
         elif algorithm == "Gradient Boosting Regression":
@@ -426,9 +411,11 @@ def predict2():
 
         global accuracyScore
 
-        mainData = lag_data[junction]
+        mainData = tempdf.copy()
+        mainData = mainData[mainData.Junction == junction]
         curr_time = mainData.tail(1).index[0] # get the current time, the last time of that dataset
         
+
         if timeFormat == "Days":
             end_time = curr_time + pd.DateOffset(days=time) # the end time after 4 time that we want to predict
         elif timeFormat == "Months":
@@ -436,16 +423,13 @@ def predict2():
         else:
             end_time = curr_time + pd.DateOffset(years=time) # the end time after 4 time that we want to predict
 
-
-
-
-        mainData = tempdf.copy()
-        mainData = mainData[mainData.Junction == junction]
         mainData = mainData.drop(['Junction'], axis='columns')
 
         x = mainData.drop(['Vehicles'], axis='columns')
         y = mainData.Vehicles
+
         xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size = testRatio)
+
         model.fit(xtrain, ytrain)
         model1.fit(xtrain, ytrain)
         model2.fit(xtrain, ytrain)
@@ -717,11 +701,12 @@ if __name__ == "__main__":
     global allJunctionsPredictedTableData
     global allJunctionsPlotData
 
-    allJunctionsAccuracies = list()
-    allJunctionsAccuracyScore = list()
-    allJunctionsPredictedTableData = list()
-    allJunctionsPlotData = list()
+    allJunctionsAccuracies = dict()
+    allJunctionsAccuracyScore = dict()
+    allJunctionsPredictedTableData = dict()
+    allJunctionsPlotData = dict()
 
+    print('jn',junctions)    
     for i in junctions:
         junction = i
         time = 2
@@ -729,9 +714,9 @@ if __name__ == "__main__":
         testRatio = 0.1
         algorithm = 'Random Forest Regression'
         predict2()
-        allJunctionsAccuracies.append(accuracies)
-        allJunctionsAccuracyScore.append(accuracyScore)
-        allJunctionsPlotData.append(plotData)
+        allJunctionsAccuracies[i] = accuracies
+        allJunctionsAccuracyScore[i] = accuracyScore
+        allJunctionsPlotData[i] = plotData
 
 
         arr = []
@@ -739,14 +724,15 @@ if __name__ == "__main__":
 
         data2 = head.to_dict()
         anycol = ""
-        for i in data2:
-            anycol = i
+        for j in data2:
+            anycol = j
             break
-        for i in range(len(data2[anycol])):
+        for j in range(len(data2[anycol])):
             field = {}
-            for j in data2:
-                field[j] = data2[j][i]
+            for k in data2:
+                field[k] = data2[k][j]
             arr.append(field)
-        allJunctionsPredictedTableData.append(arr)
+
+        allJunctionsPredictedTableData[i] = arr
     
     app.run()

@@ -2,6 +2,9 @@ package com.example.back.junctionSpecifics.junctionRoadwayWidthMap.junctionRoadw
 
 import com.example.back.junctionSpecifics.junctionRoadwayWidthMap.junctionRoadwayWidthMap.JunctionRoadwayWidthMap;
 import com.example.back.junctionSpecifics.junctionRoadwayWidthMap.junctionRoadwayWidthMapRepository.JunctionRoadwayWidthMapRepository;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,10 @@ public class JunctionRoadwayWidthMapService {
 	
 	public void truncateRedundantJunctionRoadwayWidthMaps() {
 		junctionRoadwayWidthMapRepository.deleteAll();
+	}
+	
+	public List<JunctionRoadwayWidthMap> getAllJunctionRoadwayWidthMaps() {
+		return junctionRoadwayWidthMapRepository.findAll();
 	}
 
 }

@@ -37,6 +37,13 @@ public class JunctionDistrictMapController {
 		
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
+	
+	
+	@GetMapping("/getAllJunctionDistrictMaps")
+	public List<JunctionDistrictMap> getAllJunctionDistrictMaps() {
+		List<JunctionDistrictMap> junctionDistrictMaps = junctionDistrictMapService.getAllJunctionDistrictMaps();
+		return junctionDistrictMaps;
+	}
 
     
 

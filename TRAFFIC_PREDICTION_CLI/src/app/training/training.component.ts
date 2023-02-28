@@ -9,6 +9,7 @@ import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
 import { FormBuilder, Validators } from '@angular/forms';
+import { throwMatDuplicatedDrawerError } from '@angular/material/sidenav';
 
 @Component({
 	selector: 'app-training',
@@ -44,7 +45,7 @@ export class TrainingComponent implements OnInit {
 	header: boolean = true
 	fileName: string = ""
 	datasetPath: string = ""
-	recievedPlotData: object = {}  // Object containing vehicles vs datetime information of all junctions
+	recievedPlotData: any
 	vehicles: Array<number> = []  // Vehicles array to display on y axis of chart
 	datetime = []  // DateTime array to display on x axis of chart
 	inputJunction: string = ""// input variables for junction and months
@@ -197,14 +198,17 @@ export class TrainingComponent implements OnInit {
 
 
 	changeJunctionToBePlotted() {
-		let junctionIndex = parseInt(this.junctionChoice) -1
-		this.show(junctionIndex)
+		console.log(this.junctionChoice)
+		this.show(this.junctionChoice)
 	}
 
-	show(param1: number) {
+	show(param1: string) {
 		this.vehiclesVsDateTimeChartHidden = false; 
-		this.datetime = Object.values(this.recievedPlotData)[param1]['datetime']  // 0 index means junction 1
-		this.vehicles = Object.values(this.recievedPlotData)[param1]['vehicles']
+		// this.datetime = Object.values(this.recievedPlotData)[param1]['datetime']  // 0 index means junction 1
+		// this.vehicles = Object.values(this.recievedPlotData)[param1]['vehicles']
+
+		this.datetime = this.recievedPlotData[param1][0]['datetime']
+		this.vehicles = this.recievedPlotData[param1][0]['vehicles']
 
 		this.maxVehicles = Math.max(...this.vehicles)
 		this.propService.maxVehicles = this.maxVehicles
@@ -578,8 +582,9 @@ export class TrainingComponent implements OnInit {
 										// get all plot data i.e. vehicles vs datetime information of all junctions
 										this.flaskService.getPlot().subscribe({
 											next: (response) => {
+													console.log(response)
 													this.recievedPlotData = response
-													this.junctionChoice = "1"
+													this.junctionChoice = this.junctions[0]
 													this.changeJunctionToBePlotted()
 												},
 											error: (error: HttpErrorResponse) => { console.log(error.message) }

@@ -5,6 +5,8 @@ import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMa
 
 import jakarta.transaction.Transactional;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,10 @@ public class JunctionDistrictMapService {
 	
 	public void truncateRedundantJunctionDistrictMaps() {
 		junctionDistrictMapRepository.deleteAll();
+	}
+	
+	public List<JunctionDistrictMap> getAllJunctionDistrictMaps() {
+		return junctionDistrictMapRepository.findAll();
 	}
 	
 

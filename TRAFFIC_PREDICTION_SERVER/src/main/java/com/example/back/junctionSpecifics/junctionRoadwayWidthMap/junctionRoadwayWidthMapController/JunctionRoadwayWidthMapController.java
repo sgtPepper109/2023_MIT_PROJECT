@@ -35,7 +35,12 @@ public class JunctionRoadwayWidthMapController {
 		}
 		
 		return new ResponseEntity<>(HttpStatus.CREATED);
-		
+	}
+	
+	
+	public List<JunctionRoadwayWidthMap> getAllJunctionRoadwayWidthMaps() {
+		List<JunctionRoadwayWidthMap> junctionRoadwayWidthMaps = junctionRoadwayWidthMapService.getAllJunctionRoadwayWidthMaps();
+		return  junctionRoadwayWidthMaps;
 	}
 	
 }
