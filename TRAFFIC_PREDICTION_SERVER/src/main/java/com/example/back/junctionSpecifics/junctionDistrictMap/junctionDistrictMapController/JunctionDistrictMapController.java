@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @Log4j2
-@RequestMapping("/junctionDistrict")
+@RequestMapping("/junctionSpecifics/junctionDistrict")
 public class JunctionDistrictMapController {
 	private final JunctionDistrictMapService junctionDistrictMapService;
 	

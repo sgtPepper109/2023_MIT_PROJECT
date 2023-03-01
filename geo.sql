@@ -1,4 +1,12 @@
 use 2023mitproject;
+
+create table roadway_widths ( 
+	id int not null auto_increment,
+    roadway_width int not null,
+    primary key (id) 
+);
+
+insert into roadway_widths (roadway_width) values (5), (6), (7), (8), (9), (10), (11), (12), (13), (14), (15);
  
 CREATE TABLE IF NOT EXISTS `geo_locations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -6618,5 +6626,7 @@ INSERT INTO `geo_locations` (`id`, `name`, `parent_id`, `external_id`, `location
 (6598, 'Port Blair', 675, '5923', 'SUBDISTRICT', '744101'),
 (6599, 'Little Andaman', 675, '5924', 'SUBDISTRICT', NULL);
 
-create table districts as select * from geo_locations where location_type = 'DISTRICT' and parent_id = 21;
+create table districts
+	as select * from geo_locations 
+		where location_type = 'DISTRICT' and parent_id = 21;
 

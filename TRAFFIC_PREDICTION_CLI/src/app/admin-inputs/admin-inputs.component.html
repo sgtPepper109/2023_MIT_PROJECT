@@ -59,19 +59,34 @@
                     <h3>For <strong>{{currentJunctionForDistrict}}</strong></h3>
                     <form class="example-form">
 
-                        <mat-form-field appearance="fill" style="width: 500px;">
-                            <mat-label>Enter District</mat-label>
-                            <mat-select  name="districtInput" [(ngModel)]="districtInput" (selectionChange)="setDistrictInput()">
-                                <mat-option *ngFor="let district of districtList" [value]="district">
-                                    {{district}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Junction name</th>
+                                    <th scope="col">District name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let junction of junctions">
+                                    <th scope="row">{{ junction }}</th>
+                                    <td>
+                                        
+                                        <mat-form-field appearance="fill" style="width: 500px;">
+                                            <mat-label>Enter District Name</mat-label>
+                                            <mat-select #districtInput (selectionChange)="trackDistrict(junction.toString(), districtInput.value)" name="districtInput">
+                                                <mat-option *ngFor="let district of districtList" [value]="district">
+                                                    {{ district }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
 
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </form>
                     <br />
-                    <button type="button" class="btn btn-outline-primary" (click)="previousDistrict()">Previous</button>
-                    <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextDistrict()">{{statusJunctionDistrict}}</button>
+                    <button mat-raised-button color="primary" *ngIf="saveJunctionDistrictButton" (click)="saveJunctionDistrictMaps()">Save</button>
                 </div>
                 <br />
                 <br />
@@ -88,16 +103,35 @@
                 <div>
                     <h3>For <strong>Junction {{currentJunctionForRoadwayWidth}}</strong></h3>
                     <form class="example-form">
-                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
-                            <mat-label>Enter Roadway width</mat-label>
-                            <input [(ngModel)]="roadwayWidthInput" matInput #message name="roadwayWidthInput" maxlength="256" placeholder="e.g. 20" type="number">
-                            <mat-hint align="start"><strong>Junction {{currentJunctionForRoadwayWidth}}'s roadway width in m(metres)</strong> </mat-hint>
-                            <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
-                        </mat-form-field>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Junction name</th>
+                                    <th scope="col">Roadway Width</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let junction of junctions">
+                                    <th scope="row">{{ junction }}</th>
+                                    <td>
+                                        
+                                        <mat-form-field appearance="fill" style="width: 500px;">
+                                            <mat-label>Enter Roadway Width</mat-label>
+                                            <mat-select #roadwayWidthInput (selectionChange)="trackRoadwayWidth(junction.toString(), roadwayWidthInput.value)" name="roadwayWidthInput">
+                                                <mat-option *ngFor="let roadwayWidth of roadwayWidthList" [value]="roadwayWidth">
+                                                    {{roadwayWidth}} m(metres)
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </form>
                     <br />
-                    <button type="button" class="btn btn-outline-primary" (click)="previousRoadwayWidth()">Previous</button>
-                    <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextRoadwayWidth()">{{statusJunctionDistrict}}</button>
+                    <button mat-raised-button color="primary" *ngIf="saveJunctionRoadwayWidthButton" (click)="saveJunctionRoadwayWidthMaps()">Save</button>
                 </div>
                 <!-- Display error message when validation suggests errors -->
                 <br />
@@ -115,16 +149,32 @@
                 <div>
                     <h3>For <strong>Junction {{currentJunctionForMaxVehicles}}</strong></h3>
                     <form class="example-form">
-                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
-                            <mat-label>Enter Maximum Vehicles</mat-label>
-                            <input [(ngModel)]="maxVehiclesInput" matInput #message name="maxVehiclesInput" maxlength="256" placeholder="Roadway width of district" type="number">
-                            <mat-hint align="start"><strong>Junction {{currentJunctionForMaxVehicles}}'s Maximum Vehicles Intensity</strong> </mat-hint>
-                            <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
-                        </mat-form-field>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Roadway Width</th>
+                                    <th scope="col">Maximum Amount of Vehicles</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let roadwayWidth of roadwayWidthList">
+                                    <th scope="row">{{ roadwayWidth }} m (metres)</th>
+                                    <td>
+                                        
+                                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
+                                            <mat-label>Enter maximum amount of vehicles</mat-label>
+                                            <input #maxVehiclesInput (change)="trackMaxVehicles(roadwayWidth, maxVehiclesInput.value)" matInput name="maxVehiclesInput" placeholder="Capacity of roadway width of {{roadwayWidth}} metres" type="number">
+                                        </mat-form-field>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
                     </form>
                     <br />
-                    <button type="button" class="btn btn-outline-primary" (click)="previousMaxVehicles()">Previous</button>
-                    <button type="button" class="btn btn-outline-primary" style="margin-left: 10px" (click)="nextMaxVehicles()">Next</button>
+                    <button mat-raised-button color="primary" (click)="saveRoadwayWidthMaxVehiclesMaps()">Save</button>
                 </div>
                 <!-- Display error message when validation suggests errors -->
                 <br />

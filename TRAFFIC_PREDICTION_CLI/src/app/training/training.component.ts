@@ -133,6 +133,9 @@ export class TrainingComponent implements OnInit {
 				alert(error.message)
 			}
 		})
+
+
+
 	}
 
 	changeTrain() {
@@ -145,34 +148,6 @@ export class TrainingComponent implements OnInit {
 			this.inputTrainRatio = (1 - parseFloat(this.inputTestRatio)).toString()
 		}
 	}
-
-	fileChangeListener($event: any): void {
-		
-		const files = $event.srcElement.files;
-		this.fileName = files[0]['name']
-		this.header = (this.header as unknown as string) === 'true' || this.header === true;
-
-		const arr = this.fileName.split('.')
-		if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
-
-		this.ngxCsvParser.parse(files[0], { header: this.header, delimiter: ',', encoding: 'utf8' })
-			.pipe().subscribe({
-				next: (result): void => {
-					this.csvRecords = Object.values(result);
-
-					this.flaskService.sendCsvData(result).subscribe()
-				},
-				error: (error: NgxCSVParserError): void => {
-					console.log('Error', error);
-				}
-			});
-		} else {
-			this.errorstring = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
-			this.toggleErrorString = true
-			this._snackBar.open("Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file", 'x') 
-		}
-	}
-
 
 	reset() {
 		this.inputTrainRatio = ""
@@ -198,7 +173,6 @@ export class TrainingComponent implements OnInit {
 
 
 	changeJunctionToBePlotted() {
-		console.log(this.junctionChoice)
 		this.show(this.junctionChoice)
 	}
 
@@ -582,7 +556,6 @@ export class TrainingComponent implements OnInit {
 										// get all plot data i.e. vehicles vs datetime information of all junctions
 										this.flaskService.getPlot().subscribe({
 											next: (response) => {
-													console.log(response)
 													this.recievedPlotData = response
 													this.junctionChoice = this.junctions[0]
 													this.changeJunctionToBePlotted()
