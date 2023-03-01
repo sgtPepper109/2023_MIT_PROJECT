@@ -27,6 +27,13 @@ export class Page2Component implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService
 	) {}
 
+	currentDistrict: string = ""
+	currentRoadwayWidth: number = 0
+	currentMaxVehicles: number = 0
+	junctionDistrictMaps: Map<string, string> = new Map()
+	junctionRoadwayWidthMaps: Map<string, string> = new Map()
+	roadwayWidthMaxVehiclesMaps: Map<number, number> = new Map()
+	junctionSpecificDetailsProvided: boolean = false
 	autoTrained: boolean = this.propService.autoTrained
 	accuracyComparison: any
 	isLinear: boolean = false
@@ -146,7 +153,6 @@ export class Page2Component implements OnInit {
 			this.currentJunctionPlotData = this.allJunctionsPlotData
 		}
 
-		console.log('plot', this.currentJunctionPlotData)
 		
 		// to show result table
 		this.resultTableReady = true
@@ -415,12 +421,7 @@ export class Page2Component implements OnInit {
 
 		this.flaskAutoPredictedService.getAllJunctionsAccuracyScore().subscribe({
 			next: (response) => {
-				console.log('accuracyScores: ', response)
-				let junctions: Array<string> = []
-				for (let key in Object.keys(response)) {
-					let currKey = parseInt(key) + 1
-					junctions.push(currKey.toString())
-				}
+				let junctions = this.propService.junctions
 				let accuracies: Array<number> = Object.values(response)
 				this.barChart(junctions, accuracies)
 			},
@@ -445,7 +446,6 @@ export class Page2Component implements OnInit {
 		this.flaskAutoPredictedService.getAllJunctionsPlotData().subscribe({
 			next: (response) => {
 				this.allJunctionsPlotData = response
-				console.log('allauto', response)
 				this.plotDataReady = true
 				this.changeJunctionToBeRendered()
 			},
@@ -464,6 +464,7 @@ export class Page2Component implements OnInit {
 	// on click predict button
 	ngOnInit() {
 		console.log(this.propService)
+
 
 		// no errors in validation
 		// hence don't show error alert
@@ -498,6 +499,60 @@ export class Page2Component implements OnInit {
 						}
 					})
 				} else {
+					this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
+						next: (response) => {
+							for (const element of Object.values(response)) {
+								this.junctionDistrictMaps.set(element['junctionName'], element['district'])
+							}
+
+							if (response != '') {
+
+								this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
+									next: (response) => {
+										for (const element of Object.values(response)) {
+											this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
+										}
+										
+										if (response != '') {
+
+											this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
+												next: (response) => {
+													for (const element of Object.values(response)) {
+														this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
+													}
+
+													this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
+													this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
+													this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
+
+													console.log(this.roadwayWidthMaxVehiclesMaps)
+													console.log(this.junctionRoadwayWidthMaps)
+													console.log(this.junctionDistrictMaps);
+													
+
+													if (response != '') {
+														this.junctionSpecificDetailsProvided = true
+													}
+												},
+												error: (error: HttpErrorResponse) => {
+													console.log(error)
+													alert(error)
+												}
+											})
+										}
+									},
+									error: (error: HttpErrorResponse) => {
+										console.log(error)
+										alert(error)
+									}
+								})
+							}
+						},
+						error: (error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error)
+						}
+					})
 					console.log('autopredicting')
 					this.junctionChoice = this.junctions[0]
 					this.getPredictionInformation()
@@ -509,17 +564,6 @@ export class Page2Component implements OnInit {
 				alert(error.message)
 			}
 		})
-
-
-		// this.junctionSpecificsService.getJunctionMaxVehiclesMap().subscribe({
-		// 	next: (response) => {
-		// 		console.log(response)
-		// 	},
-		// 	error: (error: HttpErrorResponse) => {
-		// 		console.log(error)
-		// 		alert(error.message)
-		// 	}
-		// })
 
 
 

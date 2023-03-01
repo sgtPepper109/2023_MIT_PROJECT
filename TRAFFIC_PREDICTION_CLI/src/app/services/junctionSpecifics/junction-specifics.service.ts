@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PropService } from '../propService/prop.service';
 import { JunctionDistrictMap } from '../junctionDistrictMap/junction-district-map';
-import { JunctionMaxVehiclesMap } from '../junctionMaxVehiclesMap/junction-max-vehicles-map';
+import { RoadwayWidthMaxVehiclesMap} from '../roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
 import { JunctionRoadwayWidthMap } from '../junctionRoadwayWidth/junction-roadway-width-map';
 
 @Injectable({
@@ -14,24 +14,40 @@ export class JunctionSpecificsService {
 
 	private apiServerUrl = environment.apiBaseUrl
 
-	public addJunctionDistrictMap(junctionDistricts: Array<JunctionDistrictMap>) {
-		return this.http.post(`${this.apiServerUrl}/junctionDistrict/addJunctionDistrictMap`, junctionDistricts)
+	public addRoadwayWidthMaxVehiclesMap(roadwayWidthMaxVehiclesMaps: Array<RoadwayWidthMaxVehiclesMap>) {
+		return this.http.post(`${this.apiServerUrl}/junctionSpecifics/roadwayWidthMaxVehicles/addRoadwayWidthMaxVehiclesMaps`, roadwayWidthMaxVehiclesMaps)
 	}
 
-	public addJunctionMaxVehiclesMap(junctionMaxVehicles: Array<JunctionMaxVehiclesMap>) {
-		return this.http.post(`${this.apiServerUrl}/junctionMaxVehicles/addJunctionMaxVehiclesMap`, junctionMaxVehicles)
+	public addJunctionDistrictMap(junctionDistricts: Array<JunctionDistrictMap>) {
+		return this.http.post(`${this.apiServerUrl}/junctionSpecifics/junctionDistrict/addJunctionDistrictMap`, junctionDistricts)
 	}
 
 	public addJunctionRoadwayWidthMap(junctionRoadwayWidthMap: Array<JunctionRoadwayWidthMap>) {
-		console.log(" in", junctionRoadwayWidthMap)
-		return this.http.post(`${this.apiServerUrl}/junctionRoadwayWidth/addJunctionRoadwayWidthMap`, junctionRoadwayWidthMap)
+		return this.http.post(`${this.apiServerUrl}/junctionSpecifics/junctionRoadwayWidth/addJunctionRoadwayWidthMap`, junctionRoadwayWidthMap)
 	}
 	
-	public getJunctionMaxVehiclesMap() {
-		return this.http.get(`${this.apiServerUrl}/junctionMaxVehicles/getJunctionMaxVehiclesMap`)
+	public getAllDistricts() {
+		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/districts/getAllDistricts`)
 	}
 
-	public getAllDistricts() {
-		return this.http.get(`${this.apiServerUrl}/districts/getAllDistricts`)
+	public getAllRoadwayWidths() {
+		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/roadwayWidths/getAllRoadwayWidths`)
 	}
+
+	public getAllJunctionDistrictMaps() {
+		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps`)
+	}
+
+	public getAllJunctionRoadwayWidthMaps() {
+		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps`)
+	}
+
+	public getAllRoadwayWidthMaxVehiclesMaps() {
+		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps`)
+	}
+
+	public cleanJuntionSpecificTables() {
+		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/cleanJunctionSpecificTables`)
+	}
+
 }

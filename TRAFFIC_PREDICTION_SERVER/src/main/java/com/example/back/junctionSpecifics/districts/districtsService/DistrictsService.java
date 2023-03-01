@@ -2,7 +2,6 @@ package com.example.back.junctionSpecifics.districts.districtsService;
 
 import com.example.back.junctionSpecifics.districts.districts.Districts;
 import com.example.back.junctionSpecifics.districts.districtsRepository.DistrictsRepository;
-
 import jakarta.transaction.Transactional;
 
 import java.util.List;

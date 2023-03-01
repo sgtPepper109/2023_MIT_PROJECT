@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @Log4j2
-@RequestMapping("/junctionRoadwayWidth")
+@RequestMapping("/junctionSpecifics/junctionRoadwayWidth")
 public class JunctionRoadwayWidthMapController {
 
 	private final JunctionRoadwayWidthMapService junctionRoadwayWidthMapService;
@@ -37,7 +37,7 @@ public class JunctionRoadwayWidthMapController {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	
-	
+	@GetMapping("/getAllJunctionRoadwayWidthMaps")
 	public List<JunctionRoadwayWidthMap> getAllJunctionRoadwayWidthMaps() {
 		List<JunctionRoadwayWidthMap> junctionRoadwayWidthMaps = junctionRoadwayWidthMapService.getAllJunctionRoadwayWidthMaps();
 		return  junctionRoadwayWidthMaps;

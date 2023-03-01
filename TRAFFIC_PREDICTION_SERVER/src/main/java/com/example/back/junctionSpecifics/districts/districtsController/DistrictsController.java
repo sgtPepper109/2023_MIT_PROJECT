@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @Log4j2
-@RequestMapping("/districts")
+@RequestMapping("/junctionSpecifics/districts")
 public class DistrictsController {
 
 	private final DistrictsService districtsService;

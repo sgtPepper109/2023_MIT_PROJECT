@@ -1,26 +1,24 @@
-<p>
-    <mat-toolbar>
-        <button mat-icon-button  
-            class="example-icon" 
-            data-bs-toggle="offcanvas" 
-            data-bs-target="#offcanvasExample" 
-            aria-controls="offcanvasExample" 
-            aria-label="Example icon-button with menu icon"
-        >
-            <mat-icon>menu</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="navigateToTraining()">Training</button>
-            <button mat-menu-item>Predictions</button>
-            <button mat-menu-item (click)="navigateToAdminInputs()">Provide Junction Properties</button>
-        </mat-menu>
-        <span>Traffic Intensity Prediction and Recommendation</span>
-        <span class="example-spacer"></span>
-    </mat-toolbar>
-</p>
+<mat-toolbar>
+    <button mat-icon-button  
+        class="example-icon" 
+        data-bs-toggle="offcanvas" 
+        data-bs-target="#offcanvasExample" 
+        aria-controls="offcanvasExample" 
+        aria-label="Example icon-button with menu icon"
+    >
+        <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="navigateToTraining()">Training</button>
+        <button mat-menu-item>Predictions</button>
+        <button mat-menu-item (click)="navigateToAdminInputs()">Provide Junction Properties</button>
+    </mat-menu>
+    <span>Traffic Intensity Prediction and Recommendation</span>
+    <span class="example-spacer"></span>
+</mat-toolbar>
 
 
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+<div style="padding:100px" class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
         <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -47,15 +45,13 @@
                 <mat-card *ngIf="toggleFuturePredictionsTable">
                     <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                         <ul class="nav nav-pills">
-                            <h4 id="table2-desc"><strong>Result for junction {{ junctionChoice }} for duration of {{ duration }} days</strong></h4>
+                            <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ duration }} days</strong></h4>
                         </ul>
                         <mat-slide-toggle style="float: right" [(ngModel)]="toggleFuturePredictionsTable">Table</mat-slide-toggle>
                     </nav>
                     <mat-card-content *ngIf="resultTableReady">
 
                         <div style="float: right; width: 200px">
-
-
                             <mat-form-field appearance="fill">
                                 <mat-label>Junction</mat-label>
                                 <mat-select (selectionChange)="changeJunctionToBeRendered()" [(ngModel)]="junctionChoice">
@@ -65,8 +61,14 @@
                                 </mat-select>
                             </mat-form-field>
 
-
                             <br />
+                        </div>
+                        <div>
+                            <strong style="font-size: 13pt;">Belongs to: {{ currentDistrict }} district</strong>
+                            <br />
+                            <strong style="font-size: 13pt;">Has roadway width of {{ currentRoadwayWidth }} metres</strong>
+                            <br />
+                            <strong style="font-size: 13pt;">Hence, has capacity of {{ currentMaxVehicles}} vehicles</strong>
                         </div>
                         <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
                             <thead>
@@ -109,7 +111,7 @@
                 <mat-card [hidden]="toggleFuturePredictionsTable">
                     <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                         <ul class="nav nav-pills">
-                            <h4 id="table2-desc"><strong>Result for junction {{ junctionChoice }} for duration of {{ duration }} days</strong></h4>
+                            <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ duration }} days</strong></h4>
                         </ul>
                         <mat-slide-toggle style="float: right" [(ngModel)]="toggleFuturePredictionsTable">Table</mat-slide-toggle>
                     </nav>
