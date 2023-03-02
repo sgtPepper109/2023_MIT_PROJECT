@@ -44,12 +44,15 @@
             <mat-step>
                 <br />
                 <ng-template matStepLabel>See Predictions</ng-template>
-                <mat-card *ngIf="toggleFuturePredictionsTable">
+                <mat-card *ngIf="!toggleFuturePredictionsTable">
                     <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                         <ul class="nav nav-pills">
                             <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ duration }} days</strong></h4>
                         </ul>
-                        <mat-slide-toggle style="float: right" [(ngModel)]="toggleFuturePredictionsTable">Table</mat-slide-toggle>
+                        <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
+                            <option selected>Line Plot</option>
+                            <option value="Table">Table</option>
+                        </select>
                     </nav>
                     <mat-card-content *ngIf="resultTableReady">
 
@@ -65,7 +68,7 @@
 
                             <br />
                         </div>
-                        <div>
+                        <div *ngIf="currentDistrict && currentRoadwayWidth && currentMaxVehicles">
                             <strong style="font-size: 13pt;">Belongs to: {{ currentDistrict }} district</strong>
                             <br />
                             <strong style="font-size: 13pt;">Has roadway width of {{ currentRoadwayWidth }} metres</strong>
@@ -110,12 +113,15 @@
                 <!--
                     ** Vehicles vs DateTime chart for provided junction number and number of days **
                 -->
-                <mat-card [hidden]="toggleFuturePredictionsTable">
+                <mat-card [hidden]="!toggleFuturePredictionsTable">
                     <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                         <ul class="nav nav-pills">
                             <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ duration }} days</strong></h4>
                         </ul>
-                        <mat-slide-toggle style="float: right" [(ngModel)]="toggleFuturePredictionsTable">Table</mat-slide-toggle>
+                        <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
+                            <option selected>Line Plot</option>
+                            <option value="Table">Table</option>
+                        </select>
                     </nav>
                     <mat-card-content>
                         <div style="float: right; width: 200px">

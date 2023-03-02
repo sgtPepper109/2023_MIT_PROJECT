@@ -42,16 +42,7 @@
 <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
     <section>
         <h1>Junction Properties</h1>
-        <hr id="hrTag" />
-        <label for="myfile">Browse dataset: </label>
-        <br /> <!-- Input File of type csv -->
-        <input type="file" accept=".csv" id="myfile" name="myfile" class="file-upload" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
-        <br />
-        <p style="color:red">Only .csv, .xlsx and .data files allowed</p>
-        <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString4" class="alert alert-danger" role="alert">
-            {{ errorString4 }}
-        </div>
-        <mat-divider></mat-divider>
+        <hr />
         <mat-tab-group>
             <mat-tab label="District">
                 <br />
@@ -86,7 +77,11 @@
                         </table>
                     </form>
                     <br />
-                    <button mat-raised-button color="primary" *ngIf="saveJunctionDistrictButton" (click)="saveJunctionDistrictMaps()">Save</button>
+                    <div *ngIf="saveJunctionDistrictButton">
+                        <button mat-raised-button color="primary" (click)="saveJunctionDistrictMaps()">Save</button>
+                        <br />
+                        <br />
+                    </div>
                 </div>
                 <br />
                 <br />
@@ -131,7 +126,11 @@
                         </table>
                     </form>
                     <br />
-                    <button mat-raised-button color="primary" *ngIf="saveJunctionRoadwayWidthButton" (click)="saveJunctionRoadwayWidthMaps()">Save</button>
+                    <div *ngIf="saveJunctionRoadwayWidthButton">
+                        <button mat-raised-button color="primary" (click)="saveJunctionRoadwayWidthMaps()">Save</button>
+                        <br />
+                        <br />
+                    </div>
                 </div>
                 <!-- Display error message when validation suggests errors -->
                 <br />
@@ -183,11 +182,70 @@
                 </div>
             </mat-tab>
         </mat-tab-group>
-        <mat-divider></mat-divider>
-        <br />
 
-        <div class="text-center">
+        <div *ngIf="savedJunctionDistricts">
+            <h4>Records</h4>
+        </div>
+
+        <div class="container text-center">
+            <div class="row">
+                <mat-divider></mat-divider>
+                <br />
+                <div class="col">
+                    <table *ngIf="savedJunctionDistricts" class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                        <thead>
+                            <tr>
+                                <th scope="col">Junction Name</th>
+                                <th scope="col">District Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let obj of junctionDistricts">
+                                <th scope="row">{{ obj.junctionName }}</th>
+                                <td>{{ obj.district }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <table *ngIf="savedJunctionRoadwayWidths" class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                        <thead>
+                            <tr>
+                                <th scope="col">Junction Name</th>
+                                <th scope="col">Roadway Width</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let obj of junctionRoadwayWidths">
+                                <th scope="row">{{ obj.junctionName }}</th>
+                                <td>{{ obj.roadwayWidth }} metres</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <table *ngIf="savedRoadwayWidthMaxVehicles" class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                        <thead>
+                            <tr>
+                                <th scope="col">RoadwayWidth</th>
+                                <th scope="col">Capacity of vehicles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let obj of roadwayWidthMaxVehicles">
+                                <th scope="row">{{ obj.roadwayWidth }} metres</th>
+                                <td>{{ obj.maxVehicles }} metres</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="text-center">
             <button mat-raised-button color="primary" *ngIf="showSubmitButton" (click)="submitToTraining()">Continue to Training</button>
+        </div> -->
+        <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString4" class="alert alert-danger" role="alert">
+            {{ errorString4 }}
         </div>
     </section>
 </div>

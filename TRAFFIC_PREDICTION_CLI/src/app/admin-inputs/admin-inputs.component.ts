@@ -8,6 +8,7 @@ import { JunctionRoadwayWidthMap } from '../services/junctionRoadwayWidth/juncti
 import { RoadwayWidthMaxVehiclesMap } from '../services/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { PropService } from '../services/propService/prop.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
 	selector: 'app-admin-inputs',
@@ -20,7 +21,8 @@ export class AdminInputsComponent implements OnInit {
 		public propService: PropService,
 		public junctionSpecificsService: JunctionSpecificsService,
 		private ngxCsvParser: NgxCsvParser,
-		public router: Router
+		public router: Router,
+		private _snackBar: MatSnackBar
 	) {}
 
 	currentJunctionForDistrict: string = ""
@@ -30,7 +32,6 @@ export class AdminInputsComponent implements OnInit {
 	currentJunctionForRoadwayWidthIndex: number = 0
 	currentJunctionForMaxVehiclesIndex: number = 0
 	statusJunctionDistrict: string = "Next"
-	dataset: string = ""
 	queryJunctionDistrict: boolean = false
 	queryJunctionMaxVehicles: boolean = false
 	queryJunctionRoadwayWidth: boolean = false
@@ -73,7 +74,7 @@ export class AdminInputsComponent implements OnInit {
 
 		this.junctionSpecificsService.cleanJuntionSpecificTables().subscribe({
 			next: (response) => {
-				console.log(response)
+				console.log('cleaned')
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
@@ -125,30 +126,6 @@ export class AdminInputsComponent implements OnInit {
 	}
 
 
-	fileChangeListener($event: any): void {
-		
-		const files = $event.srcElement.files;
-		let fileName = files[0]['name']
-		let header: boolean = true
-		header = (header as unknown as string) === 'true' || header === true;
-
-		const arr = fileName.split('.')
-		if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
-
-		this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
-			.pipe().subscribe({
-				next: (result): void => {
-					this.flaskService.sendCsvData(result).subscribe()
-				},
-				error: (error: NgxCSVParserError): void => {
-					console.log('Error', error);
-				}
-			});
-		} else {
-			this.errorString4 = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
-			this.toggleErrorString4 = true
-		}
-	}
 
 
 	
@@ -173,6 +150,14 @@ export class AdminInputsComponent implements OnInit {
 		this.roadwayWidthMaxVehiclesMaps.set(roadwayWidth, maxVehicles)
 	}
 
+
+	showData() {
+		if (this.savedJunctionDistricts && this.savedJunctionRoadwayWidths && this.savedRoadwayWidthMaxVehicles) {
+			this.showSubmitButton = true
+		}
+
+	}
+
 	
 
 	saveJunctionDistrictMaps() {
@@ -187,9 +172,8 @@ export class AdminInputsComponent implements OnInit {
 		this.junctionSpecificsService.addJunctionDistrictMap(this.junctionDistricts).subscribe({
 			next: (response) => {
 				this.savedJunctionDistricts = true
-				if (this.savedJunctionDistricts && this.savedJunctionRoadwayWidths && this.savedRoadwayWidthMaxVehicles) {
-					this.showSubmitButton = true
-				}
+				this._snackBar.open('Records Saved Successfully', '\u2716')
+				this.showData()
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
@@ -211,9 +195,8 @@ export class AdminInputsComponent implements OnInit {
 		this.junctionSpecificsService.addJunctionRoadwayWidthMap(this.junctionRoadwayWidths).subscribe({
 			next: (response) => {
 				this.savedJunctionRoadwayWidths = true
-				if (this.savedJunctionDistricts && this.savedJunctionRoadwayWidths && this.savedRoadwayWidthMaxVehicles) {
-					this.showSubmitButton = true
-				}
+				this._snackBar.open('Records Saved Successfully', '\u2716')
+				this.showData()
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
@@ -237,9 +220,8 @@ export class AdminInputsComponent implements OnInit {
 			this.junctionSpecificsService.addRoadwayWidthMaxVehiclesMap(this.roadwayWidthMaxVehicles).subscribe({
 				next: (response) => {
 					this.savedRoadwayWidthMaxVehicles = true
-					if (this.savedJunctionDistricts && this.savedJunctionRoadwayWidths && this.savedRoadwayWidthMaxVehicles) {
-						this.showSubmitButton = true
-					}
+					this._snackBar.open('Records Saved Successfully', '\u2716')
+					this.showData()
 				},
 				error: (error: HttpErrorResponse) => {
 					console.log(error)
@@ -255,96 +237,8 @@ export class AdminInputsComponent implements OnInit {
 
 
 	submitToTraining() {
-		this.propService.dataset = this.dataset
-		if (this.dataset != "") {
-			this.router.navigate(['/training'])
-		} else {
-			this.errorString4 = "Note: Please choose a dataset"
-			this.toggleErrorString4 = true
-		}
+		this.router.navigate(['/training'])
 	}
-
-
-
-
-	// nextMaxVehicles() {
-	// 	if (this.junctionInputGivenForMaxVehicles.includes(this.currentJunctionForMaxVehicles) == false) {
-	// 		let junctionMaxVehiclesObject: RoadwayWidthMaxVehiclesMap= {
-	// 			junctionName: this.currentJunctionForMaxVehicles,
-	// 			maxVehicles: this.maxVehiclesInput
-	// 		}
-	// 		if (this.maxVehiclesInput!= "") {
-	// 			this.junctionMaxVehicles.push(junctionMaxVehiclesObject)
-	// 			this.junctionInputGivenForMaxVehicles.push(this.currentJunctionForMaxVehicles)
-	// 		} else {
-	// 			this.errorString3 = "Enter MaxVehicles"
-	// 			this.toggleErrorString3 = true
-	// 		}
-	// 	} else {
-	// 		for (let element of this.junctionMaxVehicles) {
-	// 			if (element.junctionName == this.currentJunctionForMaxVehicles) {
-	// 				this.maxVehiclesInput = element.maxVehicles
-	// 				element.maxVehicles = this.maxVehiclesInput
-	// 			}
-	// 		}
-	// 	}
-	// 	if (this.currentJunctionForMaxVehiclesIndex == 3) {
-	// 		this.errorString3 = "Note: No More Junctions"
-	// 		this.toggleErrorString3 = true
-
-
-	// 		this.junctionSpecificsService.addJunctionMaxVehiclesMap(this.junctionMaxVehicles).subscribe({
-	// 			next: (response) => {
-	// 				this.queryJunctionMaxVehicles = true
-	// 				if (this.queryJunctionDistrict && this.queryJunctionRoadwayWidth && this.queryJunctionMaxVehicles) {
-	// 					this.showSubmitButton = true
-	// 				}
-	// 			},
-	// 			error: (error: HttpErrorResponse) => {
-	// 				console.log(error)
-	// 				alert(error.message)
-	// 			}
-	// 		})
-
-
-
-	// 	} else {
-	// 		this.currentJunctionForMaxVehiclesIndex ++
-	// 		this.currentJunctionForMaxVehicles = this.junctions[this.currentJunctionForMaxVehiclesIndex].toString()
-	// 	}
-
-	// 	this.maxVehiclesInput= ""
-
-	// }
-
-
-	// previousMaxVehicles() {
-	// 	if (this.junctionInputGivenForMaxVehicles.includes(this.currentJunctionForMaxVehicles) == false) {
-	// 		let junctionMaxVehiclesObject: RoadwayWidthMaxVehiclesMap = {
-	// 			junctionName: this.currentJunctionForMaxVehicles,
-	// 			maxVehicles: this.maxVehiclesInput
-	// 		}
-	// 		if (this.maxVehiclesInput != "") {
-	// 			this.junctionMaxVehicles.push(junctionMaxVehiclesObject)
-	// 		}
-	// 	} else {
-	// 		for (let element of this.junctionMaxVehicles) {
-	// 			if (element.junctionName == this.currentJunctionForMaxVehicles) {
-	// 				this.maxVehiclesInput = element.maxVehicles
-	// 				element.maxVehicles = this.maxVehiclesInput
-	// 			}
-	// 		}
-	// 	}
-	// 	if (this.currentJunctionForMaxVehiclesIndex == 0) {
-	// 		this.errorString3 = "Note: No More Junctions"
-	// 		this.toggleErrorString3 = true
-	// 	} else {
-	// 		this.currentJunctionForMaxVehiclesIndex --
-	// 		this.currentJunctionForMaxVehicles = this.junctions[this.currentJunctionForMaxVehiclesIndex].toString()
-	// 	}
-	// }
-
-
 
 
 

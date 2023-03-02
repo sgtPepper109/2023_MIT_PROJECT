@@ -12,8 +12,6 @@ export class NoopInterceptor implements HttpInterceptor {
 
 	intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-		console.log('environment.name',environment.name);
-
 		if (request.url.includes('./assets/config/config.json')) {
 			return next.handle(request);
 		} else {
@@ -22,7 +20,6 @@ export class NoopInterceptor implements HttpInterceptor {
 			switch (environment.name) {
 				case 'dev':
 				this.trafficPredApiUrl = 'http://localhost:8080/';
-				console.log(this.trafficPredApiUrl)
 				clonedRequest = request.clone({
 					url: this.trafficPredApiUrl + request.url
 				});
