@@ -9,21 +9,20 @@ import { PropService } from '../propService/prop.service';
 export class FlaskAutopredictedService {
 	constructor(private http: HttpClient, private propService: PropService) { }
 
-	private apiServerUrl = environment.apiBaseUrl
 
 	public getAllJunctionsAccuracies() {
-		return this.http.get(`${this.apiServerUrl}/process/getAllJunctionsAccuracies`)
+		return this.http.get('process/getAllJunctionsAccuracies')
 	}
 
 	public getAllJunctionsAccuracyScore() {
-		return this.http.get(`${this.apiServerUrl}/process/getAllJunctionsAccuracyScore`)
+		return this.http.get('process/getAllJunctionsAccuracyScore')
 	}
 
 	public getPredictedTableData() {
-		return this.http.get(`${this.apiServerUrl}/process/getAllJunctionsPredictedTableData`)
+		return this.http.get('process/getAllJunctionsPredictedTableData')
 	}
 
 	public getAllJunctionsPlotData() {
-		return this.http.get(`${this.apiServerUrl}/process/getAllJunctionsPlotData`)
+		return this.http.get('process/getAllJunctionsPlotData')
 	}
 }

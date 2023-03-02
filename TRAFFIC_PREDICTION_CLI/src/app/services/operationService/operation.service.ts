@@ -9,16 +9,15 @@ import { PropService } from '../propService/prop.service';
 	providedIn: 'root'
 })
 export class OperationService {
-	private apiServerUrl = environment.apiBaseUrl
 
 	constructor(private http: HttpClient, private propService: PropService) {}
 
 	public getOperations(): Observable<Operation[]> {
-		return this.http.get<Operation[]>(`${this.apiServerUrl}/operation/all`)
+		return this.http.get<Operation[]>('operation/all')
 	}
 
 	public addOperation(operation: Operation): Observable<Operation> {
-		return this.http.post<Operation>(`${this.apiServerUrl}/operation/add`, operation)
+		return this.http.post<Operation>('operation/add', operation)
 	}
 
 }

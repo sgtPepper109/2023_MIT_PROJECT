@@ -1,24 +1,26 @@
-<mat-toolbar>
-    <button mat-icon-button  
-        class="example-icon" 
-        data-bs-toggle="offcanvas" 
-        data-bs-target="#offcanvasExample" 
-        aria-controls="offcanvasExample" 
-        aria-label="Example icon-button with menu icon"
-    >
-        <mat-icon>menu</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="navigateToTraining()">Training</button>
-        <button mat-menu-item>Predictions</button>
-        <button mat-menu-item (click)="navigateToAdminInputs()">Provide Junction Properties</button>
-    </mat-menu>
-    <span>Traffic Intensity Prediction and Recommendation</span>
-    <span class="example-spacer"></span>
-</mat-toolbar>
+<p>
+    <mat-toolbar>
+        <button mat-icon-button  
+            class="example-icon" 
+            data-bs-toggle="offcanvas" 
+            data-bs-target="#offcanvasExample" 
+            aria-controls="offcanvasExample" 
+            aria-label="Example icon-button with menu icon"
+        >
+            <mat-icon>menu</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="navigateToTraining()">Training</button>
+            <button mat-menu-item>Predictions</button>
+            <button mat-menu-item (click)="navigateToAdminInputs()">Provide Junction Properties</button>
+        </mat-menu>
+        <span>Traffic Intensity Prediction and Recommendation</span>
+        <span class="example-spacer"></span>
+    </mat-toolbar>
+</p>
 
 
-<div style="padding:100px" class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
         <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>

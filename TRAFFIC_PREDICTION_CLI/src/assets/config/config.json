@@ -1,0 +1,5 @@
+{
+    "name": "local",
+    "restTrafficProdUrl": "http://egovln01.pune.cdac.in",
+    "isProd": true
+}
