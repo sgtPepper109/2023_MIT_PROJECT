@@ -14,6 +14,7 @@ public class FlaskController {
 
     private Object csvData;
     private Object input;
+    private Object trainingSpecifics;
     
 
     private static final org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(FlaskController.class);
@@ -128,6 +129,19 @@ public class FlaskController {
     	return getURLContents.getData(flaskUrl + "/getAccuracies"); 
     }
     
+    
+    @PostMapping("/sendTrainingSpecifics")
+    public String sendTrainingSpecifics(@RequestBody Object trainingInputs) {
+    	this.trainingSpecifics = trainingInputs;
+        GetURLContents getURLContents = new GetURLContents();
+        return getURLContents.getData(flaskUrl + "/listenToTrainingInputs");
+    }
+    
+    @GetMapping("/exchangeTrainingInputs")
+    public Object exchangeTrainingSpecifics() {
+        log.info("GET: /process/exchangeInput");
+    	return this.trainingSpecifics;
+    }
     
     
     

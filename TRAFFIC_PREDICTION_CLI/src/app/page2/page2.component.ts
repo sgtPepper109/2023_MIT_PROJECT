@@ -27,6 +27,7 @@ export class Page2Component implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService
 	) {}
 
+	predictionsOption: string = 'Line Plot'
 	currentDistrict: string = ""
 	currentRoadwayWidth: number = 0
 	currentMaxVehicles: number = 0
@@ -137,6 +138,14 @@ export class Page2Component implements OnInit {
 
 	navigateToAdminInputs() {
 		this.router.navigate(['/junctionProperties'])
+	}
+
+	changePredictionsOption() {
+		if (this.predictionsOption == 'Line Plot') {
+			this.toggleFuturePredictionsTable = true
+		} else {
+			this.toggleFuturePredictionsTable = false
+		}
 	}
 	
 	changeJunctionToBeRendered() {
@@ -459,6 +468,62 @@ export class Page2Component implements OnInit {
 	}
 
 	
+	getAllJunctionSpecificDataFromDB() {
+		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
+			next: (response) => {
+				for (const element of Object.values(response)) {
+					this.junctionDistrictMaps.set(element['junctionName'], element['district'])
+				}
+
+				if (response != '') {
+
+					this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
+						next: (response) => {
+							for (const element of Object.values(response)) {
+								this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
+							}
+							
+							if (response != '') {
+
+								this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
+									next: (response) => {
+										for (const element of Object.values(response)) {
+											this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
+										}
+
+										this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
+										this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
+										this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
+
+										console.log(this.roadwayWidthMaxVehiclesMaps)
+										console.log(this.junctionRoadwayWidthMaps)
+										console.log(this.junctionDistrictMaps);
+										
+
+										if (response != '') {
+											this.junctionSpecificDetailsProvided = true
+										}
+									},
+									error: (error: HttpErrorResponse) => {
+										console.log(error)
+										alert(error)
+									}
+								})
+							}
+						},
+						error: (error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error)
+						}
+					})
+				}
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error)
+			}
+		})
+	}
 
 
 	// on click predict button
@@ -483,7 +548,7 @@ export class Page2Component implements OnInit {
 				if (this.propService.autoTrained === false) {
 					this.flaskService.getResultTable().subscribe({
 						next: (response) => {
-							this.duration = parseInt(this.propService.time)
+							this.duration = parseInt(this.propService.inputTime)
 							this.junctionChoice = this.propService.inputJunction
 							this.allJunctionsPredictedData = response
 							this.allJunctionsPredictedData = this.allJunctionsPredictedData[0]
@@ -492,6 +557,7 @@ export class Page2Component implements OnInit {
 							this.junctions = []
 							this.junctions.push(this.junctionChoice)
 							this.changeJunctionToBeRendered()
+							this.getAllJunctionSpecificDataFromDB()
 						},
 						error: (error: HttpErrorResponse) => {
 							console.log(error)
@@ -499,60 +565,7 @@ export class Page2Component implements OnInit {
 						}
 					})
 				} else {
-					this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
-						next: (response) => {
-							for (const element of Object.values(response)) {
-								this.junctionDistrictMaps.set(element['junctionName'], element['district'])
-							}
-
-							if (response != '') {
-
-								this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
-									next: (response) => {
-										for (const element of Object.values(response)) {
-											this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
-										}
-										
-										if (response != '') {
-
-											this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
-												next: (response) => {
-													for (const element of Object.values(response)) {
-														this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
-													}
-
-													this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
-													this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
-													this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
-
-													console.log(this.roadwayWidthMaxVehiclesMaps)
-													console.log(this.junctionRoadwayWidthMaps)
-													console.log(this.junctionDistrictMaps);
-													
-
-													if (response != '') {
-														this.junctionSpecificDetailsProvided = true
-													}
-												},
-												error: (error: HttpErrorResponse) => {
-													console.log(error)
-													alert(error)
-												}
-											})
-										}
-									},
-									error: (error: HttpErrorResponse) => {
-										console.log(error)
-										alert(error)
-									}
-								})
-							}
-						},
-						error: (error: HttpErrorResponse) => {
-							console.log(error)
-							alert(error)
-						}
-					})
+					this.getAllJunctionSpecificDataFromDB()
 					console.log('autopredicting')
 					this.junctionChoice = this.junctions[0]
 					this.getPredictionInformation()

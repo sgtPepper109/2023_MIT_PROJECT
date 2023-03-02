@@ -27,6 +27,7 @@ public class JunctionRoadwayWidthMapController {
 		
 		log.warn("DELETE: /junctionRoadwayWidth/truncateRedundantRoadwayWidthMaps");
 		junctionRoadwayWidthMapService.truncateRedundantJunctionRoadwayWidthMaps();
+		System.out.println(junctionRoadwayWidthMapService.getAllJunctionRoadwayWidthMaps());
 		
 		System.out.println(junctionRoadwayWidthMapsToBeAdded);
 		for (JunctionRoadwayWidthMap i: junctionRoadwayWidthMapsToBeAdded) {

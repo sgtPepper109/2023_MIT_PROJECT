@@ -61,4 +61,8 @@ export class FlaskService {
 		return this.http.get('process/getAllJunctions')
 	}
 
+	public sendTrainingSpecifics(trainingSpecifics: Object) {
+		return this.http.post('process/sendTrainingSpecifics', trainingSpecifics)
+	}
+
 }

@@ -14,7 +14,7 @@ import { PropService } from './services/propService/prop.service'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { MatTableModule } from '@angular/material/table'
 import { MatCardModule } from '@angular/material/card'
-import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatSnackBarModule, MAT_SNACK_BAR_DATA, MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
 import { MatInputModule } from '@angular/material/input'
@@ -34,6 +34,9 @@ import { MatListModule } from '@angular/material/list'
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'
 import { httpInterceptorProviders } from './security/http-interceptors/interceptors'
 import { AppConfiguration } from './app-configuration.service'
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @NgModule({
 	declarations: [
@@ -69,9 +72,18 @@ import { AppConfiguration } from './app-configuration.service'
 		MatSidenavModule,
 		MatSelectModule,
 		MatListModule,
-		MatSlideToggleModule
+		MatSlideToggleModule,
+		MatProgressBarModule,
+		MatTooltipModule,
+		MatBadgeModule
 	],
 	providers: [
+		{
+			provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+			useValue: {
+				duration: 2500
+			}
+		},
 		OperationService,
 		PropService,
 		httpInterceptorProviders,

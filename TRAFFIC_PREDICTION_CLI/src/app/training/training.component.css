@@ -1,7 +1,7 @@
 #maincontainer {
-    border: 1px solid;
-    padding: 5px;
+    padding: 10px;
     box-shadow: 5px 10px;
+    max-width: 3000px;
 }
 
 .text-center {

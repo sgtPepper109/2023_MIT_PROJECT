@@ -273,6 +273,40 @@ def getActualPredictedForPlot():
     return make_response(arr)
 
 
+@app.route('/listenToTrainingInputs')
+def listenTrainingInputs():
+    success = True
+    url = config.springUrl + '/process/exchangeTrainingInputs'
+
+    try:
+        uResponse = requests.get(url)
+    except:
+        success = False
+        return "Connection Error"
+    JResponse = uResponse.text
+    response = json.loads(JResponse)
+    global junction
+    global time
+    global timeFormat
+    global inputTestRatio
+    global algorithm
+
+    junction = response['junction']
+    inputTestRatio = response['testRatio']
+    time = response['time']
+    timeFormat = response['timeFormat']
+    algorithm = response['algorithm']
+    dictionary = dict()
+    if success:
+        dictionary['gotTrainingSpecifics'] = "success"
+        return make_response(dictionary)
+    else:
+        dictionary['gotTrainingSpecifics'] = "fail"
+        return make_response(dictionary)
+
+
+
+
 @app.route('/input')
 def getInput():
     success = True
@@ -348,12 +382,18 @@ def predict():
     global timeFormat
     global testRatio
     global dfResult
+    global inputTestRatio
     global testRatio2
+
+    if inputTestRatio != 1:
+        testRatio2 = inputTestRatio
+        testRatio = inputTestRatio
 
     autoPrediction = False
     allJunctionsPlotData = list()
     global allJunctionsDfResult
     allJunctionsDfResult = list()
+    print(junction, testRatio, time, timeFormat, algorithm)
     predict2()
     allJunctionsDfResult.append(dfResult)
     allJunctionsPlotData.append(plotData)
@@ -373,6 +413,7 @@ def predict2():
         
         global testRatio2
         testRatio = testRatio2
+        inputTestRatio = 1
 
         global gotInput
         if gotInput != []:
@@ -662,6 +703,7 @@ if __name__ == "__main__":
     global time
     global timeFormat
     global testRatio
+    global inputTestRatio
     global testRatio2
     global junction
     global algorithm
