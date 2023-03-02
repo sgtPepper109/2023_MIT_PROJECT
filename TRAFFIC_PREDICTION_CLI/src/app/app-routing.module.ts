@@ -6,7 +6,8 @@ import { Page2Component } from './page2/page2.component';
 import { SignupComponent } from './signup/signup.component';
 
 const routes: Routes = [
-	{ path:'', component:TrainingComponent },
+	{ path: 'trafficcli', redirectTo: 'training', pathMatch: 'full' },
+	{ path:'', redirectTo:'training', pathMatch:'full' },
 	{ path:'training', component:TrainingComponent },
 	{ path:'prediction', component:Page2Component },
 	{ path:'signup', component:SignupComponent },

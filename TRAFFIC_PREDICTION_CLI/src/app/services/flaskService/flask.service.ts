@@ -9,58 +9,56 @@ import { PropService } from '../propService/prop.service';
 export class FlaskService {
 	constructor(private http: HttpClient, private propService: PropService) { }
 
-	private apiServerUrl = environment.apiBaseUrl
-
 	public getTableData() {
-		return this.http.get(`${this.apiServerUrl}/process/readData`)
+		return this.http.get('process/readData')
 	}
 
 	public getPlot() {
-		return this.http.get(`${this.apiServerUrl}/process/getPlot`)
+		return this.http.get('process/getPlot')
 	}
 
 	public predict() {
-		return this.http.get(`${this.apiServerUrl}/process/getPredicted`)
+		return this.http.get('process/getPredicted')
 	}
 
 	public setData() {
-		return this.http.get(`${this.apiServerUrl}/process/setData`)
+		return this.http.get('process/setData')
 	}
 
 	public sendCsvData(csvData: object) {
-		return this.http.post(`${this.apiServerUrl}/process/setCsvData`, csvData)
+		return this.http.post('process/setCsvData', csvData)
 	}
 
 	public getResultTable() {
-		return this.http.get(`${this.apiServerUrl}/process/getResultTable`)
+		return this.http.get('process/getResultTable')
 	}
 
 	public getAccuracy() {
-		return this.http.get(`${this.apiServerUrl}/process/getAccuracy`)
+		return this.http.get('process/getAccuracy')
 	}
 
 	public getActualPredicted() {
-		return this.http.get(`${this.apiServerUrl}/process/getActualPredicted`)
+		return this.http.get('process/getActualPredicted')
 	}
 
 	public getActualPredictedForPlot() {
-		return this.http.get(`${this.apiServerUrl}/process/getActualPredictedForPlot`)
+		return this.http.get('process/getActualPredictedForPlot')
 	}
 
 	public sendInput(input: object) {
-		return this.http.post(`${this.apiServerUrl}/process/input`, input)
+		return this.http.post('process/input', input)
 	}
 
 	public getModelSummary() {
-		return this.http.get(`${this.apiServerUrl}/process/getModelSummary`)
+		return this.http.get('process/getModelSummary')
 	}
 	
 	public getAccuracies() {
-		return this.http.get(`${this.apiServerUrl}/process/getAccuracies`)
+		return this.http.get('process/getAccuracies')
 	}
 
 	public getAllJunctions() {
-		return this.http.get(`${this.apiServerUrl}/process/getAllJunctions`)
+		return this.http.get('process/getAllJunctions')
 	}
 
 }

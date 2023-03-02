@@ -3,15 +3,18 @@ package com.example.back;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 @SpringBootApplication
-public class BackApplication {
+public class BackApplication extends SpringBootServletInitializer {
 
 	@Value("${ng.url}")
 	private String ngUrl;
@@ -48,6 +51,17 @@ public class BackApplication {
 		urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
 		return new CorsFilter(urlBasedCorsConfigurationSource);
+	}
+	
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(BackApplication.class).properties(loadproperties());
+	}
+	
+	private Properties loadproperties() {
+		Properties props = new Properties();
+		props.put("spring.config.location", "classpath:trafficsvr_config/");
+		return props;
 	}
 
 }

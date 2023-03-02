@@ -12,42 +12,40 @@ import { JunctionRoadwayWidthMap } from '../junctionRoadwayWidth/junction-roadwa
 export class JunctionSpecificsService {
 	constructor(private http: HttpClient, private propService: PropService) { }
 
-	private apiServerUrl = environment.apiBaseUrl
-
 	public addRoadwayWidthMaxVehiclesMap(roadwayWidthMaxVehiclesMaps: Array<RoadwayWidthMaxVehiclesMap>) {
-		return this.http.post(`${this.apiServerUrl}/junctionSpecifics/roadwayWidthMaxVehicles/addRoadwayWidthMaxVehiclesMaps`, roadwayWidthMaxVehiclesMaps)
+		return this.http.post('junctionSpecifics/roadwayWidthMaxVehicles/addRoadwayWidthMaxVehiclesMaps', roadwayWidthMaxVehiclesMaps)
 	}
 
 	public addJunctionDistrictMap(junctionDistricts: Array<JunctionDistrictMap>) {
-		return this.http.post(`${this.apiServerUrl}/junctionSpecifics/junctionDistrict/addJunctionDistrictMap`, junctionDistricts)
+		return this.http.post('junctionSpecifics/junctionDistrict/addJunctionDistrictMap', junctionDistricts)
 	}
 
 	public addJunctionRoadwayWidthMap(junctionRoadwayWidthMap: Array<JunctionRoadwayWidthMap>) {
-		return this.http.post(`${this.apiServerUrl}/junctionSpecifics/junctionRoadwayWidth/addJunctionRoadwayWidthMap`, junctionRoadwayWidthMap)
+		return this.http.post('junctionSpecifics/junctionRoadwayWidth/addJunctionRoadwayWidthMap', junctionRoadwayWidthMap)
 	}
 	
 	public getAllDistricts() {
-		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/districts/getAllDistricts`)
+		return this.http.get('junctionSpecifics/districts/getAllDistricts')
 	}
 
 	public getAllRoadwayWidths() {
-		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/roadwayWidths/getAllRoadwayWidths`)
+		return this.http.get('junctionSpecifics/roadwayWidths/getAllRoadwayWidths')
 	}
 
 	public getAllJunctionDistrictMaps() {
-		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps`)
+		return this.http.get('junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps')
 	}
 
 	public getAllJunctionRoadwayWidthMaps() {
-		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps`)
+		return this.http.get('junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps')
 	}
 
 	public getAllRoadwayWidthMaxVehiclesMaps() {
-		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps`)
+		return this.http.get('junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps')
 	}
 
 	public cleanJuntionSpecificTables() {
-		return this.http.get(`${this.apiServerUrl}/junctionSpecifics/cleanJunctionSpecificTables`)
+		return this.http.get('junctionSpecifics/cleanJunctionSpecificTables')
 	}
 
 }

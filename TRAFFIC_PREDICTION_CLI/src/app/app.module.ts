@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core'
+import { APP_INITIALIZER, NgModule } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
 
 import { AppRoutingModule } from './app-routing.module'
@@ -32,6 +32,8 @@ import { MatSidenavModule }  from '@angular/material/sidenav'
 import { MatSelectModule } from '@angular/material/select'
 import { MatListModule } from '@angular/material/list'
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'
+import { httpInterceptorProviders } from './security/http-interceptors/interceptors'
+import { AppConfiguration } from './app-configuration.service'
 
 @NgModule({
 	declarations: [
@@ -69,7 +71,22 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle'
 		MatListModule,
 		MatSlideToggleModule
 	],
-	providers: [OperationService, PropService],
+	providers: [
+		OperationService,
+		PropService,
+		httpInterceptorProviders,
+		AppConfiguration, {
+			provide: APP_INITIALIZER,
+			useFactory: AppConfigurationFactory,
+			multi: true,
+			deps: [AppConfiguration]
+		}
+	],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+export function AppConfigurationFactory(
+	appConfig: AppConfiguration) {
+		return () => appConfig.ensureInit();
+	}
