@@ -1,19 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Operation } from '../services/operationService/operation'
-import { OperationService } from '../services/operationService/operation.service';
 import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
-import { FormBuilder, Validators } from '@angular/forms';
-import { throwMatDuplicatedDrawerError } from '@angular/material/sidenav';
+import { FormBuilder } from '@angular/forms';
 import { JunctionSpecificsService } from '../services/junctionSpecifics/junction-specifics.service';
-import { JunctionDistrictMap } from '../services/junctionDistrictMap/junction-district-map';
-import { JunctionRoadwayWidthMap } from '../services/junctionRoadwayWidth/junction-roadway-width-map';
-import { RoadwayWidthMaxVehiclesMap } from '../services/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
 
 @Component({
 	selector: 'app-training',
@@ -24,7 +18,6 @@ import { RoadwayWidthMaxVehiclesMap } from '../services/roadwayWidth-maxVehicles
 export class TrainingComponent implements OnInit {
 	constructor(
 		private router: Router,
-		private operationService: OperationService,
 		private propService: PropService,
 		private _snackBar: MatSnackBar,
 		private ngxCsvParser: NgxCsvParser,
@@ -33,12 +26,16 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
+	modelSummaryReady: boolean = false
+	futurePredictionsPlotData: any
+	futurePredictionsTableData: any
+	csvDataStored: boolean = false;
+	junctions2: string[] = []
 	predictionsOption: string = 'Line Plot'
 	junctionDistrictMaps: Map<string, string> = new Map()
 	junctionRoadwayWidthMaps: Map<string, string> = new Map()
 	roadwayWidthMaxVehiclesMaps: Map<number, number> = new Map()
 	classForNextButtonResult: string = ""
-	tableResult: any
 	classForPreviousButtonResult: string = ""
 	allJunctionsPredictedData: any
 	allJunctionsPlotData: any
@@ -48,7 +45,6 @@ export class TrainingComponent implements OnInit {
 	comparisonOption: string = 'Line Plot'
 	accuracyOption: string = 'Line Plot'
 	predictionReady: boolean = false
-	public operations: Operation[] = []
 	isLinear: boolean = false
 	gotAccuracies: boolean = false
 
@@ -60,8 +56,6 @@ export class TrainingComponent implements OnInit {
 	maxVehicles: number = 0
 	accuracies: any
 	csvRecords: object = {}
-	header: boolean = true
-	fileName: string = ""
 	datasetPath: string = ""
 	recievedPlotData: any
 	vehicles: Array<any> = []  // Vehicles array to display on y axis of chart
@@ -70,12 +64,12 @@ export class TrainingComponent implements OnInit {
 	inputTime: string = ""
 	inputAlgorithm: string = "Random Forest Regression"
 	time: string = "Days"
-	modelSummary: Array<string> = [] 
+	modelSummary: any
 	keys: any
 	comparisonDataRepresentationType: string = "Table"
 	predictedChartIndex: number = 0  // holds paginator index for comparison chart
 	toggleComparisonTable: boolean = true
-    predictedTableReady: boolean = false  // if true then renders the predicted values table
+	comparisonTableReady: boolean = false
 	toggleComparisonChartHidden: boolean = true
 	comparisonChartHidden: boolean = true // if true then renders the comparison chart
 	numberOfPlotDataEntries: number = 0  // holds number of predictions for showing in paginator or comparison chart
@@ -92,7 +86,7 @@ export class TrainingComponent implements OnInit {
 	testRatio: number = 0
 	trainRatio: number = 0
 	dataSourcePredicted: any  // holds data for rendering row values in predicted values table
-	predictionPlotData: object = {}  // holds data for comparison chart
+	comparisonChartData: object = {}  // holds data for comparison chart
 	predictedChart: any  // ngModel variable of canvas 'predictedChart' (comparison between actual and predicted values)
 
 	index: number = 0  // holds paginator index
@@ -129,9 +123,11 @@ export class TrainingComponent implements OnInit {
 	toggleFuturePredictionsPlotHidden: boolean = true
 	futurePredictionsChartHidden: boolean = true // to show the prediction image when training ends 
 	futurePredictionsReadyHidden: boolean = true
+	futurePredictionsReady: boolean = false
 	actual: Array<number> = []  // Actual values array for plotting on chart for comparison
 	predicted: Array<number> = []  // Predicted values array for plotting on chart for comparison
-	tablePredicted: object = {}  // holds all predicted values table data
+	difference: Array<number> = []
+	comparisonTableData: object = {}  // holds all predicted values table data
 	labels = []  // Index (prediction number) array for plotting
 	maxLimitArray: number[] = []
 	junctions: string[] = []
@@ -155,10 +151,12 @@ export class TrainingComponent implements OnInit {
 	junctionSpecificDetailsProvided: boolean = false
 
 	ngOnInit() { 
+
 		/* TODO document why this method 'ngOnInit' is empty */
 		this.flaskService.getAllJunctions().subscribe({
 			next: (response) => {
 				this.junctions = Object.values(response)
+				this.junctions2 = this.junctions
 				this.propService.junctions = this.junctions
 			},
 			error: (error: HttpErrorResponse) => {
@@ -196,58 +194,27 @@ export class TrainingComponent implements OnInit {
 			this.toggleComparisonTable = false
 		}
 	}
-	changeJunctionToBeRendered() {
-		this.autoTrained  
-			? this.currentJunctionsPredictedData = this.allJunctionsPredictedData[this.junctionChoice]
-			: this.currentJunctionsPredictedData = this.allJunctionsPredictedData
-		
 
-		if (this.autoTrained) {
-			if (this.plotDataReady) {
-				this.currentJunctionPlotData = this.allJunctionsPlotData[this.junctionChoice]
-			}
+	changeDataVisualizationType() {
+		if (this.dataVisualizationType == "Table") {
+			this.vehiclesVsDateTimeChartHidden = true
+			this.toggleDataVisualizationChartHidden = true
+			this.toggleDataVisualizationTable = true
 		} else {
-			this.currentJunctionPlotData = this.allJunctionsPlotData
-		}
-
-		
-		// to show result table
-		this.resultTableReady = true
-		this.futurePredictionsReadyHidden = false
-
-
-		// display only these columns
-		this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
-
-		// get all row values from the response recieved to show in table
-		this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
-
-		// get total number of records from table data
-		this.numberOfRecordsResult = this.currentJunctionsPredictedData.length
-
-		
-		if (this.plotDataReady) {
-			this.setVehiclesAndDateTime(
-				this.currentJunctionPlotData[0]['vehicles'], 
-				this.currentJunctionPlotData[0]['datetime']
-			)
-			this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted)
+			this.toggleDataVisualizationChartHidden = false
+			this.toggleDataVisualizationTable = false
+			this.changeJunctionToBePlotted()
 		}
 	}
+
 	setVehiclesAndDateTime(param1: any, param2: any) {
 		this.vehiclesToBePlotted = param1
 		this.dateTimeToBePlotted = param2
 	}
-	plotFuturePredictions(x: any, y: any) {
+	plotFuturePredictions(z: any, x: any, y: any) {
 		// prediction is done
 		this.futurePredictionsChartHidden = false
 
-		// for (const element of y) {
-		// 	this.maxLimitArray.push(this.propService.maxVehicles)
-		// }
-		// for (const element of y) {
-		// 	this.maxInPlotArray.push(Math.max(...y))
-		// }
 
 		// plot chart (canvas) to show results
 		// destroy chart if already in use
@@ -266,13 +233,13 @@ export class TrainingComponent implements OnInit {
 						borderColor: '#900',
 						fill: false
 					},
-					// {
-					// 	label: 'Max Vehicles at Junction ' + this.inputJunction + ' before prediction',
-					// 	data: this.maxLimitArray,
-					// 	borderWidth: 1,
-					// 	borderColor: '#0000FF',
-					// 	fill: false
-					// },
+					{
+						label: 'Max Vehicles at Junction ',
+						data: z,
+						borderWidth: 1,
+						borderColor: '#0000FF',
+						fill: false
+					},
 					// {
 					// 	label: 'Max Value in prediction',
 					// 	data: this.maxInPlotArray,
@@ -303,17 +270,9 @@ export class TrainingComponent implements OnInit {
 		})
 
 
-
-
-
-
-
-
-
 	}
 
 	fileChangeListener($event: any): void {
-		console.log('hello')
 		const files = $event.srcElement.files;
 		let fileName = files[0]['name']
 		let header: boolean = true
@@ -325,6 +284,7 @@ export class TrainingComponent implements OnInit {
 		this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
 				next: (result): void => {
+					
 					this.flaskService.sendCsvData(result).subscribe()
 					for (const element of Object.values(result)) {
 						let record: Object = {
@@ -369,32 +329,13 @@ export class TrainingComponent implements OnInit {
 		this.csvRecords = {}
 	}
 
-
-
-
-	changeDataVisualizationType() {
-		if (this.dataVisualizationType == "Table") {
-			this.vehiclesVsDateTimeChartHidden = true
-			this.toggleDataVisualizationChartHidden = true
-			this.toggleDataVisualizationTable = true
-		} else {
-			this.toggleDataVisualizationChartHidden = false
-			this.toggleDataVisualizationTable = false
-			this.changeJunctionToBePlotted()
-		}
-	}
-
-
 	changeJunctionToBePlotted() {
 		this.show(this.junctionChoice)
 	}
 
 	show(param1: string) {
 		this.vehiclesVsDateTimeChartHidden = false; 
-		// this.datetime = Object.values(this.recievedPlotData)[param1]['datetime']  // 0 index means junction 1
-		// this.vehicles = Object.values(this.recievedPlotData)[param1]['vehicles']
 
-		console.log(this.recievedPlotData)
 		this.datetime = this.recievedPlotData[param1][0]['datetime']
 		this.vehicles = this.recievedPlotData[param1][0]['vehicles']
 
@@ -408,7 +349,7 @@ export class TrainingComponent implements OnInit {
 
 		// then show the chart
 		this.maxLimitArray = []
-		for (let i = 0; i < this.datetime.length; i++) {
+		for (const element of this.datetime) {
 			this.maxLimitArray.push(this.maxVehicles)
 		}
 		this.LineChart(this.datetime, this.vehicles)
@@ -427,11 +368,8 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-
-
 	// on clicking next button in paginator of result table
 	nextResult() {
-
 		// if next button in paginator is active (not disabled)
 		if (this.classForNextButtonResult !== "page-item disabled") {
 
@@ -440,10 +378,10 @@ export class TrainingComponent implements OnInit {
 
 			// set next 10 row values from result table data (this.tableResult) to the dataSource variable
 			// so that it can be shown in table
-			this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
+			this.dataSourceResult = this.futurePredictionsTableData.slice(this.indexResult, this.indexResult + 10)
 
 			// if index is pointing to last 10 records from the csv data then disable next button in paginator
-			if (this.indexResult === Object.values(this.tableResult).length - 10) {
+			if (this.indexResult === Object.values(this.futurePredictionsTableData).length - 10) {
 				this.classForNextButtonResult = "page-item disabled"
 			}
 		}
@@ -467,7 +405,7 @@ export class TrainingComponent implements OnInit {
 
 			// set next 10 row values from result table data (this.tableResult) to the dataSource variable 
 			// so that it can be shown in table
-			this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
+			this.dataSourceResult = this.futurePredictionsTableData.slice(this.indexResult, this.indexResult + 10)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -527,10 +465,6 @@ export class TrainingComponent implements OnInit {
 	navigateToAdminInputs() {
 		this.router.navigate(['/junctionProperties'])
 	}
-
-
-
-
 
 	// on clicking next button in paginator
 	next() {
@@ -597,12 +531,12 @@ export class TrainingComponent implements OnInit {
 			// go ahead 5 indices (meaning show next 5 table records accessing those indices)
 			this.predictedTableIndex = this.predictedTableIndex + 5
 
-			// set next 5 row values from comparison table data (this.tablePredicted) to the dataSource variable
+			// set next 5 row values from comparison table data (this.comparisonTableData) to the dataSource variable
 			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.tablePredicted).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+			this.dataSourcePredicted = Object.values(this.comparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
 
 			// if index is pointing to last 5 records from the csv data then disable next button in paginator
-			if (this.predictedTableIndex === Object.values(this.tablePredicted).length - 5) {
+			if (this.predictedTableIndex === Object.values(this.comparisonTableData).length - 5) {
 				this.classForNextButtonPredicted = "page-item disabled"
 			}
 		}
@@ -625,9 +559,9 @@ export class TrainingComponent implements OnInit {
 			// go back 5 indices (meaning show previous 5 table records accessing those indices)
 			this.predictedTableIndex = this.predictedTableIndex - 5
 
-			// set next 5 row values from comparison table data (this.tablePredicted) to the dataSource variable 
+			// set next 5 row values from comparison table data (this.comparisonTableData) to the dataSource variable 
 			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.tablePredicted).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+			this.dataSourcePredicted = Object.values(this.comparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -655,16 +589,17 @@ export class TrainingComponent implements OnInit {
 			// go ahead 10 indices (meaning show next 5 predictions accessing those indices)
 			this.predictedChartIndex = this.predictedChartIndex + 10
 
-			// set plot variables to get actual, predicted and labels of next 10 predictions from predictionPlotData
-			this.actual = Object.values(this.predictionPlotData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.predicted = Object.values(this.predictionPlotData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.labels = Object.values(this.predictionPlotData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			// set plot variables to get actual, predicted and labels of next 10 predictions from comparisonChartData
+			this.actual = Object.values(this.comparisonChartData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.predicted = Object.values(this.comparisonChartData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.difference = Object.values(this.comparisonChartData)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.labels = Object.values(this.comparisonChartData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 
 			// plot comparison chart of these indices 
-			this.compareChart(this.labels, this.actual, this.predicted)
+			this.compareChart(this.labels, this.actual, this.predicted, this.difference)
 
 			// if index is pointing to last 5 records from the plot data then disable next button in paginator
-			if (this.predictedChartIndex === Object.values(this.predictionPlotData).length - 10) {
+			if (this.predictedChartIndex === Object.values(this.comparisonChartData).length - 10) {
 				this.classForNextButtonPlot = "page-item disabled"
 			}
 		}
@@ -686,13 +621,14 @@ export class TrainingComponent implements OnInit {
 			this.predictedChartIndex = this.predictedChartIndex - 10
 
 			// set plot variables to get actual, predicted and labels of next 10 predictions
-			this.actual = Object.values(this.predictionPlotData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.predicted = Object.values(this.predictionPlotData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.labels = Object.values(this.predictionPlotData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.actual = Object.values(this.comparisonChartData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.predicted = Object.values(this.comparisonChartData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.difference = Object.values(this.comparisonChartData)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.labels = Object.values(this.comparisonChartData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 
 
 			// plot comparison chart
-			this.compareChart(this.labels, this.actual, this.predicted)
+			this.compareChart(this.labels, this.actual, this.predicted, this.difference)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -712,16 +648,15 @@ export class TrainingComponent implements OnInit {
 
 
 	// function to plot comparison line chart
-	compareChart(labels: number[], actual: number[], predicted: number[]) {
-
+	compareChart(labels: number[], actual: number[], predicted: number[], difference: number[]) {
 		// if comparison chart (canvas) is in use then destroy it
 		if (this.predictedChart != null) { this.predictedChart.destroy() }
 		this.predictedChart = new Chart("predictedChart", {
-			type: 'line',
 			data: {
 				labels: labels,
 				datasets: [
 					{
+						type: 'line',
 						label: "actual",
 						backgroundColor: "white",
 						borderWidth: 1,
@@ -730,12 +665,18 @@ export class TrainingComponent implements OnInit {
 						data: actual
 					},
 					{
+						type: 'line',
 						label: "predicted",
 						backgroundColor: "white",
 						borderWidth: 1,
 						borderColor: "#090",
 						fill: false,
 						data: predicted
+					},
+					{
+						type: 'bar',
+						label: "difference",
+						data: difference
 					}
 				]
 			},
@@ -752,7 +693,7 @@ export class TrainingComponent implements OnInit {
 					x: {
 						title: {
 							display: true,
-							text: 'values'
+							text: 'DateTime'
 						}
 					}
 				}
@@ -774,109 +715,12 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-
-
-
-
-
-
-
-
-	// manageInfo() {
-
-	// 	if (this.inputTestRatio !== "" && this.inputTrainRatio !== "") {
-	// 		const trainRatio = parseFloat(this.inputTrainRatio)
-	// 		const testRatio = parseFloat(this.inputTestRatio)
-
-	// 		if (trainRatio + testRatio === 1.0 && testRatio < 1) {
-	// 			let operation: Operation = {
-	// 				dataset: this.dataset,
-	// 				trainRatio: trainRatio,
-	// 				testRatio: testRatio,
-	// 				userId: 1234567890
-	// 			}
-
-
-
-	// 			this.operationService.addOperation(operation).subscribe({
-	// 				next: (response: Operation) => {
-
-	// 					this.flaskService.setData().subscribe({
-	// 						next: (response) => {
-
-	// 							this.flaskService.getTableData().subscribe({
-	// 								next: (response) => {
-
-	// 									// this is a service file shared with page2 component
-	// 									this.propService.data = response
-	// 									this.propService.trainRatio = trainRatio
-	// 									this.propService.dataset = this.dataset
-	// 									this.propService.testRatio = testRatio
-			
-	// 									this.trainingHidden = false
-	// 									this.csvDataParsed= true
-
-	// 									this.testRatio = this.propService.testRatio
-
-	// 									// On Init, render table representing csv data from csv file read as input in training page
-	// 									// The csv data is stored in 'this.propservice.data' variable
-
-	// 									this.displayedColumns = ['DateTime', 'Junction', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
-	// 									this.dataSource = Object.values(this.propService.data).slice(this.index, this.index + 5)
-	// 									this.numberOfRecords = Object.values(this.propService.data).length
-
-	// 									// get all plot data i.e. vehicles vs datetime information of all junctions
-	// 									this.flaskService.getPlot().subscribe({
-	// 										next: (response) => {
-	// 												this.recievedPlotData = response
-	// 												this.junctionChoice = this.junctions[0]
-	// 												this.changeJunctionToBePlotted()
-	// 											},
-	// 										error: (error: HttpErrorResponse) => { console.log(error.message) }
-	// 									})
-
-	// 									// if index of paginator is not 0 then enable previous button
-	// 									// because if zero then no use of previous button
-	// 									if (this.index !== 0) { this.classForPreviousButton = "page-item" }
-
-	// 								},
-	// 								error: (error: HttpErrorResponse) => {
-	// 									console.log(error)
-	// 									alert(error.message)
-	// 								}
-	// 							})
-	// 						},
-	// 						error: (error: HttpErrorResponse) => {
-	// 							console.log(error)
-	// 							alert(error.message)
-	// 						}
-	// 					})
-	// 				},
-	// 				error: (error: HttpErrorResponse) => {
-	// 					console.log(error)
-	// 					alert(error.message)
-	// 				}
-	// 			})
-
-	// 		} else {
-	// 			this.errorstring = "Note: Invalid input ratios (Must be in range of 0 to 1"
-	// 			this.toggleErrorString = true
-	// 			this._snackBar.open("Note: Invalid input ratios (Must be in range of 0 to 1", '\u2716')
-	// 		}
-	// 	} else {
-	// 		this.errorstring = "Note: All fields are required"
-	// 		this.toggleErrorString = true
-	// 		this._snackBar.open("Note: All fields are required", '\u2716')
-	// 	}
-	// }
-
-
-
 	navigateToPredictions() {
 		this.router.navigate(['/prediction'])
 	}
 
 	barChart(param1: Array<string>, param2: Array<number>) {
+		if (this.accuracyBarChart != null) { this.accuracyBarChart.destroy() }
 		this.accuracyBarChart = new Chart("accuracyBarChart", {
 			type: 'bar',
 			data: {
@@ -911,7 +755,7 @@ export class TrainingComponent implements OnInit {
 
 
 
-	getAllJunctionSpecificDataFromDB() {
+	async getAllJunctionSpecificDataFromDBandRenderPredictions() {
 		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
 			next: (response) => {
 				for (const element of Object.values(response)) {
@@ -934,14 +778,11 @@ export class TrainingComponent implements OnInit {
 											this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
 										}
 
-										this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
-										this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
+										this.currentDistrict = this.junctionDistrictMaps.get(this.inputJunction)!
+										this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.inputJunction)!)
 										this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
 
-										console.log(this.roadwayWidthMaxVehiclesMaps)
-										console.log(this.junctionRoadwayWidthMaps)
-										console.log(this.junctionDistrictMaps);
-										
+										this.renderPredictions(this.futurePredictionsPlotData, this.futurePredictionsTableData)
 
 										if (response != '') {
 											this.junctionSpecificDetailsProvided = true
@@ -970,457 +811,207 @@ export class TrainingComponent implements OnInit {
 
 
 
-	start() {
-		if (this.csvDataParsed) {
-			this.toggleErrorString = false
-			this.startProcess = true
+
+
+	startTraining() {
+		this.modelSummary = []
+		this.csvDataStored = true
+		if (this.csvDataStored) {
+			this.startedTraining = true
 			this.dataSource = this.csvData.slice(this.index, this.index + 5)
-			this.toggleDataVisualizationTable = true
-			this.flaskService.getPlot().subscribe({
-				next: (response) => {
+			this.numberOfRecords = this.csvData.length
+			this.testRatio = parseFloat(this.inputTestRatio)
+			this.startProcess = true
+			this.toggleErrorString = false
+			if (this.inputJunction != '' && this.inputTestRatio != '' && this.inputAlgorithm != '') {
+				let trainingSpecificData: object = {
+					junction: this.inputJunction,
+					testRatio: parseFloat(this.inputTestRatio),
+					algorithm: this.inputAlgorithm
+				}
+
+				// existing data
+				this.flaskService.getPlot().subscribe({
+					next: (response) => {
 						this.recievedPlotData = response
-						this.junctionChoice = this.junctions[0]
+						this.junctionChoice = this.inputJunction
+						this.toggleDataVisualizationTable = true
 						this.changeJunctionToBePlotted()
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+
+				this.flaskService.sendTrainingSpecifics(trainingSpecificData).subscribe({
+					next: (response) => {
+
+						this.flaskService.train().subscribe({
+							next: (response) => {
+								this.predictionReady = true
+								this.startedTraining = false
+
+								// switch to display comparison table
+								this.comparisonTableReady = true
+								// get data in a variable
+								this.comparisonTableData = response
+								// get the row data from table data recieved as response
+								this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+								// get total number of records
+								this.numberOfRecordsPredicted = Object.values(response).length
+
+								this.flaskService.getModelSummary().subscribe({
+									next: (response: any) => {
+										this.modelSummary = Object.values(response)
+										this.modelSummaryReady = true
+									},
+									error: (error: HttpErrorResponse) => {
+										console.error(error)
+										alert(error.message)
+									}
+								})
+
+								this.flaskService.getActualPredictedForPlot().subscribe({
+									next: (response) => {
+										this.comparisonChartHidden = false
+										console.log('resp', response)
+										// set it to the variable 
+										this.comparisonChartData = response
+
+										// differentiate plot data into actual, predicted and indices
+										this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+										this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+										this.difference = Object.values(response)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+										console.log(this.difference)
+										this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+
+										// get total number of records
+										this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
+
+										// destroy comparison chart if already in use
+										if (this.predictedChart != null) { this.predictedChart.destroy() }
+
+										// then plot comparison chart
+										this.compareChart(this.labels, this.actual, this.predicted, this.difference)
+
+									},
+									error: (error: HttpErrorResponse) => {
+										console.log(error)
+										alert(error.message)
+									}
+								})
 
 
-
-
-						if (this.inputTestRatio != '' && this.inputJunction != '' && this.time != '' && this.inputTime != '' && this.inputAlgorithm != '') {
-							console.log('here')
-							this.testRatio = parseFloat(this.inputTestRatio)
-							this.trainRatio = parseFloat(this.inputTrainRatio)
-							let trainingSpecifics: Object = {
-								testRatio: this.inputTestRatio,
-								junction: this.inputJunction,
-								time: this.inputTime,
-								timeFormat: this.time,
-								algorithm: this.inputAlgorithm
-							}
-							this.startedTraining = true;
-							this.propService.dataset = this.dataset
-							this.propService.inputJunction = this.inputJunction
-							this.propService.inputTime = this.inputTime
-							this.propService.time = this.time
-							this.propService.testRatio = parseFloat(this.inputTestRatio)
-							this.propService.trainRatio = 1 - parseFloat(this.inputTestRatio)
-
-							this.flaskService.sendTrainingSpecifics(trainingSpecifics).subscribe({
-								next: (response) => {
-									console.log(response)
-									this.flaskService.predict().subscribe({
-										next: (response) => {
-											this.predictionReady = true
-
-											// training has completed, disable spinner and show results
-											this.startedTraining = false;
-
-											this.autoTrained = false
-											this.propService.autoTrained = false
-
-											// set datetime and vehicles variables to values recieved from backend as response
-											// for table
-											this.propService.predictionPlotData = Object.values(response)
-											
-
-											this.flaskService.getModelSummary().subscribe({
-												next: (response) => {
-													this.futurePredictionsReadyHidden = false
-													this.modelSummary = Object.values(response)
-
-
-
-
-													// get comparison data (actual vs predicted) from backend
-													this.flaskService.getActualPredicted().subscribe({
-														next: (response) => {
-
-															// switch to display comparison table
-															this.predictedTableReady = true
-
-															// get data in a variable
-															this.tablePredicted = response
-
-															// get the row data from table data recieved as response
-															this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-
-															// get total number of records
-															this.numberOfRecordsPredicted = Object.values(response).length
-														},
-														error: (error: HttpErrorResponse) => {
-															console.log(error)
-															alert(error.message)
-														}
-													})
-
-													// get comparison data (actual vs predicted for plotting) from backend
-													this.flaskService.getActualPredictedForPlot().subscribe({
-														next: (response) => {
-
-															this.comparisonChartHidden = false
-															// set it to the variable 
-															this.predictionPlotData = response
-
-															// differentiate plot data into actual, predicted and indices
-															this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-															this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-															this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-															// get total number of records
-															this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
-
-															// destroy comparison chart if already in use
-															if (this.predictedChart != null) { this.predictedChart.destroy() }
-
-															// then plot comparison chart
-															this.predictedChart = new Chart("predictedChart", {
-																type: 'line',
-																data: {
-																	labels: this.labels,
-																	datasets: [
-																		{
-																			label: "actual",
-																			backgroundColor: "white",
-																			borderWidth: 1,
-																			borderColor: "#900",
-																			fill: false,
-																			data: this.actual
-																		},
-																		{
-																			label: "predicted",
-																			backgroundColor: "white",
-																			borderWidth: 1,
-																			borderColor: "#090",
-																			fill: false,
-																			data: this.predicted
-																		}
-																	]
-																},
-																options: {
-																	maintainAspectRatio: true,
-																	scales: {
-																		y: {
-																			beginAtZero: true,
-																			title: {
-																				display: true,
-																				text: 'Vehicles'
-																			}
-																		},
-																		x: {
-																			title: {
-																				display: true,
-																				text: 'DateTime'
-																			}
-																		}
-																	}
-																}
-															});
-
-
-															this.flaskService.getAllJunctions().subscribe({
-																next: (response) => {
-																	this.propService.junctions = Object.values(response)
-																	this.junctions = this.propService.junctions
-																	this.autoTrained = this.propService.autoTrained
-
-																	this.flaskService.getResultTable().subscribe({
-																		next: (response) => {
-																			this.duration = parseInt(this.propService.inputTime)
-																			this.junctionChoice = this.propService.inputJunction
-																			this.allJunctionsPredictedData = response
-																			this.allJunctionsPredictedData = this.allJunctionsPredictedData[0]
-																			this.allJunctionsPlotData = this.propService.predictionPlotData[0]
-																			this.plotDataReady = true
-																			this.junctions = []
-																			this.junctions.push(this.junctionChoice)
-																			this.changeJunctionToBeRendered()
-																			this.getAllJunctionSpecificDataFromDB()
-																		},
-																		error: (error: HttpErrorResponse) => {
-																			console.log(error)
-																			alert(error)
-																		}
-																	})
-
-																},
-																error: (error: HttpErrorResponse) => {
-																	console.log(error)
-																	alert(error.message)
-																}
-															})
-
-
-															
-														},
-														error: (error: HttpErrorResponse) => {
-															console.log(error)
-															alert(error.message)
-														}
-													})
-
-
-
-
-
-													this.flaskService.getAccuracies().subscribe({
-														next: (response) => {
-															this.gotAccuracies = true
-															this.accuracies = Object.values(response)
-															this.accuracyBarChartHidden = false
-															
-															let algorithms: Array<string> = []
-															let accuracyScores: Array<number> = []
-															for (let i of this.accuracies) {
-																algorithms.push(i.model)
-																accuracyScores.push(i.accuracyscore)
-															}
-															this.barChart(algorithms, accuracyScores)
-														},
-														error: (error: HttpErrorResponse) => {
-															console.log(error)
-															alert(error.message)
-														}
-													})
-
-
-
-												},
-												error: (error: HttpErrorResponse) => {
-													console.log(error)
-													alert(error.message)
-												}
-											})
-
-										},
-										error: (error: HttpErrorResponse) => {
-											console.log(error)
-											alert(error.message)
+								this.flaskService.getAccuracies().subscribe({
+									next: (response) => {
+										this.gotAccuracies = true
+										this.accuracies = Object.values(response)
+										this.accuracyBarChartHidden = false
+										
+										let algorithms: Array<string> = []
+										let accuracyScores: Array<number> = []
+										for (let i of this.accuracies) {
+											algorithms.push(i.algorithm)
+											accuracyScores.push(i.accuracyScore)
 										}
-									})
+										this.barChart(algorithms, accuracyScores)
+									},
+									error: (error: HttpErrorResponse) => {
+										console.log(error)
+										alert(error.message)
+									}
+								})
 
+
+							},
+							error: (error: HttpErrorResponse) => {
+								console.log(error)
+								alert(error.message)
+							}
+						})
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+
+			} else {
+				this._snackBar.open('Note: All fields are required', '\u2716')
+			}
+		}
+	}
+
+
+	renderPredictions(futurePredictionsPlotData: any, futurePredictionsTableData: any) {
+		// display only these columns
+		this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+
+		// get all row values from the response recieved to show in table
+		this.dataSourceResult = futurePredictionsTableData.slice(this.indexResult, this.indexResult + 10)
+
+		// get total number of records from table data
+		this.numberOfRecordsResult = futurePredictionsTableData.length
+
+		if (this.plotDataReady) {
+			if (this.plotDataReady) {
+				this.setVehiclesAndDateTime(
+					futurePredictionsPlotData[0]['vehicles'], 
+					futurePredictionsPlotData[0]['datetime']
+				)
+				let maxVehiclesCapacityArray: Array<number> = []
+				for (const element of this.dateTimeToBePlotted) {
+					maxVehiclesCapacityArray.push(this.currentMaxVehicles)
+				}
+				this.plotFuturePredictions(maxVehiclesCapacityArray, this.dateTimeToBePlotted, this.vehiclesToBePlotted)
+			}
+		}
+	}
+
+
+	predict() {
+		if (this.inputTime != '' && this.time != '') {
+			let timeToBePredicted: object = {
+				timePeriod: this.inputTime,
+				timeFormat: this.time
+			}
+
+			this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
+				next: (response) => {
+					this.flaskService.predictAgainstTime().subscribe({
+						next: (response) => {
+							this.futurePredictionsPlotData = response
+							this.plotDataReady = true
+							this.flaskService.getFuturePredictionsTable().subscribe({
+								next: (response) => {
+									console.log('futuretable', response)
+									this.futurePredictionsTableData = Object.values(response)
+									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
+									this.futurePredictionsReady = true
 								},
 								error: (error: HttpErrorResponse) => {
 									console.log(error)
 									alert(error.message)
 								}
 							})
-						} else {
-							this.errorstring = "Please fill all the fields"
-							this.toggleErrorString = true
+						},
+						error: (error: HttpErrorResponse) => {
+							console.log('error', error)
+							alert(error.message)
 						}
-
-
-
-					},
-				error: (error: HttpErrorResponse) => { console.log(error.message) }
+					})
+				},
+				error: (error: HttpErrorResponse) => {
+					console.log(error)
+					alert(error.message)
+				}
 			})
-			if (this.index !== 0) { this.classForPreviousButton = "page-item" }
 		} else {
-			this.errorstring = 'Please provide a dataset'
-			this.toggleErrorString = true
+			this._snackBar.open('Note: provide time')
 		}
-
-
-
-
 	}
-	
-
-	// start() {
 
 
-	// 	// check whether the fields have no value
-	// 	if (this.inputJunction !== "" && this.inputTime !== "") {
-
-	// 		this.propService.inputJunction = this.inputJunction
-	// 		this.propService.inputTime = this.inputTime
-	// 		this.propService.time = this.time
-	// 		// set the object to be sent to back-end
-	// 		this.propService.obj = { 
-	// 			junction: this.inputJunction, 
-	// 			time: this.inputTime,
-	// 			timeFormat: this.time,
-	// 			algorithm: this.inputAlgorithm
-	// 		}
-
-	// 		// no errors in validation
-	// 		// hence don't show error alert
-	// 		this.toggleErrorString = false
-
-	// 		// set startedTraining to true to show spinner till training and processing has completed
-	// 		this.startedTraining = true;
-
-
-
-	// 		this.flaskService.sendInput(this.propService.obj).subscribe({
-	// 			next: (response) => {
-
-	// 				// send input junction and months to the backend via function call in flask service
-	// 				this.flaskService.predict().subscribe({
-	// 					next: (response) => {
-
-	// 						// training has completed, disable spinner and show results
-	// 						this.startedTraining = false;
-
-	// 						this.autoTrained = false
-	// 						this.propService.autoTrained = false
-
-	// 						// set datetime and vehicles variables to values recieved from backend as response
-	// 						// for table
-	// 						this.propService.predictionPlotData = Object.values(response)
-							
-
-	// 						this.flaskService.getModelSummary().subscribe({
-	// 							next: (response) => {
-	// 								this.futurePredictionsReadyHidden = false
-	// 								this.modelSummary = Object.values(response)
-
-
-
-
-	// 								// get comparison data (actual vs predicted) from backend
-	// 								this.flaskService.getActualPredicted().subscribe({
-	// 									next: (response) => {
-
-	// 										// switch to display comparison table
-	// 										this.predictedTableReady = true
-
-	// 										// get data in a variable
-	// 										this.tablePredicted = response
-
-	// 										// get the row data from table data recieved as response
-	// 										this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-
-	// 										// get total number of records
-	// 										this.numberOfRecordsPredicted = Object.values(response).length
-	// 									},
-	// 									error: (error: HttpErrorResponse) => {
-	// 										console.log(error)
-	// 										alert(error.message)
-	// 									}
-	// 								})
-
-	// 								// get comparison data (actual vs predicted for plotting) from backend
-	// 								this.flaskService.getActualPredictedForPlot().subscribe({
-	// 									next: (response) => {
-
-	// 										this.comparisonChartHidden = false
-	// 										// set it to the variable 
-	// 										this.predictionPlotData = response
-
-	// 										// differentiate plot data into actual, predicted and indices
-	// 										this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-	// 										this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-	// 										this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-	// 										// get total number of records
-	// 										this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
-
-	// 										// destroy comparison chart if already in use
-	// 										if (this.predictedChart != null) { this.predictedChart.destroy() }
-
-	// 										// then plot comparison chart
-	// 										this.predictedChart = new Chart("predictedChart", {
-	// 											type: 'line',
-	// 											data: {
-	// 												labels: this.labels,
-	// 												datasets: [
-	// 													{
-	// 														label: "actual",
-	// 														backgroundColor: "white",
-	// 														borderWidth: 1,
-	// 														borderColor: "#900",
-	// 														fill: false,
-	// 														data: this.actual
-	// 													},
-	// 													{
-	// 														label: "predicted",
-	// 														backgroundColor: "white",
-	// 														borderWidth: 1,
-	// 														borderColor: "#090",
-	// 														fill: false,
-	// 														data: this.predicted
-	// 													}
-	// 												]
-	// 											},
-	// 											options: {
-	// 												maintainAspectRatio: true,
-	// 												scales: {
-	// 													y: {
-	// 														beginAtZero: true,
-	// 														title: {
-	// 															display: true,
-	// 															text: 'Vehicles'
-	// 														}
-	// 													},
-	// 													x: {
-	// 														title: {
-	// 															display: true,
-	// 															text: 'DateTime'
-	// 														}
-	// 													}
-	// 												}
-	// 											}
-	// 										});
-	// 									},
-	// 									error: (error: HttpErrorResponse) => {
-	// 										console.log(error)
-	// 										alert(error.message)
-	// 									}
-	// 								})
-
-
-
-
-
-	// 								this.flaskService.getAccuracies().subscribe({
-	// 									next: (response) => {
-	// 										this.gotAccuracies = true
-	// 										this.accuracies = Object.values(response)
-	// 										this.accuracyBarChartHidden = false
-											
-	// 										let algorithms: Array<string> = []
-	// 										let accuracyScores: Array<number> = []
-	// 										for (let i of this.accuracies) {
-	// 											algorithms.push(i.model)
-	// 											accuracyScores.push(i.accuracyscore)
-	// 										}
-	// 										this.barChart(algorithms, accuracyScores)
-	// 									},
-	// 									error: (error: HttpErrorResponse) => {
-	// 										console.log(error)
-	// 										alert(error.message)
-	// 									}
-	// 								})
-
-
-
-	// 							},
-	// 							error: (error: HttpErrorResponse) => {
-	// 								console.log(error)
-	// 								alert(error.message)
-	// 							}
-	// 						})
-
-	// 					},
-	// 					error: (error: HttpErrorResponse) => {
-	// 						console.log(error)
-	// 						alert(error.message)
-	// 					}
-	// 				})
-	// 			},
-	// 			error: (error: HttpErrorResponse) => {
-	// 				console.log(error)
-	// 				alert(error.message)
-	// 			}
-	// 		})
-	// 	}
-
-	// 	// if error in validation
-	// 	else {
-	// 		this.errorstring = "Note: All fields are required"
-	// 		this.toggleErrorString = true
-	// 		this._snackBar.open("Note: All fields are required", '\u2716')
-	// 	}
-	// }
 }
 

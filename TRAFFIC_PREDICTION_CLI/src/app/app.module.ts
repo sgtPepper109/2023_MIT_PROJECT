@@ -9,12 +9,11 @@ import { AdminInputsComponent } from './admin-inputs/admin-inputs.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { SignupComponent } from './signup/signup.component'
 import { HttpClientModule } from '@angular/common/http'
-import { OperationService } from './services/operationService/operation.service'
 import { PropService } from './services/propService/prop.service'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { MatTableModule } from '@angular/material/table'
 import { MatCardModule } from '@angular/material/card'
-import { MatSnackBarModule, MAT_SNACK_BAR_DATA, MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar'
+import { MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
 import { MatInputModule } from '@angular/material/input'
@@ -84,7 +83,6 @@ import { MatBadgeModule } from '@angular/material/badge';
 				duration: 2500
 			}
 		},
-		OperationService,
 		PropService,
 		httpInterceptorProviders,
 		AppConfiguration, {

@@ -3,7 +3,7 @@ package com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictM
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMap.JunctionDistrictMap;
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMapRepository.JunctionDistrictMapRepository;
 
-import jakarta.transaction.Transactional;
+import javax.transaction.Transactional;
 
 import java.util.List;
 

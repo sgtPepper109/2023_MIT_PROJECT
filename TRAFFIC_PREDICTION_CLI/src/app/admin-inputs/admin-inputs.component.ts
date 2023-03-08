@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { JunctionDistrictMap } from '../services/junctionDistrictMap/junction-district-map';
 import { JunctionRoadwayWidthMap } from '../services/junctionRoadwayWidth/junction-roadway-width-map';
 import { RoadwayWidthMaxVehiclesMap } from '../services/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
-import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
+import { NgxCsvParser } from 'ngx-csv-parser';
 import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 

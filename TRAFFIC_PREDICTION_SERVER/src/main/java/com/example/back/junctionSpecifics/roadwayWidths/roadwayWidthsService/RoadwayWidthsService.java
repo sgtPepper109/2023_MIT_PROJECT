@@ -3,7 +3,7 @@ package com.example.back.junctionSpecifics.roadwayWidths.roadwayWidthsService;
 import com.example.back.junctionSpecifics.roadwayWidths.roadwayWidths.RoadwayWidths;
 import com.example.back.junctionSpecifics.roadwayWidths.roadwayWidthsRepository.RoadwayWidthsRepository;
 
-import jakarta.transaction.Transactional;
+import javax.transaction.Transactional;
 
 import java.util.List;
 

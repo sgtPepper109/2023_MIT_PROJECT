@@ -1,4 +1,4 @@
-<p>
+<p class="fixed-top">
     <mat-toolbar>
         <button mat-icon-button  
             class="example-icon" 
@@ -19,6 +19,7 @@
     </mat-toolbar>
 </p>
 
+<br /><br /><br /><br />
 
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
@@ -55,10 +56,10 @@
         <!-- Form for input of training testing and validation ratios -->
         <div class="row">
             <div class="col">
-                <mat-form-field appearance="fill">
+                <mat-form-field appearance="outline">
                     <mat-label>Choose Junction</mat-label>
                     <mat-select (selectionChange)="disablePredictionImage()" [(ngModel)]="inputJunction">
-                        <mat-option *ngFor="let junction of junctions" [value]="junction">
+                        <mat-option *ngFor="let junction of junctions2" [value]="junction">
                             {{ junction }}
                         </mat-option>
                     </mat-select>
@@ -72,25 +73,13 @@
                 </button>
             </div>
             <div class="col">
-                <label class="visually-hidden" for="autoSizingInputGroup">testing</label>
-                <div class="input-group">
-                    <mat-form-field class="example-full-width">
-                        <mat-label>Testing Ratio</mat-label>
-                        <input matInput type="number" placeholder="10" [(ngModel)]="inputTestRatio" (change)="changeTrain()" placeholder="0" step="0.1">
-                    </mat-form-field>
-                </div>
+                <mat-form-field appearance="outline" class="example-full-width">
+                    <mat-label>Testing Ratio</mat-label>
+                    <input matInput type="number" placeholder="10" [(ngModel)]="inputTestRatio" (change)="changeTrain()" placeholder="0" step="0.1">
+                </mat-form-field>
             </div>
             <div class="col">
-                <label class="visually-hidden" for="autoSizingInputGroup">training</label>
-                <div class="input-group">
-                    <mat-form-field class="example-full-width">
-                        <mat-label>Training Ratio</mat-label>
-                        <input matInput type="number" [(ngModel)]="inputTrainRatio" (change)="changeTrain()" placeholder="1" step="0.1" disabled>
-                    </mat-form-field>
-                </div>
-            </div>
-            <div class="col">
-                <mat-form-field appearance="fill" style="width: 550px">
+                <mat-form-field appearance="outline" style="width: 785px">
                     <mat-label>Algorithm</mat-label>
                     <select matNativeControl [(ngModel)]="inputAlgorithm" required>
                         <option value="Random Forest Regression">Random Forest Regression</option>
@@ -102,34 +91,13 @@
                     </select>
                 </mat-form-field>
             </div>
-            <div class="col">
-                <table class="example-full-width" cellspacing="0">
-                    <tr>
-                        <td>
-                            <mat-form-field class="example-full-width">
-                                <mat-label>Time Period</mat-label>
-                                <input matInput type="number" placeholder="0" [(ngModel)]="inputTime">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <mat-form-field appearance="fill">
-                                <select matNativeControl [(ngModel)]="time" required>
-                                    <option value="Days">Days</option>
-                                    <option value="Months">Months</option>
-                                    <option value="Years">Years</option>
-                                </select>
-                            </mat-form-field>
-                        </td>
-                    </tr>
-                </table>
-            </div>
         </div>
 
 
 
         <div class="row">
             <div class="text-center">
-                <button mat-raised-button color="primary" (click)="start()">Start Training</button>
+                <button mat-raised-button color="primary" (click)="startTraining()">Start Training</button>
             </div>
         </div>
         
@@ -173,7 +141,7 @@
                         <mat-card>
                             <mat-card-content>
                                 <h3><strong>Algorithm: {{ inputAlgorithm }}</strong></h3>
-                                <h3><strong>{{ modelSummary[2] }}</strong> for <strong>{{ trainRatio * 100 }}% training ratio</strong></h3>
+                                <h3 *ngIf="modelSummaryReady"><strong>{{modelSummary[2].Property}}: {{modelSummary[2].Value}}</strong></h3>
                             </mat-card-content>
                         </mat-card>
                         <br />
@@ -193,7 +161,7 @@
                             </nav>
 
                             <mat-card *ngIf="!toggleComparisonTable">
-                                <mat-card-content *ngIf="predictedTableReady">
+                                <mat-card-content *ngIf="comparisonTableReady">
                                     
                                     <!--
                                         ** Table for showing actual and predicted values comparison **
@@ -205,12 +173,14 @@
                                             <tr>
                                                 <th scope="col">Actual</th>
                                                 <th scope="col">Predicted</th>
+                                                <th scope="col">Difference</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let record of dataSourcePredicted">
-                                                <th scope="row">{{ record.actual}}</th>
-                                                <td>{{ record.predictedData}}</td>
+                                                <th scope="row">{{ record.actual }}</th>
+                                                <td>{{ record.predicted }}</td>
+                                                <td>{{ record.difference }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -271,8 +241,8 @@
                                     </thead>
                                     <tbody>
                                         <tr *ngFor="let record of accuracies">
-                                            <td scope="row">{{ record.model }}</td>
-                                            <td>{{ record.accuracyscore }}</td>
+                                            <td scope="row">{{ record.algorithm }}</td>
+                                            <td>{{ record.accuracyScore }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -288,22 +258,28 @@
 
                     </div>
 
-                    <div [hidden]="futurePredictionsReadyHidden">
+                    <div *ngIf="modelSummaryReady">
                         <br />
 
                         <!-- 
                             ** Model Summary
                         -->
-                        <h4 *ngIf="!startedTraining">Training Summary</h4>
-                        <div *ngIf="!startedTraining">
-                            <div *ngFor="let line of modelSummary">
-                                <p style="text-align: center; font-size: 14px; font-family: monospace" *ngIf="line.slice(0, 8)=='Accuracy'">
-                                    <strong >{{line}}</strong>
-                                </p>
-                                <p style="text-align: center; font-size: 14px; font-family: monospace" *ngIf="line.slice(0, 8)!='Accuracy'">
-                                    {{line}}
-                                </p>
-                            </div>
+                        <h4>Training Summary</h4>
+                        <div>
+                            <table class="table table-bordered" aria-describedby="tabe1-desc">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Property</th>
+                                        <th scope="col">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of modelSummary">
+                                        <td scope="row"><strong>{{ record.Property }}</strong></td>
+                                        <td>{{ record.Value }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -314,49 +290,90 @@
                     <ng-template matStepLabel>Predictions</ng-template>
                     <br />
                     <mat-card>
-                        <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                            <ul class="nav nav-pills">
-                                <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ inputTime }} days</strong></h4>
-                            </ul>
-                            <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
-                                <option selected>Line Plot</option>
-                                <option value="Table">Table</option>
-                            </select>
-                        </nav>
-                        <mat-card-content *ngIf="!toggleFuturePredictionsTable">
-                            <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">DateTime</th>
-                                        <th scope="col">Vehicles</th>
-                                        <th scope="col">Year</th>
-                                        <th scope="col">Month</th>
-                                        <th scope="col">Day</th>
-                                        <th scope="col">Hour</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let record of dataSourceResult">
-                                        <th scope="row">{{ record.DateTime }}</th>
-                                        <td>{{ record.Vehicles }}</td>
-                                        <td>{{ record.Year }}</td>
-                                        <td>{{ record.Month }}</td>
-                                        <td>{{ record.Day }}</td>
-                                        <td>{{ record.Hour }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-
-                            <!--
-                                ** Paginator for Prediction table **
-                            -->
-                            <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
-                                <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <table class="example-full-width" cellspacing="0">
+                                        <tr>
+                                            <td>
+                                                <mat-form-field appearance="outline" class="example-full-width">
+                                                    <mat-label>Time Period</mat-label>
+                                                    <input matInput type="number" placeholder="0" [(ngModel)]="inputTime">
+                                                </mat-form-field>
+                                            </td>
+                                            <td>
+                                                <mat-form-field appearance="outline">
+                                                    <select matNativeControl [(ngModel)]="time" required>
+                                                        <option value="Days">Days</option>
+                                                        <option value="Months">Months</option>
+                                                        <option value="Years">Years</option>
+                                                    </select>
+                                                </mat-form-field>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col">
+                                    <button mat-raised-button color="success" (click)="predict()">Predict</button>
+                                </div>
                             </div>
-                        </mat-card-content>
+                        </div>
+                        <div *ngIf="futurePredictionsReady">
+                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                <ul class="nav nav-pills">
+                                    <h4 id="table2-desc">Result for Junction <strong>{{ inputJunction }}</strong> for duration of <strong>{{ inputTime }} days</strong></h4>
+                                </ul>
+                                <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
+                                    <option selected>Line Plot</option>
+                                    <option value="Table">Table</option>
+                                </select>
+                            </nav>
+                            <div>
+                                <h3>
+                                    Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
+                                </h3>
+                                <h3>
+                                    Junction {{junctionChoice}} has Roadway width of <strong>{{ currentRoadwayWidth }} meters</strong>
+                                </h3>
+                                <h3>
+                                    Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
+                                </h3>
+                            </div>
+                            <mat-card-content *ngIf="!toggleFuturePredictionsTable">
+                                <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">DateTime</th>
+                                            <th scope="col">Vehicles</th>
+                                            <th scope="col">Year</th>
+                                            <th scope="col">Month</th>
+                                            <th scope="col">Day</th>
+                                            <th scope="col">Hour</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let record of dataSourceResult">
+                                            <th scope="row">{{ record.DateTime }}</th>
+                                            <td>{{ record.Vehicles }}</td>
+                                            <td>{{ record.Year }}</td>
+                                            <td>{{ record.Month }}</td>
+                                            <td>{{ record.Day }}</td>
+                                            <td>{{ record.Hour }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+
+                                <!--
+                                    ** Paginator for Prediction table **
+                                -->
+                                <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
+                                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                    <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
+                                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                </div>
+                            </mat-card-content>
+                        </div>
                     </mat-card>
 
                     <!--
@@ -431,18 +448,6 @@
                                 <div class="col">
                                     <h4><strong>Number of vehicles over time</strong></h4>
                                 </div>
-
-
-
-                                <mat-form-field appearance="fill">
-                                    <mat-label>Junction</mat-label>
-                                    <mat-select (selectionChange)="changeJunctionToBePlotted()" [(ngModel)]="junctionChoice">
-                                        <mat-option *ngFor="let junction of junctions" [value]="junction">
-                                            {{ junction }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                
                             </div>
 
 
