@@ -1,6 +1,6 @@
 package com.example.back.junctionSpecifics.junctionRoadwayWidthMap.junctionRoadwayWidthMap;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity

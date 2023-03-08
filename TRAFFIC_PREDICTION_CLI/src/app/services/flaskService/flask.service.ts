@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
 import { PropService } from '../propService/prop.service';
 
 @Injectable({
@@ -63,6 +62,42 @@ export class FlaskService {
 
 	public sendTrainingSpecifics(trainingSpecifics: Object) {
 		return this.http.post('process/sendTrainingSpecifics', trainingSpecifics)
+	}
+
+	public revealPredictions() {
+		return this.http.get('process/revealPredictions')
+	}
+
+	public sendTime(data: any) {
+		return this.http.post('process/sendTime', data)
+	}
+
+	public train() {
+		return this.http.get('process/train')
+	}
+
+	public sendInputTimeToPredict(predict: object) {
+		return this.http.post('process/sendInputTimeToPredict', predict)
+	}
+
+	public predictAgainstTime() {
+		return this.http.get('process/predictAgainstTime')
+	}
+
+	public getFuturePredictionsTable() {
+		return this.http.get('process/getFuturePredictionsTable')
+	}
+
+	public predictAllJunctions() {
+		return this.http.get('process/predictAllJunctions')
+	}
+
+	public getAllJunctionsFuturePredictionsTable() {
+		return this.http.get('process/getAllJunctionsFuturePredictionsTable')
+	}
+
+	public getAccuraciesOfAllJunctions() {
+		return this.http.get('process/getAccuraciesOfAllJunctions')
 	}
 
 }

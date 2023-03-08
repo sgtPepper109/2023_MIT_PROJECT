@@ -3,7 +3,7 @@ package com.example.back.junctionSpecifics.roadwayWidthMaxVehiclesMap.roadwayWid
 import com.example.back.junctionSpecifics.roadwayWidthMaxVehiclesMap.roadwayWidthMaxVehiclesMap.RoadwayWidthMaxVehiclesMap;
 import com.example.back.junctionSpecifics.roadwayWidthMaxVehiclesMap.roadwayWidthMaxVehiclesMapRepository.RoadwayWidthMaxVehiclesMapRepository;
 
-import jakarta.transaction.Transactional;
+import javax.transaction.Transactional;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

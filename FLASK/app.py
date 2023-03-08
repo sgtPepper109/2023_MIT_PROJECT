@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, date
 import scipy
 from scipy import stats
 from scipy.stats import skew, kurtosis
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso, BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
@@ -53,6 +53,9 @@ def getCsvData():
     global df
     global tempdf
 
+    df = pd.DataFrame()
+    tempdf = pd.DataFrame()
+
     df = pd.DataFrame.from_dict(csvData)
     df = df._convert(numeric=True)
     tempdf = df.copy()
@@ -61,11 +64,8 @@ def getCsvData():
     tempdf = tempdf.set_index('DateTime')
 
     tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    # extract month from date
     tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    # extract day from date
     tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    # extract hour from date
     tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
     tempdf.drop('ID', axis=1, inplace=True)
 
@@ -86,40 +86,6 @@ def getAllJunctions():
     for i in list(np.unique(df.Junction)):
         junctions.append(i)
     return make_response(junctions)
-
-
-@app.route("/setData")
-def setData():
-    success = True
-    url = config.springUrl + '/operation/findLast'
-
-    try:
-        uResponse = requests.get(url)
-    except:
-        return "Connection Error"
-    JResponse = uResponse.text
-    operationData = json.loads(JResponse)
-    
-    global dataset
-    global trainRatio
-    global testRatio
-    global testRatio2
-    global valRatio
-    dataset = operationData["dataset"]
-    trainRatio = float(operationData['trainRatio'])
-    testRatio = float(operationData['testRatio'])
-
-    testRatio2 =  testRatio
-    global gotInput
-    gotInput.append(testRatio)
-
-    dictionary = dict()
-    if success:
-        dictionary['setData'] = "success"
-        return make_response(dictionary)
-    else:
-        dictionary['setData'] = "fail"
-        return make_response(dictionary)
 
 
 @app.route("/getTableData")
@@ -196,8 +162,6 @@ def getResultTable():
     global autoPrediction
     global junction
 
-    print("autoPrediction", autoPrediction)
-    print("junction", junction)
     
     junctions = np.unique(df.Junction)
     if autoPrediction == False:
@@ -225,52 +189,242 @@ def getResultTable():
     return make_response(response)
 
 
-@app.route('/getAccuracy')
-def getAccuracy():
-    global accuracyScore
-    dictionary = dict()
-    dictionary['accuracy'] = accuracyScore
-    return make_response(dictionary)
+
+def f_test(x, y):
+    x = np.array(x)
+    y = np.array(y)
+    f = np.var(x, ddof=1)/np.var(y, ddof=1) #calculate F test statistic 
+    dfn = x.size-1 #define degrees of freedom numerator 
+    dfd = y.size-1 #define degrees of freedom denominator 
+    p = 1- scipy.stats.f.cdf(f, dfn, dfd) #find p-value of F test statistic 
+    return f, p
 
 
-@app.route('/getActualPredicted')
-def getActualPredicted():
-    global actual
-    global predicted
-    predictedDf = pd.DataFrame()
-    predictedDf['actual'] = actual
-    predictedDf['predictedData'] = predicted
-    predictedDf = predictedDf.reset_index(drop=True)
-    arr = []
-    data2 = predictedDf.to_dict()
-    anycol = ""
-    for i in data2:
-        anycol = i
-        break
-    for i in range(len(data2[anycol])):
-        field = {}
-        for j in data2:
-            field[j] = data2[j][i]
-        arr.append(field)
-    return make_response(arr)
 
-
-@app.route('/getActualPredictedForPlot')
-def getActualPredictedForPlot():
-    global actual
-    global predicted
-    global testAgainst
-    arr = []
-    labels = []
-    for i in range(1, len(actual) + 1):
-        labels.append(i)
-    dictionary = dict()
-    dictionary['actual'] = actual.tolist()
-    dictionary['predicted'] = predicted.tolist()
-    dictionary['labels'] = testAgainst
-    arr.append(dictionary)
+class Train:
+    def __init__(self, data, algorithm, junction, testSize):
+        self.trained = False
+        self.data = data
+        self.algorithm = algorithm
+        self.junction = junction
+        self.testSize = testSize
+        self.startTrainingProcess()
     
-    return make_response(arr)
+    def startTrainingProcess(self):
+        self.separateJunctionRelatedData()
+        self.splitData()
+        self.training()
+        self.actualVsPredicted()
+    
+    def separateJunctionRelatedData(self):
+        self.junctionData = self.data[self.data.Junction == self.junction]
+        self.junctionData = self.junctionData.drop(['Junction'], axis='columns')
+
+    def splitData(self):
+        self.x = self.junctionData.drop(['Vehicles'], axis='columns')
+        self.y = self.junctionData.Vehicles
+        self.xtrain, self.xtest, self.ytrain, self.ytest = train_test_split(self.x, self.y, test_size = self.testSize)
+
+    def training(self):
+        if self.algorithm == "Random Forest Regression":
+            self.model = RandomForestRegressor()
+        elif self.algorithm == "Gradient Boosting Regression":
+            self.model = GradientBoostingRegressor()
+        elif self.algorithm == "Linear Regression":
+            self.model = LinearRegression()
+        elif self.algorithm == "Logistic Regression":
+            self.model = LogisticRegression()
+        elif self.algorithm == "Ridge Regression":
+            self.model = Ridge(alpha=1.0)
+        elif self.algorithm == "Lasso Regression":
+            self.model = Lasso(alpha=1.0)
+        elif self.algorithm == "Bayesian Ridge Regression":
+            self.model = BayesianRidge()
+
+        self.model.fit(self.xtrain, self.ytrain)
+        self.trained = True
+        self.trainTime = datetime.now()
+
+
+    def actualVsPredicted(self):
+        self.xtestIndex = list(self.xtest.index)
+        self.xtestIndex.sort()
+        self.newXtest = pd.DataFrame()
+        
+        self.years = list()
+        self.months = list()
+        self.days = list()
+        self.hours = list()
+        self.dateTime = list()
+        
+        for i in self.xtestIndex:
+            self.dateTime.append(i)
+            self.years.append(i.year)
+            self.months.append(i.month)
+            self.days.append(i.day)
+            self.hours.append(i.hour)
+
+        self.newXtest['Year'] = self.years
+        self.newXtest['Month'] = self.months
+        self.newXtest['Day'] = self.days
+        self.newXtest['Hour'] = self.hours
+        self.newXtest['DateTime'] = self.dateTime
+        self.newXtest.index = self.newXtest['DateTime']
+        self.newXtest = self.newXtest.drop(['DateTime'], axis='columns')
+
+        self.newYtest = list()
+        for i in self.newXtest.index:
+            self.newYtest.append(self.ytest[i])        
+
+        self.newYtest = pd.Series(self.newYtest)
+        self.newYtest.index = self.newXtest.index
+
+        self.actual = self.newYtest
+        self.predicted = self.model.predict(self.newXtest)
+        self.actual = list(self.actual)
+        self.predicted = list(self.predicted)
+
+        self.difference = list()
+        for i in range(len(self.actual)):
+            self.difference.append(abs(self.actual[i] - self.predicted[i]))
+
+        self.accuracyScore = self.model.score(self.newXtest, self.newYtest)
+        self.r2 = r2_score(self.newYtest, self.predicted)
+        self.explaindVariance = metrics.explained_variance_score(self.newYtest, self.predicted)
+        self.meanAbsoluteError = metrics.mean_absolute_error(self.newYtest, self.predicted)
+        self.meanSquaredError = metrics.mean_squared_error(self.newYtest, self.predicted)
+        self.medianAbsoluteError = metrics.median_absolute_error(self.newYtest, self.predicted)
+        self.testAgainst = []
+        for i in self.newXtest.index:
+            self.testAgainst.append(str(i))
+        
+
+    def constructFutureTimeToBePredicted(self, timePeriod, timeFormat):
+        self.currTime = self.junctionData.tail(1).index[0]
+        
+        if timeFormat == "Days":
+            self.endTime = self.currTime + pd.DateOffset(days=timePeriod) 
+        elif timeFormat == "Months":
+            self.endTime = self.currTime + pd.DateOffset(months=timePeriod) 
+        else:
+            self.endTime = self.currTime + pd.DateOffset(years=timePeriod) 
+
+        self.time = list()
+        while self.currTime != self.endTime:
+            self.time.append(self.currTime)
+            self.currTime += timedelta(minutes=60)
+
+    def constructFutureDataToBePredicted(self):
+        self.toPredict = pd.DataFrame()
+        self.years = list()
+        self.months = list()
+        self.days = list()
+        self.hours = list()
+        self.dateTime = list()
+        
+        for i in self.time:
+            self.dateTime.append(i)
+            self.years.append(i.year)
+            self.months.append(i.month)
+            self.days.append(i.day)
+            self.hours.append(i.hour)
+
+        self.toPredict['Year'] = self.years
+        self.toPredict['Month'] = self.months
+        self.toPredict['Day'] = self.days
+        self.toPredict['Hour'] = self.hours
+        self.toPredict['DateTime'] = self.dateTime
+        self.toPredict.index = self.toPredict['DateTime']
+        self.toPredict = self.toPredict.drop(['DateTime'], axis='columns')
+
+
+    def predict(self, timePeriod, timeFormat):
+
+        # returns predicted data for given timePeriod and timeFormat (e.g. 2, 'Days')
+
+        if self.trained:
+            self.constructFutureTimeToBePredicted(timePeriod, timeFormat)
+            self.constructFutureDataToBePredicted()
+
+            self.futureDatesPredicted = self.model.predict(self.toPredict)  # toPredict variable comes from data constructed
+            self.tableData = self.toPredict.copy()
+
+            self.columnDateTime = list()
+            for i in self.dateTime:
+                self.columnDateTime.append(str(i))
+
+            self.tableData['DateTime'] = self.columnDateTime
+            self.tableData = self.tableData.reset_index(drop=True)
+            self.tableData['Vehicles'] = list(self.futureDatesPredicted)
+
+            self.predictedData = dict()
+            self.predictedData['vehicles'] = list(self.futureDatesPredicted)
+
+            self.toPredictDateTime = list()
+            for i in self.toPredict.index:
+                self.toPredictDateTime.append(str(i))
+            self.predictedData['datetime'] = self.toPredictDateTime
+
+            return [self.predictedData]
+
+
+
+
+@app.route('/getModelSummary')
+def getModelSummary():
+    global trained
+
+
+    fstatistic = f_test(trained.newYtest, trained.predicted)
+    modelSummary = [ { 'Property': 'Dependent Variable', 'Value': 'Vehicles' },
+        { 'Property': 'Algorithm', 'Value': trained.algorithm },
+        { 'Property': 'Accuracy', 'Value': trained.accuracyScore },
+        { 'Property': 'R-Squared', 'Value': trained.r2 },
+        { 'Property': 'Date & Time of Training', 'Value': trained.trainTime },
+        { 'Property': 'No. of Observations', 'Value': trained.data.shape[0] },
+        { 'Property': 'F-Statistic', 'Value': fstatistic[0] },
+        { 'Property': '(prob) F-Statistic', 'Value': fstatistic[1] },
+        { 'Property': 'Explained Variance', 'Value': trained.explaindVariance },
+        { 'Property': 'Mean Absolute Error', 'Value': trained.meanAbsoluteError },
+        { 'Property': 'Mean Squared Error', 'Value': trained.meanSquaredError },
+        { 'Property': 'Median Absolute Error', 'Value': trained.medianAbsoluteError },
+        { 'Property': 'Skew', 'Value': skew(list(trained.data.Vehicles), axis=0, bias=True) },
+        { 'Property': 'Kurtosis', 'Value': kurtosis(list(trained.data.Vehicles), axis=0, bias=True) },
+        { 'Property': 'Jarque-Bera (JB)', 'Value': str(jarque_bera(np.array(trained.data.Vehicles))) },
+        { 'Property': 'Durbin Watson', 'Value': durbin_watson(np.array(trained.data.Vehicles)) }
+    ]
+
+    return make_response(modelSummary)
+
+
+
+
+@app.route('/listenTime')
+def listenTime():
+    success = True
+    url = config.springUrl + '/process/exchangeTime'
+
+    try:
+        uResponse = requests.get(url)
+    except:
+        success = False
+        return "Connection Error"
+    JResponse = uResponse.text
+    response = json.loads(JResponse)
+    global time
+    global timeFormat
+    time = response['timePeriod']
+    timeFormat = response['timeFormat']
+    dictionary = dict()
+    if success:
+        dictionary['gotTime'] = "success"
+        return make_response(dictionary)
+    else:
+        dictionary['gotTime'] = "fail"
+        return make_response(dictionary)
+
+
+
 
 
 @app.route('/listenToTrainingInputs')
@@ -286,15 +440,11 @@ def listenTrainingInputs():
     JResponse = uResponse.text
     response = json.loads(JResponse)
     global junction
-    global time
-    global timeFormat
-    global inputTestRatio
+    global testRatio
     global algorithm
 
     junction = response['junction']
-    inputTestRatio = response['testRatio']
-    time = response['time']
-    timeFormat = response['timeFormat']
+    testRatio = response['testRatio']
     algorithm = response['algorithm']
     dictionary = dict()
     if success:
@@ -307,397 +457,184 @@ def listenTrainingInputs():
 
 
 
-@app.route('/input')
-def getInput():
-    success = True
-    url = config.springUrl + '/process/exchangeInput'
 
-    try:
-        uResponse = requests.get(url)
-    except:
-        success = False
-        return "Connection Error"
-    JResponse = uResponse.text
-    mainInput = json.loads(JResponse)
 
-    global junction
-    global time
-    global timeFormat
-    global algorithm
-
-    junction = mainInput['junction']
-    time = mainInput['time']
-    timeFormat = mainInput['timeFormat']
-    algorithm = mainInput['algorithm']
-
-    global gotInput
-    gotInput = list()
-    gotInput.append(junction)
-    gotInput.append(time)
-    gotInput.append(timeFormat)
-    gotInput.append(algorithm)
-    
+@app.route('/getActualPredictedForPlot')
+def getActualPredictedForPlot():
+    global trained
+    arr = []
+    labels = []
+    for i in range(1, len(trained.actual) + 1):
+        labels.append(i)
     dictionary = dict()
-    if success:
-        dictionary['gotJunctionTime'] = "success"
-        return make_response(dictionary)
-    else:
-        dictionary['gotJunctionTime'] = "fail"
-        return make_response(dictionary)
+    dictionary['actual'] = trained.actual
+    dictionary['predicted'] = trained.predicted
+    dictionary['difference'] = trained.difference
+    dictionary['labels'] = trained.testAgainst
+    arr.append(dictionary)
+    
+    return make_response(arr)
 
 
 
 
-def f_test(x, y):
-    x = np.array(x)
-    y = np.array(y)
-    f = np.var(x, ddof=1)/np.var(y, ddof=1) #calculate F test statistic 
-    dfn = x.size-1 #define degrees of freedom numerator 
-    dfd = y.size-1 #define degrees of freedom denominator 
-    p = 1- scipy.stats.f.cdf(f, dfn, dfd) #find p-value of F test statistic 
-    return f, p
+@app.route('/getAccuraciesOfAllJunctions')
+def getAccuraciesOfAllJunctions():
+    global allJunctionsAccuracies
+    print(allJunctionsAccuracies)
+    return make_response(allJunctionsAccuracies)
 
-
-
-@app.route('/getModelSummary')
-def getModelSummary():
-    global modelSummary2
-    return make_response(modelSummary2)
 
 
 
 @app.route('/getAccuracies')
 def getAccuracies():
-    global accuracies
+    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+                  'Lasso Regression', 'Bayesian Ridge Regression']
+    global df
+    global tempdf
+    mainData = tempdf.copy()
+
+    accuracies = list()
+    for algorithm in algorithms:
+        trained = Train(mainData, algorithm, junction, testRatio)
+        algorithmAndAccuracy = dict()
+        algorithmAndAccuracy['algorithm'] = algorithm
+        algorithmAndAccuracy['accuracyScore'] = trained.accuracyScore
+        accuracies.append(algorithmAndAccuracy)
+    
     return make_response(accuracies)
 
 
-@app.route('/predict')
-def predict():
-    global autoPrediction
-    global df
+
+
+
+
+@app.route('/getFuturePredictionsTable')
+def getFuturePredictionsTable():
+    global trained
+    arr = []
+    head = trained.tableData
+
+    data2 = head.to_dict()
+    anycol = ""
+    for i in data2:
+        anycol = i
+        break
+    for i in range(len(data2[anycol])):
+        field = {}
+        for j in data2:
+            field[j] = data2[j][i]
+        arr.append(field)
+    return make_response(arr)
+
+
+
+
+
+
+@app.route('/predictAllJunctions')
+def predictAllJunctions():
     global tempdf
+    global testRatio
     global junction
+    global algorithm
     global time
     global timeFormat
-    global testRatio
-    global dfResult
-    global inputTestRatio
-    global testRatio2
-
-    if inputTestRatio != 1:
-        testRatio2 = inputTestRatio
-        testRatio = inputTestRatio
-
-    autoPrediction = False
-    allJunctionsPlotData = list()
-    global allJunctionsDfResult
-    allJunctionsDfResult = list()
-    print(junction, testRatio, time, timeFormat, algorithm)
-    predict2()
-    allJunctionsDfResult.append(dfResult)
-    allJunctionsPlotData.append(plotData)
-    return make_response(allJunctionsPlotData)
-    
-
-
-def predict2():
-    with app.app_context():
-        global df
-        global tempdf
-        global testRatio
-        global junction
-        global time
-        global timeFormat
-        global algorithm
-        
-        global testRatio2
-        testRatio = testRatio2
-        inputTestRatio = 1
-
-        global gotInput
-        if gotInput != []:
-            junction = gotInput[0]
-            junction = junction
-            time = gotInput[1]
-            time = int(time)
-            timeFormat = gotInput[2]
-            algorithm = gotInput[3]
-
-        print(junction, time, timeFormat, algorithm, testRatio)
-        
-        if algorithm == "Random Forest Regression":
-            model = RandomForestRegressor()
-        elif algorithm == "Gradient Boosting Regression":
-            model = GradientBoostingRegressor()
-        elif algorithm == "Linear Regression":
-            model = LinearRegression()
-        elif algorithm == "Logistic Regression":
-            model = LogisticRegression()
-        elif algorithm == "Ridge Regression":
-            model = Ridge(alpha=1.0)
-        elif algorithm == "Lasso Regression":
-            model = Lasso(alpha=0.1)
-        elif algorithm == "Bayesian Ridge Regression":
-            model = BayesianRidge()
-
-
-        global accuracies
-        model1 = RandomForestRegressor()
-        model2 = GradientBoostingRegressor()
-        model3 = LinearRegression()
-        model5 = Ridge(alpha=1.0)
-        model6 = Lasso(alpha=0.1)
-        model7 = BayesianRidge()
-
-        global accuracyScore
-
-        mainData = tempdf.copy()
-        mainData = mainData[mainData.Junction == junction]
-        curr_time = mainData.tail(1).index[0] # get the current time, the last time of that dataset
-        
-
-        if timeFormat == "Days":
-            end_time = curr_time + pd.DateOffset(days=time) # the end time after 4 time that we want to predict
-        elif timeFormat == "Months":
-            end_time = curr_time + pd.DateOffset(months=time) # the end time after 4 time that we want to predict
-        else:
-            end_time = curr_time + pd.DateOffset(years=time) # the end time after 4 time that we want to predict
-
-        mainData = mainData.drop(['Junction'], axis='columns')
-
-        x = mainData.drop(['Vehicles'], axis='columns')
-        y = mainData.Vehicles
-
-        xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size = testRatio)
-
-        model.fit(xtrain, ytrain)
-        model1.fit(xtrain, ytrain)
-        model2.fit(xtrain, ytrain)
-        model3.fit(xtrain, ytrain)
-        model5.fit(xtrain, ytrain)
-        model6.fit(xtrain, ytrain)
-        model7.fit(xtrain, ytrain)
-
-
-        timePeriod = list()
-        while curr_time != end_time:
-            timePeriod.append(curr_time)
-            curr_time += timedelta(minutes=60)
-
-        toPredict = pd.DataFrame()
-        years = list()
-        months = list()
-        days = list()
-        hours = list()
-        dateTime = list()
-        
-        for i in timePeriod:
-            dateTime.append(i)
-            years.append(i.year)
-            months.append(i.month)
-            days.append(i.day)
-            hours.append(i.hour)
-
-        toPredict['Year'] = years
-        toPredict['Month'] = months
-        toPredict['Day'] = days
-        toPredict['Hour'] = hours
-        toPredict['DateTime'] = dateTime
-        toPredict.index = toPredict['DateTime']
-        toPredict = toPredict.drop(['DateTime'], axis='columns')
-
-        futureDatesPredicted = model.predict(toPredict)
-
-
-        global dfResult
-        dfResult = toPredict.copy()
-
-        columnDateTime = list()
-        for i in dateTime:
-            columnDateTime.append(str(i))
-
-        dfResult['DateTime'] = columnDateTime
-        dfResult = dfResult.reset_index(drop=True)
-        dfResult['Vehicles'] = list(futureDatesPredicted)
-
-        xtestIndex = list(xtest.index)
-        xtestIndex.sort()
-        newXtest = pd.DataFrame()
-        
-        years = list()
-        months = list()
-        days = list()
-        hours = list()
-        dateTime = list()
-        
-        for i in xtestIndex:
-            dateTime.append(i)
-            years.append(i.year)
-            months.append(i.month)
-            days.append(i.day)
-            hours.append(i.hour)
-
-        newXtest['Year'] = years
-        newXtest['Month'] = months
-        newXtest['Day'] = days
-        newXtest['Hour'] = hours
-        newXtest['DateTime'] = dateTime
-        newXtest.index = newXtest['DateTime']
-        newXtest = newXtest.drop(['DateTime'], axis='columns')
-
-        newYtest = list()
-        for i in newXtest.index:
-            newYtest.append(ytest[i])        
-
-        newYtest = pd.Series(newYtest)
-        newYtest.index = newXtest.index
-
-        global actual
-        global predicted
-        actual = newYtest
-        predicted = model.predict(newXtest)
-        accuracyScore = model.score(newXtest, newYtest)
-
-
-        accuracyScore1 = model1.score(newXtest, newYtest)
-        accuracyScore2 = model2.score(newXtest, newYtest)
-        accuracyScore3 = model3.score(newXtest, newYtest)
-        accuracyScore5 = model5.score(newXtest, newYtest)
-        accuracyScore6 = model6.score(newXtest, newYtest)
-        accuracyScore7 = model7.score(newXtest, newYtest)
-
-
-        accuracies = []
-        tempaccuracy = dict()
-        tempaccuracy['model'] = 'Random Forest Regression'
-        tempaccuracy['accuracyscore'] = accuracyScore1
-        accuracies.append(tempaccuracy)
-        tempaccuracy = dict()
-        tempaccuracy['model'] = 'Gradient Boosting Regression'
-        tempaccuracy['accuracyscore'] = accuracyScore2
-        accuracies.append(tempaccuracy)
-        tempaccuracy = dict()
-        tempaccuracy['model'] = 'Linear Regression'
-        tempaccuracy['accuracyscore'] = accuracyScore3
-        accuracies.append(tempaccuracy)
-        tempaccuracy = dict()
-        tempaccuracy['model'] = 'Ridge Regression'
-        tempaccuracy['accuracyscore'] = accuracyScore5
-        accuracies.append(tempaccuracy)
-        tempaccuracy = dict()
-        tempaccuracy['model'] = 'Lasso Regression'
-        tempaccuracy['accuracyscore'] = accuracyScore6
-        accuracies.append(tempaccuracy)
-        tempaccuracy = dict()
-        tempaccuracy['model'] = 'Bayesian Ridge Regression'
-        tempaccuracy['accuracyscore'] = accuracyScore7
-        accuracies.append(tempaccuracy)
-
-
-
-        global testAgainst
-        testAgainst = []
-        testAgainst2 = newXtest.index.copy()
-        for i in testAgainst2:
-            testAgainst.append(str(i))
-
-        dictionary = dict()
-        dictionary['vehicles'] = list(futureDatesPredicted)
-
-        toPredictDateTime = list()
-        for i in toPredict.index:
-            toPredictDateTime.append(str(i))
-        dictionary['datetime'] = toPredictDateTime
-        
-        result = [dictionary]
-        newXtrain = xtrain
-        newYtrain = ytrain
-        newXtrain = sm.add_constant(newXtrain)
-        model8 = sm.OLS(newYtrain, newXtrain).fit()
-
-        global modelSummary
-        modelSummary = model8.summary()
-        modelSummary = str(modelSummary)
-        
-        modelSummary = modelSummary.split('\n')
-        
-
-        anotherSummary = dict()
-        anotherSummary['Dep. Variable: '] = 'Vehicles'
-        anotherSummary['Model: '] = str(model)
-        anotherSummary['Accuracy: '] = accuracyScore
-        anotherSummary['R-squared: '] = r2_score(newYtest, predicted)
-        anotherSummary['Date & Time: '] = datetime.now()
-        anotherSummary['No. Observations: '] = df.shape[0]
-
-        fstatistic = f_test(newYtest, predicted)
-        anotherSummary['F-Statistic: '] = fstatistic[0]
-        anotherSummary['(prob) F-Statistic: '] = fstatistic[1]
-        anotherSummary['Explained Variance: '] = metrics.explained_variance_score(newYtest, predicted)
-        anotherSummary['Mean Absolute Error: '] = metrics.mean_absolute_error(newYtest, predicted)
-        anotherSummary['Mean Squared Error: '] = metrics.mean_squared_error(newYtest, predicted)
-        anotherSummary['Mean Squared Log Error: '] = metrics.mean_squared_log_error(newYtest, predicted)
-        anotherSummary['Median Absolute Error: '] = metrics.median_absolute_error(newYtest, predicted)
-        anotherSummary['Skew: '] = skew(list(df.Vehicles), axis=0, bias=True)
-        anotherSummary['Kurtosis: '] = kurtosis(list(df.Vehicles), axis=0, bias=True)
-        anotherSummary['Jarque-Bera (JB): '] = str(jarque_bera(np.array(df.Vehicles)))
-        anotherSummary['Durbin Watson: '] = durbin_watson(np.array(df.Vehicles))
-
-
-
-        global modelSummary2
-        if algorithm == 'Linear Regression':
-            modelSummary2 = modelSummary
-        else:
-            listStrings = list()
-            for i in anotherSummary:
-                s = ""
-                s += i
-                s += ": "
-                s += str(anotherSummary[i])
-                listStrings.append(s)
-            modelSummary2 = listStrings
-
-        global plotData
-        plotData = result
-        
-        
-
-        return make_response(result)
-
-
-
-
-
-
-
-@app.route('/getAllJunctionsAccuracies')
-def getAllJunctionsAccuracies():
+    global allJunctionsPredictedPlotData
+    global allJunctionsTableData
     global allJunctionsAccuracies
-    return make_response(allJunctionsAccuracies)
-    
+    global autoTrainedModels
+    allJunctionsPredictedPlotData = dict()
+    allJunctionsTableData = dict()
+    allJunctionsAccuracies = dict()
 
-@app.route('/getAllJunctionsAccuracyScore')
-def getAllJunctionsAccuracyScore():
-    global allJunctionsAccuracyScore
-    return make_response(allJunctionsAccuracyScore)
+    print(time, timeFormat)
+
+    junctions = np.unique(df.Junction)
+    for i in junctions:
+        trainedForJunction = autoTrainedModels[i]
+        futurePredictionsForJunction = trainedForJunction.predict(time, timeFormat)
+        allJunctionsPredictedPlotData[i] = futurePredictionsForJunction
+        allJunctionsAccuracies[i] = trainedForJunction.accuracyScore
+
+        arr = []
+        head = trainedForJunction.tableData
+
+        data2 = head.to_dict()
+        anycol = ""
+        for j in data2:
+            anycol = j
+            break
+        for j in range(len(data2[anycol])):
+            field = {}
+            for k in data2:
+                field[k] = data2[k][j]
+            arr.append(field)
+        
+        allJunctionsTableData[i] = arr
+
+    return make_response(allJunctionsPredictedPlotData)
 
 
-@app.route('/getAllJunctionsPredictedTableData')
-def getAllJunctionsPredictedTableData():
-    global allJunctionsPredictedTableData
-    return make_response(allJunctionsPredictedTableData)
 
-@app.route('/getAllJunctionsPlotData')
-def getAllJunctionsPlotData():
-    global allJunctionsPlotData
-    return make_response(allJunctionsPlotData)
+
+
+
+@app.route('/getAllJunctionsFuturePredictionsTable')
+def getAllJunctionsFuturePredictions():
+    global allJunctionsTableData
+    return make_response(allJunctionsTableData)
+
+
+
+
+
+
+@app.route("/train")
+def train():
+    global tempdf
+    global testRatio
+    global junction
+    global algorithm
+    global trained
+
+    print(algorithm, junction, testRatio)
+    trained = Train(tempdf, algorithm, junction, testRatio)
+    # predicted = trained.predict(time, timeFormat)
+
+    response = list()
+    for i in range(len(trained.actual)):
+        actualVsPred = {
+            'actual': trained.actual[i],
+            'predicted': trained.predicted[i],
+            'difference': abs(trained.actual[i] - trained.predicted[i])
+        }
+        response.append(actualVsPred)
+    return make_response(response)
+
+
+
+
+
+
+
+@app.route('/predictAgainstTime')
+def predictAgainstTime():
+    global trained
+    global time
+    global timeFormat
+    print(time, timeFormat)
+    futurePredictions = trained.predict(time, timeFormat)
+    return make_response(futurePredictions)
+
+
+
 
 
 
 if __name__ == "__main__":
-
+    global csvData
     global df
     global tempdf
     global time
@@ -720,11 +657,11 @@ if __name__ == "__main__":
     global autoPrediction
     allJunctionsDfResult = list()
     global gotInput
+    global trained
     gotInput = list()
     autoPrediction = True
-
-    testRatio2 = 0.1
     global junctions
+    global autoTrainedModels
 
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
@@ -738,43 +675,9 @@ if __name__ == "__main__":
 
     junctions = np.unique(df.Junction)
 
-    global allJunctionsAccuracies
-    global allJunctionsAccuracyScore
-    global allJunctionsPredictedTableData
-    global allJunctionsPlotData
-
-    allJunctionsAccuracies = dict()
-    allJunctionsAccuracyScore = dict()
-    allJunctionsPredictedTableData = dict()
-    allJunctionsPlotData = dict()
-
-    print('jn',junctions)    
+    autoTrainedModels = dict()
     for i in junctions:
-        junction = i
-        time = 2
-        timeFormat = 'Days'
-        testRatio = 0.1
-        algorithm = 'Random Forest Regression'
-        predict2()
-        allJunctionsAccuracies[i] = accuracies
-        allJunctionsAccuracyScore[i] = accuracyScore
-        allJunctionsPlotData[i] = plotData
+        autoTrained = Train(tempdf, 'Random Forest Regression', i, 0.2)
+        autoTrainedModels[i] = autoTrained
 
-
-        arr = []
-        head = dfResult
-
-        data2 = head.to_dict()
-        anycol = ""
-        for j in data2:
-            anycol = j
-            break
-        for j in range(len(data2[anycol])):
-            field = {}
-            for k in data2:
-                field[k] = data2[k][j]
-            arr.append(field)
-
-        allJunctionsPredictedTableData[i] = arr
-    
     app.run()
