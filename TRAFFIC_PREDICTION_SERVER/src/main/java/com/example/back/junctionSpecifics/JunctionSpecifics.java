@@ -31,14 +31,4 @@ public class JunctionSpecifics {
 		this.roadwayWidthMaxVehiclesMapService = roadwayWidthMaxVehiclesMapService;
 	}
 	
-	@GetMapping("/cleanJunctionSpecificTables")
-	public ResponseEntity<?> cleanJunctionSpecificTables() {
-		
-		junctionDistrictMapService.truncateRedundantJunctionDistrictMaps();
-		junctionRoadwayWidthMapService.truncateRedundantJunctionRoadwayWidthMaps();
-		roadwayWidthMaxVehiclesMapService.truncateRoadwayWidthMaxVehiclesMaps();
-		
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-
 }

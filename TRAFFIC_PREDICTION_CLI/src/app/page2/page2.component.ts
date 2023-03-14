@@ -3,11 +3,10 @@ import { PropService } from '../services/propService/prop.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { FlaskAutopredictedService } from '../services/flaskAutoPredictedService/flask.autopredicted.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
-import { Routes, Router, RouterModule } from '@angular/router';
-import { JunctionSpecificsService } from '../services/junctionSpecifics/junction-specifics.service';
+import { Router, NavigationEnd } from '@angular/router';
+import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 
 
 @Component({
@@ -21,10 +20,14 @@ export class Page2Component implements OnInit {
 		private propService: PropService,
 		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService,
-		private flaskAutoPredictedService: FlaskAutopredictedService,
 		private junctionSpecificsService: JunctionSpecificsService
-	) {}
+	) {
+	}
 
+	reload: boolean = false
+	scrollnumber: number = 0
+	showMaxCapacity: boolean = false
+	numberOfTimesCrossedMaxCapacity: number = 0
 	junctionComparisonData: any
 	predictionsReady: boolean = false
 	predictionsOption: string = 'Line Plot'
@@ -130,6 +133,34 @@ export class Page2Component implements OnInit {
 	x: any
 	testRatio: number = 0
 
+	ngOnInit() {
+		//  this.router.events.subscribe((event) => {
+        //     if (!(event instanceof NavigationEnd)) {
+        //         return;
+        //     }
+        //     window.scrollTo(0, 0)
+        // });
+		this.resultTableReady = true
+		this.junctionSpecificsService.getAllJunctions().subscribe({
+			next: (response) => {
+				this.junctions = Object.values(response)
+				this.dataVisualizationJunctionName = this.junctions[0]
+				this.junctionToBePlotted = this.junctions[0]
+				this.junctionChoice = this.junctions[0]
+
+				this.getAllJunctionSpecificDataFromDB().then(() => {
+					this.duration = 1
+					this.time = 'Months'
+					this.predict()
+				})
+
+			},
+			error: (error: HttpErrorResponse) => {
+
+			}
+		})
+	}
+
 
 	navigateToTraining() {
 		this.router.navigate(['/training'])
@@ -157,6 +188,7 @@ export class Page2Component implements OnInit {
 
 
 	barChart(param1: Array<string>, param2: Array<number>) {
+		if (this.accuracyComparison != null) { this.accuracyComparison.destroy() }
 		this.accuracyComparison = new Chart("accuracyComparison", {
 			type: 'bar',
 			data: {
@@ -197,7 +229,6 @@ export class Page2Component implements OnInit {
 		// plot chart (canvas) to show results
 		// destroy chart if already in use
 		if (this.myChart != null) { this.myChart.destroy() }
-
 
 		this.myChart = new Chart("myChart", {
 			type: 'line',
@@ -343,7 +374,6 @@ export class Page2Component implements OnInit {
 
 			this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
 				next: (response) => {
-					console.log('jm',response)
 					for (const element of Object.values(response)) {
 						this.junctionDistrictMaps.set(element['junctionName'], element['district'])
 					}
@@ -352,7 +382,6 @@ export class Page2Component implements OnInit {
 
 						this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
 							next: (response) => {
-								console.log('jrw', response)
 								for (const element of Object.values(response)) {
 									this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
 								}
@@ -361,7 +390,6 @@ export class Page2Component implements OnInit {
 
 									this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
 										next: (response) => {
-											console.log('rwmv', response)
 											for (const element of Object.values(response)) {
 												this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
 											}
@@ -375,24 +403,27 @@ export class Page2Component implements OnInit {
 
 											if (response != '') {
 												this.junctionSpecificDetailsProvided = true
+											} else {
+												// review later
 											}
 										},
 										error: (error: HttpErrorResponse) => {
-											console.log(error)
 											alert(error)
 										}
 									})
+								} else {
+									// review later
 								}
 							},
 							error: (error: HttpErrorResponse) => {
-								console.log(error)
 								alert(error)
 							}
 						})
+					} else {
+						// review later
 					}
 				},
 				error: (error: HttpErrorResponse) => {
-					console.log(error)
 					alert(error)
 				}
 			})
@@ -403,6 +434,10 @@ export class Page2Component implements OnInit {
 
 
 	renderPredictions() {
+		this.numberOfTimesCrossedMaxCapacity = 0
+		this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
+		this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
+		this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
 		this.currentJunctionsPredictedData = this.allJunctionsPredictedData[this.junctionChoice]
 		this.numberOfRecordsResult = this.currentJunctionsPredictedData.length
 		this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
@@ -411,8 +446,21 @@ export class Page2Component implements OnInit {
 			this.currentJunctionPlotData[0]['vehicles'], 
 			this.currentJunctionPlotData[0]['datetime']
 		)
+
 		let maxVehicles: Array<number> = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
 		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, maxVehicles)
+
+		for (let element of this.vehiclesToBePlotted) {
+			if (element > this.currentMaxVehicles) {
+				// console.log(element, this.currentMaxVehicles)
+				this.numberOfTimesCrossedMaxCapacity ++
+			}
+		}
+		if (this.numberOfTimesCrossedMaxCapacity === 0) {
+			this.showMaxCapacity = false
+		} else {
+			this.showMaxCapacity = true
+		}
 	}
 
 
@@ -448,59 +496,27 @@ export class Page2Component implements OnInit {
 										this.renderJunctionComparison()
 									},
 									error: (error: HttpErrorResponse) => {
-										console.log(error)
 										alert(error.message)
 									}
 								})
 
 							},
 							error: (error: HttpErrorResponse) => {
-								console.log(error)
 								alert(error.message)
 							}
 						})
 
 					},
 					error: (error: HttpErrorResponse) => {
-						console.log(error)
 						alert(error.message)
 					}
 				})
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
 	}
-
-
-
-
-	ngOnInit() {
-		this.resultTableReady = true
-		this.flaskService.getAllJunctions().subscribe({
-			next: (response) => {
-				this.dataVisualizationJunctionName = this.junctions[0]
-				this.junctionToBePlotted = this.junctions[0]
-				this.junctions = Object.values(response)
-				this.junctionChoice = this.junctions[0]
-
-				this.getAllJunctionSpecificDataFromDB().then(() => {
-					console.log(this.currentMaxVehicles)
-					this.duration = 1
-					this.time = 'Months'
-					this.predict()
-				})
-
-			},
-			error: (error: HttpErrorResponse) => {
-
-			}
-		})
-	}
-
-
 
 
 

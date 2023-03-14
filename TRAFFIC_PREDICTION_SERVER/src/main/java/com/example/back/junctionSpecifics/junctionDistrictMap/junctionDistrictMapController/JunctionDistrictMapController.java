@@ -29,7 +29,7 @@ public class JunctionDistrictMapController {
 		
 		log.warn("DELETE: /junctionDistrict/truncateRedundantJunctionDistrictMaps");
 		junctionDistrictMapService.truncateRedundantJunctionDistrictMaps();
-		
+
 		for (JunctionDistrictMap i: junctionDistrictMapsToBeAdded) {
 			log.warn("POST: /junctionDistrict/addJunctionDistrictMap");
 			JunctionDistrictMap junctionDistrictMap = junctionDistrictMapService.addJunctionDistrictMap(i);
@@ -44,7 +44,5 @@ public class JunctionDistrictMapController {
 		List<JunctionDistrictMap> junctionDistrictMaps = junctionDistrictMapService.getAllJunctionDistrictMaps();
 		return junctionDistrictMaps;
 	}
-
-    
-
+	
 }

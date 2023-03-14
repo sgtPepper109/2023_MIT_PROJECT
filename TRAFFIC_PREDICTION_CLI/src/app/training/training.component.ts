@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { Chart } from 'chart.js/auto';
+import { Chart, TimeScale } from 'chart.js/auto';
 import { FormBuilder } from '@angular/forms';
-import { JunctionSpecificsService } from '../services/junctionSpecifics/junction-specifics.service';
+import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
+import { ngxCsv } from 'ngx-csv';
+import { SampleCsvData } from 'src/assets/sample';
+import { transition } from '@angular/animations';
 
 @Component({
 	selector: 'app-training',
@@ -17,6 +20,8 @@ import { JunctionSpecificsService } from '../services/junctionSpecifics/junction
 
 export class TrainingComponent implements OnInit {
 	constructor(
+		private sampleCsv: SampleCsvData,
+		private http: HttpClient,
 		private router: Router,
 		private propService: PropService,
 		private _snackBar: MatSnackBar,
@@ -26,6 +31,12 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
+	alreadyTrained: boolean = false
+	listAllTrained: Array<Array<any>> = []
+	file: any
+	junctionSpecificDataAvailable: boolean = false;
+	fileProcessing: boolean = false
+	datasetUploaded: boolean = false
 	modelSummaryReady: boolean = false
 	futurePredictionsPlotData: any
 	futurePredictionsTableData: any
@@ -149,22 +160,41 @@ export class TrainingComponent implements OnInit {
 	currentRoadwayWidth: any
 	currentMaxVehicles: any
 	junctionSpecificDetailsProvided: boolean = false
+	junctionsAvailableForTraining: Array<string> = []
 
 	ngOnInit() { 
 
 		/* TODO document why this method 'ngOnInit' is empty */
-		this.flaskService.getAllJunctions().subscribe({
+		this.junctionSpecificsService.getAllJunctions().subscribe({
 			next: (response) => {
 				this.junctions = Object.values(response)
 				this.junctions2 = this.junctions
 				this.propService.junctions = this.junctions
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
+		this.flaskService.getListOfAllTrained().subscribe({
+			next: (response) => {
+				this.listAllTrained = Object.values(response)
+			},
+			error: (error: HttpErrorResponse) => {
+				alert(error.message)
+			}
+		})
+		// this.flaskService.getAllUniqueJunctions().subscribe({
+		// 	next: (response) => {
+		// 		console.log(response)
+		// 		this.junctionsAvailableForTraining = Object.values(response)
+		// 	},
+		// 	error: (error: HttpErrorResponse) => {
+		// 		console.log(error)
+		// 		alert(error.message)
+		// 	}
+		// })
 	}
+
 
 	changePredictionsOption() {
 		if (this.predictionsOption == 'Line Plot') {
@@ -231,20 +261,22 @@ export class TrainingComponent implements OnInit {
 						data: y,
 						borderWidth: 1,
 						borderColor: '#900',
-						fill: false
+						fill: false,
+						pointRadius: 2
 					},
 					{
 						label: 'Max Vehicles at Junction ',
 						data: z,
 						borderWidth: 1,
 						borderColor: '#0000FF',
-						fill: false
+						fill: false,
+						pointRadius: 2
 					},
 					// {
 					// 	label: 'Max Value in prediction',
 					// 	data: this.maxInPlotArray,
-					// 	borderWidth: 1,
-					// 	borderColor: '#090',
+					// 	borderwidth: 1,
+					// 	bordercolor: '#090',
 					// 	fill: false,
 					// }
 				]
@@ -272,7 +304,27 @@ export class TrainingComponent implements OnInit {
 
 	}
 
+	downloadSample(file: any = '/assets/sample.csv') {
+		const options = {
+			fieldSeparator: ',',
+			quoteStrings: '',
+			decimalseparator: '.',
+			showLabels: true,
+			useBom: true,
+			noDownload: false,
+			headers: ['DateTime', 'Vehicles', 'Junction']
+		};
+		try {
+			new ngxCsv(this.sampleCsv.sampleCsvData, "sample", options);
+		} catch (error) {
+			alert(error)
+		}
+
+	}
+
 	fileChangeListener($event: any): void {
+
+		this.fileProcessing = true
 		const files = $event.srcElement.files;
 		let fileName = files[0]['name']
 		let header: boolean = true
@@ -281,28 +333,53 @@ export class TrainingComponent implements OnInit {
 		const arr = fileName.split('.')
 		if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
 
-		this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
+			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
 				next: (result): void => {
-					
-					this.flaskService.sendCsvData(result).subscribe()
-					for (const element of Object.values(result)) {
-						let record: Object = {
-							'Junction': element['Junction'],
-							'DateTime': element['DateTime'],
-							'Vehicles': element['Vehicles'],
+
+						
+					this.flaskService.sendCsvData(result).subscribe({
+						next: (response) => {
+							for (const element of Object.values(result)) {
+								let record: Object = {
+									'Junction': element['Junction'],
+									'DateTime': element['DateTime'],
+									'Vehicles': element['Vehicles'],
+								}
+								this.datetime = []
+								this.datetime.push(element.DateTime)
+								this.vehicles = []
+								this.vehicles.push(element.Vehicle)
+								this.csvData.push(record)
+								this.csvDataParsed = true
+								this.propService.data = this.csvData
+							}
+							this.datasetUploaded = true
+							this.fileProcessing = false
+							this.flaskService.getAllUniqueJunctions().subscribe({
+								next: (response) => {
+									this.datasetUploaded = true
+									this.fileProcessing = false
+									this.junctionsAvailableForTraining = Object.values(response)
+
+									for (let element of this.junctionsAvailableForTraining) {
+										if (this.junctions2.includes(element) == false) {
+											this.junctions2.push(element)
+										}
+									}
+
+								},
+								error: (error: HttpErrorResponse) => {
+									alert(error.message)
+								}
+							})
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
 						}
-						this.datetime = []
-						this.datetime.push(element.DateTime)
-						this.vehicles = []
-						this.vehicles.push(element.Vehicle)
-						this.csvData.push(record)
-						this.csvDataParsed = true
-						this.propService.data = this.csvData
-					}
+					})
 				},
 				error: (error: NgxCSVParserError): void => {
-					console.log('Error', error);
 				}
 			});
 		} else {
@@ -436,6 +513,7 @@ export class TrainingComponent implements OnInit {
 						data: y,
 						borderWidth: 1,
 						fill: false,
+						pointRadius: 2
 					},
 				]
 			},
@@ -662,6 +740,7 @@ export class TrainingComponent implements OnInit {
 						borderWidth: 1,
 						borderColor: "#900",
 						fill: false,
+						pointRadius: 2,
 						data: actual
 					},
 					{
@@ -671,6 +750,7 @@ export class TrainingComponent implements OnInit {
 						borderWidth: 1,
 						borderColor: "#090",
 						fill: false,
+						pointRadius: 2,
 						data: predicted
 					},
 					{
@@ -702,11 +782,8 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-
-
-	// if new input is given then this function fires to switch off the predicted image 
-	disablePredictionImage() {
-		this.futurePredictionsChartHidden = true
+	changeTrainedModel() {
+		console.log('intrained')
 	}
 
 	// navigate to page2
@@ -760,7 +837,13 @@ export class TrainingComponent implements OnInit {
 			next: (response) => {
 				for (const element of Object.values(response)) {
 					this.junctionDistrictMaps.set(element['junctionName'], element['district'])
+					
+					if (element['junctionName'] == this.inputJunction) {
+						this.junctionSpecificDataAvailable = true
+					}
+
 				}
+
 
 				if (response != '') {
 
@@ -789,21 +872,18 @@ export class TrainingComponent implements OnInit {
 										}
 									},
 									error: (error: HttpErrorResponse) => {
-										console.log(error)
 										alert(error)
 									}
 								})
 							}
 						},
 						error: (error: HttpErrorResponse) => {
-							console.log(error)
 							alert(error)
 						}
 					})
 				}
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error)
 			}
 		})
@@ -814,130 +894,167 @@ export class TrainingComponent implements OnInit {
 
 
 	startTraining() {
+		this.predictionReady = false
+		this.comparisonChartHidden = false
+		this.modelSummaryReady = false
+		this.comparisonTableReady = false
 		this.modelSummary = []
 		this.csvDataStored = true
+		this.startedTraining = true
 		if (this.csvDataStored) {
-			this.startedTraining = true
 			this.dataSource = this.csvData.slice(this.index, this.index + 5)
 			this.numberOfRecords = this.csvData.length
 			this.testRatio = parseFloat(this.inputTestRatio)
 			this.startProcess = true
 			this.toggleErrorString = false
 			if (this.inputJunction != '' && this.inputTestRatio != '' && this.inputAlgorithm != '') {
-				let trainingSpecificData: object = {
+				interface trainingDetails {
+					junction: string,
+					testRatio: number,
+					algorithm: string
+				}
+
+				let trainingSpecificData: trainingDetails = {
 					junction: this.inputJunction,
 					testRatio: parseFloat(this.inputTestRatio),
 					algorithm: this.inputAlgorithm
 				}
-
-				// existing data
-				this.flaskService.getPlot().subscribe({
-					next: (response) => {
-						this.recievedPlotData = response
-						this.junctionChoice = this.inputJunction
-						this.toggleDataVisualizationTable = true
-						this.changeJunctionToBePlotted()
-					},
-					error: (error: HttpErrorResponse) => {
-						console.log(error)
-						alert(error.message)
-					}
-				})
-
-				this.flaskService.sendTrainingSpecifics(trainingSpecificData).subscribe({
-					next: (response) => {
-
-						this.flaskService.train().subscribe({
-							next: (response) => {
-								this.predictionReady = true
-								this.startedTraining = false
-
-								// switch to display comparison table
-								this.comparisonTableReady = true
-								// get data in a variable
-								this.comparisonTableData = response
-								// get the row data from table data recieved as response
-								this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-								// get total number of records
-								this.numberOfRecordsPredicted = Object.values(response).length
-
-								this.flaskService.getModelSummary().subscribe({
-									next: (response: any) => {
-										this.modelSummary = Object.values(response)
-										this.modelSummaryReady = true
-									},
-									error: (error: HttpErrorResponse) => {
-										console.error(error)
-										alert(error.message)
-									}
-								})
-
-								this.flaskService.getActualPredictedForPlot().subscribe({
-									next: (response) => {
-										this.comparisonChartHidden = false
-										console.log('resp', response)
-										// set it to the variable 
-										this.comparisonChartData = response
-
-										// differentiate plot data into actual, predicted and indices
-										this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-										this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-										this.difference = Object.values(response)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-										console.log(this.difference)
-										this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-
-										// get total number of records
-										this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
-
-										// destroy comparison chart if already in use
-										if (this.predictedChart != null) { this.predictedChart.destroy() }
-
-										// then plot comparison chart
-										this.compareChart(this.labels, this.actual, this.predicted, this.difference)
-
-									},
-									error: (error: HttpErrorResponse) => {
-										console.log(error)
-										alert(error.message)
-									}
-								})
-
-
-								this.flaskService.getAccuracies().subscribe({
-									next: (response) => {
-										this.gotAccuracies = true
-										this.accuracies = Object.values(response)
-										this.accuracyBarChartHidden = false
-										
-										let algorithms: Array<string> = []
-										let accuracyScores: Array<number> = []
-										for (let i of this.accuracies) {
-											algorithms.push(i.algorithm)
-											accuracyScores.push(i.accuracyScore)
-										}
-										this.barChart(algorithms, accuracyScores)
-									},
-									error: (error: HttpErrorResponse) => {
-										console.log(error)
-										alert(error.message)
-									}
-								})
-
-
-							},
-							error: (error: HttpErrorResponse) => {
-								console.log(error)
-								alert(error.message)
+				this.alreadyTrained = false
+				for (const element of this.listAllTrained) {
+					if (element[0] == trainingSpecificData['junction']) {
+						if (element[1] == trainingSpecificData['algorithm']) {
+							if (element[2] == trainingSpecificData['testRatio'].toString()) {
+								this.alreadyTrained = true
+								console.log('already trained')
 							}
-						})
-					},
-					error: (error: HttpErrorResponse) => {
-						console.log(error)
-						alert(error.message)
+						}
 					}
-				})
+				}
+				console.log('al',this.alreadyTrained)
+
+				
+				if (this.alreadyTrained || this.junctionsAvailableForTraining.includes(this.inputJunction)) {
+
+					// existing data
+					this.flaskService.getPlot().subscribe({
+						next: (response) => {
+							this.recievedPlotData = response
+							this.junctionChoice = this.inputJunction
+							this.toggleDataVisualizationTable = true
+							this.changeJunctionToBePlotted()
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
+						}
+					})
+
+
+
+					this.flaskService.sendTrainingSpecifics(trainingSpecificData).subscribe({
+						next: (response) => {
+
+							this.flaskService.train().subscribe({
+								next: (response) => {
+									this.predictionReady = true
+									this.startedTraining = false
+
+									// switch to display comparison table
+									this.comparisonTableReady = true
+									// get data in a variable
+									this.comparisonTableData = response
+									// get the row data from table data recieved as response
+									this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+									// get total number of records
+									this.numberOfRecordsPredicted = Object.values(response).length
+
+
+									this.flaskService.getListOfAllTrained().subscribe({
+										next: (response) => {
+											console.log(response)
+											this.listAllTrained = Object.values(response)
+											console.log(this.listAllTrained)
+										},
+										error: (error: HttpErrorResponse) => {
+											alert(error.message)
+										}
+									})
+
+
+									this.flaskService.getActualPredictedForPlot().subscribe({
+										next: (response) => {
+											this.comparisonChartHidden = false
+											// set it to the variable 
+											this.comparisonChartData = response
+
+											// differentiate plot data into actual, predicted and indices
+											this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+											this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+											this.difference = Object.values(response)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+											this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+
+											// get total number of records
+											this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
+
+											// destroy comparison chart if already in use
+											if (this.predictedChart != null) { this.predictedChart.destroy() }
+
+											// then plot comparison chart
+											this.compareChart(this.labels, this.actual, this.predicted, this.difference)
+
+										},
+										error: (error: HttpErrorResponse) => {
+											alert(error.message)
+										}
+									})
+
+									this.flaskService.getAccuracies().subscribe({
+										next: (response) => {
+											this.gotAccuracies = true
+											this.accuracies = Object.values(response)
+											this.accuracyBarChartHidden = false
+											
+											let algorithms: Array<string> = []
+											let accuracyScores: Array<number> = []
+											for (let i of this.accuracies) {
+												algorithms.push(i.algorithm)
+												accuracyScores.push(i.accuracyScore)
+											}
+											this.barChart(algorithms, accuracyScores)
+										},
+										error: (error: HttpErrorResponse) => {
+											alert(error.message)
+										}
+									})
+
+									this.flaskService.getModelSummary().subscribe({
+										next: (response: any) => {
+											this.modelSummary = Object.values(response)
+											this.modelSummaryReady = true
+										},
+										error: (error: HttpErrorResponse) => {
+											alert(error.message)
+										}
+									})
+
+
+								},
+								error: (error: HttpErrorResponse) => {
+									alert(error.message)
+								}
+							})
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
+						}
+					})
+				} else {
+					this.startedTraining = false
+					this._snackBar.open('Note: ' + this.inputJunction + ' does not exist in the dataset (required for training)', '\u2716')
+				}
+
 
 			} else {
+				this.startedTraining = false
 				this._snackBar.open('Note: All fields are required', '\u2716')
 			}
 		}
@@ -985,25 +1102,21 @@ export class TrainingComponent implements OnInit {
 							this.plotDataReady = true
 							this.flaskService.getFuturePredictionsTable().subscribe({
 								next: (response) => {
-									console.log('futuretable', response)
 									this.futurePredictionsTableData = Object.values(response)
 									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
 									this.futurePredictionsReady = true
 								},
 								error: (error: HttpErrorResponse) => {
-									console.log(error)
 									alert(error.message)
 								}
 							})
 						},
 						error: (error: HttpErrorResponse) => {
-							console.log('error', error)
 							alert(error.message)
 						}
 					})
 				},
 				error: (error: HttpErrorResponse) => {
-					console.log(error)
 					alert(error.message)
 				}
 			})
@@ -1014,4 +1127,3 @@ export class TrainingComponent implements OnInit {
 
 
 }
-

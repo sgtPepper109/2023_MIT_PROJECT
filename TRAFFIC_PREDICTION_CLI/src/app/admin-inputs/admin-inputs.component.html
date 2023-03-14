@@ -44,209 +44,154 @@
     <section>
         <h1>Junction Properties</h1>
         <hr />
-        <mat-tab-group>
-            <mat-tab label="District">
-                <br />
-                <div>
-                    <h3>For <strong>{{currentJunctionForDistrict}}</strong></h3>
-                    <form class="example-form">
+        <div>
+            <button style="margin-left:10px" mat-raised-button color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                Add Record
+            </button>
+            <br />
+            <br />
+            <table class="table" aria-describedby="table2-desc">
+                <thead>
+                    <tr>
+                        <th scope="col">Junction</th>
+                        <th scope="col">District</th>
+                        <th scope="col">Roadway Width</th>
+                        <th scope="col">Maximum Capacity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of allJunctionsInformation">
+                        <th scope="row">{{ record.junctionName }}</th>
+                        <td>{{ record.district }}</td>
+                        <td>{{ record.roadwayWidth }}</td>
+                        <td>{{ record.maxVehicles }}</td>
+                        <td style="width: 50px;">
+                            <button mat-icon-button color="primary" (click)="editRecord(record)" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </td>
+                        <td style="width: 50px;">
+                            <button mat-icon-button color="warn" (click)="delete(record)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Junction name</th>
-                                    <th scope="col">District name</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let junction of junctions">
-                                    <th scope="row">{{ junction }}</th>
-                                    <td>
-                                        
-                                        <mat-form-field appearance="fill" style="width: 500px;">
-                                            <mat-label>Enter District Name</mat-label>
-                                            <mat-select #districtInput (selectionChange)="trackDistrict(junction.toString(), districtInput.value)" name="districtInput">
-                                                <mat-option *ngFor="let district of districtList" [value]="district">
-                                                    {{ district }}
-                                                </mat-option>
-                                            </mat-select>
+
+
+            <div class="modal fade modal-lg" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Record</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container text-center">
+                                <div class="row">
+                                    <div class="col">
+                                        <mat-form-field appearance="outline">
+                                            <mat-label>Enter Junction Name</mat-label>
+                                            <input [(ngModel)]="newJunctionName" type="text" matInput placeholder="Enter Junction Name">
                                         </mat-form-field>
-
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
-                    <br />
-                    <div *ngIf="saveJunctionDistrictButton">
-                        <button mat-raised-button color="primary" (click)="saveJunctionDistrictMaps()">Save</button>
-                        <br />
-                        <br />
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <select id="floatingSelect" class="form-select" [(ngModel)]="newDistrict" aria-label="Default select example">
+                                                <option value="{{district}}" *ngFor="let district of allDistricts">{{district}}</option>
+                                            </select>
+                                            <label for="floatingSelect">Enter District</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div style="width: 250px" class="form-floating">
+                                            <select id="floatingSelect" class="form-select" [(ngModel)]="newRoadwayWidth" aria-label="Default select example">
+                                                <option value="{{roadwayWidth}}" *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}} metres</option>
+                                            </select>
+                                            <label for="floatingSelect">Enter Roadway Width</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <mat-form-field appearance="outline">
+                                            <mat-label>Enter Maximum Vehicles Capacity</mat-label>
+                                            <input [(ngModel)]="newMaxVehicles" type="number" matInput placeholder="Enter Maximum Vehicles Capacity">
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button mat-raised-button color="warn" data-bs-dismiss="modal">Close</button>
+                            <button mat-raised-button color="primary" (click)="addRecord()">Save</button>
+                        </div>
                     </div>
-                </div>
-                <br />
-                <br />
-                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
-                    {{ errorString }}
-                </div>
-            </mat-tab>
-
-
-
-            <mat-tab label="Roadway width">
-                <br />
-                <br />
-                <div>
-                    <h3>For <strong>Junction {{currentJunctionForRoadwayWidth}}</strong></h3>
-                    <form class="example-form">
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Junction name</th>
-                                    <th scope="col">Roadway Width</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let junction of junctions">
-                                    <th scope="row">{{ junction }}</th>
-                                    <td>
-                                        
-                                        <mat-form-field appearance="fill" style="width: 500px;">
-                                            <mat-label>Enter Roadway Width</mat-label>
-                                            <mat-select #roadwayWidthInput (selectionChange)="trackRoadwayWidth(junction.toString(), roadwayWidthInput.value)" name="roadwayWidthInput">
-                                                <mat-option *ngFor="let roadwayWidth of roadwayWidthList" [value]="roadwayWidth">
-                                                    {{roadwayWidth}} m(metres)
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </form>
-                    <br />
-                    <div *ngIf="saveJunctionRoadwayWidthButton">
-                        <button mat-raised-button color="primary" (click)="saveJunctionRoadwayWidthMaps()">Save</button>
-                        <br />
-                        <br />
-                    </div>
-                </div>
-                <!-- Display error message when validation suggests errors -->
-                <br />
-                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString2" class="alert alert-danger" role="alert">
-                    {{ errorString2 }}
-                </div>
-            </mat-tab>
-
-
-
-
-            <mat-tab label="Maximum Vehicles">
-                <br />
-                <br />
-                <div>
-                    <h3>For <strong>Junction {{currentJunctionForMaxVehicles}}</strong></h3>
-                    <form class="example-form">
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Roadway Width</th>
-                                    <th scope="col">Maximum Amount of Vehicles</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let roadwayWidth of roadwayWidthList">
-                                    <th scope="row">{{ roadwayWidth }} m (metres)</th>
-                                    <td>
-                                        
-                                        <mat-form-field appearance="outline" class="example-full-width" style="width: 500px;">
-                                            <mat-label>Enter maximum amount of vehicles</mat-label>
-                                            <input #maxVehiclesInput (change)="trackMaxVehicles(roadwayWidth, maxVehiclesInput.value)" matInput name="maxVehiclesInput" placeholder="Capacity of roadway width of {{roadwayWidth}} metres" type="number">
-                                        </mat-form-field>
-
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </form>
-                    <br />
-                    <button mat-raised-button color="primary" (click)="saveRoadwayWidthMaxVehiclesMaps()">Save</button>
-                </div>
-                <!-- Display error message when validation suggests errors -->
-                <br />
-                <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString3" class="alert alert-danger" role="alert">
-                    {{ errorString3 }}
-                </div>
-            </mat-tab>
-        </mat-tab-group>
-
-        <div *ngIf="savedJunctionDistricts">
-            <h4>Records</h4>
-        </div>
-
-        <div class="container text-center">
-            <div class="row">
-                <mat-divider></mat-divider>
-                <br />
-                <div class="col">
-                    <table *ngIf="savedJunctionDistricts" class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                        <thead>
-                            <tr>
-                                <th scope="col">Junction Name</th>
-                                <th scope="col">District Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let obj of junctionDistricts">
-                                <th scope="row">{{ obj.junctionName }}</th>
-                                <td>{{ obj.district }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col">
-                    <table *ngIf="savedJunctionRoadwayWidths" class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                        <thead>
-                            <tr>
-                                <th scope="col">Junction Name</th>
-                                <th scope="col">Roadway Width</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let obj of junctionRoadwayWidths">
-                                <th scope="row">{{ obj.junctionName }}</th>
-                                <td>{{ obj.roadwayWidth }} metres</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col">
-                    <table *ngIf="savedRoadwayWidthMaxVehicles" class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                        <thead>
-                            <tr>
-                                <th scope="col">RoadwayWidth</th>
-                                <th scope="col">Capacity of vehicles</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let obj of roadwayWidthMaxVehicles">
-                                <th scope="row">{{ obj.roadwayWidth }} metres</th>
-                                <td>{{ obj.maxVehicles }} metres</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
-        </div>
-        <!-- <div class="text-center">
-            <button mat-raised-button color="primary" *ngIf="showSubmitButton" (click)="submitToTraining()">Continue to Training</button>
-        </div> -->
-        <div style="width:500px" id="errorAlert" *ngIf="toggleErrorString4" class="alert alert-danger" role="alert">
-            {{ errorString4 }}
+
+
+
+            <!-- Modal -->
+            <div class="modal fade modal-lg" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit <strong>{{recordToBeEdited.junctionName}}'s</strong> information</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table" aria-describedby="table2-desc">
+                                <thead>
+                                    <tr>
+                                        <td></td>
+                                        <th scope="col"><h3 style="font-weight: bold;">Old Information</h3></th>
+                                        <th scope="col"><h3 style="font-weight: bold;">New Information</h3></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row"><h3 style="font-weight: bold;">District</h3></th>
+                                        <td><h3>{{ recordToBeEdited.district }}</h3></td>
+                                        <td>
+                                            <select class="form-select" [(ngModel)]="updatedDistrict" aria-label="Default select example">
+                                                <option value="{{district}}" *ngFor="let district of allDistricts">{{district}}</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><h3 style="font-weight: bold;">Roadway Width</h3></th>
+                                        <td><h3>{{ recordToBeEdited.roadwayWidth }}</h3></td>
+                                        <td>
+                                            <select class="form-select" [(ngModel)]="updatedRoadwayWidth" aria-label="Default select example">
+                                                <option value="{{roadwayWidth}}" *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}} metres</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><h3 style="font-weight: bold;">Maximum Vehicles Capacity</h3></th>
+                                        <td><h3>{{ recordToBeEdited.maxVehicles }}</h3></td>
+                                        <td>
+                                            <mat-form-field style="width:395px" appearance="outline">
+                                                <mat-label>Max Vehicles Capacity</mat-label>
+                                                <input [(ngModel)]="updatedMaxVehicles" type="number" matInput placeholder="Enter Maximum Vehicles Capacity">
+                                            </mat-form-field>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button mat-raised-button color="warn" data-bs-dismiss="modal">Close</button>
+                            <button mat-raised-button color="primary" (click)="update()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
         </div>
     </section>
 </div>

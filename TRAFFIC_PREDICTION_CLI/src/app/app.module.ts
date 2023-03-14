@@ -36,6 +36,12 @@ import { AppConfiguration } from './app-configuration.service'
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
+import { ScrollingModule } from '@angular/cdk/scrolling'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTreeModule } from '@angular/material/tree';
+
+
 
 @NgModule({
 	declarations: [
@@ -74,7 +80,11 @@ import { MatBadgeModule } from '@angular/material/badge';
 		MatSlideToggleModule,
 		MatProgressBarModule,
 		MatTooltipModule,
-		MatBadgeModule
+		MatBadgeModule,
+		MatProgressSpinnerModule,
+		ScrollingModule,
+		MatExpansionModule,
+		MatTreeModule
 	],
 	providers: [
 		{

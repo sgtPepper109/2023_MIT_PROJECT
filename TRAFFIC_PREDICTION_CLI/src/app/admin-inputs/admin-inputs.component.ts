@@ -1,14 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { JunctionSpecificsService } from '../services/junctionSpecifics/junction-specifics.service';
+import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 import { Router } from '@angular/router';
-import { JunctionDistrictMap } from '../services/junctionDistrictMap/junction-district-map';
-import { JunctionRoadwayWidthMap } from '../services/junctionRoadwayWidth/junction-roadway-width-map';
-import { RoadwayWidthMaxVehiclesMap } from '../services/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
+import { JunctionDistrictMap } from '../interfaces/junctionDistrictMap/junction-district-map';
+import { JunctionRoadwayWidthMap } from '../interfaces/junctionRoadwayWidth/junction-roadway-width-map';
+import { RoadwayWidthMaxVehiclesMap } from '../interfaces/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { JunctionInformation } from '../interfaces/junctionInformation/junction-information';
 
 @Component({
 	selector: 'app-admin-inputs',
@@ -20,183 +21,121 @@ export class AdminInputsComponent implements OnInit {
 		public flaskService: FlaskService,
 		public propService: PropService,
 		public junctionSpecificsService: JunctionSpecificsService,
-		private ngxCsvParser: NgxCsvParser,
 		public router: Router,
 		private _snackBar: MatSnackBar
 	) {}
 
-	currentJunctionForDistrict: string = ""
-	currentJunctionForRoadwayWidth: string = ""
-	currentJunctionForMaxVehicles: string = ""
-	currentJunctionForDistrictIndex: number = 0
-	currentJunctionForRoadwayWidthIndex: number = 0
-	currentJunctionForMaxVehiclesIndex: number = 0
-	statusJunctionDistrict: string = "Next"
-	queryJunctionDistrict: boolean = false
-	queryJunctionMaxVehicles: boolean = false
-	queryJunctionRoadwayWidth: boolean = false
-	saveJunctionDistrictButton: boolean = false
-	saveJunctionRoadwayWidthButton: boolean = false
-	showSubmitButton: boolean = false
-	districtList: Array<string> = []
-	roadwayWidthList: Array<string> = []
-	savedJunctionDistricts: boolean = false
-	savedJunctionRoadwayWidths: boolean = false
-	savedRoadwayWidthMaxVehicles: boolean = false
-
-	junctions: Array<number> = []
-	
-	roadwayWidthInput: string = ""
-	districtInput: string = ""
-	maxVehiclesInput: string = ""
-	errorString: string = ""
-	toggleErrorString: boolean = false
-	errorString2: string = ""
-	toggleErrorString2: boolean = false
-	errorString3: string = ""
-	toggleErrorString3: boolean = false
-	errorString4: string = ""
-	toggleErrorString4: boolean = false
-	junctionInputGivenForDistricts: Array<string> = []
-	junctionInputGivenForRoadwayWidth: Array<string> = []
-	junctionInputGivenForMaxVehicles: Array<string> = []
-
-	junctionDistricts: JunctionDistrictMap[] = []
-	junctionDistrictMaps: Map<string, string> = new Map()
-	junctionRoadwayWidths: JunctionRoadwayWidthMap[] = []
-	junctionRoadwayWidthMaps: Map<string, number> = new Map()
-	roadwayWidthMaxVehicles: RoadwayWidthMaxVehiclesMap[] = []
-	roadwayWidthMaxVehiclesMaps: Map<number, number> = new Map()
-
-
+	recordToBeDeleted: any = {}
+	newJunctionName: string = ""
+	newDistrict: string = ""
+	newRoadwayWidth: number = 0
+	newMaxVehicles: number = 0
+	updatedDistrict: string = ""
+	updatedRoadwayWidth: number = 0
+	updatedMaxVehicles: number = 0
+	recordToBeEdited: any = {}
+	junctions: Array<string> = []
+	junctionDistrictMaps: Map<string, string> = new Map();
+	junctionRoadwayWidthMaps: Map<string, number> = new Map();
+	roadwayWidthMaxVehiclesMaps: Map<number, number> = new Map();
+	allJunctionsInformation: Array<JunctionInformation> = []
+	allJunctionDistrictMaps: Array<JunctionDistrictMap> = []
+	allJunctionRoadwayWidthMaps: Array<JunctionRoadwayWidthMap> = []
+	allRoadwayWidthMaxVehiclesMaps: Array<RoadwayWidthMaxVehiclesMap> = []
+	allDistricts: Array<string> = []
+	allRoadwayWidths: Array<number> = []
 
 	ngOnInit(): void {
-
-		this.junctionSpecificsService.cleanJuntionSpecificTables().subscribe({
-			next: (response) => {
-				console.log('cleaned')
-			},
-			error: (error: HttpErrorResponse) => {
-				console.log(error)
-				alert(error.message)
-			}
-		})
-
-		this.flaskService.getAllJunctions().subscribe({
+		this.junctionSpecificsService.getAllJunctions().subscribe({
 			next: (response) => {
 				this.junctions = Object.values(response)
-				this.propService.junctions = this.junctions
-				this.currentJunctionForDistrict = this.junctions[this.currentJunctionForDistrictIndex].toString()
-				this.currentJunctionForRoadwayWidth = this.junctions[this.currentJunctionForRoadwayWidthIndex].toString()
-				this.currentJunctionForMaxVehicles = this.junctions[this.currentJunctionForMaxVehiclesIndex].toString()
+
+
+				this.junctionSpecificsService.getAllDistricts().subscribe({
+					next: (response) => {
+						for (let element of Object.values(response)) {
+							this.allDistricts.push(element.name)
+						}
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+
+				this.junctionSpecificsService.getAllRoadwayWidths().subscribe({
+					next: (response) => {
+						for (let element of Object.values(response)) {
+							this.allRoadwayWidths.push(element.roadway_width)
+						}
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+
+				this.getAllJunctionSpecificDataFromDB();
+
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
 				alert(error.message)
 			}
 		})
+	}
 
 
-		this.junctionSpecificsService.getAllDistricts().subscribe({
+	getAllJunctionSpecificDataFromDB() {
+		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
 			next: (response) => {
-				for (const element of Object.values(response)) {
-					this.districtList.push(element.name)
+				this.junctionDistrictMaps.clear()
+				this.allJunctionDistrictMaps = Object.values(response)
+				for (let element of Object.values(response)) {
+					this.junctionDistrictMaps.set(element.junctionName, element.district)
 				}
-			},
-			error: (error: HttpErrorResponse) => {
-				console.log(error)
-				alert(error.message)
-			}
-		})
 
+				this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
+					next: (response) => {
+						this.junctionRoadwayWidthMaps.clear()
+						this.allJunctionRoadwayWidthMaps = Object.values(response)
+						for (let element of Object.values(response)) {
+							this.junctionRoadwayWidthMaps.set(element.junctionName, element.roadwayWidth)
+						}
 
-		this.junctionSpecificsService.getAllRoadwayWidths().subscribe({
-			next: (response) => {
-				for (const element of Object.values(response)) {
-					this.roadwayWidthList.push(element.roadway_width)
-				}
+						this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
+							next: (response) => {
+								this.roadwayWidthMaxVehiclesMaps.clear()
+								this.allRoadwayWidthMaxVehiclesMaps = Object.values(response)
+								for (let element of Object.values(response)) {
+									this.roadwayWidthMaxVehiclesMaps.set(element.roadwayWidth, element.maxVehicles)
+								}
 
-			},
-			error: (error: HttpErrorResponse) => {
+								this.allJunctionsInformation = []
+								for (let[key, value] of this.junctionDistrictMaps) {
+									let junctionInformation: JunctionInformation = {
+										junctionName: key,
+										district: this.junctionDistrictMaps.get(key)!,
+										roadwayWidth: this.junctionRoadwayWidthMaps.get(key)!,
+										maxVehicles: this.roadwayWidthMaxVehiclesMaps.get( this.junctionRoadwayWidthMaps.get(key)! )!
+									}
+									this.allJunctionsInformation.push(junctionInformation)
+								}
 
-			}
-		})
+							},
+							error: (error: HttpErrorResponse) => {
+								console.log(error)
+								alert(error.message)
+							}
+						})
 
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
 
-	}
-
-
-
-
-	
-	trackDistrict(param1: string, param2: string) {
-		this.junctionDistrictMaps.set(param1, param2)
-		if (this.junctionDistrictMaps.size === this.junctions.length) {
-			this.saveJunctionDistrictButton = true
-		}
-	}
-
-	trackRoadwayWidth(param1: string, param2: number) {
-		this.junctionRoadwayWidthMaps.set(param1, param2)
-		if (this.junctionRoadwayWidthMaps.size === this.junctions.length) {
-			this.saveJunctionRoadwayWidthButton = true	
-		}
-	}
-
-
-	trackMaxVehicles(param1: string, param2: string) {
-		let roadwayWidth = parseInt(param1)
-		let maxVehicles = parseInt(param2)
-		this.roadwayWidthMaxVehiclesMaps.set(roadwayWidth, maxVehicles)
-	}
-
-
-	showData() {
-		if (this.savedJunctionDistricts && this.savedJunctionRoadwayWidths && this.savedRoadwayWidthMaxVehicles) {
-			this.showSubmitButton = true
-		}
-
-	}
-
-	
-
-	saveJunctionDistrictMaps() {
-		for (let [key, value] of this.junctionDistrictMaps) {
-			let junctionDistrictObject: JunctionDistrictMap = {
-				junctionName: key,
-				district: value
-			}
-			this.junctionDistricts.push(junctionDistrictObject)
-		}
-
-		this.junctionSpecificsService.addJunctionDistrictMap(this.junctionDistricts).subscribe({
-			next: (response) => {
-				this.savedJunctionDistricts = true
-				this._snackBar.open('Records Saved Successfully', '\u2716')
-				this.showData()
-			},
-			error: (error: HttpErrorResponse) => {
-				console.log(error)
-				alert(error.message)
-			}
-		})
-
-
-	}
-
-	saveJunctionRoadwayWidthMaps() {
-		for (let [key, value] of this.junctionRoadwayWidthMaps) {
-			let junctionRoadwayWidthObject: JunctionRoadwayWidthMap = {
-				junctionName: key,
-				roadwayWidth: value
-			}
-			this.junctionRoadwayWidths.push(junctionRoadwayWidthObject)
-		}
-		this.junctionSpecificsService.addJunctionRoadwayWidthMap(this.junctionRoadwayWidths).subscribe({
-			next: (response) => {
-				this.savedJunctionRoadwayWidths = true
-				this._snackBar.open('Records Saved Successfully', '\u2716')
-				this.showData()
 			},
 			error: (error: HttpErrorResponse) => {
 				console.log(error)
@@ -206,49 +145,165 @@ export class AdminInputsComponent implements OnInit {
 	}
 
 
-	saveRoadwayWidthMaxVehiclesMaps() {
-		if (this.roadwayWidthMaxVehiclesMaps.size === this.roadwayWidthList.length) {
-			this.toggleErrorString3 = false
-			for (let [key, value] of this.roadwayWidthMaxVehiclesMaps) {
-				let roadwayWidthMaxVehiclesObject: RoadwayWidthMaxVehiclesMap = {
-					roadwayWidth: key,
-					maxVehicles: value
-				}
-				this.roadwayWidthMaxVehicles.push(roadwayWidthMaxVehiclesObject)
-			}
+	navigateToTraining() {
+		this.router.navigate(['/training'])
+	}
+	navigateToPredictions() {
+		this.router.navigate(['/prediction'])
+	}
 
-			this.junctionSpecificsService.addRoadwayWidthMaxVehiclesMap(this.roadwayWidthMaxVehicles).subscribe({
+
+	editRecord(record: JunctionInformation) {
+		this.recordToBeEdited = record
+	}
+
+	addRecord() {
+
+		let newJunctionInformation: JunctionInformation = {
+			junctionName: this.newJunctionName,
+			district: this.newDistrict,
+			roadwayWidth: this.newRoadwayWidth,
+			maxVehicles: this.newMaxVehicles
+		}
+
+		let newJunctionDistrictMap: JunctionDistrictMap = {
+			junctionName: this.newJunctionName,
+			district: this.newDistrict
+		}
+
+		let newJunctionRoadwayWidthMap: JunctionRoadwayWidthMap = {
+			junctionName: this.newJunctionName,
+			roadwayWidth: this.newRoadwayWidth
+		}
+
+		let newRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxVehiclesMap = {
+			roadwayWidth: this.newRoadwayWidth,
+			maxVehicles: this.newMaxVehicles
+		}
+
+
+		this.allJunctionDistrictMaps.push(newJunctionDistrictMap)
+		this.allJunctionRoadwayWidthMaps.push(newJunctionRoadwayWidthMap)
+		this.allRoadwayWidthMaxVehiclesMaps.push(newRoadwayWidthMaxVehiclesMap)
+
+		this.junctionSpecificsService.addSingleJunctionDistrictMap(newJunctionDistrictMap).subscribe({
+			next: (response) => {
+				this.junctionSpecificsService.addSingleJunctionRoadwayWidthMap(newJunctionRoadwayWidthMap).subscribe({
+					next: (response) => {
+						this.junctionSpecificsService.addSingleRoadwayWidthMaxVehiclesMap(newRoadwayWidthMaxVehiclesMap).subscribe({
+							next: (response) => {
+								this.allJunctionsInformation.push(newJunctionInformation)
+								this._snackBar.open('Added Record Successfully', '\u2716')
+							},
+							error: (error: HttpErrorResponse) => {
+								console.log(error)
+								alert(error.message)
+							}
+						})
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
+
+	}
+
+
+	update() {
+		let updatedJunctionInformation: JunctionInformation = {
+			junctionName: this.recordToBeEdited.junctionName,
+			district: this.updatedDistrict,
+			roadwayWidth: this.updatedRoadwayWidth,
+			maxVehicles: this.updatedMaxVehicles
+		}
+
+		let updatedJunctionDistrictMap: JunctionDistrictMap = {
+			junctionName: this.recordToBeEdited.junctionName,
+			district: this.updatedDistrict
+		}
+
+		let updatedJunctionRoadwayWidthMap: JunctionRoadwayWidthMap = {
+			junctionName: this.recordToBeEdited.junctionName,
+			roadwayWidth: this.updatedRoadwayWidth
+		}
+
+		let updatedRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxVehiclesMap = {
+			roadwayWidth: this.updatedRoadwayWidth,
+			maxVehicles: this.updatedMaxVehicles
+		}
+
+		this.junctionSpecificsService.updateJunctionDistrictMap(updatedJunctionDistrictMap).subscribe({
+			next: (response) => {
+				this.junctionSpecificsService.updateJunctionRoadwayWidthMap(updatedJunctionRoadwayWidthMap).subscribe({
+					next: (response) => {
+						this.junctionSpecificsService.updateRoadwayWidthMaxVehiclesMap(updatedRoadwayWidthMaxVehiclesMap).subscribe({
+							next: (response) => {
+								this.getAllJunctionSpecificDataFromDB()
+								this._snackBar.open('Updated Fields Successfully', '\u2716')
+							},
+							error: (error: HttpErrorResponse) => {
+								console.log(error)
+								alert(error.message)
+							}
+						})
+					},
+					error: (error: HttpErrorResponse) => {
+						console.log(error)
+						alert(error.message)
+					}
+				})
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
+	}
+
+
+	async deleteFromDB(record: any) {
+		let deletePromise = new Promise((resolve, reject) => {
+			this.junctionSpecificsService.deleteJunctionDistrictMap(record.junctionName).subscribe({
 				next: (response) => {
-					this.savedRoadwayWidthMaxVehicles = true
-					this._snackBar.open('Records Saved Successfully', '\u2716')
-					this.showData()
+					this.junctionSpecificsService.deleteJunctionRoadwayWidthMap(record.junctionName).subscribe({
+						next: (response) => {
+							this.junctionSpecificsService.deleteRoadwayWidthMaxVehiclesMap(record.roadwayWidth).subscribe({
+								next: (response) => {
+									this.allJunctionsInformation = []
+									resolve('deletedFromDB')
+								},
+								error: (error: HttpErrorResponse) => {
+									console.log(error)
+									alert(error.message)
+								}
+							})
+						},
+						error: (error: HttpErrorResponse) => {
+							console.log(error)
+							alert(error.message)
+						}
+					})
 				},
 				error: (error: HttpErrorResponse) => {
 					console.log(error)
 					alert(error.message)
 				}
 			})
-
-		} else {
-			this.errorString3 = "Note: Please fill in all the fields"
-			this.toggleErrorString3 = true
-		}
+		})
+		return deletePromise
 	}
 
-
-	submitToTraining() {
-		this.router.navigate(['/training'])
+	delete(record: any) {
+		this.deleteFromDB(record).then(() => {
+			this.getAllJunctionSpecificDataFromDB()
+		})
 	}
 
-
-
-
-	navigateToTraining() {
-		this.router.navigate(['/training']);
-	}
-	
-	navigateToPredictions() {
-		this.router.navigate(['/prediction']);
-	}
-	
 }
