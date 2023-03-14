@@ -27,7 +27,6 @@ export class NoopInterceptor implements HttpInterceptor {
 
 				case 'production':
 				this.trafficPredApiUrl = '/trafficsvr-1.0.0/';
-				console.log('this.appConfig.restTrafficProdUrl',this.appConfig.restTrafficProdUrl);
 				
 				clonedRequest = request.clone({
 					url: this.appConfig.restTrafficProdUrl + this.trafficPredApiUrl + request.url

@@ -8,44 +8,16 @@ import { PropService } from '../propService/prop.service';
 export class FlaskService {
 	constructor(private http: HttpClient, private propService: PropService) { }
 
-	public getTableData() {
-		return this.http.get('process/readData')
-	}
-
 	public getPlot() {
 		return this.http.get('process/getPlot')
-	}
-
-	public predict() {
-		return this.http.get('process/getPredicted')
-	}
-
-	public setData() {
-		return this.http.get('process/setData')
 	}
 
 	public sendCsvData(csvData: object) {
 		return this.http.post('process/setCsvData', csvData)
 	}
 
-	public getResultTable() {
-		return this.http.get('process/getResultTable')
-	}
-
-	public getAccuracy() {
-		return this.http.get('process/getAccuracy')
-	}
-
-	public getActualPredicted() {
-		return this.http.get('process/getActualPredicted')
-	}
-
 	public getActualPredictedForPlot() {
 		return this.http.get('process/getActualPredictedForPlot')
-	}
-
-	public sendInput(input: object) {
-		return this.http.post('process/input', input)
 	}
 
 	public getModelSummary() {
@@ -56,20 +28,8 @@ export class FlaskService {
 		return this.http.get('process/getAccuracies')
 	}
 
-	public getAllJunctions() {
-		return this.http.get('process/getAllJunctions')
-	}
-
 	public sendTrainingSpecifics(trainingSpecifics: Object) {
 		return this.http.post('process/sendTrainingSpecifics', trainingSpecifics)
-	}
-
-	public revealPredictions() {
-		return this.http.get('process/revealPredictions')
-	}
-
-	public sendTime(data: any) {
-		return this.http.post('process/sendTime', data)
 	}
 
 	public train() {
@@ -98,6 +58,14 @@ export class FlaskService {
 
 	public getAccuraciesOfAllJunctions() {
 		return this.http.get('process/getAccuraciesOfAllJunctions')
+	}
+
+	public getAllUniqueJunctions() {
+		return this.http.get('process/getAllUniqueJunctions')
+	}
+
+	public getListOfAllTrained() {
+		return this.http.get('process/getListOfAllTrained')
 	}
 
 }

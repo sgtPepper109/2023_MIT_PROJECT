@@ -39,19 +39,6 @@ public class FlaskController {
 	public FlaskController() {
 		/* NOTE: Document why this method is empty */ }
 
-	@GetMapping("/revealPredictions")
-	public String revealPredictions() {
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/revealPredictions");
-	}
-
-	@GetMapping("/readData")
-	public String getData() {
-		log.info("GET: /process/readData");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getTableData");
-	}
-
 	@GetMapping("/getPlot")
 	public String getPlot() {
 		log.info("GET: /process/getPlot");
@@ -80,14 +67,6 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getAllJunctionsFuturePredictionsTable");
 	}
 	
-	@PostMapping("/input")
-	public String getInput(@RequestBody Object response) {
-		log.warn("POST: localhost:8080/process/input");
-		this.input = response;
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/input");
-	}
-
 	@GetMapping("/exchangeTime")
 	public Object exchangeTime() {
 		return this.time;
@@ -100,13 +79,6 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/listenTime");
 	}
 
-	@GetMapping("/getPredicted")
-	public String predict() {
-		log.info("GET: /process/getPredicted");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/predict");
-	}
-	
 	@GetMapping("/getFuturePredictionsTable")
 	public String getFuturePredictionsTable() {
 		log.info("GET: /process/getFuturePredictionsTable");
@@ -121,17 +93,8 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/predictAgainstTime");
 	}
 
-	@GetMapping("/setData")
-	public String setData() {
-		log.info("GET: /process/setData");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/setData");
-	}
-
 	@PostMapping("/setCsvData")
 	public String getCsvData(@RequestBody Object response) {
-		System.out.println("response " + response);
-		System.out.println("PostMapping");
 		log.warn("POST: localhost:8080/process/setCsvData");
 		this.csvData = response;
 		GetURLContents getURLContents = new GetURLContents();
@@ -142,33 +105,6 @@ public class FlaskController {
 	public Object exhangeCsvData() {
 		log.info("GET: /process/exchangeCsvData");
 		return this.csvData;
-	}
-
-	@GetMapping("/exchangeInput")
-	public Object exchangeInput() {
-		log.info("GET: /process/exchangeInput");
-		return this.input;
-	}
-
-	@GetMapping("/getResultTable")
-	public String getResultTable() {
-		log.info("GET: /process/getResultTable");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getResultTable");
-	}
-
-	@GetMapping("/getAccuracy")
-	public String getAccuracy() {
-		log.info("GET: /process/getAccuracy");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAccuracy");
-	}
-
-	@GetMapping("/getActualPredicted")
-	public String getActualPredicted() {
-		log.info("GET: /process/getActualPredicted");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getActualPredicted");
 	}
 
 	@GetMapping("/getActualPredictedForPlot")

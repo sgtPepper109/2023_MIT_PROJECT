@@ -1,0 +1,6 @@
+package com.example.back.junctionSpecifics.roadwayWidthMaxVehiclesMap.roadwayWidthMaxVehiclesMapRepository;
+
+import com.example.back.junctionSpecifics.roadwayWidthMaxVehiclesMap.roadwayWidthMaxVehiclesMap.RoadwayWidthMaxVehiclesMap;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RoadwayWidthMaxVehiclesMapRepository extends JpaRepository<RoadwayWidthMaxVehiclesMap, Long> {}

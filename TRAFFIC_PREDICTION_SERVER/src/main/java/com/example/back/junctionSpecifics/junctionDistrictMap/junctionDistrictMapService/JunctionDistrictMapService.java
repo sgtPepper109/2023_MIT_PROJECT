@@ -3,7 +3,7 @@ package com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictM
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMap.JunctionDistrictMap;
 import com.example.back.junctionSpecifics.junctionDistrictMap.junctionDistrictMapRepository.JunctionDistrictMapRepository;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 
@@ -32,5 +32,4 @@ public class JunctionDistrictMapService {
 		return junctionDistrictMapRepository.findAll();
 	}
 	
-
 }

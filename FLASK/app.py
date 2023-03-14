@@ -1,23 +1,17 @@
 import requests
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response
 from flask_cors import CORS
 import logging
+import pickle
 
-import simplejson
 import json
 import config
 
-import os
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.dates import DateFormatter
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 import scipy
-from scipy import stats
 from scipy.stats import skew, kurtosis
-from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso, BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
@@ -52,12 +46,16 @@ def getCsvData():
 
     global df
     global tempdf
+    global uniqueJunctionsInDataset
 
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
 
     df = pd.DataFrame.from_dict(csvData)
     df = df._convert(numeric=True)
+    if 'ID' in df.columns:
+        df.drop('ID', axis=1, inplace=True)
+
     tempdf = df.copy()
 
     tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
@@ -67,7 +65,13 @@ def getCsvData():
     tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
     tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
     tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    tempdf.drop('ID', axis=1, inplace=True)
+    
+    if 'ID' in tempdf.columns:
+        tempdf.drop('ID', axis=1, inplace=True)
+
+
+    uniqueJunctionsInDataset = list(np.unique(df.Junction))
+    print(uniqueJunctionsInDataset)
 
     dictionary = dict()
     if success:
@@ -78,44 +82,11 @@ def getCsvData():
         return make_response(dictionary)
 
 
-
-@app.route('/getAllJunctions')
-def getAllJunctions():
-    global df
-    junctions = list()
-    for i in list(np.unique(df.Junction)):
-        junctions.append(i)
-    return make_response(junctions)
-
-
-@app.route("/getTableData")
-def getTableData():
-    
-    arr = []
-
-    df2 = df.copy()
-    year = np.array(tempdf['Year'])
-    month = np.array(tempdf['Month'])
-    day = np.array(tempdf['Day'])
-    hour = np.array(tempdf['Hour'])
-
-    df2['Year'] = year
-    df2['Month'] = month
-    df2['Day'] = day
-    df2['Hour'] = hour
-
-    head = df2
-    data2 = head.to_dict()
-    anycol = ""
-    for i in data2:
-        anycol = i
-        break
-    for i in range(len(data2[anycol])):
-        field = {}
-        for j in data2:
-            field[j] = data2[j][i]
-        arr.append(field)
-    return make_response(arr)
+@app.route('/getAllUniqueJunctions')
+def getAllUniqueJunctions():
+    global uniqueJunctionsInDataset
+    print(uniqueJunctionsInDataset)
+    return make_response(uniqueJunctionsInDataset)
 
 
 def createDict(junction):
@@ -141,54 +112,6 @@ def plot():
     return make_response(response)
 
 
-def get_list_data(dataf, drop=[]):
-    for i in drop:
-        try:
-            dataf.drop(drop, axis=1, inplace=True)
-        except:
-            print(f"{i} not present")
-
-
-    dataf = [dataf[dataf.Junction == i].drop('Junction', axis=1) for i in range(5)]
-    return dataf
-
-
-
-@app.route('/getResultTable')
-def getResultTable():
-
-    global allJunctionsDfResult
-    global df
-    global autoPrediction
-    global junction
-
-    
-    junctions = np.unique(df.Junction)
-    if autoPrediction == False:
-        junctions = [junction]
-
-
-    response = list()
-    k = 0
-    for i in junctions:
-        arr = []
-        head = allJunctionsDfResult[k]
-        k += 1
-
-        data2 = head.to_dict()
-        anycol = ""
-        for i in data2:
-            anycol = i
-            break
-        for i in range(len(data2[anycol])):
-            field = {}
-            for j in data2:
-                field[j] = data2[j][i]
-            arr.append(field)
-        response.append(arr)
-    return make_response(response)
-
-
 
 def f_test(x, y):
     x = np.array(x)
@@ -203,6 +126,7 @@ def f_test(x, y):
 
 class Train:
     def __init__(self, data, algorithm, junction, testSize):
+        #constructor
         self.trained = False
         self.data = data
         self.algorithm = algorithm
@@ -374,7 +298,6 @@ class Train:
 def getModelSummary():
     global trained
 
-
     fstatistic = f_test(trained.newYtest, trained.predicted)
     modelSummary = [ { 'Property': 'Dependent Variable', 'Value': 'Vehicles' },
         { 'Property': 'Algorithm', 'Value': trained.algorithm },
@@ -425,6 +348,40 @@ def listenTime():
 
 
 
+@app.route('/getJunctionRelatedData')
+def getJunctionRelatedDataFromDB():
+    global junctionDistrictMaps
+    global junctionRoadwayWidthMaps
+    global roadwayWidthMaxVehiclesMaps
+    with app.app_context():
+        url = config.springUrl + '/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps'
+        try:
+            uResponse = requests.get(url)
+        except:
+            return "Connection Error"
+        JResponse = uResponse.text
+        junctionDistrictMaps = json.loads(JResponse)
+
+        url = config.springUrl + '/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps'
+        try:
+            uResponse = requests.get(url)
+        except:
+            return "Connection Error"
+        JResponse = uResponse.text
+        junctionRoadwayWidthMaps = json.loads(JResponse)
+
+        url = config.springUrl + '/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps'
+        try:
+            uResponse = requests.get(url)
+        except:
+            return "Connection Error"
+        JResponse = uResponse.text
+        roadwayWidthMaxVehiclesMaps = json.loads(JResponse)
+
+
+
+        return make_response(junctionDistrictMaps + junctionRoadwayWidthMaps + roadwayWidthMaxVehiclesMaps)
+
 
 
 @app.route('/listenToTrainingInputs')
@@ -462,8 +419,10 @@ def listenTrainingInputs():
 @app.route('/getActualPredictedForPlot')
 def getActualPredictedForPlot():
     global trained
+
     arr = []
     labels = []
+
     for i in range(1, len(trained.actual) + 1):
         labels.append(i)
     dictionary = dict()
@@ -481,7 +440,6 @@ def getActualPredictedForPlot():
 @app.route('/getAccuraciesOfAllJunctions')
 def getAccuraciesOfAllJunctions():
     global allJunctionsAccuracies
-    print(allJunctionsAccuracies)
     return make_response(allJunctionsAccuracies)
 
 
@@ -493,16 +451,23 @@ def getAccuracies():
                   'Lasso Regression', 'Bayesian Ridge Regression']
     global df
     global tempdf
-    mainData = tempdf.copy()
+    global accuraciesMap
 
     accuracies = list()
-    for algorithm in algorithms:
-        trained = Train(mainData, algorithm, junction, testRatio)
-        algorithmAndAccuracy = dict()
-        algorithmAndAccuracy['algorithm'] = algorithm
-        algorithmAndAccuracy['accuracyScore'] = trained.accuracyScore
-        accuracies.append(algorithmAndAccuracy)
-    
+    if junction not in accuraciesMap:
+        print('not found in accuraciesMap')
+        mainData = tempdf.copy()
+        for algorithm in algorithms:
+            trained = Train(mainData, algorithm, junction, testRatio)
+            algorithmAndAccuracy = dict()
+            algorithmAndAccuracy['algorithm'] = algorithm
+            algorithmAndAccuracy['accuracyScore'] = trained.accuracyScore
+            accuracies.append(algorithmAndAccuracy)
+        accuraciesMap[junction] = accuracies
+    else:
+        print('found in accuraciesMap')
+        accuracies = accuraciesMap[junction]
+
     return make_response(accuracies)
 
 
@@ -549,10 +514,8 @@ def predictAllJunctions():
     allJunctionsTableData = dict()
     allJunctionsAccuracies = dict()
 
-    print(time, timeFormat)
-
     junctions = np.unique(df.Junction)
-    for i in junctions:
+    for i in autoTrainedForJunctions:
         trainedForJunction = autoTrainedModels[i]
         futurePredictionsForJunction = trainedForJunction.predict(time, timeFormat)
         allJunctionsPredictedPlotData[i] = futurePredictionsForJunction
@@ -588,6 +551,11 @@ def getAllJunctionsFuturePredictions():
 
 
 
+@app.route('/getListOfAllTrained')
+def getListOfAllTrained():
+    global listAllTrained
+    print(listAllTrained)
+    return make_response(listAllTrained)
 
 
 
@@ -598,10 +566,31 @@ def train():
     global junction
     global algorithm
     global trained
+    global trainedMap
+    global listAllTrained
 
     print(algorithm, junction, testRatio)
-    trained = Train(tempdf, algorithm, junction, testRatio)
-    # predicted = trained.predict(time, timeFormat)
+
+    # dynamically save trained models
+    if junction in trainedMap:
+        if testRatio in trainedMap[junction]:
+            print('found testRatio and junction')
+            trained = trainedMap[junction][testRatio]
+        else:
+            print('found junction but not testRatio')
+            trained = Train(tempdf, algorithm, junction, testRatio)
+            pickle.dump(trained, open(config.savedTrainedModelsPath, 'wb'))
+            trainedMap[junction][testRatio] = trained
+            listAllTrained.append([junction, algorithm, testRatio])
+    else:
+        print('not found junction, not found testRatio')
+        trained = Train(tempdf, algorithm, junction, testRatio)
+        pickle.dump(trained, open(config.savedTrainedModelsPath, 'wb'))
+        trainedMap[junction] = dict()
+        trainedMap[junction][testRatio] = trained
+        listAllTrained.append([junction, algorithm, testRatio])
+
+
 
     response = list()
     for i in range(len(trained.actual)):
@@ -618,14 +607,21 @@ def train():
 
 
 
-
 @app.route('/predictAgainstTime')
 def predictAgainstTime():
     global trained
     global time
     global timeFormat
-    print(time, timeFormat)
+    global junctionDistrictMaps
+    global junctionRoadwayWidthMaps
+    global roadwayWidthMaxVehiclesMaps
+    global numberOfTimesCrossedMaxCapacity
+    global junction
+    global trainedMap
+    print(junction, time, timeFormat)
+
     futurePredictions = trained.predict(time, timeFormat)
+
     return make_response(futurePredictions)
 
 
@@ -634,46 +630,44 @@ def predictAgainstTime():
 
 
 if __name__ == "__main__":
-    global csvData
     global df
     global tempdf
     global time
     global timeFormat
     global testRatio
-    global inputTestRatio
-    global testRatio2
     global junction
     global algorithm
-    global accuracies
-    global accuracyScore
-    global dfResult
-    global actual
-    global predicted
-    global testAgainst
-    global modelSummary
-    global modelSummary2
-    global plotData
-    global allJunctionsDfResult
-    global autoPrediction
-    allJunctionsDfResult = list()
-    global gotInput
     global trained
-    gotInput = list()
-    autoPrediction = True
-    global junctions
     global autoTrainedModels
+    global autoTrainedForJunctions
+    global trainedMap
+    global accuraciesMap
+    global listAllTrained
 
+    trainedMap = dict()
+    accuraciesMap = dict()
+    listAllTrained = list()
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
+
     df = pd.read_csv(config.whereDataset)
+    if 'ID' in df.columns:
+        df.drop('ID', axis=1, inplace=True)
+
+    autoTrainedForJunctions = list(np.unique(df.Junction))
     tempdf = pd.read_csv(config.whereDataset, parse_dates=True, index_col='DateTime')
     tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
     tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
     tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
     tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    tempdf.drop('ID', axis=1, inplace=True)
+
+
+    if 'ID' in tempdf.columns:
+        tempdf.drop('ID', axis=1, inplace=True)
 
     junctions = np.unique(df.Junction)
+
+    getJunctionRelatedDataFromDB()
 
     autoTrainedModels = dict()
     for i in junctions:

@@ -1,6 +1,6 @@
 package com.example.back.junctionSpecifics.districts.districts;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity
