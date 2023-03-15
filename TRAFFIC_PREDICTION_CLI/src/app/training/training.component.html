@@ -81,7 +81,7 @@
                 <mat-form-field appearance="outline" style="width: 300px">
                     <mat-label>Choose Junction</mat-label>
                     <mat-select [(ngModel)]="inputJunction">
-                        <mat-option *ngFor="let junction of junctions2" [value]="junction">
+                        <mat-option *ngFor="let junction of junctions" [value]="junction">
                             {{ junction }}
                         </mat-option >
                     </mat-select>

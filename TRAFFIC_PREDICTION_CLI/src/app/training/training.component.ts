@@ -31,6 +31,7 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
+	extraJunctions = new Set()
 	alreadyTrained: boolean = false
 	listAllTrained: Array<Array<any>> = []
 	file: any
@@ -41,7 +42,6 @@ export class TrainingComponent implements OnInit {
 	futurePredictionsPlotData: any
 	futurePredictionsTableData: any
 	csvDataStored: boolean = false;
-	junctions2: string[] = []
 	predictionsOption: string = 'Line Plot'
 	junctionDistrictMaps: Map<string, string> = new Map()
 	junctionRoadwayWidthMaps: Map<string, string> = new Map()
@@ -168,7 +168,6 @@ export class TrainingComponent implements OnInit {
 		this.junctionSpecificsService.getAllJunctions().subscribe({
 			next: (response) => {
 				this.junctions = Object.values(response)
-				this.junctions2 = this.junctions
 				this.propService.junctions = this.junctions
 			},
 			error: (error: HttpErrorResponse) => {
@@ -336,50 +335,64 @@ export class TrainingComponent implements OnInit {
 			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
 				next: (result): void => {
+					this.extraJunctions.clear()
 
-						
-					this.flaskService.sendCsvData(result).subscribe({
-						next: (response) => {
-							for (const element of Object.values(result)) {
-								let record: Object = {
-									'Junction': element['Junction'],
-									'DateTime': element['DateTime'],
-									'Vehicles': element['Vehicles'],
-								}
-								this.datetime = []
-								this.datetime.push(element.DateTime)
-								this.vehicles = []
-								this.vehicles.push(element.Vehicle)
-								this.csvData.push(record)
-								this.csvDataParsed = true
-								this.propService.data = this.csvData
-							}
-							this.datasetUploaded = true
-							this.fileProcessing = false
-							this.flaskService.getAllUniqueJunctions().subscribe({
-								next: (response) => {
-									this.datasetUploaded = true
-									this.fileProcessing = false
-									this.junctionsAvailableForTraining = Object.values(response)
-
-									for (let element of this.junctionsAvailableForTraining) {
-										if (this.junctions2.includes(element) == false) {
-											this.junctions2.push(element)
-										}
-									}
-
-								},
-								error: (error: HttpErrorResponse) => {
-									alert(error.message)
-								}
-							})
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
+					for (let element of Object.values(result)) {
+						if (this.junctions.includes(element.Junction) == false) {
+							this.extraJunctions.add(element.Junction)
 						}
-					})
+					}
+
+					if (this.extraJunctions.size == 0) {
+
+						this.flaskService.sendCsvData(result).subscribe({
+							next: (response) => {
+								for (const element of Object.values(result)) {
+									let record: Object = {
+										'Junction': element['Junction'],
+										'DateTime': element['DateTime'],
+										'Vehicles': element['Vehicles'],
+									}
+									this.datetime = []
+									this.datetime.push(element.DateTime)
+									this.vehicles = []
+									this.vehicles.push(element.Vehicle)
+									this.csvData.push(record)
+									this.csvDataParsed = true
+									this.propService.data = this.csvData
+								}
+								this.datasetUploaded = true
+								this.fileProcessing = false
+								// this.flaskService.getAllUniqueJunctions().subscribe({
+								// 	next: (response) => {
+								// 		this.datasetUploaded = true
+								// 		this.fileProcessing = false
+								// 		this.junctionsAvailableForTraining = Object.values(response)
+
+								// 		for (let element of this.junctionsAvailableForTraining) {
+								// 			if (this.junctions2.includes(element) == false) {
+								// 				this.junctions2.push(element)
+								// 			}
+								// 		}
+
+								// 	},
+								// 	error: (error: HttpErrorResponse) => {
+								// 		alert(error.message)
+								// 	}
+								// })
+							},
+							error: (error: HttpErrorResponse) => {
+								alert(error.message)
+							}
+						})
+					} else {
+						this._snackBar.open('Note: Please provide dataset with listed junctions', '\u2716')
+						this.fileProcessing = false
+					}
+
 				},
 				error: (error: NgxCSVParserError): void => {
+					alert(error.message)
 				}
 			});
 		} else {
@@ -783,7 +796,6 @@ export class TrainingComponent implements OnInit {
 
 
 	changeTrainedModel() {
-		console.log('intrained')
 	}
 
 	// navigate to page2
@@ -925,15 +937,13 @@ export class TrainingComponent implements OnInit {
 						if (element[1] == trainingSpecificData['algorithm']) {
 							if (element[2] == trainingSpecificData['testRatio'].toString()) {
 								this.alreadyTrained = true
-								console.log('already trained')
 							}
 						}
 					}
 				}
-				console.log('al',this.alreadyTrained)
 
 				
-				if (this.alreadyTrained || this.junctionsAvailableForTraining.includes(this.inputJunction)) {
+				if (this.alreadyTrained || this.junctions.includes(this.inputJunction)) {
 
 					// existing data
 					this.flaskService.getPlot().subscribe({
@@ -970,9 +980,7 @@ export class TrainingComponent implements OnInit {
 
 									this.flaskService.getListOfAllTrained().subscribe({
 										next: (response) => {
-											console.log(response)
 											this.listAllTrained = Object.values(response)
-											console.log(this.listAllTrained)
 										},
 										error: (error: HttpErrorResponse) => {
 											alert(error.message)

@@ -47,6 +47,7 @@ def getCsvData():
     global df
     global tempdf
     global uniqueJunctionsInDataset
+    global typeOfData
 
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
@@ -61,6 +62,17 @@ def getCsvData():
     tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
     tempdf = tempdf.set_index('DateTime')
 
+    timeDifference = tempdf.index[1] - tempdf.index[0]
+    timeDifference = str(timeDifference)
+    timeDifference = int(timeDifference.split(' ')[0])
+
+    if timeDifference == 0:
+        typeOfData = 'Hourly'
+    elif timeDifference == 1:
+        typeOfData = 'Daily'
+    elif timeDifference == 30:
+        typeOfData = 'Monthly'
+
     tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
     tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
     tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
@@ -71,7 +83,6 @@ def getCsvData():
 
 
     uniqueJunctionsInDataset = list(np.unique(df.Junction))
-    print(uniqueJunctionsInDataset)
 
     dictionary = dict()
     if success:
@@ -136,6 +147,7 @@ class Train:
     
     def startTrainingProcess(self):
         self.separateJunctionRelatedData()
+        self.preprocessData()
         self.splitData()
         self.training()
         self.actualVsPredicted()
@@ -143,6 +155,10 @@ class Train:
     def separateJunctionRelatedData(self):
         self.junctionData = self.data[self.data.Junction == self.junction]
         self.junctionData = self.junctionData.drop(['Junction'], axis='columns')
+
+    def preprocessData(self):
+        # drop all null value records
+        self.junctionData = self.junctionData.dropna()
 
     def splitData(self):
         self.x = self.junctionData.drop(['Vehicles'], axis='columns')
@@ -167,7 +183,7 @@ class Train:
 
         self.model.fit(self.xtrain, self.ytrain)
         self.trained = True
-        self.trainTime = datetime.now()
+        self.whenTrained = datetime.now()
 
 
     def actualVsPredicted(self):
@@ -223,7 +239,7 @@ class Train:
             self.testAgainst.append(str(i))
         
 
-    def constructFutureTimeToBePredicted(self, timePeriod, timeFormat):
+    def constructFutureTimeToBePredicted(self, timePeriod, timeFormat, typeOfData):
         self.currTime = self.junctionData.tail(1).index[0]
         
         if timeFormat == "Days":
@@ -233,10 +249,16 @@ class Train:
         else:
             self.endTime = self.currTime + pd.DateOffset(years=timePeriod) 
 
+        print(self.currTime, self.endTime)
         self.time = list()
         while self.currTime != self.endTime:
             self.time.append(self.currTime)
-            self.currTime += timedelta(minutes=60)
+            if typeOfData == 'Hourly':
+                self.currTime += timedelta(minutes=60)
+            if typeOfData == 'Daily':
+                self.currTime += timedelta(minutes=1440)
+            if typeOfData == 'Monthly':
+                self.currTime += timedelta(minutes=43200)
 
     def constructFutureDataToBePredicted(self):
         self.toPredict = pd.DataFrame()
@@ -262,12 +284,12 @@ class Train:
         self.toPredict = self.toPredict.drop(['DateTime'], axis='columns')
 
 
-    def predict(self, timePeriod, timeFormat):
+    def predict(self, timePeriod, timeFormat, typeOfData):
 
         # returns predicted data for given timePeriod and timeFormat (e.g. 2, 'Days')
 
         if self.trained:
-            self.constructFutureTimeToBePredicted(timePeriod, timeFormat)
+            self.constructFutureTimeToBePredicted(timePeriod, timeFormat, typeOfData)
             self.constructFutureDataToBePredicted()
 
             self.futureDatesPredicted = self.model.predict(self.toPredict)  # toPredict variable comes from data constructed
@@ -303,7 +325,7 @@ def getModelSummary():
         { 'Property': 'Algorithm', 'Value': trained.algorithm },
         { 'Property': 'Accuracy', 'Value': trained.accuracyScore },
         { 'Property': 'R-Squared', 'Value': trained.r2 },
-        { 'Property': 'Date & Time of Training', 'Value': trained.trainTime },
+        { 'Property': 'Date & Time of Training', 'Value': trained.whenTrained },
         { 'Property': 'No. of Observations', 'Value': trained.data.shape[0] },
         { 'Property': 'F-Statistic', 'Value': fstatistic[0] },
         { 'Property': '(prob) F-Statistic', 'Value': fstatistic[1] },
@@ -347,8 +369,6 @@ def listenTime():
         return make_response(dictionary)
 
 
-
-@app.route('/getJunctionRelatedData')
 def getJunctionRelatedDataFromDB():
     global junctionDistrictMaps
     global junctionRoadwayWidthMaps
@@ -377,8 +397,6 @@ def getJunctionRelatedDataFromDB():
             return "Connection Error"
         JResponse = uResponse.text
         roadwayWidthMaxVehiclesMaps = json.loads(JResponse)
-
-
 
         return make_response(junctionDistrictMaps + junctionRoadwayWidthMaps + roadwayWidthMaxVehiclesMaps)
 
@@ -517,7 +535,7 @@ def predictAllJunctions():
     junctions = np.unique(df.Junction)
     for i in autoTrainedForJunctions:
         trainedForJunction = autoTrainedModels[i]
-        futurePredictionsForJunction = trainedForJunction.predict(time, timeFormat)
+        futurePredictionsForJunction = trainedForJunction.predict(time, timeFormat, 'Hourly')
         allJunctionsPredictedPlotData[i] = futurePredictionsForJunction
         allJunctionsAccuracies[i] = trainedForJunction.accuracyScore
 
@@ -568,7 +586,7 @@ def train():
     global trained
     global trainedMap
     global listAllTrained
-
+    global typeOfData
     print(algorithm, junction, testRatio)
 
     # dynamically save trained models
@@ -618,9 +636,10 @@ def predictAgainstTime():
     global numberOfTimesCrossedMaxCapacity
     global junction
     global trainedMap
+    global typeOfData
     print(junction, time, timeFormat)
 
-    futurePredictions = trained.predict(time, timeFormat)
+    futurePredictions = trained.predict(time, timeFormat, typeOfData)
 
     return make_response(futurePredictions)
 
@@ -643,12 +662,14 @@ if __name__ == "__main__":
     global trainedMap
     global accuraciesMap
     global listAllTrained
+    global junctionsWithProperties
 
     trainedMap = dict()
     accuraciesMap = dict()
     listAllTrained = list()
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
+    junctionsWithProperties = list()
 
     df = pd.read_csv(config.whereDataset)
     if 'ID' in df.columns:
@@ -668,10 +689,14 @@ if __name__ == "__main__":
     junctions = np.unique(df.Junction)
 
     getJunctionRelatedDataFromDB()
+    for i in junctionDistrictMaps:
+        for j in i:
+            if j == 'junctionName':
+                junctionsWithProperties.append(i[j])
 
     autoTrainedModels = dict()
     for i in junctions:
         autoTrained = Train(tempdf, 'Random Forest Regression', i, 0.2)
         autoTrainedModels[i] = autoTrained
 
-    app.run()
+    app.run(debug=True, port=5000, host='0.0.0.0')
