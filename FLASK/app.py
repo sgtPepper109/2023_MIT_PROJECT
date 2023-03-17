@@ -96,7 +96,6 @@ def getCsvData():
 @app.route('/getAllUniqueJunctions')
 def getAllUniqueJunctions():
     global uniqueJunctionsInDataset
-    print(uniqueJunctionsInDataset)
     return make_response(uniqueJunctionsInDataset)
 
 
@@ -146,19 +145,19 @@ class Train:
         self.startTrainingProcess()
     
     def startTrainingProcess(self):
-        self.separateJunctionRelatedData()
         self.preprocessData()
         self.splitData()
         self.training()
         self.actualVsPredicted()
     
+    def preprocessData(self):
+        # drop all null value records
+        self.separateJunctionRelatedData()
+        self.junctionData = self.junctionData.dropna()
+
     def separateJunctionRelatedData(self):
         self.junctionData = self.data[self.data.Junction == self.junction]
         self.junctionData = self.junctionData.drop(['Junction'], axis='columns')
-
-    def preprocessData(self):
-        # drop all null value records
-        self.junctionData = self.junctionData.dropna()
 
     def splitData(self):
         self.x = self.junctionData.drop(['Vehicles'], axis='columns')
@@ -249,7 +248,6 @@ class Train:
         else:
             self.endTime = self.currTime + pd.DateOffset(years=timePeriod) 
 
-        print(self.currTime, self.endTime)
         self.time = list()
         while self.currTime != self.endTime:
             self.time.append(self.currTime)
@@ -318,28 +316,32 @@ class Train:
 
 @app.route('/getModelSummary')
 def getModelSummary():
-    global trained
+    global trainedAlgorithms
 
-    fstatistic = f_test(trained.newYtest, trained.predicted)
-    modelSummary = [ { 'Property': 'Dependent Variable', 'Value': 'Vehicles' },
-        { 'Property': 'Algorithm', 'Value': trained.algorithm },
-        { 'Property': 'Accuracy', 'Value': trained.accuracyScore },
-        { 'Property': 'R-Squared', 'Value': trained.r2 },
-        { 'Property': 'Date & Time of Training', 'Value': trained.whenTrained },
-        { 'Property': 'No. of Observations', 'Value': trained.data.shape[0] },
-        { 'Property': 'F-Statistic', 'Value': fstatistic[0] },
-        { 'Property': '(prob) F-Statistic', 'Value': fstatistic[1] },
-        { 'Property': 'Explained Variance', 'Value': trained.explaindVariance },
-        { 'Property': 'Mean Absolute Error', 'Value': trained.meanAbsoluteError },
-        { 'Property': 'Mean Squared Error', 'Value': trained.meanSquaredError },
-        { 'Property': 'Median Absolute Error', 'Value': trained.medianAbsoluteError },
-        { 'Property': 'Skew', 'Value': skew(list(trained.data.Vehicles), axis=0, bias=True) },
-        { 'Property': 'Kurtosis', 'Value': kurtosis(list(trained.data.Vehicles), axis=0, bias=True) },
-        { 'Property': 'Jarque-Bera (JB)', 'Value': str(jarque_bera(np.array(trained.data.Vehicles))) },
-        { 'Property': 'Durbin Watson', 'Value': durbin_watson(np.array(trained.data.Vehicles)) }
-    ]
+    modelSummaries = dict()
+    for i in trainedAlgorithms:
+        trained = trainedAlgorithms[i]
+        fstatistic = f_test(trained.newYtest, trained.predicted)
+        modelSummary = [ { 'Property': 'Dependent Variable', 'Value': 'Vehicles' },
+            { 'Property': 'Algorithm', 'Value': trained.algorithm },
+            { 'Property': 'Accuracy', 'Value': trained.accuracyScore },
+            { 'Property': 'R-Squared', 'Value': trained.r2 },
+            { 'Property': 'Date & Time of Training', 'Value': trained.whenTrained },
+            { 'Property': 'No. of Observations', 'Value': trained.data.shape[0] },
+            { 'Property': 'F-Statistic', 'Value': fstatistic[0] },
+            { 'Property': '(prob) F-Statistic', 'Value': fstatistic[1] },
+            { 'Property': 'Explained Variance', 'Value': trained.explaindVariance },
+            { 'Property': 'Mean Absolute Error', 'Value': trained.meanAbsoluteError },
+            { 'Property': 'Mean Squared Error', 'Value': trained.meanSquaredError },
+            { 'Property': 'Median Absolute Error', 'Value': trained.medianAbsoluteError },
+            { 'Property': 'Skew', 'Value': skew(list(trained.data.Vehicles), axis=0, bias=True) },
+            { 'Property': 'Kurtosis', 'Value': kurtosis(list(trained.data.Vehicles), axis=0, bias=True) },
+            { 'Property': 'Jarque-Bera (JB)', 'Value': str(jarque_bera(np.array(trained.data.Vehicles))) },
+            { 'Property': 'Durbin Watson', 'Value': durbin_watson(np.array(trained.data.Vehicles)) }
+        ]
+        modelSummaries[i] = modelSummary
 
-    return make_response(modelSummary)
+    return make_response(modelSummaries)
 
 
 
@@ -434,25 +436,6 @@ def listenTrainingInputs():
 
 
 
-@app.route('/getActualPredictedForPlot')
-def getActualPredictedForPlot():
-    global trained
-
-    arr = []
-    labels = []
-
-    for i in range(1, len(trained.actual) + 1):
-        labels.append(i)
-    dictionary = dict()
-    dictionary['actual'] = trained.actual
-    dictionary['predicted'] = trained.predicted
-    dictionary['difference'] = trained.difference
-    dictionary['labels'] = trained.testAgainst
-    arr.append(dictionary)
-    
-    return make_response(arr)
-
-
 
 
 @app.route('/getAccuraciesOfAllJunctions')
@@ -465,37 +448,75 @@ def getAccuraciesOfAllJunctions():
 
 @app.route('/getAccuracies')
 def getAccuracies():
-    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
-                  'Lasso Regression', 'Bayesian Ridge Regression']
+    # algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+    #               'Lasso Regression', 'Bayesian Ridge Regression']
     global df
     global tempdf
     global accuraciesMap
+    global trainedAlgorithms
 
     accuracies = list()
-    if junction not in accuraciesMap:
-        print('not found in accuraciesMap')
-        mainData = tempdf.copy()
-        for algorithm in algorithms:
-            trained = Train(mainData, algorithm, junction, testRatio)
-            algorithmAndAccuracy = dict()
-            algorithmAndAccuracy['algorithm'] = algorithm
-            algorithmAndAccuracy['accuracyScore'] = trained.accuracyScore
-            accuracies.append(algorithmAndAccuracy)
-        accuraciesMap[junction] = accuracies
-    else:
-        print('found in accuraciesMap')
-        accuracies = accuraciesMap[junction]
+    # if junction not in accuraciesMap:
+    #     print('not found in accuraciesMap')
+    #     mainData = tempdf.copy()
+    #     for algorithm in algorithms:
+    #         trained = Train(mainData, algorithm, junction, testRatio)
+    #         algorithmAndAccuracy = dict()
+    #         algorithmAndAccuracy['algorithm'] = algorithm
+    #         algorithmAndAccuracy['accuracyScore'] = trained.accuracyScore
+    #         accuracies.append(algorithmAndAccuracy)
+    #     accuraciesMap[junction] = accuracies
+    # else:
+    #     print('found in accuraciesMap')
+    #     accuracies = accuraciesMap[junction]
+
+    for i in trainedAlgorithms:
+        trained = trainedAlgorithms[i]
+        algorithmAndAccuracy = dict()
+        algorithmAndAccuracy['algorithm'] = i
+        algorithmAndAccuracy['accuracyScore'] = trained.accuracyScore
+        accuracies.append(algorithmAndAccuracy)
 
     return make_response(accuracies)
 
 
 
+@app.route('/getTestingRatioComparisons')
+def getTestingRatioComparisons():
+    global time
+    global timeFormat
+    global algorithm
+    global tempdf
+    global junction
+    global masterTrainedJunctions
 
+    possibleTestRatios = np.arange(0.1, 1, 0.1)
 
+    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+                  'Lasso Regression', 'Bayesian Ridge Regression']
+    response = dict()
+
+    for i in algorithms:
+        testRatioComparisons = dict()
+        for j in possibleTestRatios:
+            trained = Train(tempdf, i, junction, j)
+            testRatioComparisons[j] = trained.accuracyScore
+        response[i] = testRatioComparisons
+    
+    masterTrainedJunctions[junction] = response
+    
+
+    # response = dict()
+    # for i in possibleTestRatios:
+    #     trained = Train(tempdf, algorithm, junction, i)
+    #     response[i] = trained.accuracyScore
+    return make_response(response)
 
 @app.route('/getFuturePredictionsTable')
 def getFuturePredictionsTable():
-    global trained
+    global trainedAlgorithms
+    global algorithm
+    trained = trainedAlgorithms[algorithm]
     arr = []
     head = trained.tableData
 
@@ -559,22 +580,10 @@ def predictAllJunctions():
 
 
 
-
-
-
 @app.route('/getAllJunctionsFuturePredictionsTable')
 def getAllJunctionsFuturePredictions():
     global allJunctionsTableData
     return make_response(allJunctionsTableData)
-
-
-
-@app.route('/getListOfAllTrained')
-def getListOfAllTrained():
-    global listAllTrained
-    print(listAllTrained)
-    return make_response(listAllTrained)
-
 
 
 @app.route("/train")
@@ -585,41 +594,67 @@ def train():
     global algorithm
     global trained
     global trainedMap
-    global listAllTrained
     global typeOfData
-    print(algorithm, junction, testRatio)
+    global trainedAlgorithms
+    global plotResponse
+
+    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+                  'Lasso Regression', 'Bayesian Ridge Regression']
+
+    trainedAlgorithms = dict()
+
+    tableResponse = dict()
+    for i in algorithms:
+        trained = Train(tempdf, i, junction, testRatio)
+        trainedAlgorithms[i] = trained
+
+        actualVsPredInstance = list()
+        for j in range(len(trained.actual)):
+            actualVsPred = {
+                'actual': trained.actual[j],
+                'predicted': trained.predicted[j],
+                'difference': abs(trained.actual[j] - trained.predicted[j])
+            }
+            actualVsPredInstance.append(actualVsPred)
+        tableResponse[i] = actualVsPredInstance
 
     # dynamically save trained models
-    if junction in trainedMap:
-        if testRatio in trainedMap[junction]:
-            print('found testRatio and junction')
-            trained = trainedMap[junction][testRatio]
-        else:
-            print('found junction but not testRatio')
-            trained = Train(tempdf, algorithm, junction, testRatio)
-            pickle.dump(trained, open(config.savedTrainedModelsPath, 'wb'))
-            trainedMap[junction][testRatio] = trained
-            listAllTrained.append([junction, algorithm, testRatio])
-    else:
-        print('not found junction, not found testRatio')
-        trained = Train(tempdf, algorithm, junction, testRatio)
-        pickle.dump(trained, open(config.savedTrainedModelsPath, 'wb'))
-        trainedMap[junction] = dict()
-        trainedMap[junction][testRatio] = trained
-        listAllTrained.append([junction, algorithm, testRatio])
+    # if junction in trainedMap:
+    #     if testRatio in trainedMap[junction]:
+    #         print('found testRatio and junction')
+    #         trained = trainedMap[junction][testRatio]
+    #     else:
+    #         print('found junction but not testRatio')
+    #         trained = Train(tempdf, algorithm, junction, testRatio)
+    #         pickle.dump(trained, open(config.savedTrainedModelsPath, 'wb'))
+    #         trainedMap[junction][testRatio] = trained
+    #         listAllTrained.append([junction, algorithm, testRatio])
+    # else:
+    #     print('not found junction, not found testRatio')
+    #     trained = Train(tempdf, algorithm, junction, testRatio)
+    #     pickle.dump(trained, open(config.savedTrainedModelsPath, 'wb'))
+    #     trainedMap[junction] = dict()
+    #     trainedMap[junction][testRatio] = trained
+    #     listAllTrained.append([junction, algorithm, testRatio])
+
+    return make_response(tableResponse)
 
 
 
-    response = list()
-    for i in range(len(trained.actual)):
-        actualVsPred = {
-            'actual': trained.actual[i],
-            'predicted': trained.predicted[i],
-            'difference': abs(trained.actual[i] - trained.predicted[i])
-        }
-        response.append(actualVsPred)
-    return make_response(response)
 
+@app.route('/getActualPredictedForPlot')
+def getActualPredictedForPlot():
+    global trainedAlgorithms
+    plotResponse = dict()
+    for i in trainedAlgorithms:
+        trained = trainedAlgorithms[i]
+        actualVsPredPlot = dict()
+        actualVsPredPlot['actual'] = trained.actual
+        actualVsPredPlot['predicted'] = trained.predicted
+        actualVsPredPlot['difference'] = trained.difference
+        actualVsPredPlot['labels'] = trained.testAgainst
+        plotResponse[i] = actualVsPredPlot
+    return make_response(plotResponse)
 
 
 
@@ -637,14 +672,13 @@ def predictAgainstTime():
     global junction
     global trainedMap
     global typeOfData
-    print(junction, time, timeFormat)
+    global trainedAlgorithms
+    global algorithm
+    trained = trainedAlgorithms[algorithm]
 
     futurePredictions = trained.predict(time, timeFormat, typeOfData)
 
     return make_response(futurePredictions)
-
-
-
 
 
 
@@ -661,15 +695,13 @@ if __name__ == "__main__":
     global autoTrainedForJunctions
     global trainedMap
     global accuraciesMap
-    global listAllTrained
-    global junctionsWithProperties
+    global masterTrainedJunctions
 
     trainedMap = dict()
     accuraciesMap = dict()
-    listAllTrained = list()
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
-    junctionsWithProperties = list()
+    masterTrainedJunctions = dict()
 
     df = pd.read_csv(config.whereDataset)
     if 'ID' in df.columns:
@@ -689,14 +721,10 @@ if __name__ == "__main__":
     junctions = np.unique(df.Junction)
 
     getJunctionRelatedDataFromDB()
-    for i in junctionDistrictMaps:
-        for j in i:
-            if j == 'junctionName':
-                junctionsWithProperties.append(i[j])
 
     autoTrainedModels = dict()
     for i in junctions:
         autoTrained = Train(tempdf, 'Random Forest Regression', i, 0.2)
         autoTrainedModels[i] = autoTrained
-
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    
+    app.run()

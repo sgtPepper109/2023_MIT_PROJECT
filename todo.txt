@@ -6,3 +6,6 @@ new training on dataset change
 training for only the junctions with properties
 same on predictions page
 change dateTime format
+download results in csv
+linear data - linear regression correct results
+push to master
