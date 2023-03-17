@@ -31,9 +31,34 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
-	extraJunctions = new Set()
-	alreadyTrained: boolean = false
-	listAllTrained: Array<Array<any>> = []
+	algorithms: Array<string> = [
+		'Random Forest Regression',
+		'Gradient Boosting Regression',
+		'Linear Regression',
+		'Ridge Regression',
+		'Lasso Regression',
+		'Bayesian Ridge Regression'
+	]
+	testingRatios: Array<number> = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+	algorithmToAddToMaster: string = ""
+	testRatioToAddToMaster: string = ""
+	ultimateComparisonChart: any
+	testRatiosComparisonData: Object = {}
+	algorithmForComparison: string = ""
+	gotTestingRatioComparisons: boolean = false
+	testRatioComparisonChart: any
+	testingRatioComparisonChartNotReady: boolean = true
+	actualPredictedTableData: Object = {}
+	actualPredictedPlotData: Object = {}
+	modelSummaries: Object = {}
+	renderedAlgorithm: string = ""
+	correctJunctions: boolean = true
+	listedJunctions: Array<string> = []
+	plotActual: Array<number> = []
+	plotPredicted: Array<number> = []
+	plotDifference: Array<number> = []
+	plotLabels: Array<string> = []
+	uniqueJunctionsInDataset: Array<string> = []
 	file: any
 	junctionSpecificDataAvailable: boolean = false;
 	fileProcessing: boolean = false
@@ -72,7 +97,7 @@ export class TrainingComponent implements OnInit {
 	vehicles: Array<any> = []  // Vehicles array to display on y axis of chart
 	datetime: Array<any> = [] // DateTime array to display on x axis of chart
 	inputJunction: string = ""// input variables for junction and months
-	inputTime: string = ""
+	inputTime: number = 0
 	inputAlgorithm: string = "Random Forest Regression"
 	time: string = "Days"
 	modelSummary: any
@@ -139,7 +164,7 @@ export class TrainingComponent implements OnInit {
 	predicted: Array<number> = []  // Predicted values array for plotting on chart for comparison
 	difference: Array<number> = []
 	comparisonTableData: object = {}  // holds all predicted values table data
-	labels = []  // Index (prediction number) array for plotting
+	labels: Array<string> = []
 	maxLimitArray: number[] = []
 	junctions: string[] = []
 
@@ -167,16 +192,8 @@ export class TrainingComponent implements OnInit {
 		/* TODO document why this method 'ngOnInit' is empty */
 		this.junctionSpecificsService.getAllJunctions().subscribe({
 			next: (response) => {
-				this.junctions = Object.values(response)
+				this.listedJunctions = Object.values(response)
 				this.propService.junctions = this.junctions
-			},
-			error: (error: HttpErrorResponse) => {
-				alert(error.message)
-			}
-		})
-		this.flaskService.getListOfAllTrained().subscribe({
-			next: (response) => {
-				this.listAllTrained = Object.values(response)
 			},
 			error: (error: HttpErrorResponse) => {
 				alert(error.message)
@@ -335,16 +352,22 @@ export class TrainingComponent implements OnInit {
 			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
 				next: (result): void => {
-					this.extraJunctions.clear()
-
-					for (let element of Object.values(result)) {
-						if (this.junctions.includes(element.Junction) == false) {
-							this.extraJunctions.add(element.Junction)
+					this.correctJunctions = true
+					this.uniqueJunctionsInDataset = []
+					for (const element of Object.values(result)) {
+						if (this.uniqueJunctionsInDataset.includes(element.Junction) == false) {
+							this.uniqueJunctionsInDataset.push(element.Junction)
 						}
 					}
 
-					if (this.extraJunctions.size == 0) {
+					for (let item of this.uniqueJunctionsInDataset) {
+						if (this.listedJunctions.includes(item) == false) {
+							this.correctJunctions = false
+						}
+					}
 
+					if (this.correctJunctions) {
+						this.junctions = this.uniqueJunctionsInDataset
 						this.flaskService.sendCsvData(result).subscribe({
 							next: (response) => {
 								for (const element of Object.values(result)) {
@@ -370,10 +393,12 @@ export class TrainingComponent implements OnInit {
 								// 		this.junctionsAvailableForTraining = Object.values(response)
 
 								// 		for (let element of this.junctionsAvailableForTraining) {
-								// 			if (this.junctions2.includes(element) == false) {
-								// 				this.junctions2.push(element)
+								// 			if (this.uniqueJunctionsInDataset.includes(element) == false) {
+								// 				this.uniqueJunctionsInDataset.push(element)
 								// 			}
 								// 		}
+								// 		console.log(this.uniqueJunctionsInDataset)
+								// 		this.junctions = this.uniqueJunctionsInDataset
 
 								// 	},
 								// 	error: (error: HttpErrorResponse) => {
@@ -385,9 +410,11 @@ export class TrainingComponent implements OnInit {
 								alert(error.message)
 							}
 						})
+
 					} else {
-						this._snackBar.open('Note: Please provide dataset with listed junctions', '\u2716')
+						this.dataset = ""
 						this.fileProcessing = false
+						this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
 					}
 
 				},
@@ -681,10 +708,15 @@ export class TrainingComponent implements OnInit {
 			this.predictedChartIndex = this.predictedChartIndex + 10
 
 			// set plot variables to get actual, predicted and labels of next 10 predictions from comparisonChartData
-			this.actual = Object.values(this.comparisonChartData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.predicted = Object.values(this.comparisonChartData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.difference = Object.values(this.comparisonChartData)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.labels = Object.values(this.comparisonChartData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			// this.actual = Object.values(this.comparisonChartData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			// this.predicted = Object.values(this.comparisonChartData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			// this.difference = Object.values(this.comparisonChartData)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			// this.labels = Object.values(this.comparisonChartData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+
+			this.actual = this.plotActual.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.predicted = this.plotPredicted.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.difference = this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 
 			// plot comparison chart of these indices 
 			this.compareChart(this.labels, this.actual, this.predicted, this.difference)
@@ -712,10 +744,10 @@ export class TrainingComponent implements OnInit {
 			this.predictedChartIndex = this.predictedChartIndex - 10
 
 			// set plot variables to get actual, predicted and labels of next 10 predictions
-			this.actual = Object.values(this.comparisonChartData)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.predicted = Object.values(this.comparisonChartData)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.difference = Object.values(this.comparisonChartData)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			this.labels = Object.values(this.comparisonChartData)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.actual = this.plotActual.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.predicted = this.plotPredicted.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.difference = this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 
 
 			// plot comparison chart
@@ -737,9 +769,8 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-
 	// function to plot comparison line chart
-	compareChart(labels: number[], actual: number[], predicted: number[], difference: number[]) {
+	compareChart(labels: string[], actual: number[], predicted: number[], difference: number[]) {
 		// if comparison chart (canvas) is in use then destroy it
 		if (this.predictedChart != null) { this.predictedChart.destroy() }
 		this.predictedChart = new Chart("predictedChart", {
@@ -808,42 +839,6 @@ export class TrainingComponent implements OnInit {
 		this.router.navigate(['/prediction'])
 	}
 
-	barChart(param1: Array<string>, param2: Array<number>) {
-		if (this.accuracyBarChart != null) { this.accuracyBarChart.destroy() }
-		this.accuracyBarChart = new Chart("accuracyBarChart", {
-			type: 'bar',
-			data: {
-				labels: param1,
-				datasets: [
-					{
-						label: "Algorithms",
-						data: param2
-					}
-				]
-			},
-			options: {
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'Junctions'
-						}
-					}
-				}
-			}
-		});
-	}
-
-
-
 	async getAllJunctionSpecificDataFromDBandRenderPredictions() {
 		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
 			next: (response) => {
@@ -903,9 +898,117 @@ export class TrainingComponent implements OnInit {
 
 
 
+	changeAlgorithmForComparison() {
+
+		// this.comparisonTableData = response
+		// get the row data from table data recieved as response
+		for (let i = 0; i < Object.keys(this.actualPredictedTableData).length; i++) {
+			if (Object.keys(this.actualPredictedTableData)[i] == this.renderedAlgorithm) {
+				this.comparisonTableData = Object.values(this.actualPredictedTableData)[i]
+			}
+		}
+		this.dataSourcePredicted = Object.values(this.comparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+		// get total number of records
+		this.numberOfRecordsPredicted = Object.values(this.actualPredictedTableData).length
+
+
+		for (let i = 0; i < Object.keys(this.actualPredictedPlotData).length; i++) {
+			if (Object.keys(this.actualPredictedPlotData)[i] == this.renderedAlgorithm) {
+				this.comparisonChartData = Object.values(this.actualPredictedPlotData)[i]
+			}
+		}
+
+		for (let i = 0; i < Object.keys(this.comparisonChartData).length; i++) {
+			if (Object.keys(this.comparisonChartData)[i] == 'actual') {
+				this.plotActual = Object.values(this.comparisonChartData)[i]
+				this.actual = this.plotActual.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			}
+			if (Object.keys(this.comparisonChartData)[i] == 'predicted') {
+				this.plotPredicted = Object.values(this.comparisonChartData)[i]
+				this.predicted = this.plotPredicted.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			}
+			if (Object.keys(this.comparisonChartData)[i] == 'difference') {
+				this.plotDifference = Object.values(this.comparisonChartData)[i]
+				this.difference= this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			}
+			if (Object.keys(this.comparisonChartData)[i] == 'labels') {
+				this.plotLabels = Object.values(this.comparisonChartData)[i]
+				this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+			}
+		}
+
+		this.numberOfPlotDataEntries = this.plotPredicted.length
+		if (this.predictedChart != null) { this.predictedChart.destroy() }
+		this.compareChart(this.labels, this.actual, this.predicted, this.difference)
+
+		for (let i = 0; i < Object.keys(this.modelSummaries).length; i++) {
+			if (Object.keys(this.modelSummaries)[i] == this.renderedAlgorithm) {
+				this.modelSummary = Object.values(this.modelSummaries)[i]
+			}
+		}
+
+		this.modelSummaryReady = true
+		
+
+		let testingRatioBarPlotData: object = {}
+		for (let i = 0; i < this.algorithms.length; i++) {
+			if (Object.keys(this.testRatiosComparisonData)[i] === this.renderedAlgorithm) {
+				testingRatioBarPlotData = Object.values(this.testRatiosComparisonData)[i]
+			}
+		}
+		let allTestRatios = Object.keys(testingRatioBarPlotData)
+		console.log(allTestRatios)
+		let accuracies = Object.values(testingRatioBarPlotData)
+		if (this.testRatioComparisonChart != null) { this.testRatioComparisonChart.destroy() }
+		this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
+			type: 'bar',
+			data: {
+				labels: allTestRatios,
+				datasets: [
+					{
+						label: "Accuracies",
+						data: accuracies,
+						backgroundColor: "rgba(255, 99, 132, 0.2)",
+						borderColor: "rgb(54, 162, 235)",
+						borderWidth: 1
+					}
+				],
+			},
+			options: {
+				maintainAspectRatio: true,
+				scales: {
+					y: {
+						max: 1.0,
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: "Accuracies"
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: "Testing Ratios"
+						}
+					}
+				}
+			}
+		});
+
+
+
+
+
+
+
+
+
+	}
+
 
 
 	startTraining() {
+		this.gotTestingRatioComparisons = false
 		this.predictionReady = false
 		this.comparisonChartHidden = false
 		this.modelSummaryReady = false
@@ -931,19 +1034,8 @@ export class TrainingComponent implements OnInit {
 					testRatio: parseFloat(this.inputTestRatio),
 					algorithm: this.inputAlgorithm
 				}
-				this.alreadyTrained = false
-				for (const element of this.listAllTrained) {
-					if (element[0] == trainingSpecificData['junction']) {
-						if (element[1] == trainingSpecificData['algorithm']) {
-							if (element[2] == trainingSpecificData['testRatio'].toString()) {
-								this.alreadyTrained = true
-							}
-						}
-					}
-				}
-
 				
-				if (this.alreadyTrained || this.junctions.includes(this.inputJunction)) {
+				if (this.uniqueJunctionsInDataset.includes(this.inputJunction)) {
 
 					// existing data
 					this.flaskService.getPlot().subscribe({
@@ -971,43 +1063,28 @@ export class TrainingComponent implements OnInit {
 									// switch to display comparison table
 									this.comparisonTableReady = true
 									// get data in a variable
-									this.comparisonTableData = response
-									// get the row data from table data recieved as response
-									this.dataSourcePredicted = Object.values(response).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-									// get total number of records
-									this.numberOfRecordsPredicted = Object.values(response).length
-
-
-									this.flaskService.getListOfAllTrained().subscribe({
-										next: (response) => {
-											this.listAllTrained = Object.values(response)
-										},
-										error: (error: HttpErrorResponse) => {
-											alert(error.message)
-										}
-									})
-
+									this.actualPredictedTableData = response
 
 									this.flaskService.getActualPredictedForPlot().subscribe({
 										next: (response) => {
+											this.renderedAlgorithm = this.inputAlgorithm
 											this.comparisonChartHidden = false
 											// set it to the variable 
-											this.comparisonChartData = response
+											this.actualPredictedPlotData = response
 
-											// differentiate plot data into actual, predicted and indices
-											this.actual = Object.values(response)[0]['actual'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-											this.predicted = Object.values(response)[0]['predicted'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-											this.difference = Object.values(response)[0]['difference'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-											this.labels = Object.values(response)[0]['labels'].slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+											this.flaskService.getModelSummary().subscribe({
+												next: (response: any) => {
+													this.modelSummaries = response
+													this.renderedAlgorithm = this.inputAlgorithm
+													this.inputTime = 2
+													this.time = 'Months'
+													this.predict()
+												},
+												error: (error: HttpErrorResponse) => {
+													alert(error.message)
+												}
+											})
 
-											// get total number of records
-											this.numberOfPlotDataEntries = Object.values(response)[0]['actual'].length
-
-											// destroy comparison chart if already in use
-											if (this.predictedChart != null) { this.predictedChart.destroy() }
-
-											// then plot comparison chart
-											this.compareChart(this.labels, this.actual, this.predicted, this.difference)
 
 										},
 										error: (error: HttpErrorResponse) => {
@@ -1027,23 +1104,80 @@ export class TrainingComponent implements OnInit {
 												algorithms.push(i.algorithm)
 												accuracyScores.push(i.accuracyScore)
 											}
-											this.barChart(algorithms, accuracyScores)
+											if (this.accuracyBarChart!= null) { this.accuracyBarChart.destroy() }
+											this.accuracyBarChart = new Chart("accuracyBarChart", {
+												type: 'bar',
+												data: {
+													labels: algorithms,
+													datasets: [
+														{
+															label: "Accuracies",
+															data: accuracyScores,
+															backgroundColor: 'rgba(54, 162, 235, 0.2)',
+															borderColor: 'rgb(255, 99, 132)',
+															borderWidth: 1
+														}
+													],
+												},
+												options: {
+													maintainAspectRatio: true,
+													scales: {
+														y: {
+															max: 1.0,
+															beginAtZero: true,
+															title: {
+																display: true,
+																text: "Accuracies"
+															}
+														},
+														x: {
+															title: {
+																display: true,
+																text: "Algorithms"
+															}
+														}
+													}
+												}
+											});
 										},
 										error: (error: HttpErrorResponse) => {
 											alert(error.message)
 										}
 									})
 
-									this.flaskService.getModelSummary().subscribe({
-										next: (response: any) => {
-											this.modelSummary = Object.values(response)
-											this.modelSummaryReady = true
+									this.flaskService.getTestingRatioComparisons().subscribe({
+										next: (response) => {
+											this.gotTestingRatioComparisons = true
+											this.testingRatioComparisonChartNotReady = false
+											this.testRatiosComparisonData = response
+											this.changeAlgorithmForComparison()
+											if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
+
+											let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
+											let ultimateData: Array<any>  = []
+											for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+												let data: object = {
+													label: Object.keys(this.testRatiosComparisonData)[i],
+													fillColor: colors[i],
+													data: Object.values(Object.values(this.testRatiosComparisonData)[i])
+												}
+												ultimateData.push(data)
+											}
+
+											this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
+												type: 'bar',
+												data: {
+													labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
+													datasets: ultimateData,
+												},
+												
+											});
+
 										},
 										error: (error: HttpErrorResponse) => {
 											alert(error.message)
 										}
 									})
-
 
 								},
 								error: (error: HttpErrorResponse) => {
@@ -1096,7 +1230,8 @@ export class TrainingComponent implements OnInit {
 
 
 	predict() {
-		if (this.inputTime != '' && this.time != '') {
+		this.gotTestingRatioComparisons = false
+		if (this.inputTime != 0 && this.time != '') {
 			let timeToBePredicted: object = {
 				timePeriod: this.inputTime,
 				timeFormat: this.time
@@ -1131,6 +1266,12 @@ export class TrainingComponent implements OnInit {
 		} else {
 			this._snackBar.open('Note: provide time')
 		}
+	}
+
+
+
+	addToMaster() {
+		this._snackBar.open('Added to master')
 	}
 
 

@@ -68,4 +68,8 @@ export class FlaskService {
 		return this.http.get('process/getListOfAllTrained')
 	}
 
+	public getTestingRatioComparisons() {
+		return this.http.get('process/getTestingRatioComparisons')
+	}
+
 }

@@ -46,6 +46,14 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getAllUniqueJunctions");
 	}	
 	
+	
+	@GetMapping("/getTestingRatioComparisons")
+	public String getTestingRatioComparisons() {
+		log.info("GET: /process/getTestingRatioComparisons");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons");
+	}	
+	
 	@GetMapping("/getPlot")
 	public String getPlot() {
 		log.info("GET: /process/getPlot");
@@ -53,13 +61,6 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/plot");
 	}	
 	
-	
-	@GetMapping("/getListOfAllTrained")
-	public String getListOfAllTrained() {
-		log.info("GET: /process/getListOfAllTrained");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getListOfAllTrained");
-	}	
 	
 	@GetMapping("/predictAllJunctions")
 	public String trainAllJunctions() {
@@ -112,8 +113,6 @@ public class FlaskController {
 
 	@PostMapping("/setCsvData")
 	public String getCsvData(@RequestBody Object response) {
-		System.out.println("response " + response);
-		System.out.println("PostMapping");
 		log.warn("POST: localhost:8080/process/setCsvData");
 		this.csvData = response;
 		GetURLContents getURLContents = new GetURLContents();
@@ -137,7 +136,8 @@ public class FlaskController {
 	public String getModelSummary() {
 		log.info("GET: /process/getModelSummary");
 		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getModelSummary");
+		String s = getURLContents.getData(flaskUrl + "/getModelSummary");
+		return s;
 	}
 
 	@GetMapping("/getAccuracies")
