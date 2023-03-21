@@ -72,4 +72,20 @@ export class FlaskService {
 		return this.http.get('process/getTestingRatioComparisons')
 	}
 
+	public addToMaster(junction: string, algorithm: string, testRatio: number) {
+		return this.http.get('process/addToMaster?junction=' + junction + '&algorithm=' + algorithm + '&testRatio=' + testRatio)
+	}
+
+	public getMasterTrainedDataPlot() {
+		return this.http.get('process/getMasterTrainedDataPlot')
+	}
+
+	public getMasterTrainedDataForTable() {
+		return this.http.get('process/getMasterTrainedDataTable')
+	}
+	
+	public getMasterTrainedJunctionsAccuracies() {
+		return this.http.get('process/getMasterTrainedJunctionsAccuracies')
+	}
+
 }

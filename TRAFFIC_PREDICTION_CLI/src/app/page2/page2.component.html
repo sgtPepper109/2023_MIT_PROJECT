@@ -46,7 +46,21 @@
                         <mat-card *ngIf="!toggleFuturePredictionsTable">
                             <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                                 <ul class="nav nav-pills">
-                                    <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ duration }} {{ time }}</strong></h4>
+                                    <div class="container">
+                                        <div class="row">
+                                            <div style="width: 240px" class="col">
+                                                <h4>Result for Junction</h4> 
+                                            </div>
+                                            <div class="col">
+                                                <select style="width: 200px" class="form-select" (change)="renderPredictions()" [(ngModel)]="junctionChoice" aria-label="Default select example">
+                                                    <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-5">
+                                                <h4>for duration of <strong>{{ duration }} {{ time }}</strong></h4>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </ul>
                                 <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
                                     <option selected>Line Plot</option>
@@ -67,17 +81,6 @@
                                     </mat-select>
                                 </mat-form-field>
                                 <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
-                                <div style="float: right; width: 200px">
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Junction</mat-label>
-                                        <mat-select (selectionChange)="renderPredictions()" [(ngModel)]="junctionChoice">
-                                            <mat-option *ngFor="let junction of junctions" [value]="junction">
-                                                {{ junction }}
-                                            </mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
-                                    <br />
-                                </div>
 
                                 <div>
                                     <h3>
@@ -132,7 +135,21 @@
                     <mat-card [hidden]="!toggleFuturePredictionsTable">
                         <nav *ngIf="predictionsReady" id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                             <ul class="nav nav-pills">
-                                <h4 id="table2-desc">Result for Junction <strong>{{ junctionChoice }}</strong> for duration of <strong>{{ duration }} {{ time }}</strong></h4>
+                                <div class="container">
+                                    <div class="row">
+                                        <div style="width: 240px" class="col">
+                                            <h4>Result for Junction</h4> 
+                                        </div>
+                                        <div class="col">
+                                            <select style="width: 200px" class="form-select" (change)="renderPredictions()" [(ngModel)]="junctionChoice" aria-label="Default select example">
+                                                <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-5">
+                                            <h4>for duration of <strong>{{ duration }} {{ time }}</strong></h4>
+                                        </div>
+                                    </div>
+                                </div>
                             </ul>
                             <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
                                 <option selected>Line Plot</option>
@@ -153,17 +170,6 @@
                                 </mat-select>
                             </mat-form-field>
                             <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
-                            <div style="float: right; width: 200px">
-                                <mat-form-field appearance="outline">
-                                    <mat-label>Junction</mat-label>
-                                    <mat-select (selectionChange)="renderPredictions()" [(ngModel)]="junctionChoice">
-                                        <mat-option *ngFor="let junction of junctions" [value]="junction">
-                                            {{ junction }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <br />
-                            </div>
                             <div>
                                 <h3>
                                     Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 

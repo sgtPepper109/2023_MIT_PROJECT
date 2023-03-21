@@ -1,11 +1,16 @@
-save trained models
-preprocess data
+# save trained models
+# preprocess data
 cross check with different data
 expansion panel
-new training on dataset change
-training for only the junctions with properties
-same on predictions page
+# new training on dataset change
+# training for only the junctions with properties
+# same on predictions page
 change dateTime format
 download results in csv
 linear data - linear regression correct results
-push to master
+# push to master
+change algorithm comparison
+validations in admin-inputs page
+remove unused part of code
+refactor code with comments
+no records found on predictions page

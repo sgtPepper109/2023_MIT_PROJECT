@@ -57,7 +57,7 @@ export class Page2Component implements OnInit {
 	vehiclesToBePlotted: any
 	dateTimeToBePlotted: any
 	errorstring: string = "" // error message to be displayed on the screen
-	junctionChoice: string = "1"
+	junctionChoice: string = ""
 	allJunctionsPlotData: any
 	currentJunctionPlotData: any
 
@@ -133,33 +133,6 @@ export class Page2Component implements OnInit {
 	x: any
 	testRatio: number = 0
 
-	ngOnInit() {
-		//  this.router.events.subscribe((event) => {
-        //     if (!(event instanceof NavigationEnd)) {
-        //         return;
-        //     }
-        //     window.scrollTo(0, 0)
-        // });
-		this.resultTableReady = true
-		this.junctionSpecificsService.getAllJunctions().subscribe({
-			next: (response) => {
-				this.junctions = Object.values(response)
-				this.dataVisualizationJunctionName = this.junctions[0]
-				this.junctionToBePlotted = this.junctions[0]
-				this.junctionChoice = this.junctions[0]
-
-				this.getAllJunctionSpecificDataFromDB().then(() => {
-					this.duration = 1
-					this.time = 'Months'
-					this.predict()
-				})
-
-			},
-			error: (error: HttpErrorResponse) => {
-
-			}
-		})
-	}
 
 
 	navigateToTraining() {
@@ -434,6 +407,7 @@ export class Page2Component implements OnInit {
 
 
 	renderPredictions() {
+		console.log(this.junctionChoice)
 		this.numberOfTimesCrossedMaxCapacity = 0
 		this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
 		this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
@@ -472,24 +446,31 @@ export class Page2Component implements OnInit {
 
 
 	predict() {
+		console.log('here')
 		this.predictionsReady = false
-		
 		let timeToBePredicted: object = {
 			timePeriod: this.duration,
 			timeFormat: this.time
 		}
 		this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
 			next: (response) => {
-				this.flaskService.predictAllJunctions().subscribe({
+				this.flaskService.getMasterTrainedDataPlot().subscribe({
 					next: (response) => {
 						this.allJunctionsPlotData = response
 
-						this.flaskService.getAllJunctionsFuturePredictionsTable().subscribe({
+						console.log('junctionChoice', this.junctionChoice)
+						this.junctions = Object.keys(response)
+						if (this.junctionChoice == "") {
+							this.dataVisualizationJunctionName = this.junctions[0]
+							this.junctionToBePlotted = this.junctions[0]
+							this.junctionChoice = this.junctions[0]
+						}
+						this.flaskService.getMasterTrainedDataForTable().subscribe({
 							next: (response) => {
+								this.resultTableReady = true
 								this.allJunctionsPredictedData = response
 								this.predictionsReady = true
-
-								this.flaskService.getAccuraciesOfAllJunctions().subscribe({
+								this.flaskService.getMasterTrainedJunctionsAccuracies().subscribe({
 									next: (response) => {
 										this.junctionComparisonData = response
 										this.renderPredictions()
@@ -499,27 +480,109 @@ export class Page2Component implements OnInit {
 										alert(error.message)
 									}
 								})
-
 							},
 							error: (error: HttpErrorResponse) => {
 								alert(error.message)
 							}
 						})
 
+
 					},
 					error: (error: HttpErrorResponse) => {
 						alert(error.message)
 					}
 				})
+
+
+
+
+
 			},
 			error: (error: HttpErrorResponse) => {
 				alert(error.message)
 			}
 		})
+		
+		// let timeToBePredicted: object = {
+		// 	timePeriod: this.duration,
+		// 	timeFormat: this.time
+		// }
+		// this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
+		// 	next: (response) => {
+		// 		this.flaskService.predictAllJunctions().subscribe({
+		// 			next: (response) => {
+		// 				this.allJunctionsPlotData = response
+
+		// 				this.flaskService.getAllJunctionsFuturePredictionsTable().subscribe({
+		// 					next: (response) => {
+		// 						this.allJunctionsPredictedData = response
+		// 						this.predictionsReady = true
+
+		// 						this.flaskService.getAccuraciesOfAllJunctions().subscribe({
+		// 							next: (response) => {
+		// 								this.junctionComparisonData = response
+		// 								this.renderPredictions()
+		// 								this.renderJunctionComparison()
+		// 							},
+		// 							error: (error: HttpErrorResponse) => {
+		// 								alert(error.message)
+		// 							}
+		// 						})
+
+		// 					},
+		// 					error: (error: HttpErrorResponse) => {
+		// 						alert(error.message)
+		// 					}
+		// 				})
+
+		// 			},
+		// 			error: (error: HttpErrorResponse) => {
+		// 				alert(error.message)
+		// 			}
+		// 		})
+		// 	},
+		// 	error: (error: HttpErrorResponse) => {
+		// 		alert(error.message)
+		// 	}
+		// })
 	}
 
 
 
+	ngOnInit() {
+
+		this.getAllJunctionSpecificDataFromDB().then(() => {
+			this.duration = 1
+			this.time = 'Months'
+			this.predict()
+		})
 
 
+		//  this.router.events.subscribe((event) => {
+        //     if (!(event instanceof NavigationEnd)) {
+        //         return;
+        //     }
+        //     window.scrollTo(0, 0)
+        // });
+	// 	this.resultTableReady = true
+	// 	this.junctionSpecificsService.getAllJunctions().subscribe({
+	// 		next: (response) => {
+	// 			this.junctions = Object.values(response)
+	// 			this.dataVisualizationJunctionName = this.junctions[0]
+	// 			this.junctionToBePlotted = this.junctions[0]
+	// 			this.junctionChoice = this.junctions[0]
+
+	// 			this.getAllJunctionSpecificDataFromDB().then(() => {
+	// 				this.duration = 1
+	// 				this.time = 'Months'
+	// 				// this.predict()
+	// 			})
+
+	// 		},
+	// 		error: (error: HttpErrorResponse) => {
+
+	// 		}
+	// 	})
+
+	}
 }
