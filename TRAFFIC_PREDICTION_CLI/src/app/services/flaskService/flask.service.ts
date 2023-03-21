@@ -88,4 +88,8 @@ export class FlaskService {
 		return this.http.get('process/getMasterTrainedJunctionsAccuracies')
 	}
 
+	public predictForHighestAccuracy(junction: string, algorithm: string, testRatio: number) {
+		return this.http.get('process/predictForHighestAccuracy?junction=' + junction + '&algorithm=' + algorithm + '&testRatio=' + testRatio)
+	}
+
 }

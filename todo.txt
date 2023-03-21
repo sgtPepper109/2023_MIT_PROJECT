@@ -14,3 +14,8 @@ validations in admin-inputs page
 remove unused part of code
 refactor code with comments
 no records found on predictions page
+see about 0.30000000004 and same for 0.7000...
+scrolling
+prediction step highest algorithm and highest accuracy
+remove testratio and algorithm input from main page
+change actual vs predicted

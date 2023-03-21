@@ -6,6 +6,7 @@ import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
 import { Router, NavigationEnd } from '@angular/router';
+import { tableRecord } from '../interfaces/accuracyComparisonTableRecord/tableRecord';
 import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 
 
@@ -24,6 +25,11 @@ export class Page2Component implements OnInit {
 	) {
 	}
 
+	accuracyComparisonTableData: Array<tableRecord> = []
+	toggleAccuracyTable: boolean = true
+	accuracyDoughnut: any
+	accuraciesOption: string = "Line Plot"
+	currentDoughnut: string = ""
 	reload: boolean = false
 	scrollnumber: number = 0
 	showMaxCapacity: boolean = false
@@ -135,6 +141,7 @@ export class Page2Component implements OnInit {
 
 
 
+
 	navigateToTraining() {
 		this.router.navigate(['/training'])
 	}
@@ -142,6 +149,14 @@ export class Page2Component implements OnInit {
 
 	navigateToAdminInputs() {
 		this.router.navigate(['/junctionProperties'])
+	}
+
+	changeAccuraciesOption() {
+		if (this.accuraciesOption == 'Line Plot') {
+			this.toggleAccuracyTable = true
+		} else {
+			this.toggleAccuracyTable = false
+		}
 	}
 
 	changePredictionsOption() {
@@ -232,6 +247,7 @@ export class Page2Component implements OnInit {
 				]
 			},
 			options: {
+				responsive: true,
 				maintainAspectRatio: true,
 				scales: {
 					y: {
@@ -407,7 +423,6 @@ export class Page2Component implements OnInit {
 
 
 	renderPredictions() {
-		console.log(this.junctionChoice)
 		this.numberOfTimesCrossedMaxCapacity = 0
 		this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
 		this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
@@ -426,7 +441,6 @@ export class Page2Component implements OnInit {
 
 		for (let element of this.vehiclesToBePlotted) {
 			if (element > this.currentMaxVehicles) {
-				// console.log(element, this.currentMaxVehicles)
 				this.numberOfTimesCrossedMaxCapacity ++
 			}
 		}
@@ -446,7 +460,6 @@ export class Page2Component implements OnInit {
 
 
 	predict() {
-		console.log('here')
 		this.predictionsReady = false
 		let timeToBePredicted: object = {
 			timePeriod: this.duration,
@@ -458,13 +471,18 @@ export class Page2Component implements OnInit {
 					next: (response) => {
 						this.allJunctionsPlotData = response
 
-						console.log('junctionChoice', this.junctionChoice)
 						this.junctions = Object.keys(response)
 						if (this.junctionChoice == "") {
 							this.dataVisualizationJunctionName = this.junctions[0]
 							this.junctionToBePlotted = this.junctions[0]
 							this.junctionChoice = this.junctions[0]
 						}
+
+						if (this.currentDoughnut == "") {
+							this.currentDoughnut = this.junctions[0]
+						}
+
+
 						this.flaskService.getMasterTrainedDataForTable().subscribe({
 							next: (response) => {
 								this.resultTableReady = true
@@ -473,8 +491,25 @@ export class Page2Component implements OnInit {
 								this.flaskService.getMasterTrainedJunctionsAccuracies().subscribe({
 									next: (response) => {
 										this.junctionComparisonData = response
+
+										for (let i = 0; i < Object.keys(this.junctionComparisonData).length; i++) {
+
+											let record: tableRecord = {
+												junctionOrAlgorithm: Object.keys(this.junctionComparisonData)[i],
+												accuracy: Object.values(this.junctionComparisonData)[i]
+											}
+											this.accuracyComparisonTableData.push(record)
+										}
+
+										for (let record of this.accuracyComparisonTableData) {
+											console.log('record', record)
+										}
+										console.log('this.dataSourceResult', this.dataSourceResult)
+
+
 										this.renderPredictions()
 										this.renderJunctionComparison()
+										this.renderJunctionAccuracyDoughnut()
 									},
 									error: (error: HttpErrorResponse) => {
 										alert(error.message)
@@ -503,48 +538,6 @@ export class Page2Component implements OnInit {
 			}
 		})
 		
-		// let timeToBePredicted: object = {
-		// 	timePeriod: this.duration,
-		// 	timeFormat: this.time
-		// }
-		// this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
-		// 	next: (response) => {
-		// 		this.flaskService.predictAllJunctions().subscribe({
-		// 			next: (response) => {
-		// 				this.allJunctionsPlotData = response
-
-		// 				this.flaskService.getAllJunctionsFuturePredictionsTable().subscribe({
-		// 					next: (response) => {
-		// 						this.allJunctionsPredictedData = response
-		// 						this.predictionsReady = true
-
-		// 						this.flaskService.getAccuraciesOfAllJunctions().subscribe({
-		// 							next: (response) => {
-		// 								this.junctionComparisonData = response
-		// 								this.renderPredictions()
-		// 								this.renderJunctionComparison()
-		// 							},
-		// 							error: (error: HttpErrorResponse) => {
-		// 								alert(error.message)
-		// 							}
-		// 						})
-
-		// 					},
-		// 					error: (error: HttpErrorResponse) => {
-		// 						alert(error.message)
-		// 					}
-		// 				})
-
-		// 			},
-		// 			error: (error: HttpErrorResponse) => {
-		// 				alert(error.message)
-		// 			}
-		// 		})
-		// 	},
-		// 	error: (error: HttpErrorResponse) => {
-		// 		alert(error.message)
-		// 	}
-		// })
 	}
 
 
@@ -557,32 +550,38 @@ export class Page2Component implements OnInit {
 			this.predict()
 		})
 
-
-		//  this.router.events.subscribe((event) => {
-        //     if (!(event instanceof NavigationEnd)) {
-        //         return;
-        //     }
-        //     window.scrollTo(0, 0)
-        // });
-	// 	this.resultTableReady = true
-	// 	this.junctionSpecificsService.getAllJunctions().subscribe({
-	// 		next: (response) => {
-	// 			this.junctions = Object.values(response)
-	// 			this.dataVisualizationJunctionName = this.junctions[0]
-	// 			this.junctionToBePlotted = this.junctions[0]
-	// 			this.junctionChoice = this.junctions[0]
-
-	// 			this.getAllJunctionSpecificDataFromDB().then(() => {
-	// 				this.duration = 1
-	// 				this.time = 'Months'
-	// 				// this.predict()
-	// 			})
-
-	// 		},
-	// 		error: (error: HttpErrorResponse) => {
-
-	// 		}
-	// 	})
-
 	}
+
+
+	renderJunctionAccuracyDoughnut() {
+		
+		
+		if (this.accuracyDoughnut != null) { this.accuracyDoughnut.destroy() }
+		this.accuracyDoughnut = new Chart("accuracyDoughnut", {
+			type: 'doughnut',
+			data: {
+				labels: [
+					'accuracy',
+					'inaccuracy'
+				],
+				datasets: [{
+					label: 'Accuracy of ' + this.currentDoughnut,
+					data: [
+						this.junctionComparisonData[this.currentDoughnut],
+						1 - this.junctionComparisonData[this.currentDoughnut]
+					],
+					backgroundColor: [
+						'rgb(54, 162, 235)',
+						'rgb(255, 99, 132)'
+					],
+					hoverOffset: 4
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false
+			}
+		})
+	}
+
 }

@@ -1,4 +1,3 @@
-<div>
     <p class="fixed-top">
         <mat-toolbar>
             <button mat-icon-button  
@@ -35,7 +34,6 @@
     </div>
 
 
-    <div id="mainContainer" class="container p-7 my-7 shadow-lg p-3 mb-5 bg-white rounded">
         <section>
             <mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
                 <mat-step>
@@ -183,7 +181,7 @@
                             </div>
                             <div [hidden]="futurePredictionsChartHidden">
                                 <div>
-                                    <canvas id="myChart"></canvas>
+                                    <canvas style="padding-left: 100px; padding-right: 100px;" id="myChart"></canvas>
                                 </div>
                             </div>
                             <div *ngIf="showMaxCapacity">
@@ -200,18 +198,80 @@
 
 
                 <mat-step *ngIf="autoTrained">
+                    
                     <ng-template matStepLabel>Accuracies of Differenct Junctions</ng-template>
-                    <div>
-                        <div>
-                            <div>
-                                <canvas id="accuracyComparison"></canvas>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                    <ul class="nav nav-pills">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div style="width: 240px" class="col">
+                                                    <h4>Accuracies of all junctions</h4> 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ul>
+                                    <select style="width: 150px" class="form-select" [(ngModel)]="accuraciesOption" (change)="changeAccuraciesOption()" aria-label="Default select example">
+                                        <option selected>Line Plot</option>
+                                        <option value="Table">Table</option>
+                                    </select>
+                                </nav>
+                                <div>
+                                    <div [hidden]="!toggleAccuracyTable">
+                                        <div>
+                                            <canvas width="600" height="600" id="accuracyComparison"></canvas>
+                                        </div>
+                                    </div>
+                                    <div [hidden]="toggleAccuracyTable">
+                                        <div>
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Junction</th>
+                                                        <th scope="col">Accuracy</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let record of accuracyComparisonTableData">
+                                                        <th scope="row">{{ record.junctionOrAlgorithm }}</th>
+                                                        <td>{{ record.accuracy }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                    <ul class="nav nav-pills">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div style="width: 240px" class="col">
+                                                    <h4>Accuracy for junction</h4> 
+                                                </div>
+                                                <div class="col">
+                                                    <select style="width: 200px" class="form-select" (change)="renderJunctionAccuracyDoughnut()" [(ngModel)]="currentDoughnut" aria-label="Default select example">
+                                                        <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ul>
+                                </nav>
+                                <div>
+                                    <div>
+                                        <div>
+                                            <canvas width="600" height="600" id="accuracyDoughnut"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </mat-step>
-
-
-
             </mat-stepper>
 
 
@@ -235,7 +295,5 @@
             </div>
 
         </section>
-    </div>
-</div>
 
 

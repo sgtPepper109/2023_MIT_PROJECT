@@ -106,7 +106,6 @@
                                 {{ ratio }}
                             </mat-option >
                         </mat-select>
-                        <!-- <input matInput type="number" placeholder="10" [(ngModel)]="inputTestRatio" (change)="changeTrain()" placeholder="0" step="0.1"> -->
                     </mat-form-field>
                 </div>
                 <div class="col">
@@ -311,8 +310,8 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let record of accuracies">
-                                                <td scope="row">{{ record.algorithm }}</td>
-                                                <td>{{ record.accuracyScore }}</td>
+                                                <td scope="row">{{ record.junctionOrAlgorithm }}</td>
+                                                <td>{{ record.accuracy }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -342,8 +341,16 @@
                     </div>
 
 
-                    <div>
-                        <canvas id="ultimateComparisonChart"></canvas>
+                    <div style="padding-left: 200px; padding-right: 200px; padding-top: 20px">
+                        <div style="padding-left: 1100px">
+                            <select [(ngModel)]="ultimateComparisonChartFormat" (change)="changeUltimateComparisonFormat()" class="form-select" aria-label="Default select example">
+                                <option value="Line Plot">Line Plot</option>
+                                <option value="Bar Chart">Bar Chart</option>
+                            </select>
+                        </div>
+                        <div>
+                            <canvas id="ultimateComparisonChart"></canvas>
+                        </div>
                     </div>
 
 
@@ -450,40 +457,31 @@
 
 
                 <mat-step>
-                    <ng-template matStepLabel>Predictions</ng-template>
+                    <ng-template matStepLabel>Predictions (highest accuracy)</ng-template>
                     <br />
                     <mat-card>
                         <div class="col alert alert-warning">
-                            <h3><strong>Algorithm: {{ renderedAlgorithm }}</strong></h3>
+                            <h3><strong>Algorithm: {{ algorithmHighestAccuracy }}</strong></h3>
+                            <h3><strong>Test Ratio: {{ testRatioHighestAccuracy }}</strong></h3>
                             <h3 *ngIf="modelSummaryReady"><strong>{{modelSummary[2].Property}}: {{modelSummary[2].Value}}</strong></h3>
                         </div>
-                        <div class="container">
-                            <div class="row">
-                                <div class="col">
-                                    <table class="example-full-width" cellspacing="0">
-                                        <tr>
-                                            <td>
-                                                <mat-form-field appearance="outline" class="example-full-width">
-                                                    <mat-label>Time Period</mat-label>
-                                                    <input matInput type="number" placeholder="0" [(ngModel)]="inputTime">
-                                                </mat-form-field>
-                                            </td>
-                                            <td>
-                                                <mat-form-field appearance="outline">
-                                                    <select matNativeControl [(ngModel)]="time" required>
-                                                        <option value="Days">Days</option>
-                                                        <option value="Months">Months</option>
-                                                        <option value="Years">Years</option>
-                                                    </select>
-                                                </mat-form-field>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="col">
-                                    <button mat-raised-button color="primary" (click)="predict()">Predict</button>
-                                </div>
-                            </div>
+                        <div>
+                            <span> 
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Time Period</mat-label>
+                                    <input matInput type="number" placeholder="0" [(ngModel)]="inputTime">
+                                </mat-form-field>
+                            </span>
+                            <span>
+                                <mat-form-field appearance="outline">
+                                    <select matNativeControl [(ngModel)]="time" required>
+                                        <option value="Days">Days</option>
+                                        <option value="Months">Months</option>
+                                        <option value="Years">Years</option>
+                                    </select>
+                                </mat-form-field>
+                            </span>
+                            <button mat-raised-button style="margin-left: 10px" color="primary" (click)="predict()">Predict</button>
                         </div>
                         <div *ngIf="futurePredictionsReady">
                             <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
@@ -495,17 +493,36 @@
                                     <option value="Table">Table</option>
                                 </select>
                             </nav>
-                            <div *ngIf="junctionSpecificDataAvailable">
-                                <h3>
-                                    Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
-                                </h3>
-                                <h3>
-                                    Junction {{junctionChoice}} has Roadway width of <strong>{{ currentRoadwayWidth }} meters</strong>
-                                </h3>
-                                <h3>
-                                    Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
-                                </h3>
+
+
+
+
+                            <div *ngIf="junctionSpecificDataAvailable" style="padding-right: 1400px; padding-bottom:10px">
+                                <mat-accordion>
+                                    <mat-expansion-panel hideToggle>
+                                        <mat-expansion-panel-header>
+                                        <mat-panel-title>
+                                            <mat-icon>announcement</mat-icon>
+                                        </mat-panel-title>
+                                        <mat-panel-description>
+                                            Junction Details
+                                        </mat-panel-description>
+                                        </mat-expansion-panel-header>
+                                        <h3>
+                                            Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
+                                        </h3>
+                                        <h3>
+                                            Junction {{junctionChoice}} has Roadway width of <strong>{{ currentRoadwayWidth }} meters</strong>
+                                        </h3>
+                                        <h3>
+                                            Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
+                                        </h3>
+                                    </mat-expansion-panel>
+                                </mat-accordion>
                             </div>
+
+
+
                             <div *ngIf="!junctionSpecificDataAvailable">
                                 <h3 style="color: red; margin-left: 10px"><strong>Note: Information not found for this junction</strong></h3>
                             </div>
@@ -551,7 +568,7 @@
                     -->
                     <mat-card [hidden]="!toggleFuturePredictionsTable">
                         <mat-card-content>
-                            <div [hidden]="futurePredictionsChartHidden">
+                            <div style="padding-left: 100px; padding-right: 100px;" [hidden]="futurePredictionsChartHidden">
                                 <div class="card">
                                     <canvas id="myChart"></canvas>
                                 </div>
