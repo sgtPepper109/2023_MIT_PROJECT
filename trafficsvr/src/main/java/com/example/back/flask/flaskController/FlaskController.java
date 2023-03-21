@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -53,6 +54,48 @@ public class FlaskController {
 		GetURLContents getURLContents = new GetURLContents();
 		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons");
 	}	
+	
+	@GetMapping("/addToMaster")
+	public String addToMaster(
+		@RequestParam String junction,
+		@RequestParam String algorithm,
+		@RequestParam String testRatio
+	) {
+		log.info("GET: /process/addToMaster");
+		GetURLContents getURLContents = new GetURLContents();
+		
+		algorithm = algorithm.replaceAll("\\s", "%20");
+		junction = junction.replaceAll("\\s", "%20");
+		System.out.println(algorithm + junction + testRatio);
+		
+		return getURLContents.getData(
+			flaskUrl + 
+			"/addToMaster?junction=" + junction + 
+			"&algorithm=" + algorithm + 
+			"&testRatio=" + testRatio
+		);
+	}
+	
+	@GetMapping("/getMasterTrainedDataPlot")
+	public String getMasterTrainedDataPlot() {
+		log.info("GET: /process/getMasterTrainedDataPlot");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getMasterTrainedDataPlot");
+	}
+	
+	@GetMapping("/getMasterTrainedDataTable")
+	public String getMasterTrainedDataTable() {
+		log.info("GET: /process/getMasterTrainedDataTable");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getMasterTrainedDataTable");
+	}
+	
+	@GetMapping("/getMasterTrainedJunctionsAccuracies")
+	public String getMasterTrainedJunctionsAccuracies() {
+		log.info("GET: /process/getMasterTrainedJunctionsAccuracies");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getMasterTrainedJunctionsAccuracies");
+	}
 	
 	@GetMapping("/getPlot")
 	public String getPlot() {

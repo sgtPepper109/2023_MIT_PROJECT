@@ -412,7 +412,7 @@
                             <mat-form-field appearance="outline" style="width: 300px">
                                 <mat-label>Choose test ratio to add to master</mat-label>
                                 <mat-select [(ngModel)]="testRatioToAddToMaster">
-                                    <mat-option *ngFor="let testRatio of testingRatios" [value]="testRatio">
+                                    <mat-option *ngFor="let testRatio of resultTestingRatios" [value]="testRatio">
                                         {{ testRatio }}
                                     </mat-option >
                                 </mat-select>
@@ -429,7 +429,7 @@
                                     <div class="modal-body">
                                         <div class="alert alert-warning">
                                             <h4>Junction: <strong>{{ this.inputJunction }}</strong></h4>
-                                            <h2>trained with</h2>
+                                            <h4>trained with</h4>
                                             <h4>Algorithm: <strong>{{ algorithmToAddToMaster }}</strong></h4>
                                             <h4>Testing Ratio: <strong>{{ testRatioToAddToMaster }}</strong></h4>
                                         </div>

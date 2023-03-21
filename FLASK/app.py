@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from flask_cors import CORS
 import logging
 import pickle
@@ -238,7 +238,7 @@ class Train:
             self.testAgainst.append(str(i))
         
 
-    def constructFutureTimeToBePredicted(self, timePeriod, timeFormat, typeOfData):
+    def constructFutureTimeToBePredicted(self, timePeriod, timeFormat, typeOfData: str):
         self.currTime = self.junctionData.tail(1).index[0]
         
         if timeFormat == "Days":
@@ -481,6 +481,83 @@ def getAccuracies():
 
 
 
+
+@app.route("/addToMaster")
+def addToMaster():
+    args = request.args
+    args = args.to_dict()
+
+    algorithm = args['algorithm']
+    if "%20" in algorithm:
+        algorithm = algorithm.replace("%20", " ")
+
+    testRatio = float(args['testRatio'])
+
+    global masterAlgorithmAndTestRatioForJunction
+    global allTrainedData
+    global masterData
+
+    junction = args['junction']
+    if "%20" in args['junction']:
+        junction = args['junction'].replace("%20", " ")
+    masterTrainedAlgorithmAndTestRatioForJunction = (algorithm, testRatio)
+    print(algorithm, junction)
+
+    findTrained = allTrainedData[junction][algorithm][testRatio]
+    masterData[junction] = findTrained
+    return make_response(args)
+
+
+
+@app.route("/getMasterTrainedDataPlot")
+def getMasterTrainedDataPlot():
+    global allTrainedData
+    global masterData
+    global time
+    global timeFormat
+    global masterDataTable
+    global masterJunctionsAccuracies
+    print('newtime', time, timeFormat)
+    
+    masterDataTable = dict()
+    response = dict()
+    masterJunctionsAccuracies = dict()
+    for i in masterData:
+        trained = masterData[i]
+        response[i] = trained.predict(time, timeFormat, 'Hourly')
+        masterJunctionsAccuracies[i] = trained.accuracyScore
+
+        table = []
+        head = trained.tableData
+
+        data2 = head.to_dict()
+        anycol = ""
+        for j in data2:
+            anycol = j
+            break
+        for j in range(len(data2[anycol])):
+            field = {}
+            for k in data2:
+                field[k] = data2[k][j]
+            table.append(field)
+        
+        masterDataTable[i] = table
+
+    return make_response(response)
+
+
+@app.route("/getMasterTrainedDataTable")
+def getMasterTrainedDataTable():
+    global masterDataTable
+    return make_response(masterDataTable)
+
+
+@app.route("/getMasterTrainedJunctionsAccuracies")
+def getMasterTrainedJunctionsAccuracies():
+    global masterJunctionsAccuracies
+    return make_response(masterJunctionsAccuracies)
+
+
 @app.route('/getTestingRatioComparisons')
 def getTestingRatioComparisons():
     global time
@@ -488,24 +565,27 @@ def getTestingRatioComparisons():
     global algorithm
     global tempdf
     global junction
-    global masterTrainedJunctions
+    global allTrainedData
 
     possibleTestRatios = np.arange(0.1, 1, 0.1)
 
     algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
                   'Lasso Regression', 'Bayesian Ridge Regression']
     response = dict()
+    temp = dict()
 
     for i in algorithms:
         testRatioComparisons = dict()
+        trainedData = dict()
         for j in possibleTestRatios:
             trained = Train(tempdf, i, junction, j)
+            trainedData[j] = trained
             testRatioComparisons[j] = trained.accuracyScore
         response[i] = testRatioComparisons
-    
-    masterTrainedJunctions[junction] = response
-    
+        temp[i] = trainedData
 
+    allTrainedData[junction] = temp
+    
     # response = dict()
     # for i in possibleTestRatios:
     #     trained = Train(tempdf, algorithm, junction, i)
@@ -645,9 +725,15 @@ def train():
 @app.route('/getActualPredictedForPlot')
 def getActualPredictedForPlot():
     global trainedAlgorithms
+    global allTrainedData
+
+    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+                  'Lasso Regression', 'Bayesian Ridge Regression']
+    global junction
+    global testRatio
     plotResponse = dict()
-    for i in trainedAlgorithms:
-        trained = trainedAlgorithms[i]
+    for i in algorithms:
+        trained = allTrainedData[junction][i][testRatio]
         actualVsPredPlot = dict()
         actualVsPredPlot['actual'] = trained.actual
         actualVsPredPlot['predicted'] = trained.predicted
@@ -655,6 +741,18 @@ def getActualPredictedForPlot():
         actualVsPredPlot['labels'] = trained.testAgainst
         plotResponse[i] = actualVsPredPlot
     return make_response(plotResponse)
+
+
+    # plotResponse = dict()
+    # for i in trainedAlgorithms:
+    #     trained = trainedAlgorithms[i]
+    #     actualVsPredPlot = dict()
+    #     actualVsPredPlot['actual'] = trained.actual
+    #     actualVsPredPlot['predicted'] = trained.predicted
+    #     actualVsPredPlot['difference'] = trained.difference
+    #     actualVsPredPlot['labels'] = trained.testAgainst
+    #     plotResponse[i] = actualVsPredPlot
+    # return make_response(plotResponse)
 
 
 
@@ -695,13 +793,21 @@ if __name__ == "__main__":
     global autoTrainedForJunctions
     global trainedMap
     global accuraciesMap
-    global masterTrainedJunctions
+    global masterAlgorithmAndTestRatioForJunction
+    global masterData
+    global masterDataTable
+    global allTrainedData
+    global masterJunctionsAccuracies
 
+    allTrainedData = dict()
     trainedMap = dict()
     accuraciesMap = dict()
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
-    masterTrainedJunctions = dict()
+    masterTrainedAlgorithmAndTestRatioForJunction = tuple()
+    masterData = dict()
+    masterDataTable = dict()
+    masterJunctionsAccuracies = dict()
 
     df = pd.read_csv(config.whereDataset)
     if 'ID' in df.columns:

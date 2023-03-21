@@ -40,8 +40,9 @@ export class TrainingComponent implements OnInit {
 		'Bayesian Ridge Regression'
 	]
 	testingRatios: Array<number> = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+	resultTestingRatios: Array<number> = []
 	algorithmToAddToMaster: string = ""
-	testRatioToAddToMaster: string = ""
+	testRatioToAddToMaster: number = 0
 	ultimateComparisonChart: any
 	testRatiosComparisonData: Object = {}
 	algorithmForComparison: string = ""
@@ -1057,53 +1058,63 @@ export class TrainingComponent implements OnInit {
 
 							this.flaskService.train().subscribe({
 								next: (response) => {
-									this.predictionReady = true
-									this.startedTraining = false
 
 									// switch to display comparison table
 									this.comparisonTableReady = true
 									// get data in a variable
 									this.actualPredictedTableData = response
 
-									this.flaskService.getActualPredictedForPlot().subscribe({
-										next: (response) => {
-											this.renderedAlgorithm = this.inputAlgorithm
-											this.comparisonChartHidden = false
-											// set it to the variable 
-											this.actualPredictedPlotData = response
 
-											this.flaskService.getModelSummary().subscribe({
-												next: (response: any) => {
-													this.modelSummaries = response
+
+									this.flaskService.getTestingRatioComparisons().subscribe({
+										next: (response) => {
+
+											this.flaskService.getActualPredictedForPlot().subscribe({
+												next: (response) => {
+													console.log('response', response)
 													this.renderedAlgorithm = this.inputAlgorithm
-													this.inputTime = 2
-													this.time = 'Months'
-													this.predict()
+													this.comparisonChartHidden = false
+													// set it to the variable 
+													this.actualPredictedPlotData = response
+
+													this.flaskService.getModelSummary().subscribe({
+														next: (response: any) => {
+															console.log('response', response)
+															this.modelSummaries = response
+															this.renderedAlgorithm = this.inputAlgorithm
+															this.inputTime = 2
+															this.time = 'Months'
+															this.changeAlgorithmForComparison()
+															this.predict()
+														},
+														error: (error: HttpErrorResponse) => {
+															alert(error.message)
+														}
+													})
+
+
 												},
 												error: (error: HttpErrorResponse) => {
 													alert(error.message)
 												}
 											})
 
+											this.predictionReady = true
+											this.startedTraining = false
+											this.gotTestingRatioComparisons = true
+											this.testingRatioComparisonChartNotReady = false
+											this.testRatiosComparisonData = response
 
-										},
-										error: (error: HttpErrorResponse) => {
-											alert(error.message)
-										}
-									})
-
-									this.flaskService.getAccuracies().subscribe({
-										next: (response) => {
-											this.gotAccuracies = true
-											this.accuracies = Object.values(response)
-											this.accuracyBarChartHidden = false
-											
+											let accuracies: Array<number> = []
 											let algorithms: Array<string> = []
-											let accuracyScores: Array<number> = []
-											for (let i of this.accuracies) {
-												algorithms.push(i.algorithm)
-												accuracyScores.push(i.accuracyScore)
+
+											for (let i = 0; i < Object.keys(response).length; i++) {
+												algorithms.push(Object.keys(response)[i])
+												accuracies.push(Object.values(response)[i][this.inputTestRatio])
 											}
+
+											this.accuracyBarChartHidden = false
+											this.testingRatioComparisonChartNotReady = false
 											if (this.accuracyBarChart!= null) { this.accuracyBarChart.destroy() }
 											this.accuracyBarChart = new Chart("accuracyBarChart", {
 												type: 'bar',
@@ -1112,7 +1123,7 @@ export class TrainingComponent implements OnInit {
 													datasets: [
 														{
 															label: "Accuracies",
-															data: accuracyScores,
+															data: accuracies,
 															backgroundColor: 'rgba(54, 162, 235, 0.2)',
 															borderColor: 'rgb(255, 99, 132)',
 															borderWidth: 1
@@ -1139,18 +1150,11 @@ export class TrainingComponent implements OnInit {
 													}
 												}
 											});
-										},
-										error: (error: HttpErrorResponse) => {
-											alert(error.message)
-										}
-									})
 
-									this.flaskService.getTestingRatioComparisons().subscribe({
-										next: (response) => {
-											this.gotTestingRatioComparisons = true
-											this.testingRatioComparisonChartNotReady = false
-											this.testRatiosComparisonData = response
-											this.changeAlgorithmForComparison()
+
+
+
+
 											if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
 
 											let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
@@ -1162,6 +1166,11 @@ export class TrainingComponent implements OnInit {
 													data: Object.values(Object.values(this.testRatiosComparisonData)[i])
 												}
 												ultimateData.push(data)
+											}
+
+											this.resultTestingRatios = []
+											for (let i of Object.keys(Object.values(this.testRatiosComparisonData)[1])) {
+												this.resultTestingRatios.push(parseFloat(i))
 											}
 
 											this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
@@ -1230,7 +1239,6 @@ export class TrainingComponent implements OnInit {
 
 
 	predict() {
-		this.gotTestingRatioComparisons = false
 		if (this.inputTime != 0 && this.time != '') {
 			let timeToBePredicted: object = {
 				timePeriod: this.inputTime,
@@ -1271,7 +1279,23 @@ export class TrainingComponent implements OnInit {
 
 
 	addToMaster() {
-		this._snackBar.open('Added to master')
+
+		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != 0) {
+			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster).subscribe({
+				next: (response) => {
+					console.log(response)
+					console.log(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster)
+					this._snackBar.open('Added to master')
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+					console.log(error)
+				}
+			})
+		} else {
+			this._snackBar.open('Note: provide details')
+		}
+
 	}
 
 
