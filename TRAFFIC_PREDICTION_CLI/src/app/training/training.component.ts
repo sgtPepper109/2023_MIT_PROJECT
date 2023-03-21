@@ -11,6 +11,7 @@ import { JunctionSpecificsService } from '../services/junctionSpecificsService/j
 import { ngxCsv } from 'ngx-csv';
 import { SampleCsvData } from 'src/assets/sample';
 import { transition } from '@angular/animations';
+import { tableRecord } from '../interfaces/accuracyComparisonTableRecord/tableRecord';
 
 @Component({
 	selector: 'app-training',
@@ -31,6 +32,7 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
+	ultimateData: Array<any>  = []
 	algorithms: Array<string> = [
 		'Random Forest Regression',
 		'Gradient Boosting Regression',
@@ -39,8 +41,11 @@ export class TrainingComponent implements OnInit {
 		'Lasso Regression',
 		'Bayesian Ridge Regression'
 	]
+	testRatioHighestAccuracy: number = 0
+	algorithmHighestAccuracy: string = ""
 	testingRatios: Array<number> = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 	resultTestingRatios: Array<number> = []
+	ultimateComparisonChartFormat: string = "Line Plot"
 	algorithmToAddToMaster: string = ""
 	testRatioToAddToMaster: number = 0
 	ultimateComparisonChart: any
@@ -91,7 +96,7 @@ export class TrainingComponent implements OnInit {
 	startProcess: boolean = false
 	junctionChoice: string = ""
 	maxVehicles: number = 0
-	accuracies: any
+	accuracies: Array<tableRecord> = []
 	csvRecords: object = {}
 	datasetPath: string = ""
 	recievedPlotData: any
@@ -200,16 +205,46 @@ export class TrainingComponent implements OnInit {
 				alert(error.message)
 			}
 		})
-		// this.flaskService.getAllUniqueJunctions().subscribe({
-		// 	next: (response) => {
-		// 		console.log(response)
-		// 		this.junctionsAvailableForTraining = Object.values(response)
-		// 	},
-		// 	error: (error: HttpErrorResponse) => {
-		// 		console.log(error)
-		// 		alert(error.message)
-		// 	}
-		// })
+	}
+
+
+	changeUltimateComparisonFormat() {
+		if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
+		if (this.ultimateComparisonChartFormat == 'Line Plot') {
+
+			this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
+				type: 'line',
+				data: {
+					labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
+					datasets: this.ultimateData,
+				},
+				options: {
+					elements: {
+						line: {
+							tension: 0
+						}
+					},
+					responsive: true,
+					maintainAspectRatio: true
+				}
+				
+			});
+		}
+		if (this.ultimateComparisonChartFormat == 'Bar Chart') {
+
+			this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
+				type: 'bar',
+				data: {
+					labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
+					datasets: this.ultimateData,
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true
+				}
+				
+			});
+		}
 	}
 
 
@@ -289,16 +324,10 @@ export class TrainingComponent implements OnInit {
 						fill: false,
 						pointRadius: 2
 					},
-					// {
-					// 	label: 'Max Value in prediction',
-					// 	data: this.maxInPlotArray,
-					// 	borderwidth: 1,
-					// 	bordercolor: '#090',
-					// 	fill: false,
-					// }
 				]
 			},
 			options: {
+				responsive: true,
 				maintainAspectRatio: true,
 				scales: {
 					y: {
@@ -356,17 +385,22 @@ export class TrainingComponent implements OnInit {
 					this.correctJunctions = true
 					this.uniqueJunctionsInDataset = []
 					for (const element of Object.values(result)) {
-						if (this.uniqueJunctionsInDataset.includes(element.Junction) == false) {
+						if (this.uniqueJunctionsInDataset.includes(element.Junction) == false && element.Junction != "") {
 							this.uniqueJunctionsInDataset.push(element.Junction)
 						}
 					}
 
 					for (let item of this.uniqueJunctionsInDataset) {
-						if (this.listedJunctions.includes(item) == false) {
-							this.correctJunctions = false
+						if (item != '') {
+							if (this.listedJunctions.includes(item) == false) {
+								this.correctJunctions = false
+							}
 						}
 					}
+					console.log(this.listedJunctions)
+					console.log(this.uniqueJunctionsInDataset)
 
+					console.log(this.correctJunctions)
 					if (this.correctJunctions) {
 						this.junctions = this.uniqueJunctionsInDataset
 						this.flaskService.sendCsvData(result).subscribe({
@@ -387,25 +421,6 @@ export class TrainingComponent implements OnInit {
 								}
 								this.datasetUploaded = true
 								this.fileProcessing = false
-								// this.flaskService.getAllUniqueJunctions().subscribe({
-								// 	next: (response) => {
-								// 		this.datasetUploaded = true
-								// 		this.fileProcessing = false
-								// 		this.junctionsAvailableForTraining = Object.values(response)
-
-								// 		for (let element of this.junctionsAvailableForTraining) {
-								// 			if (this.uniqueJunctionsInDataset.includes(element) == false) {
-								// 				this.uniqueJunctionsInDataset.push(element)
-								// 			}
-								// 		}
-								// 		console.log(this.uniqueJunctionsInDataset)
-								// 		this.junctions = this.uniqueJunctionsInDataset
-
-								// 	},
-								// 	error: (error: HttpErrorResponse) => {
-								// 		alert(error.message)
-								// 	}
-								// })
 							},
 							error: (error: HttpErrorResponse) => {
 								alert(error.message)
@@ -786,7 +801,7 @@ export class TrainingComponent implements OnInit {
 						borderColor: "#900",
 						fill: false,
 						pointRadius: 2,
-						data: actual
+						data: actual,
 					},
 					{
 						type: 'line',
@@ -806,6 +821,11 @@ export class TrainingComponent implements OnInit {
 				]
 			},
 			options: {
+				elements: {
+					line: {
+						tension: 0
+					}
+				},
 				maintainAspectRatio: true,
 				scales: {
 					y: {
@@ -958,7 +978,6 @@ export class TrainingComponent implements OnInit {
 			}
 		}
 		let allTestRatios = Object.keys(testingRatioBarPlotData)
-		console.log(allTestRatios)
 		let accuracies = Object.values(testingRatioBarPlotData)
 		if (this.testRatioComparisonChart != null) { this.testRatioComparisonChart.destroy() }
 		this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
@@ -1041,6 +1060,7 @@ export class TrainingComponent implements OnInit {
 					// existing data
 					this.flaskService.getPlot().subscribe({
 						next: (response) => {
+						console.log('hereabacaknjanjvnakjfdg')
 							this.recievedPlotData = response
 							this.junctionChoice = this.inputJunction
 							this.toggleDataVisualizationTable = true
@@ -1068,10 +1088,14 @@ export class TrainingComponent implements OnInit {
 
 									this.flaskService.getTestingRatioComparisons().subscribe({
 										next: (response) => {
+											this.predictionReady = true
+											this.startedTraining = false
+											this.gotTestingRatioComparisons = true
+											this.testingRatioComparisonChartNotReady = false
+											this.testRatiosComparisonData = response
 
 											this.flaskService.getActualPredictedForPlot().subscribe({
 												next: (response) => {
-													console.log('response', response)
 													this.renderedAlgorithm = this.inputAlgorithm
 													this.comparisonChartHidden = false
 													// set it to the variable 
@@ -1079,11 +1103,32 @@ export class TrainingComponent implements OnInit {
 
 													this.flaskService.getModelSummary().subscribe({
 														next: (response: any) => {
-															console.log('response', response)
 															this.modelSummaries = response
 															this.renderedAlgorithm = this.inputAlgorithm
 															this.inputTime = 2
 															this.time = 'Months'
+
+															let maxAccuracyOfAll: number = -1
+															let maxAccuracyDetails: Array<any> = []
+															for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+																let ratioData = Object.values(this.testRatiosComparisonData)[i]
+																for (let j = 0; j < Object.values(ratioData).length; j++) {
+																	let currentNumber: number = (Object.values(ratioData)[j] as number)
+																	if (currentNumber > maxAccuracyOfAll) {
+																		maxAccuracyOfAll = currentNumber
+																		console.log('curr', currentNumber)
+																		maxAccuracyDetails = [Object.keys(this.testRatiosComparisonData)[i], parseFloat(Object.keys(ratioData)[j])]
+																	}
+																}
+															}
+															console.log(maxAccuracyDetails)
+
+															this.testRatioHighestAccuracy = maxAccuracyDetails[1]
+															this.algorithmHighestAccuracy = maxAccuracyDetails[0]
+															this.algorithmToAddToMaster = maxAccuracyDetails[0]
+															this.testRatioToAddToMaster = maxAccuracyDetails[1]
+															// this.flaskService.predictForHighestAccuracy(this.inputJunction, maxAccuracyDetails[0], maxAccuracyDetails[1])
+
 															this.changeAlgorithmForComparison()
 															this.predict()
 														},
@@ -1099,16 +1144,17 @@ export class TrainingComponent implements OnInit {
 												}
 											})
 
-											this.predictionReady = true
-											this.startedTraining = false
-											this.gotTestingRatioComparisons = true
-											this.testingRatioComparisonChartNotReady = false
-											this.testRatiosComparisonData = response
 
+											
 											let accuracies: Array<number> = []
 											let algorithms: Array<string> = []
 
 											for (let i = 0; i < Object.keys(response).length; i++) {
+												let record: tableRecord = {
+													junctionOrAlgorithm: Object.keys(response)[i],
+													accuracy: Object.values(response)[i][this.inputTestRatio]
+												}
+												this.accuracies.push(record)
 												algorithms.push(Object.keys(response)[i])
 												accuracies.push(Object.values(response)[i][this.inputTestRatio])
 											}
@@ -1155,32 +1201,24 @@ export class TrainingComponent implements OnInit {
 
 
 
-											if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
 
 											let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
-											let ultimateData: Array<any>  = []
+											this.ultimateData = []
 											for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
 												let data: object = {
 													label: Object.keys(this.testRatiosComparisonData)[i],
 													fillColor: colors[i],
 													data: Object.values(Object.values(this.testRatiosComparisonData)[i])
 												}
-												ultimateData.push(data)
+												this.ultimateData.push(data)
 											}
 
 											this.resultTestingRatios = []
 											for (let i of Object.keys(Object.values(this.testRatiosComparisonData)[1])) {
 												this.resultTestingRatios.push(parseFloat(i))
 											}
+											this.changeUltimateComparisonFormat()
 
-											this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
-												type: 'bar',
-												data: {
-													labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
-													datasets: ultimateData,
-												},
-												
-											});
 
 										},
 										error: (error: HttpErrorResponse) => {
@@ -1247,7 +1285,7 @@ export class TrainingComponent implements OnInit {
 
 			this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
 				next: (response) => {
-					this.flaskService.predictAgainstTime().subscribe({
+					this.flaskService.predictForHighestAccuracy(this.inputJunction, this.algorithmHighestAccuracy, this.testRatioHighestAccuracy).subscribe({
 						next: (response) => {
 							this.futurePredictionsPlotData = response
 							this.plotDataReady = true
@@ -1283,13 +1321,10 @@ export class TrainingComponent implements OnInit {
 		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != 0) {
 			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster).subscribe({
 				next: (response) => {
-					console.log(response)
-					console.log(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster)
 					this._snackBar.open('Added to master')
 				},
 				error: (error: HttpErrorResponse) => {
 					alert(error.message)
-					console.log(error)
 				}
 			})
 		} else {

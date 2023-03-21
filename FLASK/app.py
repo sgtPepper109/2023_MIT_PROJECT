@@ -119,6 +119,7 @@ def plot():
     response = dict()
     for i in np.unique(df.Junction):
         response[i] = createDict(i)
+    # print('plot', response)
     return make_response(response)
 
 
@@ -481,6 +482,34 @@ def getAccuracies():
 
 
 
+@app.route('/predictForHighestAccuracy')
+def predictForHighestAccuracy():
+    args = request.args
+    args = args.to_dict()
+
+    algorithm = args['algorithm']
+    if "%20" in algorithm:
+        algorithm = algorithm.replace("%20", " ")
+    testRatio = float(args['testRatio'])
+    junction = args['junction']
+    if "%20" in args['junction']:
+        junction = args['junction'].replace("%20", " ")
+
+    global allTrainedData
+    global time
+    global timeFormat
+    global highestAccuracyAlgorithm
+    global highestAccuracyTestRatio
+    global highestAccuracyTrained
+    print(junction, algorithm, testRatio, time, timeFormat)
+
+    highestAccuracyAlgorithm = ""
+    highestAccuracyTestRatio = float(0)
+    highestAccuracyTrained = allTrainedData[junction][algorithm][testRatio]
+    plotResponse = highestAccuracyTrained.predict(time, timeFormat, typeOfData)
+    return make_response(plotResponse)
+    
+
 
 @app.route("/addToMaster")
 def addToMaster():
@@ -596,9 +625,9 @@ def getTestingRatioComparisons():
 def getFuturePredictionsTable():
     global trainedAlgorithms
     global algorithm
-    trained = trainedAlgorithms[algorithm]
+    global highestAccuracyTrained
     arr = []
-    head = trained.tableData
+    head = highestAccuracyTrained.tableData
 
     data2 = head.to_dict()
     anycol = ""
@@ -798,6 +827,10 @@ if __name__ == "__main__":
     global masterDataTable
     global allTrainedData
     global masterJunctionsAccuracies
+    global highestAccuracyAlgorithm
+    global highestAccuracyTestRatio
+    highestAccuracyAlgorithm = ""
+    highestAccuracyTestRatio = float(0)
 
     allTrainedData = dict()
     trainedMap = dict()
@@ -828,9 +861,9 @@ if __name__ == "__main__":
 
     getJunctionRelatedDataFromDB()
 
-    autoTrainedModels = dict()
-    for i in junctions:
-        autoTrained = Train(tempdf, 'Random Forest Regression', i, 0.2)
-        autoTrainedModels[i] = autoTrained
+    # autoTrainedModels = dict()
+    # for i in junctions:
+    #     autoTrained = Train(tempdf, 'Random Forest Regression', i, 0.2)
+    #     autoTrainedModels[i] = autoTrained
     
     app.run()

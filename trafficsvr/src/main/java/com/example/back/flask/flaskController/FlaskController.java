@@ -55,6 +55,28 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons");
 	}	
 	
+	
+	@GetMapping("/predictForHighestAccuracy")
+	public String predictForHighestAccuracy(
+		@RequestParam String junction,
+		@RequestParam String algorithm,
+		@RequestParam String testRatio
+	) {
+		log.info("GET: /process/predictForHighestAccuracy");
+		GetURLContents getURLContents = new GetURLContents();
+		
+		algorithm = algorithm.replaceAll("\\s", "%20");
+		junction = junction.replaceAll("\\s", "%20");
+		System.out.println(algorithm + junction + testRatio);
+		
+		return getURLContents.getData(
+			flaskUrl + 
+			"/predictForHighestAccuracy?junction=" + junction + 
+			"&algorithm=" + algorithm + 
+			"&testRatio=" + testRatio
+		);
+	}
+	
 	@GetMapping("/addToMaster")
 	public String addToMaster(
 		@RequestParam String junction,
