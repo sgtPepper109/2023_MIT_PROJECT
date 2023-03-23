@@ -92,4 +92,17 @@ export class FlaskService {
 		return this.http.get('process/predictForHighestAccuracy?junction=' + junction + '&algorithm=' + algorithm + '&testRatio=' + testRatio)
 	}
 
+	public getActualVsPredictedComparison() {
+		return this.http.get('process/getActualVsPredictedComparison')
+	}
+
+	public getActualVsPredictedComparisonTableData() {
+		return this.http.get('process/getActualVsPredictedComparisonTableData')
+	}
+
+
+	public getAllModelSummaries() {
+		return this.http.get('process/getAllModelSummaries')
+	}
+
 }

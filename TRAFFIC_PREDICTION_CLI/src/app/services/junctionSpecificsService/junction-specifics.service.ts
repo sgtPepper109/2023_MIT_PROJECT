@@ -2,9 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PropService } from '../propService/prop.service';
-import { JunctionDistrictMap } from '../../interfaces/junctionDistrictMap/junction-district-map';
-import { RoadwayWidthMaxVehiclesMap} from '../../interfaces/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
-import { JunctionRoadwayWidthMap } from '../../interfaces/junctionRoadwayWidth/junction-roadway-width-map';
+import { JunctionDistrictMap, RoadwayWidthMaxVehiclesMap, JunctionRoadwayWidthMap } from '../../interfaces/all-interfaces';
 
 @Injectable({
 	providedIn: 'root'

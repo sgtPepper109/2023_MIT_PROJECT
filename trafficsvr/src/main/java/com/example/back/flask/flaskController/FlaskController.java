@@ -55,6 +55,27 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons");
 	}	
 	
+	@GetMapping("/getAllModelSummaries")
+	public String getModelSummaries() {
+		log.info("GET: /process/getAllModelSummaries");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getAllModelSummaries");
+	}	
+	
+	@GetMapping("/getActualVsPredictedComparisonTableData")
+	public String getActualVsPredictedComparisonTableData() {
+		log.info("GET: /process/getActualVsPredictedComparisonTableData");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getActualVsPredictedComparisonTableData");
+	}	
+	
+	@GetMapping("/getActualVsPredictedComparison")
+	public String getActualVsPredictedComparison() {
+		log.info("GET: /process/getActualVsPredictedComparison");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getActualVsPredictedComparison");
+	}	
+	
 	
 	@GetMapping("/predictForHighestAccuracy")
 	public String predictForHighestAccuracy(
@@ -67,7 +88,6 @@ public class FlaskController {
 		
 		algorithm = algorithm.replaceAll("\\s", "%20");
 		junction = junction.replaceAll("\\s", "%20");
-		System.out.println(algorithm + junction + testRatio);
 		
 		return getURLContents.getData(
 			flaskUrl + 
@@ -88,7 +108,6 @@ public class FlaskController {
 		
 		algorithm = algorithm.replaceAll("\\s", "%20");
 		junction = junction.replaceAll("\\s", "%20");
-		System.out.println(algorithm + junction + testRatio);
 		
 		return getURLContents.getData(
 			flaskUrl + 

@@ -315,6 +315,40 @@ class Train:
 
 
 
+@app.route('/getAllModelSummaries')
+def getAllModelSummaries():
+    global allTrainedData
+
+    allModelSummaries = dict()
+    for algorithm in allTrainedData[junction]:
+        modelSummaryOfTestRatios = dict()
+        for testRatio in allTrainedData[junction][algorithm]:
+            trained = allTrainedData[junction][algorithm][testRatio]
+            fstatistic = f_test(trained.newYtest, trained.predicted)
+            modelSummary = [ { 'Property': 'Dependent Variable', 'Value': 'Vehicles' },
+                { 'Property': 'Algorithm', 'Value': trained.algorithm },
+                { 'Property': 'Accuracy', 'Value': trained.accuracyScore },
+                { 'Property': 'R-Squared', 'Value': trained.r2 },
+                { 'Property': 'Date & Time of Training', 'Value': trained.whenTrained },
+                { 'Property': 'No. of Observations', 'Value': trained.data.shape[0] },
+                { 'Property': 'F-Statistic', 'Value': fstatistic[0] },
+                { 'Property': '(prob) F-Statistic', 'Value': fstatistic[1] },
+                { 'Property': 'Explained Variance', 'Value': trained.explaindVariance },
+                { 'Property': 'Mean Absolute Error', 'Value': trained.meanAbsoluteError },
+                { 'Property': 'Mean Squared Error', 'Value': trained.meanSquaredError },
+                { 'Property': 'Median Absolute Error', 'Value': trained.medianAbsoluteError },
+                { 'Property': 'Skew', 'Value': skew(list(trained.data.Vehicles), axis=0, bias=True) },
+                { 'Property': 'Kurtosis', 'Value': kurtosis(list(trained.data.Vehicles), axis=0, bias=True) },
+                { 'Property': 'Jarque-Bera (JB)', 'Value': str(jarque_bera(np.array(trained.data.Vehicles))) },
+                { 'Property': 'Durbin Watson', 'Value': durbin_watson(np.array(trained.data.Vehicles)) }
+            ]
+            modelSummaryOfTestRatios[testRatio] = modelSummary
+        allModelSummaries[algorithm] = modelSummaryOfTestRatios
+
+    return make_response(allModdelSummaries)
+
+
+
 @app.route('/getModelSummary')
 def getModelSummary():
     global trainedAlgorithms
@@ -695,6 +729,58 @@ def getAllJunctionsFuturePredictions():
     return make_response(allJunctionsTableData)
 
 
+@app.route('/getActualVsPredictedComparison')
+def getActualVsPredictedComparison():
+    global allTrainedData
+    global allActualVsPredicted
+    global junction
+
+    print("junction", junction)
+
+    allActualVsPredicted = dict()
+    for algorithm in allTrainedData[junction]:
+        actualVsPredictedForTestRatio = dict()
+        for testRatio in allTrainedData[junction][algorithm]:
+            trained = allTrainedData[junction][algorithm][testRatio]
+            actualPred = dict()
+            actualPred['actual'] = trained.actual
+            actualPred['predicted'] = trained.predicted
+            actualPred['difference'] = trained.difference
+            actualPred['labels'] = trained.testAgainst
+            actualVsPredictedForTestRatio[testRatio] = actualPred
+        allActualVsPredicted[algorithm] = actualVsPredictedForTestRatio
+    
+    return make_response(allActualVsPredicted)
+
+
+
+@app.route('/getActualVsPredictedComparisonTableData')
+def getActualVsPredictedComparisonTableData():
+    global allTrainedData
+    global allActualVsPredictedTable
+    global junction
+
+    print("junction", junction)
+
+    allActualVsPredictedTable = dict()
+    for algorithm in allTrainedData[junction]:
+        actualVsPredictedForTestRatio = dict()
+        for testRatio in allTrainedData[junction][algorithm]:
+            trained = allTrainedData[junction][algorithm][testRatio]
+            actualPred = list()
+            for i in range(len(trained.actual)):
+                actualPredInstance = {
+                    'actual': trained.actual[i],
+                    'predicted': trained.predicted[i],
+                    'difference': trained.difference[i]
+                }
+                actualPred.append(actualPredInstance)
+            actualVsPredictedForTestRatio[testRatio] = actualPred
+        allActualVsPredictedTable[algorithm] = actualVsPredictedForTestRatio
+    
+    return make_response(allActualVsPredictedTable)
+
+
 @app.route("/train")
 def train():
     global tempdf
@@ -751,8 +837,45 @@ def train():
 
 
 
+
+
+
+
 @app.route('/getActualPredictedForPlot')
 def getActualPredictedForPlot():
+
+
+
+    # for i in algorithms:
+    #     testRatioComparisons = dict()
+    #     trainedData = dict()
+    #     for j in possibleTestRatios:
+    #         trained = Train(tempdf, i, junction, j)
+    #         trainedData[j] = trained
+    #         testRatioComparisons[j] = trained.accuracyScore
+    #     response[i] = testRatioComparisons
+    #     temp[i] = trainedData
+
+    # allTrainedData[junction] = temp
+
+    # allActualVsPredicted = dict()
+    # for algorithm in allTrainedData[junction]:
+    #     actualVsPredForTestRatio = dict()
+    #     for testRatio in allTrainedData[junction][algorithm]:
+    #         trained = allTrainedData[junction][algorithm][testRatio]
+    #         actualPred = dict()
+    #         actualPred['actual'] = trained.actual
+    #         actualPred['predicted'] = trained.predicted
+    #         actualPred['difference'] = trained.difference
+    #         actualPred['labels'] = trained.testAgainst
+    #         actualVsPredictedForTestRatio[testRatio] = actualPred
+    #     allActualVsPredicted[algorithm] = actualVsPredictedForTestRatio
+    
+    # return make_response(allActualVsPredicted)
+
+
+
+
     global trainedAlgorithms
     global allTrainedData
 

@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser'
 
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
-import { Page2Component } from './page2/page2.component'
+import { PredictionsComponent } from './predictions/predictions.component'
 import { TrainingComponent } from './training/training.component'
 import { AdminInputsComponent } from './admin-inputs/admin-inputs.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
@@ -46,7 +46,7 @@ import { MatTreeModule } from '@angular/material/tree';
 @NgModule({
 	declarations: [
 		AppComponent,
-		Page2Component,
+		PredictionsComponent,
 		SignupComponent,
 		AdminInputsComponent,
 		TrainingComponent,
