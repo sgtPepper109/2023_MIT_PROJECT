@@ -97,39 +97,6 @@
                         </mat-select>
                     </mat-form-field>
                 </div>
-
-                <!-- <div class="col-1">
-                    <mat-form-field appearance="outline" class="example-full-width" style="margin-left: 10px">
-                        <mat-label>Testing Ratio</mat-label>
-                        <mat-select [(ngModel)]="inputTestRatio">
-                            <mat-option *ngFor="let ratio of testingRatios" [value]="ratio">
-                                {{ ratio }}
-                            </mat-option >
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="col">
-                    <mat-form-field appearance="outline" style="width: 550px; margin-left: 85px">
-                        <mat-label>Algorithm</mat-label>
-                        <mat-select [(ngModel)]="inputAlgorithm">
-                            <mat-option *ngFor="let algorithm of algorithms" [value]="algorithm">
-                                {{ algorithm }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div> -->
-                <!-- <div class="col">
-                    <mat-form-field appearance="outline" style="width: 600px">
-                        <mat-label>Trained models</mat-label>
-                        <mat-select (selectionChange)="changeTrainedModel()" [(ngModel)]="inputJunction">
-                            <mat-option *ngFor="let trained of listAllTrained" [value]="trained">
-                                {{ trained[0] }}, {{ trained[1] }}, {{ trained[2] }}
-                            </mat-option >
-                        </mat-select>
-                    </mat-form-field>
-                </div> -->
-
-
             </div>
 
 
@@ -160,15 +127,7 @@
 
         <div [hidden]="!predictionReady" class="accordion" id="accordionExample">
 
-
-            <!-- <div *ngIf="alreadyTrained" class="alert alert-success alert-dismissible" role="alert">
-                <div><strong>Note: Using previously trained model to save time</strong></div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
-            </div> -->
-
-
             <mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
-
                 <mat-step [hidden]="!comparisonChartHidden">
                     <!--
                         ** Actual and Predicted values comparison on test data **
@@ -316,7 +275,7 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let record of accuracies">
-                                                <td scope="row">{{ record.junctionOrAlgorithm }}</td>
+                                                <td>{{ record.junctionOrAlgorithm }}</td>
                                                 <td>{{ record.accuracy }}</td>
                                             </tr>
                                         </tbody>
@@ -392,7 +351,7 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr *ngFor="let record of modelSummary">
-                                                        <td scope="row"><strong>{{ record.Property }}</strong></td>
+                                                        <td><strong>{{ record.Property }}</strong></td>
                                                         <td>{{ record.Value }}</td>
                                                     </tr>
                                                 </tbody>

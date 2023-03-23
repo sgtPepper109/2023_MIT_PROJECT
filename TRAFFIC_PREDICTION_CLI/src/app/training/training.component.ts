@@ -58,7 +58,7 @@ export class TrainingComponent implements OnInit {
 	resultTestingRatios: Array<string> = []
 	ultimateComparisonChartFormat: string = "Line Plot"
 	algorithmToAddToMaster: string = ""
-	testRatioToAddToMaster: number = 0
+	testRatioToAddToMaster: string = ""
 	ultimateComparisonChart: any
 	testRatiosComparisonData: Object = {}
 	algorithmForComparison: string = ""
@@ -864,7 +864,7 @@ export class TrainingComponent implements OnInit {
 
 
 	async getActualVsPredictedComparisons() {
-		return new Promise<any>((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			this.flaskService.getActualVsPredictedComparison().subscribe({
 				next: (response) => {
 					this.allActualVsPredictedComparisonPlotData = response
@@ -874,7 +874,7 @@ export class TrainingComponent implements OnInit {
 							this.renderedAlgorithm = this.inputAlgorithm
 							this.resultTestingRatios = Object.keys(Object.values(response)[0])
 							this.renderedTestRatio = this.resultTestingRatios[0]
-							resolve("function end")
+							resolve()
 						},
 						error: (error: HttpErrorResponse) => {
 							alert(error.message)
@@ -914,7 +914,7 @@ export class TrainingComponent implements OnInit {
 				this.testRatioHighestAccuracy = maxAccuracyDetails[1]
 				this.algorithmHighestAccuracy = maxAccuracyDetails[0]
 				this.algorithmToAddToMaster = maxAccuracyDetails[0]
-				this.testRatioToAddToMaster = maxAccuracyDetails[1]
+				this.testRatioToAddToMaster = maxAccuracyDetails[1].toString()
 
 				this.time = 2
 				this.timeFormat = 'Months'
@@ -928,7 +928,7 @@ export class TrainingComponent implements OnInit {
 
 	
 	setUltimateChartData() {
-		return new Promise<any>((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
 			this.ultimateData = []
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
@@ -939,7 +939,7 @@ export class TrainingComponent implements OnInit {
 				}
 				this.ultimateData.push(data)
 			}
-			resolve("function done")
+			resolve()
 		})
 	}
 
@@ -1083,8 +1083,8 @@ export class TrainingComponent implements OnInit {
 
 	addToMaster() {
 
-		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != 0) {
-			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster).subscribe({
+		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "") {
+			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, parseFloat(this.testRatioToAddToMaster)).subscribe({
 				next: (response) => {
 					this._snackBar.open('Added to master')
 				},
@@ -1132,7 +1132,7 @@ export class TrainingComponent implements OnInit {
 
 
 	async separateLinesForActualVsPredictedComparisonLinePlot() {
-		return new Promise<any>((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			// for separating predicted line, actual line and diference in plot
 			for (let i = 0; i < Object.keys(this.actualVsPredictedComparisonPlotData).length; i++) {
 				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'actual') {
@@ -1152,7 +1152,7 @@ export class TrainingComponent implements OnInit {
 					this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 				}
 			}
-			resolve("function done")
+			resolve()
 		})
 	}
 
@@ -1225,7 +1225,7 @@ export class TrainingComponent implements OnInit {
 
 
 	async setAccuracyBarChartData() {
-		return new Promise<any>((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			this.accuracyBarChartAlgorithmsAxis = []
 			this.accuracyBarChartAccuraciesAxis = []
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
@@ -1242,7 +1242,7 @@ export class TrainingComponent implements OnInit {
 					}
 				}
 			}
-			resolve("function done")
+			resolve()
 		})
 	}
 
@@ -1290,14 +1290,14 @@ export class TrainingComponent implements OnInit {
 
 
 	async setTestRatioComparisonChartData() {
-		return new Promise<any>((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
 				if (Object.keys(this.testRatiosComparisonData)[i] == this.renderedAlgorithm) {
 					this.testRatioComparisonChartTestRatiosAxis = Object.keys(Object.values(this.testRatiosComparisonData)[i])
 					this.testRatioComparisonChartAccuraciesAxis = Object.values(Object.values(this.testRatiosComparisonData)[i])
 				}
 			}
-			resolve("function Done")
+			resolve()
 		})
 	}
 

@@ -23,3 +23,6 @@ for daily data remove time
 improve paginator options
 change offcanvas styling
 table option in testRatiosComparison
+when first treatment needed
+by default prediction of years
+repair paginators

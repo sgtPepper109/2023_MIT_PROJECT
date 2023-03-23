@@ -181,7 +181,20 @@
                             </div>
                             <div [hidden]="futurePredictionsChartHidden">
                                 <div>
-                                    <canvas style="padding-left: 100px; padding-right: 100px;" id="myChart"></canvas>
+                                    <canvas style="padding-left: 200px; padding-right: 200px;" id="myChart"></canvas>
+                                </div>
+                                <div *ngIf="yearsPaginatorShow" style="padding-top: 10px;">
+                                    <nav aria-label="Page navigation example">
+                                        <ul class="pagination justify-content-center">
+                                            <button mat-button [disabled]="yearsPaginatorPreviousButtonDisabled" (click)="previousMonth()">
+                                                <mat-icon>keyboard_arrow_left</mat-icon>
+                                            </button>
+                                            <button mat-button>{{ yearsIndex }} of {{ index }}</button>
+                                            <button mat-button [disabled]="yearsPaginatorNextButtonDisabled" (click)="nextMonth()">
+                                                <mat-icon>keyboard_arrow_right</mat-icon>
+                                            </button>
+                                        </ul>
+                                    </nav>
                                 </div>
                             </div>
                             <div *ngIf="showMaxCapacity">
@@ -200,7 +213,7 @@
                 <mat-step *ngIf="autoTrained">
                     
                     <ng-template matStepLabel>Accuracies of Differenct Junctions</ng-template>
-                    <div class="container">
+                    <div style="padding-top: 10px" class="container">
                         <div class="row">
                             <div class="col">
                                 <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
@@ -253,7 +266,7 @@
                                                     <h4>Accuracy for junction</h4> 
                                                 </div>
                                                 <div class="col">
-                                                    <select style="width: 200px" class="form-select" (change)="renderJunctionAccuracyDoughnut()" [(ngModel)]="currentDoughnut" aria-label="Default select example">
+                                                    <select style="width: 200px" class="form-select" (change)="renderJunctionAccuracyPie()" [(ngModel)]="currentPie" aria-label="Default select example">
                                                         <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
                                                     </select>
                                                 </div>
@@ -264,7 +277,7 @@
                                 <div>
                                     <div>
                                         <div>
-                                            <canvas width="600" height="600" id="accuracyDoughnut"></canvas>
+                                            <canvas width="600" height="600" id="accuracyPie"></canvas>
                                         </div>
                                     </div>
                                 </div>

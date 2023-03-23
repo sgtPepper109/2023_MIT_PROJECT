@@ -25,11 +25,16 @@ export class PredictionsComponent implements OnInit {
 	) {
 	}
 
+	yearsPaginatorShow: boolean = false
+	maxVehicles: Array<number> = []
+	yearsPaginatorPreviousButtonDisabled: boolean = true
+	yearsPaginatorNextButtonDisabled: boolean = false
+	yearsIndex: number = 0
 	accuracyComparisonTableData: Array<tableRecord> = []
 	toggleAccuracyTable: boolean = true
-	accuracyDoughnut: any
+	accuracyPie: any
 	accuraciesOption: string = "Line Plot"
-	currentDoughnut: string = ""
+	currentPie: string = ""
 	reload: boolean = false
 	scrollnumber: number = 0
 	showMaxCapacity: boolean = false
@@ -211,6 +216,7 @@ export class PredictionsComponent implements OnInit {
 	
 
 	plotFuturePredictions(x: any, y: any, z: any) {
+		console.log(x, y)
 		// prediction is done
 		this.futurePredictionsChartHidden = false
 
@@ -421,6 +427,39 @@ export class PredictionsComponent implements OnInit {
 
 	}
 
+	
+	previousMonth() {
+		console.log(this.yearsIndex)
+		if (this.yearsIndex <= 0) {
+			this.yearsPaginatorPreviousButtonDisabled = true
+		}
+		this.yearsPaginatorNextButtonDisabled = false
+		this.yearsIndex -= (744)
+		this.setVehiclesAndDateTime(
+			this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
+			this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
+			// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
+			// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
+		)
+		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
+		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
+		console.log(this.yearsIndex)
+	}
+
+	nextMonth() {
+		console.log(this.yearsIndex)
+		this.yearsIndex += 744
+		this.setVehiclesAndDateTime(
+			this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
+			this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
+			// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
+			// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
+		)
+		this.yearsPaginatorPreviousButtonDisabled = false
+		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
+		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
+		console.log(this.yearsIndex)
+	}
 
 	renderPredictions() {
 		this.numberOfTimesCrossedMaxCapacity = 0
@@ -431,13 +470,25 @@ export class PredictionsComponent implements OnInit {
 		this.numberOfRecordsResult = this.currentJunctionsPredictedData.length
 		this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
 		this.currentJunctionPlotData = this.allJunctionsPlotData[this.junctionChoice]
-		this.setVehiclesAndDateTime(
-			this.currentJunctionPlotData[0]['vehicles'], 
-			this.currentJunctionPlotData[0]['datetime']
-		)
 
-		let maxVehicles: Array<number> = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
-		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, maxVehicles)
+
+		if (this.time == 'Years') {
+			this.setVehiclesAndDateTime(
+				this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
+				this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
+				// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
+				// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
+			)
+		} else {
+			this.setVehiclesAndDateTime(
+				this.currentJunctionPlotData[0]['vehicles'], 
+				this.currentJunctionPlotData[0]['datetime']
+			)
+		}
+
+
+		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
+		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
 
 		for (let element of this.vehiclesToBePlotted) {
 			if (element > this.currentMaxVehicles) {
@@ -459,7 +510,82 @@ export class PredictionsComponent implements OnInit {
 	}
 
 
+
+
+
+	async getMasterData() {
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.getMasterTrainedDataPlot().subscribe({
+				next: (response) => {
+					this.allJunctionsPlotData = response
+
+					this.junctions = Object.keys(response)
+					if (this.junctionChoice == "") {
+						this.dataVisualizationJunctionName = this.junctions[0]
+						this.junctionToBePlotted = this.junctions[0]
+						this.junctionChoice = this.junctions[0]
+					}
+					if (this.currentPie == "") {
+						this.currentPie = this.junctions[0]
+					}
+					this.flaskService.getMasterTrainedDataForTable().subscribe({
+						next: (response) => {
+							this.resultTableReady = true
+							this.allJunctionsPredictedData = response
+							this.predictionsReady = true
+							this.flaskService.getMasterTrainedJunctionsAccuracies().subscribe({
+								next: (response) => {
+									this.junctionComparisonData = response
+									resolve()
+								},
+								error: (error: HttpErrorResponse) => {
+									alert(error.message)
+								}
+							})
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
+						}
+					})
+
+
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+				}
+			})
+		})
+	}
+
+
+
+	renderAll() {
+		this.renderPredictions()
+		this.renderJunctionComparison()
+		this.renderJunctionAccuracyPie()
+	}
+
+
+
+	async setAccuracyComparisonTableData() {
+		return new Promise<void>((resolve, reject) => {
+			for (let i = 0; i < Object.keys(this.junctionComparisonData).length; i++) {
+				let record: tableRecord = {
+					junctionOrAlgorithm: Object.keys(this.junctionComparisonData)[i],
+					accuracy: Object.values(this.junctionComparisonData)[i]
+				}
+				this.accuracyComparisonTableData.push(record)
+				resolve()
+			}
+		})
+	}
+
+
+
 	predict() {
+		if (this.time == 'Years') {
+			this.yearsPaginatorShow = true
+		}
 		this.predictionsReady = false
 		let timeToBePredicted: object = {
 			timePeriod: this.duration,
@@ -467,69 +593,11 @@ export class PredictionsComponent implements OnInit {
 		}
 		this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
 			next: (response) => {
-				this.flaskService.getMasterTrainedDataPlot().subscribe({
-					next: (response) => {
-						this.allJunctionsPlotData = response
-
-						this.junctions = Object.keys(response)
-						if (this.junctionChoice == "") {
-							this.dataVisualizationJunctionName = this.junctions[0]
-							this.junctionToBePlotted = this.junctions[0]
-							this.junctionChoice = this.junctions[0]
-						}
-
-						if (this.currentDoughnut == "") {
-							this.currentDoughnut = this.junctions[0]
-						}
-
-
-						this.flaskService.getMasterTrainedDataForTable().subscribe({
-							next: (response) => {
-								this.resultTableReady = true
-								this.allJunctionsPredictedData = response
-								this.predictionsReady = true
-								this.flaskService.getMasterTrainedJunctionsAccuracies().subscribe({
-									next: (response) => {
-										this.junctionComparisonData = response
-
-										for (let i = 0; i < Object.keys(this.junctionComparisonData).length; i++) {
-
-											let record: tableRecord = {
-												junctionOrAlgorithm: Object.keys(this.junctionComparisonData)[i],
-												accuracy: Object.values(this.junctionComparisonData)[i]
-											}
-											this.accuracyComparisonTableData.push(record)
-										}
-
-										for (let record of this.accuracyComparisonTableData) {
-										}
-
-
-										this.renderPredictions()
-										this.renderJunctionComparison()
-										this.renderJunctionAccuracyDoughnut()
-									},
-									error: (error: HttpErrorResponse) => {
-										alert(error.message)
-									}
-								})
-							},
-							error: (error: HttpErrorResponse) => {
-								alert(error.message)
-							}
-						})
-
-
-					},
-					error: (error: HttpErrorResponse) => {
-						alert(error.message)
-					}
+				this.getMasterData().then(() => {
+					this.setAccuracyComparisonTableData().then(() => {
+						this.renderAll()
+					})
 				})
-
-
-
-
-
 			},
 			error: (error: HttpErrorResponse) => {
 				alert(error.message)
@@ -544,29 +612,29 @@ export class PredictionsComponent implements OnInit {
 
 		this.getAllJunctionSpecificDataFromDB().then(() => {
 			this.duration = 1
-			this.time = 'Months'
+			this.time = 'Years'
 			this.predict()
 		})
 
 	}
 
 
-	renderJunctionAccuracyDoughnut() {
+	renderJunctionAccuracyPie() {
 		
 		
-		if (this.accuracyDoughnut != null) { this.accuracyDoughnut.destroy() }
-		this.accuracyDoughnut = new Chart("accuracyDoughnut", {
-			type: 'doughnut',
+		if (this.accuracyPie != null) { this.accuracyPie.destroy() }
+		this.accuracyPie = new Chart("accuracyPie", {
+			type: 'pie',
 			data: {
 				labels: [
 					'accuracy',
 					'inaccuracy'
 				],
 				datasets: [{
-					label: 'Accuracy of ' + this.currentDoughnut,
+					label: 'Accuracy of ' + this.currentPie,
 					data: [
-						this.junctionComparisonData[this.currentDoughnut],
-						1 - this.junctionComparisonData[this.currentDoughnut]
+						this.junctionComparisonData[this.currentPie],
+						1 - this.junctionComparisonData[this.currentPie]
 					],
 					backgroundColor: [
 						'rgb(54, 162, 235)',
