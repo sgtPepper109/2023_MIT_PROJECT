@@ -3,13 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 import { Router } from '@angular/router';
-import { JunctionDistrictMap } from '../interfaces/junctionDistrictMap/junction-district-map';
-import { JunctionRoadwayWidthMap } from '../interfaces/junctionRoadwayWidth/junction-roadway-width-map';
-import { RoadwayWidthMaxVehiclesMap } from '../interfaces/roadwayWidth-maxVehicles-map/roadwayWidth-maxVehicles-map';
+import { JunctionDistrictMap, JunctionRoadwayWidthMap, RoadwayWidthMaxVehiclesMap, JunctionInformation } from '../interfaces/all-interfaces';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { JunctionInformation } from '../interfaces/junctionInformation/junction-information';
 
 @Component({
 	selector: 'app-admin-inputs',
@@ -58,7 +55,6 @@ export class AdminInputsComponent implements OnInit {
 						}
 					},
 					error: (error: HttpErrorResponse) => {
-						console.log(error)
 						alert(error.message)
 					}
 				})
@@ -70,7 +66,6 @@ export class AdminInputsComponent implements OnInit {
 						}
 					},
 					error: (error: HttpErrorResponse) => {
-						console.log(error)
 						alert(error.message)
 					}
 				})
@@ -79,7 +74,6 @@ export class AdminInputsComponent implements OnInit {
 
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
@@ -124,21 +118,18 @@ export class AdminInputsComponent implements OnInit {
 
 							},
 							error: (error: HttpErrorResponse) => {
-								console.log(error)
 								alert(error.message)
 							}
 						})
 
 					},
 					error: (error: HttpErrorResponse) => {
-						console.log(error)
 						alert(error.message)
 					}
 				})
 
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
@@ -196,19 +187,16 @@ export class AdminInputsComponent implements OnInit {
 								this._snackBar.open('Added Record Successfully', '\u2716')
 							},
 							error: (error: HttpErrorResponse) => {
-								console.log(error)
 								alert(error.message)
 							}
 						})
 					},
 					error: (error: HttpErrorResponse) => {
-						console.log(error)
 						alert(error.message)
 					}
 				})
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
@@ -249,19 +237,16 @@ export class AdminInputsComponent implements OnInit {
 								this._snackBar.open('Updated Fields Successfully', '\u2716')
 							},
 							error: (error: HttpErrorResponse) => {
-								console.log(error)
 								alert(error.message)
 							}
 						})
 					},
 					error: (error: HttpErrorResponse) => {
-						console.log(error)
 						alert(error.message)
 					}
 				})
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
@@ -280,19 +265,16 @@ export class AdminInputsComponent implements OnInit {
 									resolve('deletedFromDB')
 								},
 								error: (error: HttpErrorResponse) => {
-									console.log(error)
 									alert(error.message)
 								}
 							})
 						},
 						error: (error: HttpErrorResponse) => {
-							console.log(error)
 							alert(error.message)
 						}
 					})
 				},
 				error: (error: HttpErrorResponse) => {
-					console.log(error)
 					alert(error.message)
 				}
 			})

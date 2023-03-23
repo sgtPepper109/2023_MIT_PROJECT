@@ -98,7 +98,7 @@
                     </mat-form-field>
                 </div>
 
-                <div class="col-1">
+                <!-- <div class="col-1">
                     <mat-form-field appearance="outline" class="example-full-width" style="margin-left: 10px">
                         <mat-label>Testing Ratio</mat-label>
                         <mat-select [(ngModel)]="inputTestRatio">
@@ -117,7 +117,7 @@
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
+                </div> -->
                 <!-- <div class="col">
                     <mat-form-field appearance="outline" style="width: 600px">
                         <mat-label>Trained models</mat-label>
@@ -185,10 +185,20 @@
                                     <div class="col">
                                         <mat-form-field appearance="outline" style="width: 550px; margin-left: 85px">
                                             <mat-label>Show Comparisons of </mat-label>
-                                            <mat-select [(ngModel)]="renderedAlgorithm" (selectionChange)="changeAlgorithmForComparison()">
+                                            <mat-select [(ngModel)]="renderedAlgorithm" (selectionChange)="renderAllComparisons()">
                                                 <mat-option *ngFor="let algorithm of algorithms" [value]="algorithm">
                                                     {{ algorithm }}
                                                 </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col">
+                                        <mat-form-field appearance="outline" class="example-full-width" style="margin-left: 10px">
+                                            <mat-label>Testing Ratio</mat-label>
+                                            <mat-select [(ngModel)]="renderedTestRatio" (selectionChange)="renderAllComparisons()">
+                                                <mat-option *ngFor="let ratio of resultTestingRatios" [value]="ratio">
+                                                    {{ ratio }}
+                                                </mat-option >
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -229,14 +239,13 @@
                                     </select>
                                 </nav>
 
-                                <mat-card *ngIf="!toggleComparisonTable">
-                                    <mat-card-content *ngIf="comparisonTableReady">
+                                <div *ngIf="!toggleComparisonTable">
+                                    <div *ngIf="comparisonTableReady">
                                         
                                         <!--
                                             ** Table for showing actual and predicted values comparison **
                                         -->
                                         
-                                        <h4 id="table3-desc"><strong>Actual and predicted values:</strong></h4>
                                         <table class="table table-bordered border table-striped-columns" aria-describedby="table3-desc">
                                             <thead>
                                                 <tr>
@@ -254,9 +263,6 @@
                                             </tbody>
                                         </table>
 
-
-
-
                                         <!--
                                             ** Paginator for table **
                                         -->
@@ -266,8 +272,8 @@
                                             <button type="button" [ngClass]="classForNextButtonPredicted" (click)="nextPredicted()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
                                         </div>
                                         
-                                    </mat-card-content>
-                                </mat-card>
+                                    </div>
+                                </div>
 
 
                                 <!--
@@ -293,7 +299,7 @@
 
                                 <nav id="navbar-example4" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                                     <ul class="nav nav-pills">
-                                        <h4 id="table2-desc"><strong>Accuracy Comparisons for {{ inputTestRatio }} test ratio</strong></h4>
+                                        <h4 id="table2-desc"><strong>Accuracy Comparisons for {{ renderedTestRatio }} test ratio</strong></h4>
                                     </ul>
                                     <select style="width: 150px" class="form-select" [(ngModel)]="accuracyOption" (change)="changeAccuracyOption()" aria-label="Default select example">
                                         <option selected>Line Plot</option>
@@ -421,7 +427,7 @@
                                 <mat-select [(ngModel)]="testRatioToAddToMaster">
                                     <mat-option *ngFor="let testRatio of resultTestingRatios" [value]="testRatio">
                                         {{ testRatio }}
-                                    </mat-option >
+                                    </mat-option>
                                 </mat-select>
                             </mat-form-field>
                         </span>
@@ -469,12 +475,12 @@
                             <span> 
                                 <mat-form-field appearance="outline">
                                     <mat-label>Time Period</mat-label>
-                                    <input matInput type="number" placeholder="0" [(ngModel)]="inputTime">
+                                    <input matInput type="number" placeholder="0" [(ngModel)]="time">
                                 </mat-form-field>
                             </span>
                             <span>
                                 <mat-form-field appearance="outline">
-                                    <select matNativeControl [(ngModel)]="time" required>
+                                    <select matNativeControl [(ngModel)]="timeFormat" required>
                                         <option value="Days">Days</option>
                                         <option value="Months">Months</option>
                                         <option value="Years">Years</option>
@@ -486,7 +492,7 @@
                         <div *ngIf="futurePredictionsReady">
                             <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
                                 <ul class="nav nav-pills">
-                                    <h4 id="table2-desc">Result for Junction <strong>{{ inputJunction }}</strong> for duration of <strong>{{ inputTime }} {{ time }}</strong></h4>
+                                    <h4 id="table2-desc">Result for Junction <strong>{{ inputJunction }}</strong> for duration of <strong>{{ time }} {{ timeFormat }}</strong></h4>
                                 </ul>
                                 <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
                                     <option selected>Line Plot</option>

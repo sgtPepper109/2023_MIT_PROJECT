@@ -6,16 +6,16 @@ import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
 import { Router, NavigationEnd } from '@angular/router';
-import { tableRecord } from '../interfaces/accuracyComparisonTableRecord/tableRecord';
+import { tableRecord } from '../interfaces/all-interfaces';
 import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 
 
 @Component({
 	selector: 'app-page2',
-	templateUrl: './page2.component.html',
-	styleUrls: ['./page2.component.css']
+	templateUrl: './predictions.component.html',
+	styleUrls: ['./predictions.component.css']
 })
-export class Page2Component implements OnInit {
+export class PredictionsComponent implements OnInit {
 	constructor(
 		private router: Router,
 		private propService: PropService,
@@ -502,9 +502,7 @@ export class Page2Component implements OnInit {
 										}
 
 										for (let record of this.accuracyComparisonTableData) {
-											console.log('record', record)
 										}
-										console.log('this.dataSourceResult', this.dataSourceResult)
 
 
 										this.renderPredictions()

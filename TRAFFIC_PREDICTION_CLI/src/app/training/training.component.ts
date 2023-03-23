@@ -11,7 +11,7 @@ import { JunctionSpecificsService } from '../services/junctionSpecificsService/j
 import { ngxCsv } from 'ngx-csv';
 import { SampleCsvData } from 'src/assets/sample';
 import { transition } from '@angular/animations';
-import { tableRecord } from '../interfaces/accuracyComparisonTableRecord/tableRecord';
+import { tableRecord } from '../interfaces/all-interfaces';
 
 @Component({
 	selector: 'app-training',
@@ -41,10 +41,21 @@ export class TrainingComponent implements OnInit {
 		'Lasso Regression',
 		'Bayesian Ridge Regression'
 	]
+
+	testRatioComparisonChartTestRatiosAxis: Array<string> = []
+	testRatioComparisonChartAccuraciesAxis: Array<number> = []
+	accuracyBarChartAlgorithmsAxis: Array<string> = []
+	accuracyBarChartAccuraciesAxis: Array<number> = []
+	allModelSummaries: Object = {}
+	allActualVsPredicedComparisonTableData: Object = {}
+	actualVsPredictedComparisonTableData: any
+	actualVsPredictedComparisonPlotData: Object = {} 
+	allActualVsPredictedComparisonPlotData: Object = {}
+	renderedTestRatio: string = ""
 	testRatioHighestAccuracy: number = 0
 	algorithmHighestAccuracy: string = ""
 	testingRatios: Array<number> = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-	resultTestingRatios: Array<number> = []
+	resultTestingRatios: Array<string> = []
 	ultimateComparisonChartFormat: string = "Line Plot"
 	algorithmToAddToMaster: string = ""
 	testRatioToAddToMaster: number = 0
@@ -103,9 +114,9 @@ export class TrainingComponent implements OnInit {
 	vehicles: Array<any> = []  // Vehicles array to display on y axis of chart
 	datetime: Array<any> = [] // DateTime array to display on x axis of chart
 	inputJunction: string = ""// input variables for junction and months
-	inputTime: number = 0
 	inputAlgorithm: string = "Random Forest Regression"
-	time: string = "Days"
+	time: number = 0
+	timeFormat: string = ""
 	modelSummary: any
 	keys: any
 	comparisonDataRepresentationType: string = "Table"
@@ -270,6 +281,8 @@ export class TrainingComponent implements OnInit {
 		}
 	}
 	changeComparisonOption() {
+		for (let record of this.dataSourcePredicted) {
+		}
 		if (this.comparisonOption == 'Line Plot') {
 			this.toggleComparisonTable = true
 		} else {
@@ -392,15 +405,12 @@ export class TrainingComponent implements OnInit {
 
 					for (let item of this.uniqueJunctionsInDataset) {
 						if (item != '') {
-							if (this.listedJunctions.includes(item) == false) {
+							if (!this.listedJunctions.includes(item)) {
 								this.correctJunctions = false
 							}
 						}
 					}
-					console.log(this.listedJunctions)
-					console.log(this.uniqueJunctionsInDataset)
 
-					console.log(this.correctJunctions)
 					if (this.correctJunctions) {
 						this.junctions = this.uniqueJunctionsInDataset
 						this.flaskService.sendCsvData(result).subscribe({
@@ -667,10 +677,10 @@ export class TrainingComponent implements OnInit {
 
 			// set next 5 row values from comparison table data (this.comparisonTableData) to the dataSource variable
 			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.comparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+			this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
 
 			// if index is pointing to last 5 records from the csv data then disable next button in paginator
-			if (this.predictedTableIndex === Object.values(this.comparisonTableData).length - 5) {
+			if (this.predictedTableIndex === Object.values(this.actualVsPredictedComparisonTableData).length - 5) {
 				this.classForNextButtonPredicted = "page-item disabled"
 			}
 		}
@@ -695,7 +705,7 @@ export class TrainingComponent implements OnInit {
 
 			// set next 5 row values from comparison table data (this.comparisonTableData) to the dataSource variable 
 			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.comparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+			this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -784,8 +794,368 @@ export class TrainingComponent implements OnInit {
 		}
 	}
 
+	navigateToPredictions() {
+		this.router.navigate(['/prediction'])
+	}
 
-	// function to plot comparison line chart
+	async getAllJunctionSpecificDataFromDBandRenderPredictions() {
+		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
+			next: (response) => {
+				for (const element of Object.values(response)) {
+					this.junctionDistrictMaps.set(element['junctionName'], element['district'])
+					if (element['junctionName'] == this.inputJunction) {
+						this.junctionSpecificDataAvailable = true
+					}
+				}
+				if (response != '') {
+					this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
+						next: (response) => {
+							for (const element of Object.values(response)) {
+								this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
+							}
+							if (response != '') {
+								this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
+									next: (response) => {
+										for (const element of Object.values(response)) {
+											this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
+										}
+										this.currentDistrict = this.junctionDistrictMaps.get(this.inputJunction)!
+										this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.inputJunction)!)
+										this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
+										this.renderPredictions(this.futurePredictionsPlotData, this.futurePredictionsTableData)
+										if (response != '') {
+											this.junctionSpecificDetailsProvided = true
+										}
+									},
+									error: (error: HttpErrorResponse) => {
+										alert(error)
+									}
+								})
+							}
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error)
+						}
+					})
+				}
+			},
+			error: (error: HttpErrorResponse) => {
+				alert(error)
+			}
+		})
+	}
+
+
+
+	getExistingData() {
+		// existing data
+		this.flaskService.getPlot().subscribe({
+			next: (response) => {
+				this.recievedPlotData = response
+				this.junctionChoice = this.inputJunction
+				this.toggleDataVisualizationTable = true
+				this.changeJunctionToBePlotted()
+			},
+			error: (error: HttpErrorResponse) => {
+				alert(error.message)
+			}
+		})
+	}
+
+
+	async getActualVsPredictedComparisons() {
+		return new Promise<any>((resolve, reject) => {
+			this.flaskService.getActualVsPredictedComparison().subscribe({
+				next: (response) => {
+					this.allActualVsPredictedComparisonPlotData = response
+					this.flaskService.getActualVsPredictedComparisonTableData().subscribe({
+						next: (response) => {
+							this.allActualVsPredicedComparisonTableData = response
+							this.renderedAlgorithm = this.inputAlgorithm
+							this.resultTestingRatios = Object.keys(Object.values(response)[0])
+							this.renderedTestRatio = this.resultTestingRatios[0]
+							resolve("function end")
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
+						}
+					})
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+				}
+			})
+
+		})
+
+	}
+
+
+	getAllModelSummaries() {
+		this.flaskService.getAllModelSummaries().subscribe({
+			next: (response) => {
+				this.allModelSummaries = response
+				this.changeUltimateComparisonFormat()
+				this.renderAllComparisons()
+
+				let maxAccuracyOfAll: number = -1
+				let maxAccuracyDetails: Array<any> = []
+				for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+					let ratioData = Object.values(this.testRatiosComparisonData)[i]
+					for (let j = 0; j < Object.values(ratioData).length; j++) {
+						let currentNumber: number = (Object.values(ratioData)[j] as number)
+						if (currentNumber > maxAccuracyOfAll) {
+							maxAccuracyOfAll = currentNumber
+							maxAccuracyDetails = [Object.keys(this.testRatiosComparisonData)[i], parseFloat(Object.keys(ratioData)[j])]
+						}
+					}
+				}
+
+				this.testRatioHighestAccuracy = maxAccuracyDetails[1]
+				this.algorithmHighestAccuracy = maxAccuracyDetails[0]
+				this.algorithmToAddToMaster = maxAccuracyDetails[0]
+				this.testRatioToAddToMaster = maxAccuracyDetails[1]
+
+				this.time = 2
+				this.timeFormat = 'Months'
+				this.predict()
+			},
+			error: (error: HttpErrorResponse) => {
+				alert(error.message)
+			}
+		})
+	}
+
+	
+	setUltimateChartData() {
+		return new Promise<any>((resolve, reject) => {
+			let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
+			this.ultimateData = []
+			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+				let data: object = {
+					label: Object.keys(this.testRatiosComparisonData)[i],
+					fillColor: colors[i],
+					data: Object.values(Object.values(this.testRatiosComparisonData)[i])
+				}
+				this.ultimateData.push(data)
+			}
+			resolve("function done")
+		})
+	}
+
+
+	trainAllJunctionsAndGetComparisons() {
+
+		this.flaskService.getTestingRatioComparisons().subscribe({
+			next: (response) => {
+				this.predictionReady = true
+				this.startedTraining = false
+				this.gotTestingRatioComparisons = true
+				this.testingRatioComparisonChartNotReady = false
+				this.testRatiosComparisonData = response
+				this.setUltimateChartData().then(() => {
+					this.getActualVsPredictedComparisons().then(() => {
+						this.getAllModelSummaries()
+					})
+				})
+			},
+			error: (error: HttpErrorResponse) => {
+				alert(error.message)
+			}
+		})
+	}
+
+
+
+	startTraining() {
+		this.gotTestingRatioComparisons = false
+		this.predictionReady = false
+		this.comparisonChartHidden = false
+		this.modelSummaryReady = false
+		this.comparisonTableReady = false
+		this.modelSummary = []
+		this.csvDataStored = true
+		this.startedTraining = true
+		if (this.csvDataStored) {
+			this.dataSource = this.csvData.slice(this.index, this.index + 5)
+			this.numberOfRecords = this.csvData.length
+			this.testRatio = parseFloat(this.inputTestRatio)
+			this.startProcess = true
+			this.toggleErrorString = false
+			if (this.inputJunction != '') {
+				interface trainingDetails {
+					junction: string,
+					testRatio: number,
+					algorithm: string
+				}
+				let trainingSpecificData: trainingDetails = {
+					junction: this.inputJunction,
+					testRatio: parseFloat(this.inputTestRatio),
+					algorithm: this.inputAlgorithm
+				}
+				if (this.uniqueJunctionsInDataset.includes(this.inputJunction)) {
+					this.getExistingData()
+					this.flaskService.sendTrainingSpecifics(trainingSpecificData).subscribe({
+						next: (response) => {
+							this.trainAllJunctionsAndGetComparisons()
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
+						}
+					})
+				} else {
+					this.startedTraining = false
+					this._snackBar.open('Note: ' + this.inputJunction + ' does not exist in the dataset (required for training)', '\u2716')
+				}
+			} else {
+				this.startedTraining = false
+				this._snackBar.open('Note: All fields are required', '\u2716')
+			}
+		}
+	}
+
+
+	renderPredictions(futurePredictionsPlotData: any, futurePredictionsTableData: any) {
+		// display only these columns
+		this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+
+		// get all row values from the response recieved to show in table
+		this.dataSourceResult = futurePredictionsTableData.slice(this.indexResult, this.indexResult + 10)
+
+		// get total number of records from table data
+		this.numberOfRecordsResult = futurePredictionsTableData.length
+
+		if (this.plotDataReady) {
+			if (this.plotDataReady) {
+				this.setVehiclesAndDateTime(
+					futurePredictionsPlotData[0]['vehicles'], 
+					futurePredictionsPlotData[0]['datetime']
+				)
+				let maxVehiclesCapacityArray: Array<number> = []
+				for (const element of this.dateTimeToBePlotted) {
+					maxVehiclesCapacityArray.push(this.currentMaxVehicles)
+				}
+				this.plotFuturePredictions(maxVehiclesCapacityArray, this.dateTimeToBePlotted, this.vehiclesToBePlotted)
+			}
+		}
+	}
+
+
+	predict() {
+		if (this.time != 0 && this.timeFormat != '') {
+			let timeToBePredicted: object = {
+				timePeriod: this.time,
+				timeFormat: this.timeFormat
+			}
+
+			this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
+				next: (response) => {
+					this.flaskService.predictForHighestAccuracy(this.inputJunction, this.algorithmHighestAccuracy, this.testRatioHighestAccuracy).subscribe({
+						next: (response) => {
+							this.futurePredictionsPlotData = response
+							this.plotDataReady = true
+							this.flaskService.getFuturePredictionsTable().subscribe({
+								next: (response) => {
+									this.futurePredictionsTableData = Object.values(response)
+									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
+									this.futurePredictionsReady = true
+								},
+								error: (error: HttpErrorResponse) => {
+									alert(error.message)
+								}
+							})
+						},
+						error: (error: HttpErrorResponse) => {
+							alert(error.message)
+						}
+					})
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+				}
+			})
+		} else {
+			this._snackBar.open('Note: provide time')
+		}
+	}
+
+
+
+	addToMaster() {
+
+		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != 0) {
+			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster).subscribe({
+				next: (response) => {
+					this._snackBar.open('Added to master')
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+				}
+			})
+		} else {
+			this._snackBar.open('Note: provide details')
+		}
+
+	}
+
+
+
+	setActualVsPredictedComparisonPlotData() {
+		// for arranging plot data
+		for (let i = 0; i < Object.keys(this.allActualVsPredictedComparisonPlotData).length; i++) {
+			if (Object.keys(this.allActualVsPredictedComparisonPlotData)[i] == this.renderedAlgorithm) {
+				for (let j = 0; j < Object.keys(Object.values(this.allActualVsPredictedComparisonPlotData)[i]).length; j++) {
+					if (Object.keys(Object.values(this.allActualVsPredictedComparisonPlotData)[i])[j] == this.renderedTestRatio) {
+						this.actualVsPredictedComparisonPlotData = Object.values(Object.values(this.allActualVsPredictedComparisonPlotData)[i])[j] as Object
+					}
+				}
+			}
+		}
+	}
+
+	setActualVsPredictedComparisonTableData() {
+		// for arranging table data
+		for (let i = 0; i < Object.keys(this.allActualVsPredicedComparisonTableData).length; i++) {
+			if (Object.keys(this.allActualVsPredicedComparisonTableData)[i] == this.renderedAlgorithm) {
+				for (let j = 0; j < Object.keys(Object.values(this.allActualVsPredicedComparisonTableData)[i]).length; j++) {
+					if (Object.keys(Object.values(this.allActualVsPredicedComparisonTableData)[i])[j] == this.renderedTestRatio) {
+						this.actualVsPredictedComparisonTableData = Object.values(Object.values(this.allActualVsPredicedComparisonTableData)[i])[j] 
+					}
+				}
+			}
+		}
+		this.numberOfRecordsPredicted = Object.values(this.actualPredictedTableData).length
+		this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+		this.comparisonTableReady = true
+	}
+
+
+
+	async separateLinesForActualVsPredictedComparisonLinePlot() {
+		return new Promise<any>((resolve, reject) => {
+			// for separating predicted line, actual line and diference in plot
+			for (let i = 0; i < Object.keys(this.actualVsPredictedComparisonPlotData).length; i++) {
+				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'actual') {
+					this.plotActual = Object.values(this.actualVsPredictedComparisonPlotData)[i]
+					this.actual = this.plotActual.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+				}
+				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'predicted') {
+					this.plotPredicted = Object.values(this.actualVsPredictedComparisonPlotData)[i]
+					this.predicted = this.plotPredicted.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+				}
+				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'difference') {
+					this.plotDifference = Object.values(this.actualVsPredictedComparisonPlotData)[i]
+					this.difference= this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+				}
+				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'labels') {
+					this.plotLabels = Object.values(this.actualVsPredictedComparisonPlotData)[i]
+					this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+				}
+			}
+			resolve("function done")
+		})
+	}
+
 	compareChart(labels: string[], actual: number[], predicted: number[], difference: number[]) {
 		// if comparison chart (canvas) is in use then destroy it
 		if (this.predictedChart != null) { this.predictedChart.destroy() }
@@ -846,148 +1216,102 @@ export class TrainingComponent implements OnInit {
 		});
 	}
 
-
-	changeTrainedModel() {
-	}
-
-	// navigate to page2
-	navigateToPage2() {
-		this.router.navigate(['/prediction'])
+	plotActualVsComparisonPlot() {
+		this.numberOfPlotDataEntries = this.plotPredicted.length
+		if (this.predictedChart != null) { this.predictedChart.destroy() }
+		this.compareChart(this.labels, this.actual, this.predicted, this.difference)
 	}
 
 
-	navigateToPredictions() {
-		this.router.navigate(['/prediction'])
-	}
 
-	async getAllJunctionSpecificDataFromDBandRenderPredictions() {
-		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
-			next: (response) => {
-				for (const element of Object.values(response)) {
-					this.junctionDistrictMaps.set(element['junctionName'], element['district'])
-					
-					if (element['junctionName'] == this.inputJunction) {
-						this.junctionSpecificDataAvailable = true
+	async setAccuracyBarChartData() {
+		return new Promise<any>((resolve, reject) => {
+			this.accuracyBarChartAlgorithmsAxis = []
+			this.accuracyBarChartAccuraciesAxis = []
+			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+				let record: tableRecord = {
+					junctionOrAlgorithm: Object.keys(this.testRatiosComparisonData)[i],
+					accuracy: Object.values(this.testRatiosComparisonData)[i][this.renderedTestRatio]
+				}
+				this.accuracies.push(record)
+				this.accuracyBarChartAlgorithmsAxis.push(Object.keys(this.testRatiosComparisonData)[i])
+
+				for (let j = 0; j < Object.keys(Object.values(this.testRatiosComparisonData)[i]).length; j++) {
+					if (Object.keys(Object.values(this.testRatiosComparisonData)[i])[j] == this.renderedTestRatio) {
+						this.accuracyBarChartAccuraciesAxis.push(Object.values(Object.values(this.testRatiosComparisonData)[i])[j] as number)
 					}
-
 				}
+			}
+			resolve("function done")
+		})
+	}
 
 
-				if (response != '') {
-
-					this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
-						next: (response) => {
-							for (const element of Object.values(response)) {
-								this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
-							}
-							
-							if (response != '') {
-
-								this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
-									next: (response) => {
-										for (const element of Object.values(response)) {
-											this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
-										}
-
-										this.currentDistrict = this.junctionDistrictMaps.get(this.inputJunction)!
-										this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.inputJunction)!)
-										this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
-
-										this.renderPredictions(this.futurePredictionsPlotData, this.futurePredictionsTableData)
-
-										if (response != '') {
-											this.junctionSpecificDetailsProvided = true
-										}
-									},
-									error: (error: HttpErrorResponse) => {
-										alert(error)
-									}
-								})
-							}
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error)
-						}
-					})
-				}
+	plotAccuracyBarChart() {
+		this.accuracyBarChartHidden = false
+		this.testingRatioComparisonChartNotReady = false
+		if (this.accuracyBarChart!= null) { this.accuracyBarChart.destroy() }
+		this.accuracyBarChart = new Chart("accuracyBarChart", {
+			type: 'bar',
+			data: {
+				labels: this.accuracyBarChartAlgorithmsAxis,
+				datasets: [
+					{
+						label: "Accuracies",
+						data: this.accuracyBarChartAccuraciesAxis,
+						backgroundColor: 'rgba(54, 162, 235, 0.2)',
+						borderColor: 'rgb(255, 99, 132)',
+						borderWidth: 1
+					}
+				],
 			},
-			error: (error: HttpErrorResponse) => {
-				alert(error)
+			options: {
+				maintainAspectRatio: true,
+				scales: {
+					y: {
+						max: 1.0,
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: "Accuracies"
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: "Algorithms"
+						}
+					}
+				}
 			}
 		})
 	}
 
 
 
-	changeAlgorithmForComparison() {
-
-		// this.comparisonTableData = response
-		// get the row data from table data recieved as response
-		for (let i = 0; i < Object.keys(this.actualPredictedTableData).length; i++) {
-			if (Object.keys(this.actualPredictedTableData)[i] == this.renderedAlgorithm) {
-				this.comparisonTableData = Object.values(this.actualPredictedTableData)[i]
+	async setTestRatioComparisonChartData() {
+		return new Promise<any>((resolve, reject) => {
+			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+				if (Object.keys(this.testRatiosComparisonData)[i] == this.renderedAlgorithm) {
+					this.testRatioComparisonChartTestRatiosAxis = Object.keys(Object.values(this.testRatiosComparisonData)[i])
+					this.testRatioComparisonChartAccuraciesAxis = Object.values(Object.values(this.testRatiosComparisonData)[i])
+				}
 			}
-		}
-		this.dataSourcePredicted = Object.values(this.comparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
-		// get total number of records
-		this.numberOfRecordsPredicted = Object.values(this.actualPredictedTableData).length
+			resolve("function Done")
+		})
+	}
 
-
-		for (let i = 0; i < Object.keys(this.actualPredictedPlotData).length; i++) {
-			if (Object.keys(this.actualPredictedPlotData)[i] == this.renderedAlgorithm) {
-				this.comparisonChartData = Object.values(this.actualPredictedPlotData)[i]
-			}
-		}
-
-		for (let i = 0; i < Object.keys(this.comparisonChartData).length; i++) {
-			if (Object.keys(this.comparisonChartData)[i] == 'actual') {
-				this.plotActual = Object.values(this.comparisonChartData)[i]
-				this.actual = this.plotActual.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			}
-			if (Object.keys(this.comparisonChartData)[i] == 'predicted') {
-				this.plotPredicted = Object.values(this.comparisonChartData)[i]
-				this.predicted = this.plotPredicted.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			}
-			if (Object.keys(this.comparisonChartData)[i] == 'difference') {
-				this.plotDifference = Object.values(this.comparisonChartData)[i]
-				this.difference= this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			}
-			if (Object.keys(this.comparisonChartData)[i] == 'labels') {
-				this.plotLabels = Object.values(this.comparisonChartData)[i]
-				this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
-			}
-		}
-
-		this.numberOfPlotDataEntries = this.plotPredicted.length
-		if (this.predictedChart != null) { this.predictedChart.destroy() }
-		this.compareChart(this.labels, this.actual, this.predicted, this.difference)
-
-		for (let i = 0; i < Object.keys(this.modelSummaries).length; i++) {
-			if (Object.keys(this.modelSummaries)[i] == this.renderedAlgorithm) {
-				this.modelSummary = Object.values(this.modelSummaries)[i]
-			}
-		}
-
-		this.modelSummaryReady = true
-		
-
-		let testingRatioBarPlotData: object = {}
-		for (let i = 0; i < this.algorithms.length; i++) {
-			if (Object.keys(this.testRatiosComparisonData)[i] === this.renderedAlgorithm) {
-				testingRatioBarPlotData = Object.values(this.testRatiosComparisonData)[i]
-			}
-		}
-		let allTestRatios = Object.keys(testingRatioBarPlotData)
-		let accuracies = Object.values(testingRatioBarPlotData)
+	
+	plotTestRatioComparisonsChart() {
 		if (this.testRatioComparisonChart != null) { this.testRatioComparisonChart.destroy() }
 		this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
 			type: 'bar',
 			data: {
-				labels: allTestRatios,
+				labels: this.testRatioComparisonChartTestRatiosAxis,
 				datasets: [
 					{
 						label: "Accuracies",
-						data: accuracies,
+						data: this.testRatioComparisonChartAccuraciesAxis,
 						backgroundColor: "rgba(255, 99, 132, 0.2)",
 						borderColor: "rgb(54, 162, 235)",
 						borderWidth: 1
@@ -1014,324 +1338,41 @@ export class TrainingComponent implements OnInit {
 				}
 			}
 		});
-
-
-
-
-
-
-
-
-
 	}
 
 
-
-	startTraining() {
-		this.gotTestingRatioComparisons = false
-		this.predictionReady = false
-		this.comparisonChartHidden = false
-		this.modelSummaryReady = false
-		this.comparisonTableReady = false
-		this.modelSummary = []
-		this.csvDataStored = true
-		this.startedTraining = true
-		if (this.csvDataStored) {
-			this.dataSource = this.csvData.slice(this.index, this.index + 5)
-			this.numberOfRecords = this.csvData.length
-			this.testRatio = parseFloat(this.inputTestRatio)
-			this.startProcess = true
-			this.toggleErrorString = false
-			if (this.inputJunction != '' && this.inputTestRatio != '' && this.inputAlgorithm != '') {
-				interface trainingDetails {
-					junction: string,
-					testRatio: number,
-					algorithm: string
-				}
-
-				let trainingSpecificData: trainingDetails = {
-					junction: this.inputJunction,
-					testRatio: parseFloat(this.inputTestRatio),
-					algorithm: this.inputAlgorithm
-				}
+	setModelSummary() {
+		this.modelSummaryReady = true
+		for (let i = 0; i < Object.keys(this.allModelSummaries).length; i++) {
+			if (Object.keys(this.allModelSummaries)[i] == this.renderedAlgorithm) {
 				
-				if (this.uniqueJunctionsInDataset.includes(this.inputJunction)) {
-
-					// existing data
-					this.flaskService.getPlot().subscribe({
-						next: (response) => {
-						console.log('hereabacaknjanjvnakjfdg')
-							this.recievedPlotData = response
-							this.junctionChoice = this.inputJunction
-							this.toggleDataVisualizationTable = true
-							this.changeJunctionToBePlotted()
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
-						}
-					})
-
-
-
-					this.flaskService.sendTrainingSpecifics(trainingSpecificData).subscribe({
-						next: (response) => {
-
-							this.flaskService.train().subscribe({
-								next: (response) => {
-
-									// switch to display comparison table
-									this.comparisonTableReady = true
-									// get data in a variable
-									this.actualPredictedTableData = response
-
-
-
-									this.flaskService.getTestingRatioComparisons().subscribe({
-										next: (response) => {
-											this.predictionReady = true
-											this.startedTraining = false
-											this.gotTestingRatioComparisons = true
-											this.testingRatioComparisonChartNotReady = false
-											this.testRatiosComparisonData = response
-
-											this.flaskService.getActualPredictedForPlot().subscribe({
-												next: (response) => {
-													this.renderedAlgorithm = this.inputAlgorithm
-													this.comparisonChartHidden = false
-													// set it to the variable 
-													this.actualPredictedPlotData = response
-
-													this.flaskService.getModelSummary().subscribe({
-														next: (response: any) => {
-															this.modelSummaries = response
-															this.renderedAlgorithm = this.inputAlgorithm
-															this.inputTime = 2
-															this.time = 'Months'
-
-															let maxAccuracyOfAll: number = -1
-															let maxAccuracyDetails: Array<any> = []
-															for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
-																let ratioData = Object.values(this.testRatiosComparisonData)[i]
-																for (let j = 0; j < Object.values(ratioData).length; j++) {
-																	let currentNumber: number = (Object.values(ratioData)[j] as number)
-																	if (currentNumber > maxAccuracyOfAll) {
-																		maxAccuracyOfAll = currentNumber
-																		console.log('curr', currentNumber)
-																		maxAccuracyDetails = [Object.keys(this.testRatiosComparisonData)[i], parseFloat(Object.keys(ratioData)[j])]
-																	}
-																}
-															}
-															console.log(maxAccuracyDetails)
-
-															this.testRatioHighestAccuracy = maxAccuracyDetails[1]
-															this.algorithmHighestAccuracy = maxAccuracyDetails[0]
-															this.algorithmToAddToMaster = maxAccuracyDetails[0]
-															this.testRatioToAddToMaster = maxAccuracyDetails[1]
-															// this.flaskService.predictForHighestAccuracy(this.inputJunction, maxAccuracyDetails[0], maxAccuracyDetails[1])
-
-															this.changeAlgorithmForComparison()
-															this.predict()
-														},
-														error: (error: HttpErrorResponse) => {
-															alert(error.message)
-														}
-													})
-
-
-												},
-												error: (error: HttpErrorResponse) => {
-													alert(error.message)
-												}
-											})
-
-
-											
-											let accuracies: Array<number> = []
-											let algorithms: Array<string> = []
-
-											for (let i = 0; i < Object.keys(response).length; i++) {
-												let record: tableRecord = {
-													junctionOrAlgorithm: Object.keys(response)[i],
-													accuracy: Object.values(response)[i][this.inputTestRatio]
-												}
-												this.accuracies.push(record)
-												algorithms.push(Object.keys(response)[i])
-												accuracies.push(Object.values(response)[i][this.inputTestRatio])
-											}
-
-											this.accuracyBarChartHidden = false
-											this.testingRatioComparisonChartNotReady = false
-											if (this.accuracyBarChart!= null) { this.accuracyBarChart.destroy() }
-											this.accuracyBarChart = new Chart("accuracyBarChart", {
-												type: 'bar',
-												data: {
-													labels: algorithms,
-													datasets: [
-														{
-															label: "Accuracies",
-															data: accuracies,
-															backgroundColor: 'rgba(54, 162, 235, 0.2)',
-															borderColor: 'rgb(255, 99, 132)',
-															borderWidth: 1
-														}
-													],
-												},
-												options: {
-													maintainAspectRatio: true,
-													scales: {
-														y: {
-															max: 1.0,
-															beginAtZero: true,
-															title: {
-																display: true,
-																text: "Accuracies"
-															}
-														},
-														x: {
-															title: {
-																display: true,
-																text: "Algorithms"
-															}
-														}
-													}
-												}
-											});
-
-
-
-
-
-
-											let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
-											this.ultimateData = []
-											for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
-												let data: object = {
-													label: Object.keys(this.testRatiosComparisonData)[i],
-													fillColor: colors[i],
-													data: Object.values(Object.values(this.testRatiosComparisonData)[i])
-												}
-												this.ultimateData.push(data)
-											}
-
-											this.resultTestingRatios = []
-											for (let i of Object.keys(Object.values(this.testRatiosComparisonData)[1])) {
-												this.resultTestingRatios.push(parseFloat(i))
-											}
-											this.changeUltimateComparisonFormat()
-
-
-										},
-										error: (error: HttpErrorResponse) => {
-											alert(error.message)
-										}
-									})
-
-								},
-								error: (error: HttpErrorResponse) => {
-									alert(error.message)
-								}
-							})
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
-						}
-					})
-				} else {
-					this.startedTraining = false
-					this._snackBar.open('Note: ' + this.inputJunction + ' does not exist in the dataset (required for training)', '\u2716')
+				for (let j = 0; j < Object.keys(Object.values(this.allModelSummaries)[i]).length; j++) {
+					if (Object.keys(Object.values(this.allModelSummaries)[i])[j] == this.renderedTestRatio) {
+						this.modelSummary = Object.values(Object.values(this.allModelSummaries)[i])[j]
+					}
 				}
 
-
-			} else {
-				this.startedTraining = false
-				this._snackBar.open('Note: All fields are required', '\u2716')
 			}
 		}
 	}
 
 
-	renderPredictions(futurePredictionsPlotData: any, futurePredictionsTableData: any) {
-		// display only these columns
-		this.displayedColumnsResult = ['DateTime', 'Vehicles', 'Year', 'Month', 'Day', 'Hour'];
+	renderAllComparisons() {
+		this.setActualVsPredictedComparisonTableData()
+		this.setActualVsPredictedComparisonPlotData()
+		this.separateLinesForActualVsPredictedComparisonLinePlot().then(() => {
+			this.plotActualVsComparisonPlot()
+		})
 
-		// get all row values from the response recieved to show in table
-		this.dataSourceResult = futurePredictionsTableData.slice(this.indexResult, this.indexResult + 10)
+		this.setAccuracyBarChartData().then(() => {
+			this.plotAccuracyBarChart()
+		})
+		
+		this.setTestRatioComparisonChartData().then(() => {
+			this.plotTestRatioComparisonsChart()
+		})
 
-		// get total number of records from table data
-		this.numberOfRecordsResult = futurePredictionsTableData.length
-
-		if (this.plotDataReady) {
-			if (this.plotDataReady) {
-				this.setVehiclesAndDateTime(
-					futurePredictionsPlotData[0]['vehicles'], 
-					futurePredictionsPlotData[0]['datetime']
-				)
-				let maxVehiclesCapacityArray: Array<number> = []
-				for (const element of this.dateTimeToBePlotted) {
-					maxVehiclesCapacityArray.push(this.currentMaxVehicles)
-				}
-				this.plotFuturePredictions(maxVehiclesCapacityArray, this.dateTimeToBePlotted, this.vehiclesToBePlotted)
-			}
-		}
-	}
-
-
-	predict() {
-		if (this.inputTime != 0 && this.time != '') {
-			let timeToBePredicted: object = {
-				timePeriod: this.inputTime,
-				timeFormat: this.time
-			}
-
-			this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
-				next: (response) => {
-					this.flaskService.predictForHighestAccuracy(this.inputJunction, this.algorithmHighestAccuracy, this.testRatioHighestAccuracy).subscribe({
-						next: (response) => {
-							this.futurePredictionsPlotData = response
-							this.plotDataReady = true
-							this.flaskService.getFuturePredictionsTable().subscribe({
-								next: (response) => {
-									this.futurePredictionsTableData = Object.values(response)
-									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
-									this.futurePredictionsReady = true
-								},
-								error: (error: HttpErrorResponse) => {
-									alert(error.message)
-								}
-							})
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
-						}
-					})
-				},
-				error: (error: HttpErrorResponse) => {
-					alert(error.message)
-				}
-			})
-		} else {
-			this._snackBar.open('Note: provide time')
-		}
-	}
-
-
-
-	addToMaster() {
-
-		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != 0) {
-			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, this.testRatioToAddToMaster).subscribe({
-				next: (response) => {
-					this._snackBar.open('Added to master')
-				},
-				error: (error: HttpErrorResponse) => {
-					alert(error.message)
-				}
-			})
-		} else {
-			this._snackBar.open('Note: provide details')
-		}
+		this.setModelSummary()
 
 	}
-
-
 }
