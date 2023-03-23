@@ -345,7 +345,7 @@ def getAllModelSummaries():
             modelSummaryOfTestRatios[testRatio] = modelSummary
         allModelSummaries[algorithm] = modelSummaryOfTestRatios
 
-    return make_response(allModelSummaries)
+    return make_response(allModdelSummaries)
 
 
 
