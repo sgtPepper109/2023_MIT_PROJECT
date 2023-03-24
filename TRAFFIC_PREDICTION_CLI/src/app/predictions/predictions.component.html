@@ -71,7 +71,7 @@
                                     <input [(ngModel)]="duration" type="number" matInput placeholder="Enter period">
                                 </mat-form-field>
                                 <mat-form-field appearance="outline">
-                                    <mat-label>Duration</mat-label>
+                                    <mat-label>Amount of Time</mat-label>
                                     <mat-select [(ngModel)]="time">
                                         <mat-option value="Days">Days</mat-option>
                                         <mat-option value="Months">Months</mat-option>
@@ -79,6 +79,12 @@
                                     </mat-select>
                                 </mat-form-field>
                                 <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Show By</mat-label>
+                                    <mat-select [(ngModel)]="showBy">
+                                        <mat-option *ngFor="let element of showByArray" [value]="element">{{ element }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
 
                                 <div>
                                     <h3>
@@ -161,13 +167,19 @@
                             </mat-form-field>
                             <mat-form-field appearance="outline">
                                 <mat-label>Duration</mat-label>
-                                <mat-select [(ngModel)]="time">
+                                <mat-select [(ngModel)]="time" (selectionChange)="changeShowByArray()">
                                     <mat-option value="Days">Days</mat-option>
                                     <mat-option value="Months">Months</mat-option>
                                     <mat-option value="Years">Years</mat-option>
                                 </mat-select>
                             </mat-form-field>
                             <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
+                            <mat-form-field style="float:right" appearance="outline">
+                                <mat-label>Show By</mat-label>
+                                <mat-select type="text" [(ngModel)]="showBy">
+                                    <mat-option *ngFor="let time of showByArray" [value]="time">{{ time }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
                             <div>
                                 <h3>
                                     Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
@@ -181,7 +193,7 @@
                             </div>
                             <div [hidden]="futurePredictionsChartHidden">
                                 <div>
-                                    <canvas style="padding-left: 200px; padding-right: 200px;" id="myChart"></canvas>
+                                    <canvas style="padding-left: 100px; padding-right: 100px;" id="myChart"></canvas>
                                 </div>
                                 <div *ngIf="yearsPaginatorShow" style="padding-top: 10px;">
                                     <nav aria-label="Page navigation example">
@@ -198,11 +210,18 @@
                                 </div>
                             </div>
                             <div *ngIf="showMaxCapacity">
-                                <mat-card>
-                                    <mat-card-content>
-                                        Number of times crossed the maximum limit {{numberOfTimesCrossedMaxCapacity}}
-                                    </mat-card-content>
-                                </mat-card>
+                                <div class="alert alert-primary">
+                                    <p>
+                                        <strong>
+                                            Number of times crossed the maximum limit {{numberOfTimesCrossedMaxCapacity}}
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            First Treatment was needed {{ countNumberOfDaysBeforeFirstTreatment }} {{ this.showBy }} after start-time
+                                        </strong>
+                                    </p>
+                                </div>
                             </div>
                         </mat-card-content>
                     </mat-card>

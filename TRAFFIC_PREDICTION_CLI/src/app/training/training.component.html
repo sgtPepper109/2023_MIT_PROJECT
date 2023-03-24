@@ -30,18 +30,18 @@
     <mat-divider></mat-divider>
     <div class="offcanvas-body">
         <mat-list>
-            <mat-list-item>
-                Training
+            <mat-list-item class="btn btn-outline-light">
+                <span style="float:left">Training</span>
                 <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <mat-list-item (click)="navigateToPredictions()">
-                Predictions
+            <mat-list-item (click)="navigateToPredictions()" class="btn btn-outline-light">
+                <span style="float:left">Predictions</span>
                 <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <mat-list-item (click)="navigateToAdminInputs()">
-                Provide Junction Properties
+            <mat-list-item (click)="navigateToAdminInputs()" class="btn btn-outline-light">
+                <span style="float:left">Provide Junction Properties</span>
                 <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
             </mat-list-item>
         </mat-list>
@@ -64,10 +64,112 @@
 
         <br />
         <div class="alert alert-secondary">
-
+            
+            <p>
+                <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    <mat-icon>info</mat-icon>
+                </button>
+            </p>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body alert alert-dark">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <h3>Dataset Guide:</h3>
+                                <ul style="list-style-type: lower-alpha;">
+                                    <li>
+                                        <p style="color:red">Must be a .csv (Comma Separated Values file)</p>
+                                    </li>
+                                    <li>
+                                        <h4>Three Columns/features, viz.,</h4>
+                                        <ol>
+                                            <li>
+                                                DateTime
+                                                <ul style="list-style: circle;">
+                                                    <li>
+                                                        denotes the date-time of the instance or observation
+                                                    </li>
+                                                    <li>
+                                                        (must be a string or of text format)
+                                                    </li>
+                                                    <li>
+                                                        ('yyyy-MM-dd' for daily and 'yyyy-MM-dd hh-mm-ss' for hourly)
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                Vehicles
+                                                <ul style="list-style: circle;">
+                                                    <li>denotes the number of vehicles at the specified date-time</li>
+                                                    <li>(must be an integer or of number format)</li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                Junction
+                                                <ul style="list-style: circle;">
+                                                    <li>denotes the name of the junction</li>
+                                                    <li>(must be a string or of text format)</li>
+                                                </ul>
+                                            </li>
+                                        </ol>
+                                    </li>
+                                    <li>
+                                        <p>Hence, a single row of csv data represents: The number of vehicles at the junction at given date-time</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col">
+                                <h3>Example data: (daily)</h3>
+                                <table class="table table-bordered border-primary">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">DateTime</th>
+                                            <th scope="col">Vehicles</th>
+                                            <th scope="col">Junction</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let instance of sampleCsvTableDaily">
+                                            <td>{{ instance.DateTime }}</td>
+                                            <td>{{ instance.Vehicles }}</td>
+                                            <td>{{ instance.Junction }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col">
+                                <h3>Example data: (hourly)</h3>
+                                <table class="table table-bordered border-primary">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">DateTime</th>
+                                            <th scope="col">Vehicles</th>
+                                            <th scope="col">Junction</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let instance of sampleCsvTableHourly">
+                                            <td>{{ instance.DateTime }}</td>
+                                            <td>{{ instance.Vehicles }}</td>
+                                            <td>{{ instance.Junction }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button mat-raised-button color="primary" [matMenuTriggerFor]="samples">Download Sample Data</button>
+                        <mat-menu #samples="matMenu">
+                            <button mat-menu-item (click)="downloadSample('Hourly')">Hourly</button>
+                            <button mat-menu-item (click)="downloadSample('Daily')">Daily</button>
+                        </mat-menu>
+                    </div>
+                </div>
+            </div>
             <div class="row">
-                <div class="col-3">
-                    <form class="was-validated" style="width: 440px">
+                <div class="col">
+                    <form class="was-validated">
                         <div class="mb-3">
                             <input #file class="form-control" id="inputGroupFile02" type="file" accept=".csv" id="myfile" name="myfile" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
                             <div class="invalid-feedback">Only .csv file required</div>
@@ -75,7 +177,17 @@
                     </form>
                 </div>
                 <div class="col">
-                    <button mat-raised-button color="primary" (click)="downloadSample()">Download sample dataset</button>
+                    <div style="padding-right: 300px">
+                        <div class="col-auto" (click)="validateDisabledInputJunction()">
+                            <label class="visually-hidden" for="autoSizingInputGroup">Username</label>
+                            <div class="input-group">
+                                <div class="input-group-text">Choose Junction</div>
+                                <select [disabled]="inputJunctionDisabled" style="width: 400px" [(ngModel)]="inputJunction" class="form-select" aria-label="Default select example">
+                                    <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div *ngIf="fileProcessing">
@@ -86,19 +198,6 @@
                     <p>Processing File</p>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-2">
-                    <mat-form-field appearance="outline" style="width: 300px">
-                        <mat-label>Choose Junction</mat-label>
-                        <mat-select [(ngModel)]="inputJunction">
-                            <mat-option *ngFor="let junction of junctions" [value]="junction">
-                                {{ junction }}
-                            </mat-option >
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            </div>
-
 
 
             <div class="row">
@@ -138,8 +237,8 @@
                         <mat-card>
                             <mat-card-content>
                                 <div class="row">
-                                    <div *ngIf="modelSummaryReady" class="col alert alert-info" style="height: 60px">
-                                        <h3><strong>Algorithm: {{ renderedAlgorithm }}, {{modelSummary[2].Property}}: {{modelSummary[2].Value}}</strong></h3>
+                                    <div *ngIf="modelSummaryReady" class="col alert alert-primary" style="height: 60px">
+                                        <h3><strong>{{ modelSummary[3].Property }}: {{ modelSummary[3].Value }}</strong></h3>
                                     </div>
                                     <div class="col">
                                         <mat-form-field appearance="outline" style="width: 550px; margin-left: 85px">

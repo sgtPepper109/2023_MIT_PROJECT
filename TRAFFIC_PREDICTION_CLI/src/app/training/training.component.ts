@@ -42,6 +42,9 @@ export class TrainingComponent implements OnInit {
 		'Bayesian Ridge Regression'
 	]
 
+	inputJunctionDisabled: boolean = true
+	sampleCsvTableDaily: Array<any> = this.sampleCsv.sampleCsvDataDaily
+	sampleCsvTableHourly: Array<any> = this.sampleCsv.sampleCsvDataHourly
 	testRatioComparisonChartTestRatiosAxis: Array<string> = []
 	testRatioComparisonChartAccuraciesAxis: Array<number> = []
 	accuracyBarChartAlgorithmsAxis: Array<string> = []
@@ -363,7 +366,7 @@ export class TrainingComponent implements OnInit {
 
 	}
 
-	downloadSample(file: any = '/assets/sample.csv') {
+	downloadSample(sampleType: string) {
 		const options = {
 			fieldSeparator: ',',
 			quoteStrings: '',
@@ -374,7 +377,11 @@ export class TrainingComponent implements OnInit {
 			headers: ['DateTime', 'Vehicles', 'Junction']
 		};
 		try {
-			new ngxCsv(this.sampleCsv.sampleCsvData, "sample", options);
+			if (sampleType == 'Hourly') {
+				new ngxCsv(this.sampleCsv.sampleCsvDataHourly, "sample_hourly", options);
+			} else {
+				new ngxCsv(this.sampleCsv.sampleCsvDataDaily, "sample_daily", options);
+			}
 		} catch (error) {
 			alert(error)
 		}
@@ -413,6 +420,7 @@ export class TrainingComponent implements OnInit {
 
 					if (this.correctJunctions) {
 						this.junctions = this.uniqueJunctionsInDataset
+						this.inputJunction = this.junctions[0]
 						this.flaskService.sendCsvData(result).subscribe({
 							next: (response) => {
 								for (const element of Object.values(result)) {
@@ -430,6 +438,7 @@ export class TrainingComponent implements OnInit {
 									this.propService.data = this.csvData
 								}
 								this.datasetUploaded = true
+								this.inputJunctionDisabled = false
 								this.fileProcessing = false
 							},
 							error: (error: HttpErrorResponse) => {
@@ -451,6 +460,12 @@ export class TrainingComponent implements OnInit {
 		} else {
 			this.errorstring = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
 			this.toggleErrorString = true
+		}
+	}
+
+	validateDisabledInputJunction() {
+		if (this.inputJunctionDisabled) {
+			this._snackBar.open("Note: Upload a dataset first", "x")
 		}
 	}
 

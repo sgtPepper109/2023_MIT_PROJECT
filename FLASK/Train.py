@@ -116,7 +116,7 @@ class Train:
             self.testAgainst.append(str(i))
         
 
-    def constructFutureTimeToBePredicted(self, timePeriod: int, timeFormat: str, typeOfData: str):
+    def constructFutureTimeToBePredicted(self, timePeriod: int, timeFormat: str, showBy: str):
         self.currTime = self.junctionData.tail(1).index[0]
         
         if timeFormat == "Days":
@@ -127,14 +127,25 @@ class Train:
             self.endTime = self.currTime + pd.DateOffset(years=timePeriod) 
 
         self.time = list()
-        while self.currTime != self.endTime:
+        print("currTime: ", self.currTime)
+        print("endTime: ", self.endTime)
+
+        temp = self.currTime
+        # while temp != self.endTime or temp < self.endTime:
+        #     print(temp)
+        #     temp += timedelta(days=30)
+
+        print(showBy)
+        while self.currTime <= self.endTime:
             self.time.append(self.currTime)
-            if typeOfData == 'Hourly':
+            if showBy == 'Hours':
                 self.currTime += timedelta(minutes=60)
-            if typeOfData == 'Daily':
+            if showBy == 'Days':
                 self.currTime += timedelta(minutes=1440)
-            if typeOfData == 'Monthly':
-                self.currTime += timedelta(minutes=43200)
+            if showBy == 'Weeks':
+                self.currTime += timedelta(days=7)
+            if showBy == 'Months':
+                self.currTime += timedelta(days=30)
 
     def constructFutureDataToBePredicted(self):
         self.toPredict = pd.DataFrame()
@@ -160,12 +171,12 @@ class Train:
         self.toPredict = self.toPredict.drop(['DateTime'], axis='columns')
 
 
-    def predict(self, timePeriod: int, timeFormat: str, typeOfData: str):
+    def predict(self, timePeriod: int, timeFormat: str, showBy: str):
 
         # returns predicted data for given timePeriod and timeFormat (e.g. 2, 'Days')
 
         if self.trained:
-            self.constructFutureTimeToBePredicted(timePeriod, timeFormat, typeOfData)
+            self.constructFutureTimeToBePredicted(timePeriod, timeFormat, showBy)
             self.constructFutureDataToBePredicted()
 
             self.futureDatesPredicted = self.model.predict(self.toPredict)  # toPredict variable comes from data constructed

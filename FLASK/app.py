@@ -52,11 +52,11 @@ def getCsvData():
     timeDifference = int(timeDifference.split(' ')[0])
 
     if timeDifference == 0:
-        typeOfData = 'Hourly'
+        typeOfData = 'Hours'
     elif timeDifference == 1:
-        typeOfData = 'Daily'
+        typeOfData = 'Days'
     elif timeDifference == 30:
-        typeOfData = 'Monthly'
+        typeOfData = 'Months'
 
     tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
     tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
@@ -167,8 +167,11 @@ def listenTime():
     response = json.loads(JResponse)
     global time
     global timeFormat
+    global showBy
     time = response['timePeriod']
     timeFormat = response['timeFormat']
+    if "showBy" in response:
+        showBy = response['showBy']
     dictionary = dict()
     if success:
         dictionary['gotTime'] = "success"
@@ -309,13 +312,14 @@ def getMasterTrainedDataPlot():
     global timeFormat
     global masterDataTable
     global masterJunctionsAccuracies
+    global showBy
     
     masterDataTable = dict()
     response = dict()
     masterJunctionsAccuracies = dict()
     for i in masterData:
         trained = masterData[i]
-        response[i] = trained.predict(time, timeFormat, 'Hourly')
+        response[i] = trained.predict(time, timeFormat, showBy)
         masterJunctionsAccuracies[i] = trained.accuracyScore
 
         table = []
@@ -479,6 +483,9 @@ if __name__ == "__main__":
     global highestAccuracyAlgorithm
     global highestAccuracyTestRatio
     global springUrl
+    global showBy
+
+    showBy: str = ""
     highestAccuracyAlgorithm = ""
     highestAccuracyTestRatio = float(0)
 

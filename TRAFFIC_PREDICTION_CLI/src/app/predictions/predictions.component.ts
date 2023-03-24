@@ -25,6 +25,11 @@ export class PredictionsComponent implements OnInit {
 	) {
 	}
 
+	countNumberOfDaysBeforeFirstTreatment: number = 0
+	firstTreatmentRecommendationTime: string = ""
+	firstTreatmentRecommendationVehicles: number = 0
+	showBy: string = ""
+	showByArray: Array<string> = []
 	yearsPaginatorShow: boolean = false
 	maxVehicles: Array<number> = []
 	yearsPaginatorPreviousButtonDisabled: boolean = true
@@ -216,7 +221,6 @@ export class PredictionsComponent implements OnInit {
 	
 
 	plotFuturePredictions(x: any, y: any, z: any) {
-		console.log(x, y)
 		// prediction is done
 		this.futurePredictionsChartHidden = false
 
@@ -429,36 +433,36 @@ export class PredictionsComponent implements OnInit {
 
 	
 	previousMonth() {
-		console.log(this.yearsIndex)
-		if (this.yearsIndex <= 0) {
-			this.yearsPaginatorPreviousButtonDisabled = true
-		}
-		this.yearsPaginatorNextButtonDisabled = false
-		this.yearsIndex -= (744)
-		this.setVehiclesAndDateTime(
-			this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
-			this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
-			// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
-			// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
-		)
-		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
-		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
-		console.log(this.yearsIndex)
+	// 	console.log(this.yearsIndex)
+	// 	if (this.yearsIndex <= 0) {
+	// 		this.yearsPaginatorPreviousButtonDisabled = true
+	// 	}
+	// 	this.yearsPaginatorNextButtonDisabled = false
+	// 	this.yearsIndex -= (744)
+	// 	this.setVehiclesAndDateTime(
+	// 		this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
+	// 		this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
+	// 		// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
+	// 		// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
+	// 	)
+	// 	this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
+	// 	this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
+	// 	console.log(this.yearsIndex)
 	}
 
 	nextMonth() {
-		console.log(this.yearsIndex)
-		this.yearsIndex += 744
-		this.setVehiclesAndDateTime(
-			this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
-			this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
-			// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
-			// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
-		)
-		this.yearsPaginatorPreviousButtonDisabled = false
-		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
-		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
-		console.log(this.yearsIndex)
+	// 	console.log(this.yearsIndex)
+	// 	this.yearsIndex += 744
+	// 	this.setVehiclesAndDateTime(
+	// 		this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
+	// 		this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
+	// 		// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
+	// 		// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
+	// 	)
+	// 	this.yearsPaginatorPreviousButtonDisabled = false
+	// 	this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
+	// 	this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
+	// 	console.log(this.yearsIndex)
 	}
 
 	renderPredictions() {
@@ -474,8 +478,8 @@ export class PredictionsComponent implements OnInit {
 
 		if (this.time == 'Years') {
 			this.setVehiclesAndDateTime(
-				this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
-				this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
+				this.currentJunctionPlotData[0]['vehicles'], 
+				this.currentJunctionPlotData[0]['datetime']
 				// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
 				// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
 			)
@@ -489,6 +493,19 @@ export class PredictionsComponent implements OnInit {
 
 		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
 		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
+
+
+		this.firstTreatmentRecommendationTime = ""
+		this.firstTreatmentRecommendationVehicles = 0
+		this.countNumberOfDaysBeforeFirstTreatment = 0
+		for (let i = 0; i < this.vehiclesToBePlotted.length; i++) {
+			this.countNumberOfDaysBeforeFirstTreatment ++
+			if (this.vehiclesToBePlotted[i] > this.currentMaxVehicles) {
+				this.firstTreatmentRecommendationTime = this.dateTimeToBePlotted[i]
+				this.firstTreatmentRecommendationVehicles = this.vehiclesToBePlotted[i]
+				break;
+			}
+		}
 
 		for (let element of this.vehiclesToBePlotted) {
 			if (element > this.currentMaxVehicles) {
@@ -583,13 +600,12 @@ export class PredictionsComponent implements OnInit {
 
 
 	predict() {
-		if (this.time == 'Years') {
-			this.yearsPaginatorShow = true
-		}
 		this.predictionsReady = false
+
 		let timeToBePredicted: object = {
 			timePeriod: this.duration,
-			timeFormat: this.time
+			timeFormat: this.time,
+			showBy: this.showBy
 		}
 		this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
 			next: (response) => {
@@ -608,20 +624,9 @@ export class PredictionsComponent implements OnInit {
 
 
 
-	ngOnInit() {
-
-		this.getAllJunctionSpecificDataFromDB().then(() => {
-			this.duration = 1
-			this.time = 'Years'
-			this.predict()
-		})
-
-	}
 
 
 	renderJunctionAccuracyPie() {
-		
-		
 		if (this.accuracyPie != null) { this.accuracyPie.destroy() }
 		this.accuracyPie = new Chart("accuracyPie", {
 			type: 'pie',
@@ -650,4 +655,29 @@ export class PredictionsComponent implements OnInit {
 		})
 	}
 
+	changeShowByArray() {
+		if (this.time == 'Years') {
+			this.showByArray = ['Days', 'Weeks', 'Months']
+			this.showBy = 'Weeks'
+		}
+		if (this.time == 'Months') {
+			this.showByArray = ['Days', 'Weeks']
+			this.showBy = 'Days'
+		}
+		if (this.time == 'Days') {
+			this.showByArray = ['Hours', 'Days']
+			this.showBy = 'Hours'
+		}
+	}
+
+	ngOnInit() {
+
+		this.getAllJunctionSpecificDataFromDB().then(() => {
+			this.duration = 5
+			this.time = 'Years'
+			this.changeShowByArray()
+			this.predict()
+		})
+
+	}
 }
