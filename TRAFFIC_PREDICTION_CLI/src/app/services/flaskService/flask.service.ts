@@ -68,8 +68,8 @@ export class FlaskService {
 		return this.http.get('process/getListOfAllTrained')
 	}
 
-	public getTestingRatioComparisons() {
-		return this.http.get('process/getTestingRatioComparisons')
+	public getTestingRatioComparisons(junction: string) {
+		return this.http.get('process/getTestingRatioComparisons?junction=' + junction)
 	}
 
 	public addToMaster(junction: string, algorithm: string, testRatio: number) {
@@ -100,9 +100,12 @@ export class FlaskService {
 		return this.http.get('process/getActualVsPredictedComparisonTableData')
 	}
 
-
 	public getAllModelSummaries() {
 		return this.http.get('process/getAllModelSummaries')
+	}
+
+	public getDaysPrediction() {
+		return this.http.get('process/getDaysPrediction')
 	}
 
 }

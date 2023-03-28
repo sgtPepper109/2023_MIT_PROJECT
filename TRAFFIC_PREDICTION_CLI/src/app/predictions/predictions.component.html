@@ -1,3 +1,4 @@
+<div id="predictionComponentBody">
     <p class="fixed-top">
         <mat-toolbar>
             <button mat-icon-button  
@@ -23,13 +24,27 @@
         </div>
         <mat-divider></mat-divider>
         <div class="offcanvas-body">
-            <mat-list>
+            <ul class="list-group list-group-flush">
+                <li class="offcanvasList list-group-item" (click)="navigateToTraining()">
+                    <span style="float:left">Training</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+                <li class="offcanvasList list-group-item">
+                    <span style="float:left">Predictions</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+                <li class="offcanvasList list-group-item" (click)="navigateToAdminInputs()">
+                    <span style="float:left">Provide Junction Properties</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+            </ul>
+            <!-- <mat-list>
                 <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
                 <mat-divider></mat-divider>
                 <mat-list-item>Predictions</mat-list-item>
                 <mat-divider></mat-divider>
                 <mat-list-item (click)="navigateToAdminInputs()">Provide Junction Properties</mat-list-item>
-            </mat-list>
+            </mat-list> -->
         </div>
     </div>
 
@@ -213,7 +228,7 @@
                                 <div class="alert alert-primary">
                                     <p>
                                         <strong>
-                                            Number of times crossed the maximum limit {{numberOfTimesCrossedMaxCapacity}}
+                                            Number of times crossed the maximum limit: {{numberOfTimesCrossedMaxCapacity}}
                                         </strong>
                                     </p>
                                     <p>
@@ -221,6 +236,11 @@
                                             First Treatment was needed {{ countNumberOfDaysBeforeFirstTreatment }} {{ this.showBy }} after start-time
                                         </strong>
                                     </p>
+                                    <!-- <p>
+                                        <strong>
+                                            First Treatment was needed {{ firstDayOfTreatment }} Days after start-time
+                                        </strong>
+                                    </p> -->
                                 </div>
                             </div>
                         </mat-card-content>
@@ -329,3 +349,4 @@
         </section>
 
 
+</div>

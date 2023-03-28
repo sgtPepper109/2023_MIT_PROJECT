@@ -3,3 +3,8 @@
     padding: 5px;
     box-shadow: 5px 10px;
 }
+
+.offcanvasList:hover { 
+    cursor: pointer;
+    background: #d6d6d6;
+}

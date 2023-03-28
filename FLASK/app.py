@@ -11,6 +11,7 @@ import scipy
 from statsmodels.stats.stattools import jarque_bera, durbin_watson
 import statsmodels.api as sm
 from scipy.stats import skew, kurtosis
+from datetime import timedelta
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -42,6 +43,7 @@ def getCsvData():
     if 'ID' in df.columns:
         df.drop('ID', axis=1, inplace=True)
 
+    
     tempdf = df.copy()
 
     tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
@@ -168,6 +170,7 @@ def listenTime():
     global time
     global timeFormat
     global showBy
+
     time = response['timePeriod']
     timeFormat = response['timeFormat']
     if "showBy" in response:
@@ -186,32 +189,36 @@ def getJunctionRelatedDataFromDB():
     global junctionDistrictMaps
     global junctionRoadwayWidthMaps
     global roadwayWidthMaxVehiclesMaps
-    with app.app_context():
-        url = springUrl + '/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps'
-        try:
-            uResponse = requests.get(url)
-        except:
-            return "Connection Error"
-        JResponse = uResponse.text
-        junctionDistrictMaps = json.loads(JResponse)
+    
+    junctionRoadwayWidthMaps = dict()
+    roadwayWidthMaxVehiclesMaps = dict()
 
-        url = springUrl + '/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps'
-        try:
-            uResponse = requests.get(url)
-        except:
-            return "Connection Error"
-        JResponse = uResponse.text
-        junctionRoadwayWidthMaps = json.loads(JResponse)
+    url = springUrl + '/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps'
+    try:
+        uResponse = requests.get(url)
+    except:
+        return "Connection Error"
+    JResponse = uResponse.text
+    junctionDistrictMaps = json.loads(JResponse)
 
-        url = springUrl + '/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps'
-        try:
-            uResponse = requests.get(url)
-        except:
-            return "Connection Error"
-        JResponse = uResponse.text
-        roadwayWidthMaxVehiclesMaps = json.loads(JResponse)
+    url = springUrl + '/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps'
+    try:
+        uResponse = requests.get(url)
+    except:
+        return "Connection Error"
+    JResponse = uResponse.text
+    junctionRoadwayWidthMaps = json.loads(JResponse)
 
-        return make_response(junctionDistrictMaps + junctionRoadwayWidthMaps + roadwayWidthMaxVehiclesMaps)
+    url = springUrl + '/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps'
+    try:
+        uResponse = requests.get(url)
+    except:
+        return "Connection Error"
+    JResponse = uResponse.text
+    roadwayWidthMaxVehiclesMaps = json.loads(JResponse)
+    # with app.app_context():
+
+    #     return make_response(junctionDistrictMaps + junctionRoadwayWidthMaps + roadwayWidthMaxVehiclesMaps)
 
 
 
@@ -269,11 +276,12 @@ def predictForHighestAccuracy():
     global highestAccuracyAlgorithm
     global highestAccuracyTestRatio
     global highestAccuracyTrained
+    global showBy
 
     highestAccuracyAlgorithm = ""
     highestAccuracyTestRatio = float(0)
     highestAccuracyTrained = allTrainedData[junction][algorithm][testRatio]
-    plotResponse = highestAccuracyTrained.predict(time, timeFormat, typeOfData)
+    plotResponse = highestAccuracyTrained.predict(time, timeFormat, showBy)
     return make_response(plotResponse)
     
 
@@ -361,6 +369,13 @@ def getTestingRatioComparisons():
     global tempdf
     global junction
     global allTrainedData
+
+    args = request.args
+    args = args.to_dict()
+
+    junction = args['junction']
+    if "%20" in junction:
+        junction = junction .replace("%20", " ")
 
     possibleTestRatios = np.arange(0.1, 1, 0.1)
 
@@ -459,6 +474,33 @@ def getActualVsPredictedComparisonTableData():
     return make_response(allActualVsPredictedTable)
 
 
+@app.route('/getDaysPrediction')
+def getDaysPredictionForFirstRecommendation():
+    global tempdf
+    global junction
+    global junctionRoadwayWidthMaps
+    global roadwayWidthMaxVehiclesMaps
+    global highestAccuracyTrained
+
+    for i in junctionRoadwayWidthMaps:
+        if i['junctionName'] == junction:
+            roadwayWidthOfJunction = i['roadwayWidth']
+            for j in roadwayWidthMaxVehiclesMaps:
+                if j['roadwayWidth'] == roadwayWidthOfJunction:
+                    maxVehiclesCapacityOfJunction = j['maxVehicles']
+
+    lastDateTimeInDataset = tempdf.tail(1).index[0]
+    dateTimeToPredict = lastDateTimeInDataset
+
+    daysIterator: int = 0
+    while daysIterator < 2000: # 2000 days
+        predicted = highestAccuracyTrained.customDatePrediction(dateTimeToPredict)
+        if predicted > maxVehiclesCapacityOfJunction:
+            break
+        dateTimeToPredict += timedelta(days=1)
+        daysIterator += 1
+    return make_response([daysIterator])
+
 
 
 if __name__ == "__main__":
@@ -500,30 +542,14 @@ if __name__ == "__main__":
     masterDataTable = dict()
     masterJunctionsAccuracies = dict()
 
-    df = pd.read_csv(config.whereDataset)
-    if 'ID' in df.columns:
-        df.drop('ID', axis=1, inplace=True)
-
-    autoTrainedForJunctions = list(np.unique(df.Junction))
-    tempdf = pd.read_csv(config.whereDataset, parse_dates=True, index_col='DateTime')
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-
-
-    if 'ID' in tempdf.columns:
-        tempdf.drop('ID', axis=1, inplace=True)
-
-    junctions = np.unique(df.Junction)
-    getJunctionRelatedDataFromDB()
-
 
     if (len(sys.argv) == 1 or sys.argv[1] == 'DEV'):
         springUrl = config.spring_dev_url
+        getJunctionRelatedDataFromDB()
         app.run()
     elif (sys.argv[1] == 'PROD'):
         springUrl = config.spring_prod_url
+        getJunctionRelatedDataFromDB()
         app.run(debug=True, host='0.0.0.0')
     else:
         raise Exception('Argument not identified')

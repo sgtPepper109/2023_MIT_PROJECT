@@ -5,12 +5,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso, BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.metrics import r2_score
 import sklearn.metrics as metrics
-from sklearn.mixture import GaussianMixture
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from statsmodels.stats.stattools import jarque_bera, durbin_watson
-import statsmodels.api as sm
+
 
 class Train:
     def __init__(self, data, algorithm: str, junction: str, testSize: float):
@@ -127,15 +124,14 @@ class Train:
             self.endTime = self.currTime + pd.DateOffset(years=timePeriod) 
 
         self.time = list()
-        print("currTime: ", self.currTime)
-        print("endTime: ", self.endTime)
+        # print("currTime: ", self.currTime)
+        # print("endTime: ", self.endTime)
 
         temp = self.currTime
         # while temp != self.endTime or temp < self.endTime:
         #     print(temp)
         #     temp += timedelta(days=30)
 
-        print(showBy)
         while self.currTime <= self.endTime:
             self.time.append(self.currTime)
             if showBy == 'Hours':
@@ -199,3 +195,28 @@ class Train:
             self.predictedData['datetime'] = self.toPredictDateTime
 
             return [self.predictedData]
+        
+    def customDatePrediction(self, datetime):
+        if self.trained:
+            self.singleToPredict = pd.DataFrame()
+            self.years = list()
+            self.months = list()
+            self.days = list()
+            self.hours = list()
+            self.dateTime = list()
+            
+            self.dateTime.append(datetime)
+            self.years.append(datetime.year)
+            self.months.append(datetime.month)
+            self.days.append(datetime.day)
+            self.hours.append(datetime.hour)
+
+            self.singleToPredict['Year'] = self.years
+            self.singleToPredict['Month'] = self.months
+            self.singleToPredict['Day'] = self.days
+            self.singleToPredict['Hour'] = self.hours
+            self.singleToPredict['DateTime'] = self.dateTime
+            self.singleToPredict.index = self.singleToPredict['DateTime']
+            self.singleToPredict = self.singleToPredict.drop(['DateTime'], axis='columns')
+            self.predictedSingle = self.model.predict(self.singleToPredict)
+            return self.predictedSingle

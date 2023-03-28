@@ -5,13 +5,18 @@ import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { Chart, TimeScale } from 'chart.js/auto';
+import { Chart } from 'chart.js/auto';
 import { FormBuilder } from '@angular/forms';
 import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 import { ngxCsv } from 'ngx-csv';
 import { SampleCsvData } from 'src/assets/sample';
-import { transition } from '@angular/animations';
 import { tableRecord } from '../interfaces/all-interfaces';
+
+interface trainingDetails {
+	junction: string,
+	testRatio: number,
+	algorithm: string
+}
 
 @Component({
 	selector: 'app-training',
@@ -22,13 +27,10 @@ import { tableRecord } from '../interfaces/all-interfaces';
 export class TrainingComponent implements OnInit {
 	constructor(
 		private sampleCsv: SampleCsvData,
-		private http: HttpClient,
 		private router: Router,
 		private propService: PropService,
-		private _snackBar: MatSnackBar,
 		private ngxCsvParser: NgxCsvParser,
 		private flaskService: FlaskService,
-		private _formBuilder: FormBuilder,
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
@@ -42,6 +44,12 @@ export class TrainingComponent implements OnInit {
 		'Bayesian Ridge Regression'
 	]
 
+	highestAccuracy: number = 0
+	showBy: string = ""
+	showByArray: Array<string> = []
+	errorString: string = ""
+	toggleSuccessToast: boolean = false
+	toggleWarningToast: boolean = false
 	inputJunctionDisabled: boolean = true
 	sampleCsvTableDaily: Array<any> = this.sampleCsv.sampleCsvDataDaily
 	sampleCsvTableHourly: Array<any> = this.sampleCsv.sampleCsvDataHourly
@@ -208,7 +216,6 @@ export class TrainingComponent implements OnInit {
 	junctionsAvailableForTraining: Array<string> = []
 
 	ngOnInit() { 
-
 		/* TODO document why this method 'ngOnInit' is empty */
 		this.junctionSpecificsService.getAllJunctions().subscribe({
 			next: (response) => {
@@ -235,7 +242,7 @@ export class TrainingComponent implements OnInit {
 				options: {
 					elements: {
 						line: {
-							tension: 0
+							tension: 0 // change this to change to curved plot
 						}
 					},
 					responsive: true,
@@ -362,9 +369,12 @@ export class TrainingComponent implements OnInit {
 				}
 			}
 		})
-
-
 	}
+
+
+
+
+
 
 	downloadSample(sampleType: string) {
 		const options = {
@@ -449,7 +459,12 @@ export class TrainingComponent implements OnInit {
 					} else {
 						this.dataset = ""
 						this.fileProcessing = false
-						this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
+						// this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
+						this.toggleWarningToast = true
+						this.errorString = 'Note: Please provide dataset with the listed junctions'
+						setTimeout(() => {
+							this.toggleWarningToast = false
+						}, 3000);
 					}
 
 				},
@@ -465,7 +480,12 @@ export class TrainingComponent implements OnInit {
 
 	validateDisabledInputJunction() {
 		if (this.inputJunctionDisabled) {
-			this._snackBar.open("Note: Upload a dataset first", "x")
+			// this._snackBar.open("Note: Upload a dataset first", "x")
+			this.toggleWarningToast = true
+			this.errorString = 'Note: Upload a dataset first'
+			setTimeout(() => {
+				this.toggleWarningToast = false
+			}, 3000);
 		}
 	}
 
@@ -907,37 +927,37 @@ export class TrainingComponent implements OnInit {
 
 
 	getAllModelSummaries() {
-		this.flaskService.getAllModelSummaries().subscribe({
-			next: (response) => {
-				this.allModelSummaries = response
-				this.changeUltimateComparisonFormat()
-				this.renderAllComparisons()
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.getAllModelSummaries().subscribe({
+				next: (response) => {
+					this.allModelSummaries = response
+					this.changeUltimateComparisonFormat()
+					this.renderAllComparisons()
 
-				let maxAccuracyOfAll: number = -1
-				let maxAccuracyDetails: Array<any> = []
-				for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
-					let ratioData = Object.values(this.testRatiosComparisonData)[i]
-					for (let j = 0; j < Object.values(ratioData).length; j++) {
-						let currentNumber: number = (Object.values(ratioData)[j] as number)
-						if (currentNumber > maxAccuracyOfAll) {
-							maxAccuracyOfAll = currentNumber
-							maxAccuracyDetails = [Object.keys(this.testRatiosComparisonData)[i], parseFloat(Object.keys(ratioData)[j])]
+					let maxAccuracyOfAll: number = -1
+					let maxAccuracyDetails: Array<any> = []
+					for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+						let ratioData = Object.values(this.testRatiosComparisonData)[i]
+						for (let j = 0; j < Object.values(ratioData).length; j++) {
+							let currentNumber: number = (Object.values(ratioData)[j] as number)
+							if (currentNumber > maxAccuracyOfAll) {
+								maxAccuracyOfAll = currentNumber
+								maxAccuracyDetails = [Object.keys(this.testRatiosComparisonData)[i], parseFloat(Object.keys(ratioData)[j])]
+							}
 						}
 					}
+
+					this.testRatioHighestAccuracy = maxAccuracyDetails[1]
+					this.algorithmHighestAccuracy = maxAccuracyDetails[0]
+					this.algorithmToAddToMaster = maxAccuracyDetails[0]
+					this.testRatioToAddToMaster = maxAccuracyDetails[1].toString()
+
+					resolve()
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
 				}
-
-				this.testRatioHighestAccuracy = maxAccuracyDetails[1]
-				this.algorithmHighestAccuracy = maxAccuracyDetails[0]
-				this.algorithmToAddToMaster = maxAccuracyDetails[0]
-				this.testRatioToAddToMaster = maxAccuracyDetails[1].toString()
-
-				this.time = 2
-				this.timeFormat = 'Months'
-				this.predict()
-			},
-			error: (error: HttpErrorResponse) => {
-				alert(error.message)
-			}
+			})
 		})
 	}
 
@@ -959,27 +979,44 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-	trainAllJunctionsAndGetComparisons() {
-
-		this.flaskService.getTestingRatioComparisons().subscribe({
-			next: (response) => {
-				this.predictionReady = true
-				this.startedTraining = false
-				this.gotTestingRatioComparisons = true
-				this.testingRatioComparisonChartNotReady = false
-				this.testRatiosComparisonData = response
-				this.setUltimateChartData().then(() => {
-					this.getActualVsPredictedComparisons().then(() => {
-						this.getAllModelSummaries()
+	async trainAllJunctionsAndGetComparisons() {
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.getTestingRatioComparisons(this.inputJunction).subscribe({
+				next: (response) => {
+					this.predictionReady = true
+					this.startedTraining = false
+					this.gotTestingRatioComparisons = true
+					this.testingRatioComparisonChartNotReady = false
+					this.testRatiosComparisonData = response
+					this.setUltimateChartData().then(() => {
+						this.getActualVsPredictedComparisons().then(() => {
+							resolve()
+						})
 					})
-				})
-			},
-			error: (error: HttpErrorResponse) => {
-				alert(error.message)
-			}
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+					reject()
+				}
+			})
 		})
 	}
 
+
+	changeShowByArray() {
+		if (this.timeFormat == 'Years') {
+			this.showByArray = ['Days', 'Weeks', 'Months']
+			this.showBy = 'Weeks'
+		}
+		if (this.timeFormat == 'Months') {
+			this.showByArray = ['Days', 'Weeks']
+			this.showBy = 'Days'
+		}
+		if (this.timeFormat == 'Days') {
+			this.showByArray = ['Hours', 'Days']
+			this.showBy = 'Hours'
+		}
+	}
 
 
 	startTraining() {
@@ -998,11 +1035,6 @@ export class TrainingComponent implements OnInit {
 			this.startProcess = true
 			this.toggleErrorString = false
 			if (this.inputJunction != '') {
-				interface trainingDetails {
-					junction: string,
-					testRatio: number,
-					algorithm: string
-				}
 				let trainingSpecificData: trainingDetails = {
 					junction: this.inputJunction,
 					testRatio: parseFloat(this.inputTestRatio),
@@ -1010,21 +1042,29 @@ export class TrainingComponent implements OnInit {
 				}
 				if (this.uniqueJunctionsInDataset.includes(this.inputJunction)) {
 					this.getExistingData()
-					this.flaskService.sendTrainingSpecifics(trainingSpecificData).subscribe({
-						next: (response) => {
-							this.trainAllJunctionsAndGetComparisons()
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
-						}
+					this.trainAllJunctionsAndGetComparisons().then(() => {
+						this.getAllModelSummaries().then(() => {
+							this.time = 5
+							this.timeFormat = 'Years'
+							this.changeShowByArray()
+							this.predict()
+						})
 					})
 				} else {
-					this.startedTraining = false
-					this._snackBar.open('Note: ' + this.inputJunction + ' does not exist in the dataset (required for training)', '\u2716')
+					this.toggleWarningToast = true
+					this.errorString = 'Note: ' + this.inputJunction + ' does not exist in the dataset (required for training)'
+					setTimeout(() => {
+						this.toggleWarningToast = false
+					}, 3000);
 				}
 			} else {
 				this.startedTraining = false
-				this._snackBar.open('Note: All fields are required', '\u2716')
+				// this._snackBar.open('Note: All fields are required', '\u2716')
+				this.toggleWarningToast= true
+				this.errorString = 'Note: All fields are required'
+				setTimeout(() => {
+					this.toggleWarningToast = false
+				}, 3000);
 			}
 		}
 	}
@@ -1060,7 +1100,8 @@ export class TrainingComponent implements OnInit {
 		if (this.time != 0 && this.timeFormat != '') {
 			let timeToBePredicted: object = {
 				timePeriod: this.time,
-				timeFormat: this.timeFormat
+				timeFormat: this.timeFormat,
+				showBy: this.showBy
 			}
 
 			this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
@@ -1090,7 +1131,12 @@ export class TrainingComponent implements OnInit {
 				}
 			})
 		} else {
-			this._snackBar.open('Note: provide time')
+			// this._snackBar.open('Note: provide time')
+			this.toggleWarningToast = true
+			this.errorString = 'Note: provide time'
+			setTimeout(() => {
+				this.toggleWarningToast = false
+			}, 3000);
 		}
 	}
 
@@ -1101,14 +1147,24 @@ export class TrainingComponent implements OnInit {
 		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "") {
 			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, parseFloat(this.testRatioToAddToMaster)).subscribe({
 				next: (response) => {
-					this._snackBar.open('Added to master')
+					// this._snackBar.open('Added to master')
+					this.toggleSuccessToast = true
+					this.errorString = 'Note: Added to master'
+					setTimeout(() => {
+						this.toggleSuccessToast = false
+					}, 3000);
 				},
 				error: (error: HttpErrorResponse) => {
 					alert(error.message)
 				}
 			})
 		} else {
-			this._snackBar.open('Note: provide details')
+			// this._snackBar.open('Note: provide details')
+			this.toggleWarningToast = true
+			this.errorString = 'Note: provide details'
+			setTimeout(() => {
+				this.toggleWarningToast = false
+			}, 3000);
 		}
 
 	}
@@ -1143,7 +1199,6 @@ export class TrainingComponent implements OnInit {
 		this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
 		this.comparisonTableReady = true
 	}
-
 
 
 	async separateLinesForActualVsPredictedComparisonLinePlot() {
@@ -1240,40 +1295,40 @@ export class TrainingComponent implements OnInit {
 
 
 	async setAccuracyBarChartData() {
-		return new Promise<void>((resolve, reject) => {
-			this.accuracyBarChartAlgorithmsAxis = []
-			this.accuracyBarChartAccuraciesAxis = []
+		return new Promise<[string[], number[]]>((resolve, reject) => {
+			let accuracyBarChartAlgorithmsAxis: Array<string> = []
+			let accuracyBarChartAccuraciesAxis: Array<number> = []
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
 				let record: tableRecord = {
 					junctionOrAlgorithm: Object.keys(this.testRatiosComparisonData)[i],
 					accuracy: Object.values(this.testRatiosComparisonData)[i][this.renderedTestRatio]
 				}
 				this.accuracies.push(record)
-				this.accuracyBarChartAlgorithmsAxis.push(Object.keys(this.testRatiosComparisonData)[i])
+				accuracyBarChartAlgorithmsAxis.push(Object.keys(this.testRatiosComparisonData)[i])
 
 				for (let j = 0; j < Object.keys(Object.values(this.testRatiosComparisonData)[i]).length; j++) {
 					if (Object.keys(Object.values(this.testRatiosComparisonData)[i])[j] == this.renderedTestRatio) {
-						this.accuracyBarChartAccuraciesAxis.push(Object.values(Object.values(this.testRatiosComparisonData)[i])[j] as number)
+						accuracyBarChartAccuraciesAxis.push(Object.values(Object.values(this.testRatiosComparisonData)[i])[j] as number)
 					}
 				}
 			}
-			resolve()
+			resolve([accuracyBarChartAlgorithmsAxis, accuracyBarChartAccuraciesAxis])
 		})
 	}
 
 
-	plotAccuracyBarChart() {
+	plotAccuracyBarChart(accuracyBarChartAlgorithmsAxis: Array<string>, accuracyBarChartAccuraciesAxis: Array<number>) {
 		this.accuracyBarChartHidden = false
 		this.testingRatioComparisonChartNotReady = false
 		if (this.accuracyBarChart!= null) { this.accuracyBarChart.destroy() }
 		this.accuracyBarChart = new Chart("accuracyBarChart", {
 			type: 'bar',
 			data: {
-				labels: this.accuracyBarChartAlgorithmsAxis,
+				labels: accuracyBarChartAlgorithmsAxis,
 				datasets: [
 					{
 						label: "Accuracies",
-						data: this.accuracyBarChartAccuraciesAxis,
+						data: accuracyBarChartAccuraciesAxis,
 						backgroundColor: 'rgba(54, 162, 235, 0.2)',
 						borderColor: 'rgb(255, 99, 132)',
 						borderWidth: 1
@@ -1305,28 +1360,30 @@ export class TrainingComponent implements OnInit {
 
 
 	async setTestRatioComparisonChartData() {
-		return new Promise<void>((resolve, reject) => {
+		return new Promise<[string[], number[]]>((resolve, reject) => {
+			let testRatioComparisonChartTestRatiosAxis: Array<string> = []
+			let testRatioComparisonChartAccuraciesAxis: Array<number> = []
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
 				if (Object.keys(this.testRatiosComparisonData)[i] == this.renderedAlgorithm) {
-					this.testRatioComparisonChartTestRatiosAxis = Object.keys(Object.values(this.testRatiosComparisonData)[i])
-					this.testRatioComparisonChartAccuraciesAxis = Object.values(Object.values(this.testRatiosComparisonData)[i])
+					testRatioComparisonChartTestRatiosAxis = Object.keys(Object.values(this.testRatiosComparisonData)[i])
+					testRatioComparisonChartAccuraciesAxis = Object.values(Object.values(this.testRatiosComparisonData)[i])
 				}
 			}
-			resolve()
+			resolve([testRatioComparisonChartTestRatiosAxis, testRatioComparisonChartAccuraciesAxis])
 		})
 	}
 
 	
-	plotTestRatioComparisonsChart() {
+	plotTestRatioComparisonsChart(testRatioComparisonChartTestRatiosAxis: Array<string>, testRatioComparisonChartAccuraciesAxis: Array<number>) {
 		if (this.testRatioComparisonChart != null) { this.testRatioComparisonChart.destroy() }
 		this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
 			type: 'bar',
 			data: {
-				labels: this.testRatioComparisonChartTestRatiosAxis,
+				labels: testRatioComparisonChartTestRatiosAxis,
 				datasets: [
 					{
 						label: "Accuracies",
-						data: this.testRatioComparisonChartAccuraciesAxis,
+						data: testRatioComparisonChartAccuraciesAxis,
 						backgroundColor: "rgba(255, 99, 132, 0.2)",
 						borderColor: "rgb(54, 162, 235)",
 						borderWidth: 1
@@ -1369,6 +1426,7 @@ export class TrainingComponent implements OnInit {
 
 			}
 		}
+		this.highestAccuracy = this.modelSummary[3].Value
 	}
 
 
@@ -1379,12 +1437,12 @@ export class TrainingComponent implements OnInit {
 			this.plotActualVsComparisonPlot()
 		})
 
-		this.setAccuracyBarChartData().then(() => {
-			this.plotAccuracyBarChart()
+		this.setAccuracyBarChartData().then((array: [string[], number[]]) => {
+			this.plotAccuracyBarChart(array[0], array[1])
 		})
 		
-		this.setTestRatioComparisonChartData().then(() => {
-			this.plotTestRatioComparisonsChart()
+		this.setTestRatioComparisonChartData().then((array: [string[], number[]]) => {
+			this.plotTestRatioComparisonsChart(array[0], array[1])
 		})
 
 		this.setModelSummary()

@@ -25,6 +25,8 @@ export class PredictionsComponent implements OnInit {
 	) {
 	}
 
+	reloaded: boolean = false
+	firstDayOfTreatment: number = 0
 	countNumberOfDaysBeforeFirstTreatment: number = 0
 	firstTreatmentRecommendationTime: string = ""
 	firstTreatmentRecommendationVehicles: number = 0
@@ -433,36 +435,9 @@ export class PredictionsComponent implements OnInit {
 
 	
 	previousMonth() {
-	// 	console.log(this.yearsIndex)
-	// 	if (this.yearsIndex <= 0) {
-	// 		this.yearsPaginatorPreviousButtonDisabled = true
-	// 	}
-	// 	this.yearsPaginatorNextButtonDisabled = false
-	// 	this.yearsIndex -= (744)
-	// 	this.setVehiclesAndDateTime(
-	// 		this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
-	// 		this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
-	// 		// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
-	// 		// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
-	// 	)
-	// 	this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
-	// 	this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
-	// 	console.log(this.yearsIndex)
 	}
 
 	nextMonth() {
-	// 	console.log(this.yearsIndex)
-	// 	this.yearsIndex += 744
-	// 	this.setVehiclesAndDateTime(
-	// 		this.currentJunctionPlotData[0]['vehicles'].slice(this.yearsIndex, this.yearsIndex + 744), 
-	// 		this.currentJunctionPlotData[0]['datetime'].slice(this.yearsIndex, this.yearsIndex + 744)
-	// 		// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
-	// 		// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
-	// 	)
-	// 	this.yearsPaginatorPreviousButtonDisabled = false
-	// 	this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
-	// 	this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
-	// 	console.log(this.yearsIndex)
 	}
 
 	renderPredictions() {
@@ -476,19 +451,10 @@ export class PredictionsComponent implements OnInit {
 		this.currentJunctionPlotData = this.allJunctionsPlotData[this.junctionChoice]
 
 
-		if (this.time == 'Years') {
-			this.setVehiclesAndDateTime(
-				this.currentJunctionPlotData[0]['vehicles'], 
-				this.currentJunctionPlotData[0]['datetime']
-				// this.currentJunctionPlotData[0]['vehicles'].slice(0, 13),
-				// this.currentJunctionPlotData[0]['datetime'].slice(0, 13)
-			)
-		} else {
-			this.setVehiclesAndDateTime(
-				this.currentJunctionPlotData[0]['vehicles'], 
-				this.currentJunctionPlotData[0]['datetime']
-			)
-		}
+		this.setVehiclesAndDateTime(
+			this.currentJunctionPlotData[0]['vehicles'], 
+			this.currentJunctionPlotData[0]['datetime']
+		)
 
 
 		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
@@ -576,10 +542,13 @@ export class PredictionsComponent implements OnInit {
 
 
 
-	renderAll() {
-		this.renderPredictions()
-		this.renderJunctionComparison()
-		this.renderJunctionAccuracyPie()
+	async renderAll() {
+		return new Promise<void>((resolve, reject) => {
+			this.renderPredictions()
+			this.renderJunctionComparison()
+			this.renderJunctionAccuracyPie()
+			resolve()
+		})
 	}
 
 
@@ -611,7 +580,21 @@ export class PredictionsComponent implements OnInit {
 			next: (response) => {
 				this.getMasterData().then(() => {
 					this.setAccuracyComparisonTableData().then(() => {
-						this.renderAll()
+						this.renderAll().then(() => {
+
+							// after rendering all plots, get the first treatment recommendation time
+							// this.flaskService.getDaysPrediction().subscribe({
+							// 	next: (response) => {
+							// 		console.log('response', response)
+							// 		this.firstDayOfTreatment = Object.values(response)[0]
+
+							// 	},
+							// 	error: (error: HttpErrorResponse) => {
+							// 		console.log('error', error)
+							// 	}
+							// })
+
+						})
 					})
 				})
 			},
@@ -671,6 +654,9 @@ export class PredictionsComponent implements OnInit {
 	}
 
 	ngOnInit() {
+
+
+		this.propService.predictionsReloaded = true
 
 		this.getAllJunctionSpecificDataFromDB().then(() => {
 			this.duration = 5
