@@ -1,17 +1,21 @@
 #maincontainer {
-    overflow-y: scroll;
     padding: 10px;
     box-shadow: 5px 10px;
     max-width: 3000px;
+}
+
+#predictionComponentBody {
+    overflow-y: scroll;
 }
 
 ng-container, th, td {
     color: black;
 }
 
-mat-card-content, mat-card, table { background-color: white; }
-
-li { cursor: pointer; }
+.offcanvasList:hover { 
+    cursor: pointer; 
+    background:#D6D6D6
+}
 
 #hrTag1 { height: 2px; }
 

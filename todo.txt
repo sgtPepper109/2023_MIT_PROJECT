@@ -1,25 +1,40 @@
 # save trained models
 # preprocess data
-cross check with different data
+# cross check with different data
 expansion panel
 # new training on dataset change
 # training for only the junctions with properties
 # same on predictions page
 change dateTime format
+see about time in dateTime column
 download results in csv
-linear data - linear regression correct results
+# linear data - linear regression correct results
 # push to master
-change algorithm comparison
+# change algorithm comparison
 validations in admin-inputs page
 remove unused part of code
 refactor code with comments
 no records found on predictions page
 see about 0.30000000004 and same for 0.7000...
 scrolling
-prediction step highest algorithm and highest accuracy
-remove testratio and algorithm input from main page
-change actual vs predicted
-for daily data remove time
+# prediction step highest algorithm and highest accuracy
+# remove testratio and algorithm input from main page
+# change actual vs predicted
+# for daily data remove time
 improve paginator options
 change offcanvas styling
 table option in testRatiosComparison
+when first treatment needed
+# by default prediction of years
+repair paginators
+responsive
+# specify download options
+junction properties expansion on predictions page
+# dataset description
+toast bootstrap
+# see if replace mat-list-item
+clean java code
+scrollspy in offcanvas
+help and about page
+add tooltips
+look about promises

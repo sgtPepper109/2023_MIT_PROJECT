@@ -22,6 +22,9 @@ export class AdminInputsComponent implements OnInit {
 		private _snackBar: MatSnackBar
 	) {}
 
+	errorString: string = ""
+	toggleSuccessToast: boolean = false
+	toggleWarningToast: boolean = false
 	recordToBeDeleted: any = {}
 	newJunctionName: string = ""
 	newDistrict: string = ""
@@ -184,7 +187,12 @@ export class AdminInputsComponent implements OnInit {
 						this.junctionSpecificsService.addSingleRoadwayWidthMaxVehiclesMap(newRoadwayWidthMaxVehiclesMap).subscribe({
 							next: (response) => {
 								this.allJunctionsInformation.push(newJunctionInformation)
-								this._snackBar.open('Added Record Successfully', '\u2716')
+								// this._snackBar.open('Added Record Successfully', '\u2716')
+								this.toggleSuccessToast = true
+								this.errorString = 'Added Record Successfully'
+								setTimeout(() => {
+									this.toggleSuccessToast = false
+								}, 1500);
 							},
 							error: (error: HttpErrorResponse) => {
 								alert(error.message)
@@ -234,7 +242,12 @@ export class AdminInputsComponent implements OnInit {
 						this.junctionSpecificsService.updateRoadwayWidthMaxVehiclesMap(updatedRoadwayWidthMaxVehiclesMap).subscribe({
 							next: (response) => {
 								this.getAllJunctionSpecificDataFromDB()
-								this._snackBar.open('Updated Fields Successfully', '\u2716')
+								// this._snackBar.open('Updated Fields Successfully', '\u2716')
+								this.toggleSuccessToast = true
+								this.errorString = 'Updated Fields Successfully'
+								setTimeout(() => {
+									this.toggleSuccessToast = false
+								}, 1500);
 							},
 							error: (error: HttpErrorResponse) => {
 								alert(error.message)
@@ -263,6 +276,11 @@ export class AdminInputsComponent implements OnInit {
 								next: (response) => {
 									this.allJunctionsInformation = []
 									resolve('deletedFromDB')
+									this.toggleWarningToast = true
+									this.errorString = 'Deleted Record Successfully'
+									setTimeout(() => {
+										this.toggleWarningToast = false
+									}, 1500);
 								},
 								error: (error: HttpErrorResponse) => {
 									alert(error.message)
