@@ -18,7 +18,6 @@ export class PropService {
 	public junctions: any
 	public datetime: any
 	public vehicles: any
-	public predictionsReloaded: boolean = false
 
 
 	constructor() {

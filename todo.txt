@@ -38,3 +38,4 @@ scrollspy in offcanvas
 help and about page
 add tooltips
 look about promises
+showByArray not changing

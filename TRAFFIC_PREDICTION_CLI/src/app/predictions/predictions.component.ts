@@ -25,7 +25,6 @@ export class PredictionsComponent implements OnInit {
 	) {
 	}
 
-	reloaded: boolean = false
 	firstDayOfTreatment: number = 0
 	countNumberOfDaysBeforeFirstTreatment: number = 0
 	firstTreatmentRecommendationTime: string = ""
@@ -654,9 +653,6 @@ export class PredictionsComponent implements OnInit {
 	}
 
 	ngOnInit() {
-
-
-		this.propService.predictionsReloaded = true
 
 		this.getAllJunctionSpecificDataFromDB().then(() => {
 			this.duration = 5

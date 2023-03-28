@@ -40,13 +40,6 @@ public class FlaskController {
 	public FlaskController() {
 		/* NOTE: Document why this method is empty */ }
 
-	@GetMapping("/getDaysPrediction")
-	public String getDaysPrediction() {
-		log.info("GET: /process/getDaysPrediction");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getDaysPrediction");
-	}	
-
 	@GetMapping("/getAllUniqueJunctions")
 	public String getAllUniqueJunctions() {
 		log.info("GET: /process/getAllUniqueJunctions");
@@ -55,6 +48,13 @@ public class FlaskController {
 	}	
 	
 	
+	@GetMapping("/getTestingRatioComparisons")
+	public String getTestingRatioComparisons(@RequestParam String junction) {
+		log.info("GET: /process/getTestingRatioComparisons");
+		GetURLContents getURLContents = new GetURLContents();
+		junction = junction.replaceAll("\\s", "%20");
+		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons?junction=" + junction);
+	}
 	
 	@GetMapping("/getAllModelSummaries")
 	public String getModelSummaries() {
@@ -77,13 +77,6 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getActualVsPredictedComparison");
 	}	
 	
-	@GetMapping("/getTestingRatioComparisons")
-	public String getTestingRatioComparisons(@RequestParam String junction) {
-		log.info("GET: /process/getTestingRatioComparisons");
-		GetURLContents getURLContents = new GetURLContents();
-		junction = junction.replaceAll("\\s", "%20");
-		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons?junction=" + junction);
-	}	
 	
 	@GetMapping("/predictForHighestAccuracy")
 	public String predictForHighestAccuracy(
@@ -196,6 +189,13 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getFuturePredictionsTable");
 	}
 	
+	@GetMapping("/predictAgainstTime")
+	public String predictAgainstTime() {
+		log.info("GET: /process/predictAgainstTime");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/predictAgainstTime");
+	}
+
 	@PostMapping("/setCsvData")
 	public String getCsvData(@RequestBody Object response) {
 		log.warn("POST: localhost:8080/process/setCsvData");
@@ -210,6 +210,28 @@ public class FlaskController {
 		return this.csvData;
 	}
 
+	@GetMapping("/getActualPredictedForPlot")
+	public String getActualPredictedForPlot() {
+		log.info("GET: /process/getActualPredictedForPlot");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getActualPredictedForPlot");
+	}
+
+	@GetMapping("/getModelSummary")
+	public String getModelSummary() {
+		log.info("GET: /process/getModelSummary");
+		GetURLContents getURLContents = new GetURLContents();
+		String s = getURLContents.getData(flaskUrl + "/getModelSummary");
+		return s;
+	}
+
+	@GetMapping("/getAccuracies")
+	public String getAccuracies() {
+		log.info("GET: /process/getAccuracies");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getAccuracies");
+	}
+
 	@PostMapping("/sendTrainingSpecifics")
 	public String sendTrainingSpecifics(@RequestBody Object trainingInputs) {
 		this.trainingSpecifics = trainingInputs;
@@ -222,6 +244,7 @@ public class FlaskController {
 		log.info("GET: /process/exchangeInput");
 		return this.trainingSpecifics;
 	}
+
 
 	@GetMapping("/train")
 	public String train() {
