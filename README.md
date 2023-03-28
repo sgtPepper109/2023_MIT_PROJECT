@@ -50,7 +50,9 @@ If `FLASK` is present then the environment is created successfully
 If the python environment (in this case, `FLASK`) is created, 
 navigate to the env folder (FLASK) and activate the environment
 ```
-.\Scripts\activate
+cd Scripts
+activate
+cd ..
 ```
 To install all the required python packages, run
 ```
@@ -64,7 +66,9 @@ Run the main `BackApplicationMain.java` file in IntelliJ or Eclipse. The server 
 
 ## FLASK server
 Open command prompt and 
-navigate into FLASK environment folder and run `python app.py` for a flask server. It will run on port 5000 and has the url `http://localhost:5000/`
+navigate into FLASK environment folder and run `python app.py` or `python app.py DEV` for a dev flask server. It will run on port 5000 and has the url `http://localhost:5000/`
+(OR)
+nvaigate into the FLASK environment folder and run `python app.py PROD` for a prod server. It will run on port 5000 and will be available to everyone on your network. URL: `http://localhost:5000/
 
 ## Development server
 

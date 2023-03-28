@@ -28,13 +28,27 @@
     </div>
     <mat-divider></mat-divider>
     <div class="offcanvas-body">
-        <mat-list>
+        <ul class="list-group list-group-flush">
+            <li class="offcanvasList list-group-item" (click)="navigateToTraining()">
+                <span style="float:left">Training</span>
+                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+            </li>
+            <li class="offcanvasList list-group-item" (click)="navigateToPredictions()">
+                <span style="float:left">Predictions</span>
+                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+            </li>
+            <li class="offcanvasList list-group-item">
+                <span style="float:left">Provide Junction Properties</span>
+                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+            </li>
+        </ul>
+        <!-- <mat-list>
             <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
             <mat-divider></mat-divider>
             <mat-list-item (click)="navigateToPredictions()">Predictions</mat-list-item>
             <mat-divider></mat-divider>
             <mat-list-item>Provide Junction Properties</mat-list-item>
-        </mat-list>
+        </mat-list> -->
     </div>
 </div>
 
@@ -44,9 +58,21 @@
     <section>
         <h1>Junction Properties</h1>
         <hr />
+
         <div>
+            <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                    <strong class="me-auto">System</strong>
+                    <small>1 second ago</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" style="color: red">
+                    {{ errorString }}
+                </div>
+            </div>
             <button style="margin-left:10px" mat-raised-button color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">
-                Add Record
+                <mat-icon>add</mat-icon>Add Record
             </button>
             <br />
             <br />
@@ -65,14 +91,26 @@
                         <td>{{ record.district }}</td>
                         <td>{{ record.roadwayWidth }}</td>
                         <td>{{ record.maxVehicles }}</td>
+
+
                         <td style="width: 50px;">
-                            <button mat-icon-button color="primary" (click)="editRecord(record)" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                <mat-icon>edit</mat-icon>
+                            <button mat-icon-button 
+                                color="primary" 
+                                (click)="editRecord(record)" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#exampleModal"
+                                matTooltip="Edit Record"
+                            >
+                                <mat-icon>create</mat-icon>
                             </button>
                         </td>
                         <td style="width: 50px;">
-                            <button mat-icon-button color="warn" (click)="delete(record)">
-                                <mat-icon>delete</mat-icon>
+                            <button mat-icon-button
+                                color="warn" 
+                                (click)="delete(record)"
+                                matTooltip="Delete Record"
+                            >
+                                <mat-icon>remove_circle</mat-icon>
                             </button>
                         </td>
                     </tr>
@@ -82,6 +120,17 @@
 
 
             <div class="modal fade modal-lg" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <span class="me-3"><mat-icon style="color: green">report</mat-icon></span>
+                        <strong class="me-auto">System</strong>
+                        <small>1 second ago</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" style="color: green">
+                        {{ errorString }}
+                    </div>
+                </div>
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -134,6 +183,17 @@
 
             <!-- Modal -->
             <div class="modal fade modal-lg" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <span class="me-3"><mat-icon style="color: green">report</mat-icon></span>
+                        <strong class="me-auto">System</strong>
+                        <small>1 second ago</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" style="color: green">
+                        {{ errorString }}
+                    </div>
+                </div>
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">

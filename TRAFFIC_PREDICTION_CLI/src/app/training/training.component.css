@@ -4,6 +4,10 @@
     max-width: 3000px;
 }
 
+#trainingComponentBody {
+    overflow-y: scroll;
+}
+
 .text-center {
     text-align: center;
 }
@@ -22,3 +26,8 @@
 #errorAlert { margin-top: 10px; }
 
 #helpCanvas { margin-right: 10px; }
+
+.offcanvasList:hover {
+    cursor: pointer;
+    background:#D6D6D6
+}

@@ -1,3 +1,4 @@
+<div id="predictionComponentBody">
     <p class="fixed-top">
         <mat-toolbar>
             <button mat-icon-button  
@@ -23,13 +24,27 @@
         </div>
         <mat-divider></mat-divider>
         <div class="offcanvas-body">
-            <mat-list>
+            <ul class="list-group list-group-flush">
+                <li class="offcanvasList list-group-item" (click)="navigateToTraining()">
+                    <span style="float:left">Training</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+                <li class="offcanvasList list-group-item">
+                    <span style="float:left">Predictions</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+                <li class="offcanvasList list-group-item" (click)="navigateToAdminInputs()">
+                    <span style="float:left">Provide Junction Properties</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+            </ul>
+            <!-- <mat-list>
                 <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
                 <mat-divider></mat-divider>
                 <mat-list-item>Predictions</mat-list-item>
                 <mat-divider></mat-divider>
                 <mat-list-item (click)="navigateToAdminInputs()">Provide Junction Properties</mat-list-item>
-            </mat-list>
+            </mat-list> -->
         </div>
     </div>
 
@@ -71,7 +86,7 @@
                                     <input [(ngModel)]="duration" type="number" matInput placeholder="Enter period">
                                 </mat-form-field>
                                 <mat-form-field appearance="outline">
-                                    <mat-label>Duration</mat-label>
+                                    <mat-label>Amount of Time</mat-label>
                                     <mat-select [(ngModel)]="time">
                                         <mat-option value="Days">Days</mat-option>
                                         <mat-option value="Months">Months</mat-option>
@@ -79,6 +94,12 @@
                                     </mat-select>
                                 </mat-form-field>
                                 <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Show By</mat-label>
+                                    <mat-select [(ngModel)]="showBy">
+                                        <mat-option *ngFor="let element of showByArray" [value]="element">{{ element }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
 
                                 <div>
                                     <h3>
@@ -161,13 +182,19 @@
                             </mat-form-field>
                             <mat-form-field appearance="outline">
                                 <mat-label>Duration</mat-label>
-                                <mat-select [(ngModel)]="time">
+                                <mat-select [(ngModel)]="time" (selectionChange)="changeShowByArray()">
                                     <mat-option value="Days">Days</mat-option>
                                     <mat-option value="Months">Months</mat-option>
                                     <mat-option value="Years">Years</mat-option>
                                 </mat-select>
                             </mat-form-field>
                             <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
+                            <mat-form-field style="float:right" appearance="outline">
+                                <mat-label>Show By</mat-label>
+                                <mat-select type="text" [(ngModel)]="showBy">
+                                    <mat-option *ngFor="let time of showByArray" [value]="time">{{ time }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
                             <div>
                                 <h3>
                                     Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
@@ -183,13 +210,38 @@
                                 <div>
                                     <canvas style="padding-left: 100px; padding-right: 100px;" id="myChart"></canvas>
                                 </div>
+                                <div *ngIf="yearsPaginatorShow" style="padding-top: 10px;">
+                                    <nav aria-label="Page navigation example">
+                                        <ul class="pagination justify-content-center">
+                                            <button mat-button [disabled]="yearsPaginatorPreviousButtonDisabled" (click)="previousMonth()">
+                                                <mat-icon>keyboard_arrow_left</mat-icon>
+                                            </button>
+                                            <button mat-button>{{ yearsIndex }} of {{ index }}</button>
+                                            <button mat-button [disabled]="yearsPaginatorNextButtonDisabled" (click)="nextMonth()">
+                                                <mat-icon>keyboard_arrow_right</mat-icon>
+                                            </button>
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                             <div *ngIf="showMaxCapacity">
-                                <mat-card>
-                                    <mat-card-content>
-                                        Number of times crossed the maximum limit {{numberOfTimesCrossedMaxCapacity}}
-                                    </mat-card-content>
-                                </mat-card>
+                                <div class="alert alert-primary">
+                                    <p>
+                                        <strong>
+                                            Number of times crossed the maximum limit: {{numberOfTimesCrossedMaxCapacity}}
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            First Treatment was needed {{ countNumberOfDaysBeforeFirstTreatment }} {{ this.showBy }} after start-time
+                                        </strong>
+                                    </p>
+                                    <!-- <p>
+                                        <strong>
+                                            First Treatment was needed {{ firstDayOfTreatment }} Days after start-time
+                                        </strong>
+                                    </p> -->
+                                </div>
                             </div>
                         </mat-card-content>
                     </mat-card>
@@ -200,7 +252,7 @@
                 <mat-step *ngIf="autoTrained">
                     
                     <ng-template matStepLabel>Accuracies of Differenct Junctions</ng-template>
-                    <div class="container">
+                    <div style="padding-top: 10px" class="container">
                         <div class="row">
                             <div class="col">
                                 <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
@@ -253,7 +305,7 @@
                                                     <h4>Accuracy for junction</h4> 
                                                 </div>
                                                 <div class="col">
-                                                    <select style="width: 200px" class="form-select" (change)="renderJunctionAccuracyDoughnut()" [(ngModel)]="currentDoughnut" aria-label="Default select example">
+                                                    <select style="width: 200px" class="form-select" (change)="renderJunctionAccuracyPie()" [(ngModel)]="currentPie" aria-label="Default select example">
                                                         <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
                                                     </select>
                                                 </div>
@@ -264,7 +316,7 @@
                                 <div>
                                     <div>
                                         <div>
-                                            <canvas width="600" height="600" id="accuracyDoughnut"></canvas>
+                                            <canvas width="600" height="600" id="accuracyPie"></canvas>
                                         </div>
                                     </div>
                                 </div>
@@ -297,3 +349,4 @@
         </section>
 
 
+</div>
