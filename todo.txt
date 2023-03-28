@@ -31,3 +31,10 @@ responsive
 # specify download options
 junction properties expansion on predictions page
 # dataset description
+toast bootstrap
+# see if replace mat-list-item
+clean java code
+scrollspy in offcanvas
+help and about page
+add tooltips
+look about promises

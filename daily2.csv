@@ -1213,790 +1213,790 @@ DateTime,Junction,Vehicles,ID
 2017-06-27,Pune Station Road,31,72
 2017-06-28,Pune Station Road,31,48
 2017-06-29,Pune Station Road,24,20
-2015-11-01,Swargate Bus Stand,1,69
-2015-11-02,Swargate Bus Stand,2,62
-2015-11-03,Swargate Bus Stand,3,99
-2015-11-04,Swargate Bus Stand,4,85
-2015-11-05,Swargate Bus Stand,5,46
-2015-11-06,Swargate Bus Stand,6,45
-2015-11-07,Swargate Bus Stand,7,49
-2015-11-08,Swargate Bus Stand,8,14
-2015-11-09,Swargate Bus Stand,9,16
-2015-11-10,Swargate Bus Stand,10,88
-2015-11-11,Swargate Bus Stand,11,15
-2015-11-12,Swargate Bus Stand,12,89
-2015-11-13,Swargate Bus Stand,13,93
-2015-11-14,Swargate Bus Stand,14,88
-2015-11-15,Swargate Bus Stand,15,53
-2015-11-16,Swargate Bus Stand,16,38
-2015-11-17,Swargate Bus Stand,17,27
-2015-11-18,Swargate Bus Stand,18,4
-2015-11-19,Swargate Bus Stand,19,99
-2015-11-20,Swargate Bus Stand,20,27
-2015-11-21,Swargate Bus Stand,21,88
-2015-11-22,Swargate Bus Stand,22,18
-2015-11-23,Swargate Bus Stand,23,32
-2015-11-24,Swargate Bus Stand,24,14
-2015-11-25,Swargate Bus Stand,25,17
-2015-11-26,Swargate Bus Stand,26,96
-2015-11-27,Swargate Bus Stand,27,0
-2015-11-28,Swargate Bus Stand,28,35
-2015-11-29,Swargate Bus Stand,29,13
-2015-11-30,Swargate Bus Stand,30,92
-2015-12-01,Swargate Bus Stand,31,55
-2015-12-02,Swargate Bus Stand,32,49
-2015-12-03,Swargate Bus Stand,33,10
-2015-12-04,Swargate Bus Stand,34,66
-2015-12-05,Swargate Bus Stand,35,0
-2015-12-06,Swargate Bus Stand,36,28
-2015-12-07,Swargate Bus Stand,37,23
-2015-12-08,Swargate Bus Stand,38,45
-2015-12-09,Swargate Bus Stand,39,97
-2015-12-10,Swargate Bus Stand,40,3
-2015-12-11,Swargate Bus Stand,41,58
-2015-12-12,Swargate Bus Stand,42,82
-2015-12-13,Swargate Bus Stand,43,1
-2015-12-14,Swargate Bus Stand,44,33
-2015-12-15,Swargate Bus Stand,45,93
-2015-12-16,Swargate Bus Stand,46,42
-2015-12-17,Swargate Bus Stand,47,21
-2015-12-18,Swargate Bus Stand,48,33
-2015-12-19,Swargate Bus Stand,49,71
-2015-12-20,Swargate Bus Stand,50,8
-2015-12-21,Swargate Bus Stand,51,37
-2015-12-22,Swargate Bus Stand,52,73
-2015-12-23,Swargate Bus Stand,53,84
-2015-12-24,Swargate Bus Stand,54,70
-2015-12-25,Swargate Bus Stand,55,5
-2015-12-26,Swargate Bus Stand,56,12
-2015-12-27,Swargate Bus Stand,57,27
-2015-12-28,Swargate Bus Stand,58,69
-2015-12-29,Swargate Bus Stand,59,12
-2015-12-30,Swargate Bus Stand,60,58
-2015-12-31,Swargate Bus Stand,61,26
-2016-01-01,Swargate Bus Stand,62,52
-2016-01-02,Swargate Bus Stand,63,10
-2016-01-03,Swargate Bus Stand,64,24
-2016-01-04,Swargate Bus Stand,65,41
-2016-01-05,Swargate Bus Stand,66,90
-2016-01-06,Swargate Bus Stand,67,84
-2016-01-07,Swargate Bus Stand,68,79
-2016-01-08,Swargate Bus Stand,69,1
-2016-01-09,Swargate Bus Stand,70,47
-2016-01-10,Swargate Bus Stand,71,76
-2016-01-11,Swargate Bus Stand,72,35
-2016-01-12,Swargate Bus Stand,73,13
-2016-01-13,Swargate Bus Stand,74,83
-2016-01-14,Swargate Bus Stand,75,94
-2016-01-15,Swargate Bus Stand,76,27
-2016-01-16,Swargate Bus Stand,77,83
-2016-01-17,Swargate Bus Stand,78,16
-2016-01-18,Swargate Bus Stand,79,28
-2016-01-19,Swargate Bus Stand,80,51
-2016-01-20,Swargate Bus Stand,81,40
-2016-01-21,Swargate Bus Stand,82,77
-2016-01-22,Swargate Bus Stand,83,2
-2016-01-23,Swargate Bus Stand,84,32
-2016-01-24,Swargate Bus Stand,85,10
-2016-01-25,Swargate Bus Stand,86,68
-2016-01-26,Swargate Bus Stand,87,94
-2016-01-27,Swargate Bus Stand,88,90
-2016-01-28,Swargate Bus Stand,89,69
-2016-01-29,Swargate Bus Stand,90,52
-2016-01-30,Swargate Bus Stand,91,33
-2016-01-31,Swargate Bus Stand,92,21
-2016-02-01,Swargate Bus Stand,93,32
-2016-02-02,Swargate Bus Stand,94,57
-2016-02-03,Swargate Bus Stand,95,3
-2016-02-04,Swargate Bus Stand,96,62
-2016-02-05,Swargate Bus Stand,97,91
-2016-02-06,Swargate Bus Stand,98,74
-2016-02-07,Swargate Bus Stand,99,92
-2016-02-08,Swargate Bus Stand,100,22
-2016-02-09,Swargate Bus Stand,101,33
-2016-02-10,Swargate Bus Stand,102,16
-2016-02-11,Swargate Bus Stand,103,76
-2016-02-12,Swargate Bus Stand,104,3
-2016-02-13,Swargate Bus Stand,105,48
-2016-02-14,Swargate Bus Stand,106,42
-2016-02-15,Swargate Bus Stand,107,63
-2016-02-16,Swargate Bus Stand,108,9
-2016-02-17,Swargate Bus Stand,109,82
-2016-02-18,Swargate Bus Stand,110,61
-2016-02-19,Swargate Bus Stand,111,64
-2016-02-20,Swargate Bus Stand,112,98
-2016-02-21,Swargate Bus Stand,113,95
-2016-02-22,Swargate Bus Stand,114,72
-2016-02-23,Swargate Bus Stand,115,41
-2016-02-24,Swargate Bus Stand,116,86
-2016-02-25,Swargate Bus Stand,117,20
-2016-02-26,Swargate Bus Stand,118,86
-2016-02-27,Swargate Bus Stand,119,5
-2016-02-28,Swargate Bus Stand,120,6
-2016-02-29,Swargate Bus Stand,121,64
-2016-03-01,Swargate Bus Stand,122,2
-2016-03-02,Swargate Bus Stand,123,13
-2016-03-03,Swargate Bus Stand,124,51
-2016-03-04,Swargate Bus Stand,125,24
-2016-03-05,Swargate Bus Stand,126,81
-2016-03-06,Swargate Bus Stand,127,70
-2016-03-07,Swargate Bus Stand,128,36
-2016-03-08,Swargate Bus Stand,129,75
-2016-03-09,Swargate Bus Stand,130,37
-2016-03-10,Swargate Bus Stand,131,23
-2016-03-11,Swargate Bus Stand,132,96
-2016-03-12,Swargate Bus Stand,133,82
-2016-03-13,Swargate Bus Stand,134,64
-2016-03-14,Swargate Bus Stand,135,15
-2016-03-15,Swargate Bus Stand,136,7
-2016-03-16,Swargate Bus Stand,137,91
-2016-03-17,Swargate Bus Stand,138,38
-2016-03-18,Swargate Bus Stand,139,19
-2016-03-19,Swargate Bus Stand,140,49
-2016-03-20,Swargate Bus Stand,141,93
-2016-03-21,Swargate Bus Stand,142,71
-2016-03-22,Swargate Bus Stand,143,55
-2016-03-23,Swargate Bus Stand,144,84
-2016-03-24,Swargate Bus Stand,145,0
-2016-03-25,Swargate Bus Stand,146,88
-2016-03-26,Swargate Bus Stand,147,56
-2016-03-27,Swargate Bus Stand,148,78
-2016-03-28,Swargate Bus Stand,149,22
-2016-03-29,Swargate Bus Stand,150,33
-2016-03-30,Swargate Bus Stand,151,23
-2016-03-31,Swargate Bus Stand,152,51
-2016-04-01,Swargate Bus Stand,153,88
-2016-04-02,Swargate Bus Stand,154,45
-2016-04-03,Swargate Bus Stand,155,37
-2016-04-04,Swargate Bus Stand,156,57
-2016-04-05,Swargate Bus Stand,157,47
-2016-04-06,Swargate Bus Stand,158,92
-2016-04-07,Swargate Bus Stand,159,1
-2016-04-08,Swargate Bus Stand,160,69
-2016-04-09,Swargate Bus Stand,161,25
-2016-04-10,Swargate Bus Stand,162,42
-2016-04-11,Swargate Bus Stand,163,51
-2016-04-12,Swargate Bus Stand,164,52
-2016-04-13,Swargate Bus Stand,165,65
-2016-04-14,Swargate Bus Stand,166,86
-2016-04-15,Swargate Bus Stand,167,9
-2016-04-16,Swargate Bus Stand,168,2
-2016-04-17,Swargate Bus Stand,169,60
-2016-04-18,Swargate Bus Stand,170,3
-2016-04-19,Swargate Bus Stand,171,5
-2016-04-20,Swargate Bus Stand,172,26
-2016-04-21,Swargate Bus Stand,173,82
-2016-04-22,Swargate Bus Stand,174,17
-2016-04-23,Swargate Bus Stand,175,11
-2016-04-24,Swargate Bus Stand,176,60
-2016-04-25,Swargate Bus Stand,177,74
-2016-04-26,Swargate Bus Stand,178,4
-2016-04-27,Swargate Bus Stand,179,76
-2016-04-28,Swargate Bus Stand,180,44
-2016-04-29,Swargate Bus Stand,181,53
-2016-04-30,Swargate Bus Stand,182,52
-2016-05-01,Swargate Bus Stand,183,54
-2016-05-02,Swargate Bus Stand,184,14
-2016-05-03,Swargate Bus Stand,185,79
-2016-05-04,Swargate Bus Stand,186,66
-2016-05-05,Swargate Bus Stand,187,75
-2016-05-06,Swargate Bus Stand,188,61
-2016-05-07,Swargate Bus Stand,189,47
-2016-05-08,Swargate Bus Stand,190,7
-2016-05-09,Swargate Bus Stand,191,20
-2016-05-10,Swargate Bus Stand,192,34
-2016-05-11,Swargate Bus Stand,193,6
-2016-05-12,Swargate Bus Stand,194,9
-2016-05-13,Swargate Bus Stand,195,63
-2016-05-14,Swargate Bus Stand,196,93
-2016-05-15,Swargate Bus Stand,197,5
-2016-05-16,Swargate Bus Stand,198,60
-2016-05-17,Swargate Bus Stand,199,52
-2016-05-18,Swargate Bus Stand,200,62
-2016-05-19,Swargate Bus Stand,201,70
-2016-05-20,Swargate Bus Stand,202,58
-2016-05-21,Swargate Bus Stand,203,41
-2016-05-22,Swargate Bus Stand,204,24
-2016-05-23,Swargate Bus Stand,205,32
-2016-05-24,Swargate Bus Stand,206,88
-2016-05-25,Swargate Bus Stand,207,54
-2016-05-26,Swargate Bus Stand,208,96
-2016-05-27,Swargate Bus Stand,209,80
-2016-05-28,Swargate Bus Stand,210,29
-2016-05-29,Swargate Bus Stand,211,26
-2016-05-30,Swargate Bus Stand,212,24
-2016-05-31,Swargate Bus Stand,213,34
-2016-06-01,Swargate Bus Stand,214,21
-2016-06-02,Swargate Bus Stand,215,17
-2016-06-03,Swargate Bus Stand,216,47
-2016-06-04,Swargate Bus Stand,217,67
-2016-06-05,Swargate Bus Stand,218,31
-2016-06-06,Swargate Bus Stand,219,91
-2016-06-07,Swargate Bus Stand,220,76
-2016-06-08,Swargate Bus Stand,221,87
-2016-06-09,Swargate Bus Stand,222,93
-2016-06-10,Swargate Bus Stand,223,42
-2016-06-11,Swargate Bus Stand,224,28
-2016-06-12,Swargate Bus Stand,225,90
-2016-06-13,Swargate Bus Stand,226,91
-2016-06-14,Swargate Bus Stand,227,76
-2016-06-15,Swargate Bus Stand,228,35
-2016-06-16,Swargate Bus Stand,229,14
-2016-06-17,Swargate Bus Stand,230,17
-2016-06-18,Swargate Bus Stand,231,64
-2016-06-19,Swargate Bus Stand,232,73
-2016-06-20,Swargate Bus Stand,233,76
-2016-06-21,Swargate Bus Stand,234,44
-2016-06-22,Swargate Bus Stand,235,40
-2016-06-23,Swargate Bus Stand,236,72
-2016-06-24,Swargate Bus Stand,237,51
-2016-06-25,Swargate Bus Stand,238,50
-2016-06-26,Swargate Bus Stand,239,73
-2016-06-27,Swargate Bus Stand,240,94
-2016-06-28,Swargate Bus Stand,241,5
-2016-06-29,Swargate Bus Stand,242,67
-2016-06-30,Swargate Bus Stand,243,89
-2016-07-01,Swargate Bus Stand,244,77
-2016-07-02,Swargate Bus Stand,245,53
-2016-07-03,Swargate Bus Stand,246,72
-2016-07-04,Swargate Bus Stand,247,62
-2016-07-05,Swargate Bus Stand,248,27
-2016-07-06,Swargate Bus Stand,249,23
-2016-07-07,Swargate Bus Stand,250,52
-2016-07-08,Swargate Bus Stand,251,93
-2016-07-09,Swargate Bus Stand,252,73
-2016-07-10,Swargate Bus Stand,253,44
-2016-07-11,Swargate Bus Stand,254,89
-2016-07-12,Swargate Bus Stand,255,20
-2016-07-13,Swargate Bus Stand,256,67
-2016-07-14,Swargate Bus Stand,257,7
-2016-07-15,Swargate Bus Stand,258,47
-2016-07-16,Swargate Bus Stand,259,10
-2016-07-17,Swargate Bus Stand,260,59
-2016-07-18,Swargate Bus Stand,261,86
-2016-07-19,Swargate Bus Stand,262,24
-2016-07-20,Swargate Bus Stand,263,63
-2016-07-21,Swargate Bus Stand,264,5
-2016-07-22,Swargate Bus Stand,265,95
-2016-07-23,Swargate Bus Stand,266,26
-2016-07-24,Swargate Bus Stand,267,88
-2016-07-25,Swargate Bus Stand,268,57
-2016-07-26,Swargate Bus Stand,269,79
-2016-07-27,Swargate Bus Stand,270,34
-2016-07-28,Swargate Bus Stand,271,56
-2016-07-29,Swargate Bus Stand,272,55
-2016-07-30,Swargate Bus Stand,273,77
-2016-07-31,Swargate Bus Stand,274,6
-2016-08-01,Swargate Bus Stand,275,78
-2016-08-02,Swargate Bus Stand,276,80
-2016-08-03,Swargate Bus Stand,277,6
-2016-08-04,Swargate Bus Stand,278,20
-2016-08-05,Swargate Bus Stand,279,78
-2016-08-06,Swargate Bus Stand,280,94
-2016-08-07,Swargate Bus Stand,281,28
-2016-08-08,Swargate Bus Stand,282,34
-2016-08-09,Swargate Bus Stand,283,76
-2016-08-10,Swargate Bus Stand,284,39
-2016-08-11,Swargate Bus Stand,285,81
-2016-08-12,Swargate Bus Stand,286,86
-2016-08-13,Swargate Bus Stand,287,70
-2016-08-14,Swargate Bus Stand,288,35
-2016-08-15,Swargate Bus Stand,289,76
-2016-08-16,Swargate Bus Stand,290,2
-2016-08-17,Swargate Bus Stand,291,40
-2016-08-18,Swargate Bus Stand,292,91
-2016-08-19,Swargate Bus Stand,293,34
-2016-08-20,Swargate Bus Stand,294,37
-2016-08-21,Swargate Bus Stand,295,22
-2016-08-22,Swargate Bus Stand,296,72
-2016-08-23,Swargate Bus Stand,297,85
-2016-08-24,Swargate Bus Stand,298,61
-2016-08-25,Swargate Bus Stand,299,98
-2016-08-26,Swargate Bus Stand,300,27
-2016-08-27,Swargate Bus Stand,301,35
-2016-08-28,Swargate Bus Stand,302,39
-2016-08-29,Swargate Bus Stand,303,55
-2016-08-30,Swargate Bus Stand,304,40
-2016-08-31,Swargate Bus Stand,305,63
-2016-09-01,Swargate Bus Stand,306,77
-2016-09-02,Swargate Bus Stand,307,59
-2016-09-03,Swargate Bus Stand,308,35
-2016-09-04,Swargate Bus Stand,309,66
-2016-09-05,Swargate Bus Stand,310,41
-2016-09-06,Swargate Bus Stand,311,75
-2016-09-07,Swargate Bus Stand,312,83
-2016-09-08,Swargate Bus Stand,313,81
-2016-09-09,Swargate Bus Stand,314,32
-2016-09-10,Swargate Bus Stand,315,62
-2016-09-11,Swargate Bus Stand,316,51
-2016-09-12,Swargate Bus Stand,317,10
-2016-09-13,Swargate Bus Stand,318,59
-2016-09-14,Swargate Bus Stand,319,34
-2016-09-15,Swargate Bus Stand,320,5
-2016-09-16,Swargate Bus Stand,321,43
-2016-09-17,Swargate Bus Stand,322,55
-2016-09-18,Swargate Bus Stand,323,66
-2016-09-19,Swargate Bus Stand,324,99
-2016-09-20,Swargate Bus Stand,325,35
-2016-09-21,Swargate Bus Stand,326,92
-2016-09-22,Swargate Bus Stand,327,26
-2016-09-23,Swargate Bus Stand,328,73
-2016-09-24,Swargate Bus Stand,329,97
-2016-09-25,Swargate Bus Stand,330,71
-2016-09-26,Swargate Bus Stand,331,5
-2016-09-27,Swargate Bus Stand,332,92
-2016-09-28,Swargate Bus Stand,333,43
-2016-09-29,Swargate Bus Stand,334,26
-2016-09-30,Swargate Bus Stand,335,96
-2016-10-01,Swargate Bus Stand,336,98
-2016-10-02,Swargate Bus Stand,337,40
-2016-10-03,Swargate Bus Stand,338,43
-2016-10-04,Swargate Bus Stand,339,44
-2016-10-05,Swargate Bus Stand,340,4
-2016-10-06,Swargate Bus Stand,341,35
-2016-10-07,Swargate Bus Stand,342,22
-2016-10-08,Swargate Bus Stand,343,9
-2016-10-09,Swargate Bus Stand,344,14
-2016-10-10,Swargate Bus Stand,345,62
-2016-10-11,Swargate Bus Stand,346,83
-2016-10-12,Swargate Bus Stand,347,28
-2016-10-13,Swargate Bus Stand,348,28
-2016-10-14,Swargate Bus Stand,349,47
-2016-10-15,Swargate Bus Stand,350,76
-2016-10-16,Swargate Bus Stand,351,91
-2016-10-17,Swargate Bus Stand,352,2
-2016-10-18,Swargate Bus Stand,353,60
-2016-10-19,Swargate Bus Stand,354,47
-2016-10-20,Swargate Bus Stand,355,1
-2016-10-21,Swargate Bus Stand,356,84
-2016-10-22,Swargate Bus Stand,357,82
-2016-10-23,Swargate Bus Stand,358,90
-2016-10-24,Swargate Bus Stand,359,48
-2016-10-25,Swargate Bus Stand,360,61
-2016-10-26,Swargate Bus Stand,361,44
-2016-10-27,Swargate Bus Stand,362,12
-2016-10-28,Swargate Bus Stand,363,11
-2016-10-29,Swargate Bus Stand,364,81
-2016-10-30,Swargate Bus Stand,365,43
-2016-10-31,Swargate Bus Stand,366,93
-2016-11-01,Swargate Bus Stand,367,25
-2016-11-02,Swargate Bus Stand,368,50
-2016-11-03,Swargate Bus Stand,369,33
-2016-11-04,Swargate Bus Stand,370,88
-2016-11-05,Swargate Bus Stand,371,66
-2016-11-06,Swargate Bus Stand,372,32
-2016-11-07,Swargate Bus Stand,373,95
-2016-11-08,Swargate Bus Stand,374,0
-2016-11-09,Swargate Bus Stand,375,41
-2016-11-10,Swargate Bus Stand,376,75
-2016-11-11,Swargate Bus Stand,377,35
-2016-11-12,Swargate Bus Stand,378,71
-2016-11-13,Swargate Bus Stand,379,12
-2016-11-14,Swargate Bus Stand,380,50
-2016-11-15,Swargate Bus Stand,381,62
-2016-11-16,Swargate Bus Stand,382,33
-2016-11-17,Swargate Bus Stand,383,61
-2016-11-18,Swargate Bus Stand,384,63
-2016-11-19,Swargate Bus Stand,385,88
-2016-11-20,Swargate Bus Stand,386,96
-2016-11-21,Swargate Bus Stand,387,13
-2016-11-22,Swargate Bus Stand,388,44
-2016-11-23,Swargate Bus Stand,389,19
-2016-11-24,Swargate Bus Stand,390,79
-2016-11-25,Swargate Bus Stand,391,45
-2016-11-26,Swargate Bus Stand,392,48
-2016-11-27,Swargate Bus Stand,393,59
-2016-11-28,Swargate Bus Stand,394,21
-2016-11-29,Swargate Bus Stand,395,22
-2016-11-30,Swargate Bus Stand,396,67
-2016-12-01,Swargate Bus Stand,397,2
-2016-12-02,Swargate Bus Stand,398,3
-2016-12-03,Swargate Bus Stand,399,47
-2016-12-04,Swargate Bus Stand,400,78
-2016-12-05,Swargate Bus Stand,401,44
-2016-12-06,Swargate Bus Stand,402,70
-2016-12-07,Swargate Bus Stand,403,48
-2016-12-08,Swargate Bus Stand,404,37
-2016-12-09,Swargate Bus Stand,405,7
-2016-12-10,Swargate Bus Stand,406,93
-2016-12-11,Swargate Bus Stand,407,61
-2016-12-12,Swargate Bus Stand,408,96
-2016-12-13,Swargate Bus Stand,409,46
-2016-12-14,Swargate Bus Stand,410,97
-2016-12-15,Swargate Bus Stand,411,42
-2016-12-16,Swargate Bus Stand,412,77
-2016-12-17,Swargate Bus Stand,413,24
-2016-12-18,Swargate Bus Stand,414,71
-2016-12-19,Swargate Bus Stand,415,1
-2016-12-20,Swargate Bus Stand,416,10
-2016-12-21,Swargate Bus Stand,417,0
-2016-12-22,Swargate Bus Stand,418,97
-2016-12-23,Swargate Bus Stand,419,14
-2016-12-24,Swargate Bus Stand,420,50
-2016-12-25,Swargate Bus Stand,421,31
-2016-12-26,Swargate Bus Stand,422,51
-2016-12-27,Swargate Bus Stand,423,15
-2016-12-28,Swargate Bus Stand,424,61
-2016-12-29,Swargate Bus Stand,425,62
-2016-12-30,Swargate Bus Stand,426,40
-2016-12-31,Swargate Bus Stand,427,88
-2017-01-01,Swargate Bus Stand,428,64
-2017-01-02,Swargate Bus Stand,429,27
-2017-01-03,Swargate Bus Stand,430,15
-2017-01-04,Swargate Bus Stand,431,1
-2017-01-05,Swargate Bus Stand,432,5
-2017-01-06,Swargate Bus Stand,433,34
-2017-01-07,Swargate Bus Stand,434,38
-2017-01-08,Swargate Bus Stand,435,83
-2017-01-09,Swargate Bus Stand,436,72
-2017-01-10,Swargate Bus Stand,437,41
-2017-01-11,Swargate Bus Stand,438,19
-2017-01-12,Swargate Bus Stand,439,97
-2017-01-13,Swargate Bus Stand,440,7
-2017-01-14,Swargate Bus Stand,441,9
-2017-01-15,Swargate Bus Stand,442,24
-2017-01-16,Swargate Bus Stand,443,19
-2017-01-17,Swargate Bus Stand,444,26
-2017-01-18,Swargate Bus Stand,445,35
-2017-01-19,Swargate Bus Stand,446,47
-2017-01-20,Swargate Bus Stand,447,20
-2017-01-21,Swargate Bus Stand,448,5
-2017-01-22,Swargate Bus Stand,449,77
-2017-01-23,Swargate Bus Stand,450,36
-2017-01-24,Swargate Bus Stand,451,42
-2017-01-25,Swargate Bus Stand,452,77
-2017-01-26,Swargate Bus Stand,453,96
-2017-01-27,Swargate Bus Stand,454,99
-2017-01-28,Swargate Bus Stand,455,99
-2017-01-29,Swargate Bus Stand,456,71
-2017-01-30,Swargate Bus Stand,457,79
-2017-01-31,Swargate Bus Stand,458,36
-2017-02-01,Swargate Bus Stand,459,44
-2017-02-02,Swargate Bus Stand,460,6
-2017-02-03,Swargate Bus Stand,461,60
-2017-02-04,Swargate Bus Stand,462,11
-2017-02-05,Swargate Bus Stand,463,27
-2017-02-06,Swargate Bus Stand,464,94
-2017-02-07,Swargate Bus Stand,465,13
-2017-02-08,Swargate Bus Stand,466,2
-2017-02-09,Swargate Bus Stand,467,25
-2017-02-10,Swargate Bus Stand,468,56
-2017-02-11,Swargate Bus Stand,469,28
-2017-02-12,Swargate Bus Stand,470,58
-2017-02-13,Swargate Bus Stand,471,57
-2017-02-14,Swargate Bus Stand,472,50
-2017-02-15,Swargate Bus Stand,473,44
-2017-02-16,Swargate Bus Stand,474,38
-2017-02-17,Swargate Bus Stand,475,21
-2017-02-18,Swargate Bus Stand,476,67
-2017-02-19,Swargate Bus Stand,477,49
-2017-02-20,Swargate Bus Stand,478,13
-2017-02-21,Swargate Bus Stand,479,27
-2017-02-22,Swargate Bus Stand,480,94
-2017-02-23,Swargate Bus Stand,481,74
-2017-02-24,Swargate Bus Stand,482,6
-2017-02-25,Swargate Bus Stand,483,42
-2017-02-26,Swargate Bus Stand,484,68
-2017-02-27,Swargate Bus Stand,485,0
-2017-02-28,Swargate Bus Stand,486,44
-2017-03-01,Swargate Bus Stand,487,0
-2017-03-02,Swargate Bus Stand,488,48
-2017-03-03,Swargate Bus Stand,489,23
-2017-03-04,Swargate Bus Stand,490,0
-2017-03-05,Swargate Bus Stand,491,27
-2017-03-06,Swargate Bus Stand,492,29
-2017-03-07,Swargate Bus Stand,493,54
-2017-03-08,Swargate Bus Stand,494,58
-2017-03-09,Swargate Bus Stand,495,43
-2017-03-10,Swargate Bus Stand,496,75
-2017-03-11,Swargate Bus Stand,497,15
-2017-03-12,Swargate Bus Stand,498,75
-2017-03-13,Swargate Bus Stand,499,6
-2017-03-14,Swargate Bus Stand,500,22
-2017-03-15,Swargate Bus Stand,501,98
-2017-03-16,Swargate Bus Stand,502,13
-2017-03-17,Swargate Bus Stand,503,12
-2017-03-18,Swargate Bus Stand,504,76
-2017-03-19,Swargate Bus Stand,505,95
-2017-03-20,Swargate Bus Stand,506,1
-2017-03-21,Swargate Bus Stand,507,48
-2017-03-22,Swargate Bus Stand,508,48
-2017-03-23,Swargate Bus Stand,509,36
-2017-03-24,Swargate Bus Stand,510,3
-2017-03-25,Swargate Bus Stand,511,76
-2017-03-26,Swargate Bus Stand,512,38
-2017-03-27,Swargate Bus Stand,513,18
-2017-03-28,Swargate Bus Stand,514,85
-2017-03-29,Swargate Bus Stand,515,4
-2017-03-30,Swargate Bus Stand,516,62
-2017-03-31,Swargate Bus Stand,517,5
-2017-04-01,Swargate Bus Stand,518,95
-2017-04-02,Swargate Bus Stand,519,67
-2017-04-03,Swargate Bus Stand,520,6
-2017-04-04,Swargate Bus Stand,521,82
-2017-04-05,Swargate Bus Stand,522,40
-2017-04-06,Swargate Bus Stand,523,87
-2017-04-07,Swargate Bus Stand,524,93
-2017-04-08,Swargate Bus Stand,525,50
-2017-04-09,Swargate Bus Stand,526,43
-2017-04-10,Swargate Bus Stand,527,49
-2017-04-11,Swargate Bus Stand,528,52
-2017-04-12,Swargate Bus Stand,529,26
-2017-04-13,Swargate Bus Stand,530,52
-2017-04-14,Swargate Bus Stand,531,61
-2017-04-15,Swargate Bus Stand,532,59
-2017-04-16,Swargate Bus Stand,533,51
-2017-04-17,Swargate Bus Stand,534,83
-2017-04-18,Swargate Bus Stand,535,17
-2017-04-19,Swargate Bus Stand,536,71
-2017-04-20,Swargate Bus Stand,537,4
-2017-04-21,Swargate Bus Stand,538,2
-2017-04-22,Swargate Bus Stand,539,11
-2017-04-23,Swargate Bus Stand,540,29
-2017-04-24,Swargate Bus Stand,541,15
-2017-04-25,Swargate Bus Stand,542,91
-2017-04-26,Swargate Bus Stand,543,68
-2017-04-27,Swargate Bus Stand,544,70
-2017-04-28,Swargate Bus Stand,545,20
-2017-04-29,Swargate Bus Stand,546,44
-2017-04-30,Swargate Bus Stand,547,49
-2017-05-01,Swargate Bus Stand,548,92
-2017-05-02,Swargate Bus Stand,549,3
-2017-05-03,Swargate Bus Stand,550,87
-2017-05-04,Swargate Bus Stand,551,86
-2017-05-05,Swargate Bus Stand,552,30
-2017-05-06,Swargate Bus Stand,553,22
-2017-05-07,Swargate Bus Stand,554,2
-2017-05-08,Swargate Bus Stand,555,37
-2017-05-09,Swargate Bus Stand,556,2
-2017-05-10,Swargate Bus Stand,557,47
-2017-05-11,Swargate Bus Stand,558,88
-2017-05-12,Swargate Bus Stand,559,32
-2017-05-13,Swargate Bus Stand,560,74
-2017-05-14,Swargate Bus Stand,561,27
-2017-05-15,Swargate Bus Stand,562,27
-2017-05-16,Swargate Bus Stand,563,70
-2017-05-17,Swargate Bus Stand,564,37
-2017-05-18,Swargate Bus Stand,565,80
-2017-05-19,Swargate Bus Stand,566,16
-2017-05-20,Swargate Bus Stand,567,90
-2017-05-21,Swargate Bus Stand,568,8
-2017-05-22,Swargate Bus Stand,569,10
-2017-05-23,Swargate Bus Stand,570,85
-2017-05-24,Swargate Bus Stand,571,54
-2017-05-25,Swargate Bus Stand,572,29
-2017-05-26,Swargate Bus Stand,573,14
-2017-05-27,Swargate Bus Stand,574,8
-2017-05-28,Swargate Bus Stand,575,51
-2017-05-29,Swargate Bus Stand,576,72
-2017-05-30,Swargate Bus Stand,577,80
-2017-05-31,Swargate Bus Stand,578,75
-2017-06-01,Swargate Bus Stand,579,57
-2017-06-02,Swargate Bus Stand,580,84
-2017-06-03,Swargate Bus Stand,581,48
-2017-06-04,Swargate Bus Stand,582,98
-2017-06-05,Swargate Bus Stand,583,92
-2017-06-06,Swargate Bus Stand,584,39
-2017-06-07,Swargate Bus Stand,585,54
-2017-06-08,Swargate Bus Stand,586,16
-2017-06-09,Swargate Bus Stand,587,14
-2017-06-10,Swargate Bus Stand,588,83
-2017-06-11,Swargate Bus Stand,589,91
-2017-06-12,Swargate Bus Stand,590,70
-2017-06-13,Swargate Bus Stand,591,17
-2017-06-14,Swargate Bus Stand,592,12
-2017-06-15,Swargate Bus Stand,593,57
-2017-06-16,Swargate Bus Stand,594,42
-2017-06-17,Swargate Bus Stand,595,28
-2017-06-18,Swargate Bus Stand,596,85
-2017-06-19,Swargate Bus Stand,597,12
-2017-06-20,Swargate Bus Stand,598,80
-2017-06-21,Swargate Bus Stand,599,90
-2017-06-22,Swargate Bus Stand,600,61
-2017-06-23,Swargate Bus Stand,601,76
-2017-06-24,Swargate Bus Stand,602,66
-2017-06-25,Swargate Bus Stand,603,31
-2017-06-26,Swargate Bus Stand,604,1
-2017-06-27,Swargate Bus Stand,605,29
-2017-06-28,Swargate Bus Stand,606,92
-2017-06-29,Swargate Bus Stand,607,38
-2015-11-01,Vidya Nagar,1,49
-2015-11-02,Vidya Nagar,5,61
-2015-11-03,Vidya Nagar,5,45
-2015-11-04,Vidya Nagar,6,92
-2015-11-05,Vidya Nagar,12,30
-2015-11-06,Vidya Nagar,6,82
-2015-11-07,Vidya Nagar,4,42
-2015-11-08,Vidya Nagar,8,19
-2015-11-09,Vidya Nagar,6,6
-2015-11-10,Vidya Nagar,8,67
-2015-11-11,Vidya Nagar,9,49
-2015-11-12,Vidya Nagar,6,92
-2015-11-13,Vidya Nagar,5,17
-2015-11-14,Vidya Nagar,7,83
-2015-11-15,Vidya Nagar,3,0
-2015-11-16,Vidya Nagar,7,16
-2015-11-17,Vidya Nagar,7,34
-2015-11-18,Vidya Nagar,7,84
-2015-11-19,Vidya Nagar,5,24
-2015-11-20,Vidya Nagar,3,5
-2015-11-21,Vidya Nagar,8,41
-2015-11-22,Vidya Nagar,5,99
-2015-11-23,Vidya Nagar,5,92
-2015-11-24,Vidya Nagar,5,69
-2015-11-25,Vidya Nagar,9,82
-2015-11-26,Vidya Nagar,3,75
-2015-11-27,Vidya Nagar,5,25
-2015-11-28,Vidya Nagar,5,73
-2015-11-29,Vidya Nagar,4,20
-2015-11-30,Vidya Nagar,6,56
-2015-12-01,Vidya Nagar,4,64
-2015-12-02,Vidya Nagar,3,94
-2015-12-03,Vidya Nagar,7,18
-2015-12-04,Vidya Nagar,6,26
-2015-12-05,Vidya Nagar,6,55
-2015-12-06,Vidya Nagar,7,18
-2015-12-07,Vidya Nagar,8,72
-2015-12-08,Vidya Nagar,10,20
-2015-12-09,Vidya Nagar,8,95
-2015-12-10,Vidya Nagar,6,21
-2015-12-11,Vidya Nagar,10,75
-2015-12-12,Vidya Nagar,7,43
-2015-12-13,Vidya Nagar,7,82
-2015-12-14,Vidya Nagar,5,85
-2015-12-15,Vidya Nagar,5,49
-2015-12-16,Vidya Nagar,4,15
-2015-12-17,Vidya Nagar,9,18
-2015-12-18,Vidya Nagar,7,56
-2015-12-19,Vidya Nagar,7,11
-2015-12-20,Vidya Nagar,6,19
-2015-12-21,Vidya Nagar,5,97
-2015-12-22,Vidya Nagar,9,5
-2015-12-23,Vidya Nagar,7,58
-2015-12-24,Vidya Nagar,7,26
-2015-12-25,Vidya Nagar,8,87
-2015-12-26,Vidya Nagar,9,49
-2015-12-27,Vidya Nagar,8,42
-2015-12-28,Vidya Nagar,3,97
-2015-12-29,Vidya Nagar,6,30
-2015-12-30,Vidya Nagar,5,10
-2015-12-31,Vidya Nagar,7,59
-2016-01-01,Vidya Nagar,6,48
-2016-01-02,Vidya Nagar,6,17
-2016-01-03,Vidya Nagar,11,47
-2016-01-04,Vidya Nagar,6,67
-2016-01-05,Vidya Nagar,6,11
-2016-01-06,Vidya Nagar,8,16
-2016-01-07,Vidya Nagar,5,64
-2016-01-08,Vidya Nagar,4,2
-2016-01-09,Vidya Nagar,6,6
-2016-01-10,Vidya Nagar,8,39
-2016-01-11,Vidya Nagar,7,69
-2016-01-12,Vidya Nagar,3,40
-2016-01-13,Vidya Nagar,6,52
-2016-01-14,Vidya Nagar,5,17
-2016-01-15,Vidya Nagar,5,40
-2016-01-16,Vidya Nagar,5,72
-2016-01-17,Vidya Nagar,6,41
-2016-01-18,Vidya Nagar,7,26
-2016-01-19,Vidya Nagar,7,83
-2016-01-20,Vidya Nagar,3,4
-2016-01-21,Vidya Nagar,5,69
-2016-01-22,Vidya Nagar,6,73
-2016-01-23,Vidya Nagar,4,85
-2016-01-24,Vidya Nagar,4,2
-2016-01-25,Vidya Nagar,3,95
-2016-01-26,Vidya Nagar,5,34
-2016-01-27,Vidya Nagar,4,78
-2016-01-28,Vidya Nagar,7,98
-2016-01-29,Vidya Nagar,2,4
-2016-01-30,Vidya Nagar,5,65
-2016-01-31,Vidya Nagar,6,55
-2016-02-01,Vidya Nagar,5,74
-2016-02-02,Vidya Nagar,4,97
-2016-02-03,Vidya Nagar,6,17
-2016-02-04,Vidya Nagar,7,93
-2016-02-05,Vidya Nagar,8,45
-2016-02-06,Vidya Nagar,4,95
-2016-02-07,Vidya Nagar,5,31
-2016-02-08,Vidya Nagar,4,6
-2016-02-09,Vidya Nagar,6,95
-2016-02-10,Vidya Nagar,4,86
-2016-02-11,Vidya Nagar,5,46
-2016-02-12,Vidya Nagar,4,34
-2016-02-13,Vidya Nagar,3,72
-2016-02-14,Vidya Nagar,2,35
-2016-02-15,Vidya Nagar,6,51
-2016-02-16,Vidya Nagar,6,66
-2016-02-17,Vidya Nagar,4,93
-2016-02-18,Vidya Nagar,8,33
-2016-02-19,Vidya Nagar,2,8
-2016-02-20,Vidya Nagar,7,48
-2016-02-21,Vidya Nagar,3,32
-2016-02-22,Vidya Nagar,3,49
-2016-02-23,Vidya Nagar,4,18
-2016-02-24,Vidya Nagar,4,27
-2016-02-25,Vidya Nagar,7,37
-2016-02-26,Vidya Nagar,7,60
-2016-02-27,Vidya Nagar,7,20
-2016-02-28,Vidya Nagar,6,67
-2016-02-29,Vidya Nagar,5,30
-2016-03-01,Vidya Nagar,4,82
-2016-03-02,Vidya Nagar,7,31
-2016-03-03,Vidya Nagar,3,99
-2016-03-04,Vidya Nagar,6,41
-2016-03-05,Vidya Nagar,5,41
-2016-03-06,Vidya Nagar,7,15
-2016-03-07,Vidya Nagar,7,15
-2016-03-08,Vidya Nagar,6,64
-2016-03-09,Vidya Nagar,5,47
-2016-03-10,Vidya Nagar,6,41
-2016-03-11,Vidya Nagar,7,97
-2016-03-12,Vidya Nagar,3,33
-2016-03-13,Vidya Nagar,3,16
-2016-03-14,Vidya Nagar,5,65
-2016-03-15,Vidya Nagar,3,40
-2016-03-16,Vidya Nagar,2,89
-2016-03-17,Vidya Nagar,5,73
-2016-03-18,Vidya Nagar,3,88
-2016-03-19,Vidya Nagar,4,12
-2016-03-20,Vidya Nagar,8,89
-2016-03-21,Vidya Nagar,6,45
-2016-03-22,Vidya Nagar,4,4
-2016-03-23,Vidya Nagar,3,83
-2016-03-24,Vidya Nagar,3,95
-2016-03-25,Vidya Nagar,5,83
-2016-03-26,Vidya Nagar,4,72
-2016-03-27,Vidya Nagar,4,76
-2016-03-28,Vidya Nagar,4,81
-2016-03-29,Vidya Nagar,5,81
-2016-03-30,Vidya Nagar,5,70
-2016-03-31,Vidya Nagar,8,34
-2016-04-01,Vidya Nagar,5,61
-2016-04-02,Vidya Nagar,9,41
-2016-04-03,Vidya Nagar,6,56
-2016-04-04,Vidya Nagar,4,78
-2016-04-05,Vidya Nagar,9,39
-2016-04-06,Vidya Nagar,7,4
-2016-04-07,Vidya Nagar,8,83
-2016-04-08,Vidya Nagar,6,95
-2016-04-09,Vidya Nagar,8,90
-2016-04-10,Vidya Nagar,5,45
-2016-04-11,Vidya Nagar,5,48
-2016-04-12,Vidya Nagar,9,73
-2016-04-13,Vidya Nagar,6,51
-2016-04-14,Vidya Nagar,4,31
-2016-04-15,Vidya Nagar,2,50
-2016-04-16,Vidya Nagar,6,54
-2016-04-17,Vidya Nagar,8,36
-2016-04-18,Vidya Nagar,3,37
-2016-04-19,Vidya Nagar,4,31
-2016-04-20,Vidya Nagar,6,89
-2016-04-21,Vidya Nagar,8,98
-2016-04-22,Vidya Nagar,2,61
-2016-04-23,Vidya Nagar,5,12
-2016-04-24,Vidya Nagar,5,67
-2016-04-25,Vidya Nagar,6,50
-2016-04-26,Vidya Nagar,5,3
-2016-04-27,Vidya Nagar,9,50
-2016-04-28,Vidya Nagar,11,65
+2015-11-01,Swargate Bus Stand,7,69
+2015-11-02,Swargate Bus Stand,3,62
+2015-11-03,Swargate Bus Stand,4,99
+2015-11-04,Swargate Bus Stand,6,85
+2015-11-05,Swargate Bus Stand,3,46
+2015-11-06,Swargate Bus Stand,3,45
+2015-11-07,Swargate Bus Stand,6,49
+2015-11-08,Swargate Bus Stand,6,14
+2015-11-09,Swargate Bus Stand,5,16
+2015-11-10,Swargate Bus Stand,6,88
+2015-11-11,Swargate Bus Stand,5,15
+2015-11-12,Swargate Bus Stand,5,89
+2015-11-13,Swargate Bus Stand,3,93
+2015-11-14,Swargate Bus Stand,4,88
+2015-11-15,Swargate Bus Stand,4,53
+2015-11-16,Swargate Bus Stand,5,38
+2015-11-17,Swargate Bus Stand,11,27
+2015-11-18,Swargate Bus Stand,6,4
+2015-11-19,Swargate Bus Stand,11,99
+2015-11-20,Swargate Bus Stand,18,27
+2015-11-21,Swargate Bus Stand,8,88
+2015-11-22,Swargate Bus Stand,7,18
+2015-11-23,Swargate Bus Stand,6,32
+2015-11-24,Swargate Bus Stand,5,14
+2015-11-25,Swargate Bus Stand,4,17
+2015-11-26,Swargate Bus Stand,2,96
+2015-11-27,Swargate Bus Stand,6,0
+2015-11-28,Swargate Bus Stand,3,35
+2015-11-29,Swargate Bus Stand,5,13
+2015-11-30,Swargate Bus Stand,2,92
+2015-12-01,Swargate Bus Stand,3,55
+2015-12-02,Swargate Bus Stand,6,49
+2015-12-03,Swargate Bus Stand,2,10
+2015-12-04,Swargate Bus Stand,6,66
+2015-12-05,Swargate Bus Stand,3,0
+2015-12-06,Swargate Bus Stand,2,28
+2015-12-07,Swargate Bus Stand,3,23
+2015-12-08,Swargate Bus Stand,5,45
+2015-12-09,Swargate Bus Stand,4,97
+2015-12-10,Swargate Bus Stand,1,3
+2015-12-11,Swargate Bus Stand,4,58
+2015-12-12,Swargate Bus Stand,6,82
+2015-12-13,Swargate Bus Stand,2,1
+2015-12-14,Swargate Bus Stand,2,33
+2015-12-15,Swargate Bus Stand,5,93
+2015-12-16,Swargate Bus Stand,3,42
+2015-12-17,Swargate Bus Stand,5,21
+2015-12-18,Swargate Bus Stand,5,33
+2015-12-19,Swargate Bus Stand,5,71
+2015-12-20,Swargate Bus Stand,3,8
+2015-12-21,Swargate Bus Stand,5,37
+2015-12-22,Swargate Bus Stand,1,73
+2015-12-23,Swargate Bus Stand,3,84
+2015-12-24,Swargate Bus Stand,4,70
+2015-12-25,Swargate Bus Stand,1,5
+2015-12-26,Swargate Bus Stand,4,12
+2015-12-27,Swargate Bus Stand,4,27
+2015-12-28,Swargate Bus Stand,3,69
+2015-12-29,Swargate Bus Stand,3,12
+2015-12-30,Swargate Bus Stand,5,58
+2015-12-31,Swargate Bus Stand,4,26
+2016-01-01,Swargate Bus Stand,5,52
+2016-01-02,Swargate Bus Stand,5,10
+2016-01-03,Swargate Bus Stand,3,24
+2016-01-04,Swargate Bus Stand,4,41
+2016-01-05,Swargate Bus Stand,3,90
+2016-01-06,Swargate Bus Stand,4,84
+2016-01-07,Swargate Bus Stand,6,79
+2016-01-08,Swargate Bus Stand,4,1
+2016-01-09,Swargate Bus Stand,2,47
+2016-01-10,Swargate Bus Stand,3,76
+2016-01-11,Swargate Bus Stand,2,35
+2016-01-12,Swargate Bus Stand,5,13
+2016-01-13,Swargate Bus Stand,6,83
+2016-01-14,Swargate Bus Stand,5,94
+2016-01-15,Swargate Bus Stand,5,27
+2016-01-16,Swargate Bus Stand,4,83
+2016-01-17,Swargate Bus Stand,6,16
+2016-01-18,Swargate Bus Stand,3,28
+2016-01-19,Swargate Bus Stand,5,51
+2016-01-20,Swargate Bus Stand,8,40
+2016-01-21,Swargate Bus Stand,6,77
+2016-01-22,Swargate Bus Stand,6,2
+2016-01-23,Swargate Bus Stand,9,32
+2016-01-24,Swargate Bus Stand,5,10
+2016-01-25,Swargate Bus Stand,5,68
+2016-01-26,Swargate Bus Stand,10,94
+2016-01-27,Swargate Bus Stand,8,90
+2016-01-28,Swargate Bus Stand,8,69
+2016-01-29,Swargate Bus Stand,22,52
+2016-01-30,Swargate Bus Stand,15,33
+2016-01-31,Swargate Bus Stand,21,21
+2016-02-01,Swargate Bus Stand,11,32
+2016-02-02,Swargate Bus Stand,7,57
+2016-02-03,Swargate Bus Stand,7,3
+2016-02-04,Swargate Bus Stand,7,62
+2016-02-05,Swargate Bus Stand,7,91
+2016-02-06,Swargate Bus Stand,7,74
+2016-02-07,Swargate Bus Stand,12,92
+2016-02-08,Swargate Bus Stand,7,22
+2016-02-09,Swargate Bus Stand,3,33
+2016-02-10,Swargate Bus Stand,8,16
+2016-02-11,Swargate Bus Stand,6,76
+2016-02-12,Swargate Bus Stand,7,3
+2016-02-13,Swargate Bus Stand,7,48
+2016-02-14,Swargate Bus Stand,4,42
+2016-02-15,Swargate Bus Stand,4,63
+2016-02-16,Swargate Bus Stand,6,9
+2016-02-17,Swargate Bus Stand,6,82
+2016-02-18,Swargate Bus Stand,6,61
+2016-02-19,Swargate Bus Stand,8,64
+2016-02-20,Swargate Bus Stand,3,98
+2016-02-21,Swargate Bus Stand,6,95
+2016-02-22,Swargate Bus Stand,8,72
+2016-02-23,Swargate Bus Stand,9,41
+2016-02-24,Swargate Bus Stand,7,86
+2016-02-25,Swargate Bus Stand,10,20
+2016-02-26,Swargate Bus Stand,23,86
+2016-02-27,Swargate Bus Stand,13,5
+2016-02-28,Swargate Bus Stand,18,6
+2016-02-29,Swargate Bus Stand,12,64
+2016-03-01,Swargate Bus Stand,10,2
+2016-03-02,Swargate Bus Stand,13,13
+2016-03-03,Swargate Bus Stand,9,51
+2016-03-04,Swargate Bus Stand,15,24
+2016-03-05,Swargate Bus Stand,12,81
+2016-03-06,Swargate Bus Stand,14,70
+2016-03-07,Swargate Bus Stand,7,36
+2016-03-08,Swargate Bus Stand,10,75
+2016-03-09,Swargate Bus Stand,9,37
+2016-03-10,Swargate Bus Stand,8,23
+2016-03-11,Swargate Bus Stand,10,96
+2016-03-12,Swargate Bus Stand,11,82
+2016-03-13,Swargate Bus Stand,10,64
+2016-03-14,Swargate Bus Stand,5,15
+2016-03-15,Swargate Bus Stand,8,7
+2016-03-16,Swargate Bus Stand,6,91
+2016-03-17,Swargate Bus Stand,6,38
+2016-03-18,Swargate Bus Stand,3,19
+2016-03-19,Swargate Bus Stand,7,49
+2016-03-20,Swargate Bus Stand,6,93
+2016-03-21,Swargate Bus Stand,10,71
+2016-03-22,Swargate Bus Stand,5,55
+2016-03-23,Swargate Bus Stand,6,84
+2016-03-24,Swargate Bus Stand,6,0
+2016-03-25,Swargate Bus Stand,5,88
+2016-03-26,Swargate Bus Stand,6,56
+2016-03-27,Swargate Bus Stand,4,78
+2016-03-28,Swargate Bus Stand,7,22
+2016-03-29,Swargate Bus Stand,7,33
+2016-03-30,Swargate Bus Stand,5,23
+2016-03-31,Swargate Bus Stand,7,51
+2016-04-01,Swargate Bus Stand,6,88
+2016-04-02,Swargate Bus Stand,8,45
+2016-04-03,Swargate Bus Stand,7,37
+2016-04-04,Swargate Bus Stand,4,57
+2016-04-05,Swargate Bus Stand,6,47
+2016-04-06,Swargate Bus Stand,8,92
+2016-04-07,Swargate Bus Stand,5,1
+2016-04-08,Swargate Bus Stand,8,69
+2016-04-09,Swargate Bus Stand,6,25
+2016-04-10,Swargate Bus Stand,9,42
+2016-04-11,Swargate Bus Stand,8,51
+2016-04-12,Swargate Bus Stand,10,52
+2016-04-13,Swargate Bus Stand,13,65
+2016-04-14,Swargate Bus Stand,6,86
+2016-04-15,Swargate Bus Stand,8,9
+2016-04-16,Swargate Bus Stand,9,2
+2016-04-17,Swargate Bus Stand,6,60
+2016-04-18,Swargate Bus Stand,9,3
+2016-04-19,Swargate Bus Stand,10,5
+2016-04-20,Swargate Bus Stand,20,26
+2016-04-21,Swargate Bus Stand,11,82
+2016-04-22,Swargate Bus Stand,11,17
+2016-04-23,Swargate Bus Stand,20,11
+2016-04-24,Swargate Bus Stand,24,60
+2016-04-25,Swargate Bus Stand,17,74
+2016-04-26,Swargate Bus Stand,7,4
+2016-04-27,Swargate Bus Stand,12,76
+2016-04-28,Swargate Bus Stand,10,44
+2016-04-29,Swargate Bus Stand,23,53
+2016-04-30,Swargate Bus Stand,13,52
+2016-05-01,Swargate Bus Stand,20,54
+2016-05-02,Swargate Bus Stand,11,14
+2016-05-03,Swargate Bus Stand,8,79
+2016-05-04,Swargate Bus Stand,8,66
+2016-05-05,Swargate Bus Stand,10,75
+2016-05-06,Swargate Bus Stand,8,61
+2016-05-07,Swargate Bus Stand,6,47
+2016-05-08,Swargate Bus Stand,7,7
+2016-05-09,Swargate Bus Stand,5,20
+2016-05-10,Swargate Bus Stand,6,34
+2016-05-11,Swargate Bus Stand,9,6
+2016-05-12,Swargate Bus Stand,7,9
+2016-05-13,Swargate Bus Stand,5,63
+2016-05-14,Swargate Bus Stand,7,93
+2016-05-15,Swargate Bus Stand,6,5
+2016-05-16,Swargate Bus Stand,6,60
+2016-05-17,Swargate Bus Stand,7,52
+2016-05-18,Swargate Bus Stand,7,62
+2016-05-19,Swargate Bus Stand,9,70
+2016-05-20,Swargate Bus Stand,10,58
+2016-05-21,Swargate Bus Stand,8,41
+2016-05-22,Swargate Bus Stand,11,24
+2016-05-23,Swargate Bus Stand,5,32
+2016-05-24,Swargate Bus Stand,5,88
+2016-05-25,Swargate Bus Stand,10,54
+2016-05-26,Swargate Bus Stand,7,96
+2016-05-27,Swargate Bus Stand,9,80
+2016-05-28,Swargate Bus Stand,9,29
+2016-05-29,Swargate Bus Stand,8,26
+2016-05-30,Swargate Bus Stand,8,24
+2016-05-31,Swargate Bus Stand,9,34
+2016-06-01,Swargate Bus Stand,8,21
+2016-06-02,Swargate Bus Stand,6,17
+2016-06-03,Swargate Bus Stand,5,47
+2016-06-04,Swargate Bus Stand,5,67
+2016-06-05,Swargate Bus Stand,6,31
+2016-06-06,Swargate Bus Stand,3,91
+2016-06-07,Swargate Bus Stand,7,76
+2016-06-08,Swargate Bus Stand,8,87
+2016-06-09,Swargate Bus Stand,5,93
+2016-06-10,Swargate Bus Stand,5,42
+2016-06-11,Swargate Bus Stand,5,28
+2016-06-12,Swargate Bus Stand,8,90
+2016-06-13,Swargate Bus Stand,3,91
+2016-06-14,Swargate Bus Stand,5,76
+2016-06-15,Swargate Bus Stand,6,35
+2016-06-16,Swargate Bus Stand,6,14
+2016-06-17,Swargate Bus Stand,11,17
+2016-06-18,Swargate Bus Stand,7,64
+2016-06-19,Swargate Bus Stand,6,73
+2016-06-20,Swargate Bus Stand,3,76
+2016-06-21,Swargate Bus Stand,5,44
+2016-06-22,Swargate Bus Stand,6,40
+2016-06-23,Swargate Bus Stand,8,72
+2016-06-24,Swargate Bus Stand,6,51
+2016-06-25,Swargate Bus Stand,3,50
+2016-06-26,Swargate Bus Stand,7,73
+2016-06-27,Swargate Bus Stand,6,94
+2016-06-28,Swargate Bus Stand,5,5
+2016-06-29,Swargate Bus Stand,7,67
+2016-06-30,Swargate Bus Stand,7,89
+2016-07-01,Swargate Bus Stand,9,77
+2016-07-02,Swargate Bus Stand,7,53
+2016-07-03,Swargate Bus Stand,5,72
+2016-07-04,Swargate Bus Stand,8,62
+2016-07-05,Swargate Bus Stand,6,27
+2016-07-06,Swargate Bus Stand,11,23
+2016-07-07,Swargate Bus Stand,5,52
+2016-07-08,Swargate Bus Stand,4,93
+2016-07-09,Swargate Bus Stand,4,73
+2016-07-10,Swargate Bus Stand,6,44
+2016-07-11,Swargate Bus Stand,7,89
+2016-07-12,Swargate Bus Stand,8,20
+2016-07-13,Swargate Bus Stand,9,67
+2016-07-14,Swargate Bus Stand,9,7
+2016-07-15,Swargate Bus Stand,15,47
+2016-07-16,Swargate Bus Stand,22,10
+2016-07-17,Swargate Bus Stand,20,59
+2016-07-18,Swargate Bus Stand,9,86
+2016-07-19,Swargate Bus Stand,10,24
+2016-07-20,Swargate Bus Stand,14,63
+2016-07-21,Swargate Bus Stand,9,5
+2016-07-22,Swargate Bus Stand,17,95
+2016-07-23,Swargate Bus Stand,51,26
+2016-07-24,Swargate Bus Stand,25,88
+2016-07-25,Swargate Bus Stand,20,57
+2016-07-26,Swargate Bus Stand,11,79
+2016-07-27,Swargate Bus Stand,7,34
+2016-07-28,Swargate Bus Stand,10,56
+2016-07-29,Swargate Bus Stand,9,55
+2016-07-30,Swargate Bus Stand,7,77
+2016-07-31,Swargate Bus Stand,9,6
+2016-08-01,Swargate Bus Stand,10,78
+2016-08-02,Swargate Bus Stand,11,80
+2016-08-03,Swargate Bus Stand,12,6
+2016-08-04,Swargate Bus Stand,6,20
+2016-08-05,Swargate Bus Stand,5,78
+2016-08-06,Swargate Bus Stand,10,94
+2016-08-07,Swargate Bus Stand,6,28
+2016-08-08,Swargate Bus Stand,7,34
+2016-08-09,Swargate Bus Stand,7,76
+2016-08-10,Swargate Bus Stand,11,39
+2016-08-11,Swargate Bus Stand,14,81
+2016-08-12,Swargate Bus Stand,15,86
+2016-08-13,Swargate Bus Stand,13,70
+2016-08-14,Swargate Bus Stand,9,35
+2016-08-15,Swargate Bus Stand,9,76
+2016-08-16,Swargate Bus Stand,8,2
+2016-08-17,Swargate Bus Stand,5,40
+2016-08-18,Swargate Bus Stand,8,91
+2016-08-19,Swargate Bus Stand,10,34
+2016-08-20,Swargate Bus Stand,5,37
+2016-08-21,Swargate Bus Stand,9,22
+2016-08-22,Swargate Bus Stand,5,72
+2016-08-23,Swargate Bus Stand,12,85
+2016-08-24,Swargate Bus Stand,9,61
+2016-08-25,Swargate Bus Stand,10,98
+2016-08-26,Swargate Bus Stand,12,27
+2016-08-27,Swargate Bus Stand,6,35
+2016-08-28,Swargate Bus Stand,18,39
+2016-08-29,Swargate Bus Stand,15,55
+2016-08-30,Swargate Bus Stand,11,40
+2016-08-31,Swargate Bus Stand,10,63
+2016-09-01,Swargate Bus Stand,15,77
+2016-09-02,Swargate Bus Stand,15,59
+2016-09-03,Swargate Bus Stand,11,35
+2016-09-04,Swargate Bus Stand,8,66
+2016-09-05,Swargate Bus Stand,12,41
+2016-09-06,Swargate Bus Stand,10,75
+2016-09-07,Swargate Bus Stand,14,83
+2016-09-08,Swargate Bus Stand,11,81
+2016-09-09,Swargate Bus Stand,9,32
+2016-09-10,Swargate Bus Stand,11,62
+2016-09-11,Swargate Bus Stand,10,51
+2016-09-12,Swargate Bus Stand,9,10
+2016-09-13,Swargate Bus Stand,12,59
+2016-09-14,Swargate Bus Stand,9,34
+2016-09-15,Swargate Bus Stand,10,5
+2016-09-16,Swargate Bus Stand,12,43
+2016-09-17,Swargate Bus Stand,6,55
+2016-09-18,Swargate Bus Stand,6,66
+2016-09-19,Swargate Bus Stand,12,99
+2016-09-20,Swargate Bus Stand,7,35
+2016-09-21,Swargate Bus Stand,9,92
+2016-09-22,Swargate Bus Stand,8,26
+2016-09-23,Swargate Bus Stand,16,73
+2016-09-24,Swargate Bus Stand,29,97
+2016-09-25,Swargate Bus Stand,23,71
+2016-09-26,Swargate Bus Stand,22,5
+2016-09-27,Swargate Bus Stand,17,92
+2016-09-28,Swargate Bus Stand,19,43
+2016-09-29,Swargate Bus Stand,17,26
+2016-09-30,Swargate Bus Stand,16,96
+2016-10-01,Swargate Bus Stand,13,98
+2016-10-02,Swargate Bus Stand,15,40
+2016-10-03,Swargate Bus Stand,22,43
+2016-10-04,Swargate Bus Stand,13,44
+2016-10-05,Swargate Bus Stand,8,4
+2016-10-06,Swargate Bus Stand,11,35
+2016-10-07,Swargate Bus Stand,11,22
+2016-10-08,Swargate Bus Stand,8,9
+2016-10-09,Swargate Bus Stand,10,14
+2016-10-10,Swargate Bus Stand,13,62
+2016-10-11,Swargate Bus Stand,15,83
+2016-10-12,Swargate Bus Stand,11,28
+2016-10-13,Swargate Bus Stand,9,28
+2016-10-14,Swargate Bus Stand,10,47
+2016-10-15,Swargate Bus Stand,14,76
+2016-10-16,Swargate Bus Stand,12,91
+2016-10-17,Swargate Bus Stand,10,2
+2016-10-18,Swargate Bus Stand,11,60
+2016-10-19,Swargate Bus Stand,15,47
+2016-10-20,Swargate Bus Stand,17,1
+2016-10-21,Swargate Bus Stand,27,84
+2016-10-22,Swargate Bus Stand,20,82
+2016-10-23,Swargate Bus Stand,19,90
+2016-10-24,Swargate Bus Stand,22,48
+2016-10-25,Swargate Bus Stand,15,61
+2016-10-26,Swargate Bus Stand,8,44
+2016-10-27,Swargate Bus Stand,9,12
+2016-10-28,Swargate Bus Stand,9,11
+2016-10-29,Swargate Bus Stand,7,81
+2016-10-30,Swargate Bus Stand,5,43
+2016-10-31,Swargate Bus Stand,5,93
+2016-11-01,Swargate Bus Stand,7,25
+2016-11-02,Swargate Bus Stand,11,50
+2016-11-03,Swargate Bus Stand,9,33
+2016-11-04,Swargate Bus Stand,11,88
+2016-11-05,Swargate Bus Stand,11,66
+2016-11-06,Swargate Bus Stand,10,32
+2016-11-07,Swargate Bus Stand,11,95
+2016-11-08,Swargate Bus Stand,10,0
+2016-11-09,Swargate Bus Stand,9,41
+2016-11-10,Swargate Bus Stand,8,75
+2016-11-11,Swargate Bus Stand,8,35
+2016-11-12,Swargate Bus Stand,8,71
+2016-11-13,Swargate Bus Stand,6,12
+2016-11-14,Swargate Bus Stand,6,50
+2016-11-15,Swargate Bus Stand,8,62
+2016-11-16,Swargate Bus Stand,12,33
+2016-11-17,Swargate Bus Stand,11,61
+2016-11-18,Swargate Bus Stand,13,63
+2016-11-19,Swargate Bus Stand,5,88
+2016-11-20,Swargate Bus Stand,10,96
+2016-11-21,Swargate Bus Stand,8,13
+2016-11-22,Swargate Bus Stand,11,44
+2016-11-23,Swargate Bus Stand,12,19
+2016-11-24,Swargate Bus Stand,12,79
+2016-11-25,Swargate Bus Stand,12,45
+2016-11-26,Swargate Bus Stand,11,48
+2016-11-27,Swargate Bus Stand,16,59
+2016-11-28,Swargate Bus Stand,8,21
+2016-11-29,Swargate Bus Stand,9,22
+2016-11-30,Swargate Bus Stand,9,67
+2016-12-01,Swargate Bus Stand,9,2
+2016-12-02,Swargate Bus Stand,10,3
+2016-12-03,Swargate Bus Stand,13,47
+2016-12-04,Swargate Bus Stand,12,78
+2016-12-05,Swargate Bus Stand,7,44
+2016-12-06,Swargate Bus Stand,11,70
+2016-12-07,Swargate Bus Stand,12,48
+2016-12-08,Swargate Bus Stand,7,37
+2016-12-09,Swargate Bus Stand,9,7
+2016-12-10,Swargate Bus Stand,11,93
+2016-12-11,Swargate Bus Stand,9,61
+2016-12-12,Swargate Bus Stand,7,96
+2016-12-13,Swargate Bus Stand,8,46
+2016-12-14,Swargate Bus Stand,9,97
+2016-12-15,Swargate Bus Stand,23,42
+2016-12-16,Swargate Bus Stand,9,77
+2016-12-17,Swargate Bus Stand,10,24
+2016-12-18,Swargate Bus Stand,11,71
+2016-12-19,Swargate Bus Stand,11,1
+2016-12-20,Swargate Bus Stand,12,10
+2016-12-21,Swargate Bus Stand,8,0
+2016-12-22,Swargate Bus Stand,13,97
+2016-12-23,Swargate Bus Stand,8,14
+2016-12-24,Swargate Bus Stand,7,50
+2016-12-25,Swargate Bus Stand,9,31
+2016-12-26,Swargate Bus Stand,8,51
+2016-12-27,Swargate Bus Stand,11,15
+2016-12-28,Swargate Bus Stand,10,61
+2016-12-29,Swargate Bus Stand,9,62
+2016-12-30,Swargate Bus Stand,9,40
+2016-12-31,Swargate Bus Stand,8,88
+2017-01-01,Swargate Bus Stand,6,64
+2017-01-02,Swargate Bus Stand,10,27
+2017-01-03,Swargate Bus Stand,14,15
+2017-01-04,Swargate Bus Stand,12,1
+2017-01-05,Swargate Bus Stand,18,5
+2017-01-06,Swargate Bus Stand,15,34
+2017-01-07,Swargate Bus Stand,12,38
+2017-01-08,Swargate Bus Stand,21,83
+2017-01-09,Swargate Bus Stand,11,72
+2017-01-10,Swargate Bus Stand,13,41
+2017-01-11,Swargate Bus Stand,16,19
+2017-01-12,Swargate Bus Stand,14,97
+2017-01-13,Swargate Bus Stand,11,7
+2017-01-14,Swargate Bus Stand,15,9
+2017-01-15,Swargate Bus Stand,11,24
+2017-01-16,Swargate Bus Stand,13,19
+2017-01-17,Swargate Bus Stand,15,26
+2017-01-18,Swargate Bus Stand,18,35
+2017-01-19,Swargate Bus Stand,11,47
+2017-01-20,Swargate Bus Stand,13,20
+2017-01-21,Swargate Bus Stand,10,5
+2017-01-22,Swargate Bus Stand,9,77
+2017-01-23,Swargate Bus Stand,10,36
+2017-01-24,Swargate Bus Stand,9,42
+2017-01-25,Swargate Bus Stand,13,77
+2017-01-26,Swargate Bus Stand,9,96
+2017-01-27,Swargate Bus Stand,10,99
+2017-01-28,Swargate Bus Stand,9,99
+2017-01-29,Swargate Bus Stand,11,71
+2017-01-30,Swargate Bus Stand,15,79
+2017-01-31,Swargate Bus Stand,15,36
+2017-02-01,Swargate Bus Stand,9,44
+2017-02-02,Swargate Bus Stand,14,6
+2017-02-03,Swargate Bus Stand,10,60
+2017-02-04,Swargate Bus Stand,10,11
+2017-02-05,Swargate Bus Stand,10,27
+2017-02-06,Swargate Bus Stand,11,94
+2017-02-07,Swargate Bus Stand,12,13
+2017-02-08,Swargate Bus Stand,7,2
+2017-02-09,Swargate Bus Stand,11,25
+2017-02-10,Swargate Bus Stand,17,56
+2017-02-11,Swargate Bus Stand,13,28
+2017-02-12,Swargate Bus Stand,9,58
+2017-02-13,Swargate Bus Stand,6,57
+2017-02-14,Swargate Bus Stand,13,50
+2017-02-15,Swargate Bus Stand,9,44
+2017-02-16,Swargate Bus Stand,12,38
+2017-02-17,Swargate Bus Stand,11,21
+2017-02-18,Swargate Bus Stand,10,67
+2017-02-19,Swargate Bus Stand,17,49
+2017-02-20,Swargate Bus Stand,11,13
+2017-02-21,Swargate Bus Stand,10,27
+2017-02-22,Swargate Bus Stand,15,94
+2017-02-23,Swargate Bus Stand,12,74
+2017-02-24,Swargate Bus Stand,32,6
+2017-02-25,Swargate Bus Stand,31,42
+2017-02-26,Swargate Bus Stand,23,68
+2017-02-27,Swargate Bus Stand,13,0
+2017-02-28,Swargate Bus Stand,15,44
+2017-03-01,Swargate Bus Stand,14,0
+2017-03-02,Swargate Bus Stand,14,48
+2017-03-03,Swargate Bus Stand,17,23
+2017-03-04,Swargate Bus Stand,11,0
+2017-03-05,Swargate Bus Stand,18,27
+2017-03-06,Swargate Bus Stand,12,29
+2017-03-07,Swargate Bus Stand,11,54
+2017-03-08,Swargate Bus Stand,9,58
+2017-03-09,Swargate Bus Stand,13,43
+2017-03-10,Swargate Bus Stand,8,75
+2017-03-11,Swargate Bus Stand,10,15
+2017-03-12,Swargate Bus Stand,8,75
+2017-03-13,Swargate Bus Stand,7,6
+2017-03-14,Swargate Bus Stand,11,22
+2017-03-15,Swargate Bus Stand,15,98
+2017-03-16,Swargate Bus Stand,15,13
+2017-03-17,Swargate Bus Stand,13,12
+2017-03-18,Swargate Bus Stand,15,76
+2017-03-19,Swargate Bus Stand,14,95
+2017-03-20,Swargate Bus Stand,8,1
+2017-03-21,Swargate Bus Stand,10,48
+2017-03-22,Swargate Bus Stand,11,48
+2017-03-23,Swargate Bus Stand,12,36
+2017-03-24,Swargate Bus Stand,14,3
+2017-03-25,Swargate Bus Stand,10,76
+2017-03-26,Swargate Bus Stand,15,38
+2017-03-27,Swargate Bus Stand,9,18
+2017-03-28,Swargate Bus Stand,12,85
+2017-03-29,Swargate Bus Stand,13,4
+2017-03-30,Swargate Bus Stand,13,62
+2017-03-31,Swargate Bus Stand,17,5
+2017-04-01,Swargate Bus Stand,15,95
+2017-04-02,Swargate Bus Stand,19,67
+2017-04-03,Swargate Bus Stand,24,6
+2017-04-04,Swargate Bus Stand,17,82
+2017-04-05,Swargate Bus Stand,15,40
+2017-04-06,Swargate Bus Stand,13,87
+2017-04-07,Swargate Bus Stand,15,93
+2017-04-08,Swargate Bus Stand,12,50
+2017-04-09,Swargate Bus Stand,14,43
+2017-04-10,Swargate Bus Stand,13,49
+2017-04-11,Swargate Bus Stand,11,52
+2017-04-12,Swargate Bus Stand,14,26
+2017-04-13,Swargate Bus Stand,13,52
+2017-04-14,Swargate Bus Stand,13,61
+2017-04-15,Swargate Bus Stand,12,59
+2017-04-16,Swargate Bus Stand,13,51
+2017-04-17,Swargate Bus Stand,12,83
+2017-04-18,Swargate Bus Stand,14,17
+2017-04-19,Swargate Bus Stand,15,71
+2017-04-20,Swargate Bus Stand,31,4
+2017-04-21,Swargate Bus Stand,16,2
+2017-04-22,Swargate Bus Stand,17,11
+2017-04-23,Swargate Bus Stand,16,29
+2017-04-24,Swargate Bus Stand,11,15
+2017-04-25,Swargate Bus Stand,18,91
+2017-04-26,Swargate Bus Stand,13,68
+2017-04-27,Swargate Bus Stand,13,70
+2017-04-28,Swargate Bus Stand,10,20
+2017-04-29,Swargate Bus Stand,16,44
+2017-04-30,Swargate Bus Stand,14,49
+2017-05-01,Swargate Bus Stand,23,92
+2017-05-02,Swargate Bus Stand,11,3
+2017-05-03,Swargate Bus Stand,11,87
+2017-05-04,Swargate Bus Stand,12,86
+2017-05-05,Swargate Bus Stand,14,30
+2017-05-06,Swargate Bus Stand,10,22
+2017-05-07,Swargate Bus Stand,11,2
+2017-05-08,Swargate Bus Stand,6,37
+2017-05-09,Swargate Bus Stand,12,2
+2017-05-10,Swargate Bus Stand,10,47
+2017-05-11,Swargate Bus Stand,10,88
+2017-05-12,Swargate Bus Stand,6,32
+2017-05-13,Swargate Bus Stand,10,74
+2017-05-14,Swargate Bus Stand,6,27
+2017-05-15,Swargate Bus Stand,6,27
+2017-05-16,Swargate Bus Stand,7,70
+2017-05-17,Swargate Bus Stand,10,37
+2017-05-18,Swargate Bus Stand,4,80
+2017-05-19,Swargate Bus Stand,11,16
+2017-05-20,Swargate Bus Stand,11,90
+2017-05-21,Swargate Bus Stand,5,8
+2017-05-22,Swargate Bus Stand,8,10
+2017-05-23,Swargate Bus Stand,13,85
+2017-05-24,Swargate Bus Stand,9,54
+2017-05-25,Swargate Bus Stand,11,29
+2017-05-26,Swargate Bus Stand,11,14
+2017-05-27,Swargate Bus Stand,12,8
+2017-05-28,Swargate Bus Stand,8,51
+2017-05-29,Swargate Bus Stand,10,72
+2017-05-30,Swargate Bus Stand,10,80
+2017-05-31,Swargate Bus Stand,9,75
+2017-06-01,Swargate Bus Stand,9,57
+2017-06-02,Swargate Bus Stand,14,84
+2017-06-03,Swargate Bus Stand,10,48
+2017-06-04,Swargate Bus Stand,7,98
+2017-06-05,Swargate Bus Stand,7,92
+2017-06-06,Swargate Bus Stand,12,39
+2017-06-07,Swargate Bus Stand,13,54
+2017-06-08,Swargate Bus Stand,10,16
+2017-06-09,Swargate Bus Stand,9,14
+2017-06-10,Swargate Bus Stand,14,83
+2017-06-11,Swargate Bus Stand,6,91
+2017-06-12,Swargate Bus Stand,9,70
+2017-06-13,Swargate Bus Stand,10,17
+2017-06-14,Swargate Bus Stand,16,12
+2017-06-15,Swargate Bus Stand,14,57
+2017-06-16,Swargate Bus Stand,10,42
+2017-06-17,Swargate Bus Stand,10,28
+2017-06-18,Swargate Bus Stand,10,85
+2017-06-19,Swargate Bus Stand,12,12
+2017-06-20,Swargate Bus Stand,10,80
+2017-06-21,Swargate Bus Stand,15,90
+2017-06-22,Swargate Bus Stand,13,61
+2017-06-23,Swargate Bus Stand,15,76
+2017-06-24,Swargate Bus Stand,10,66
+2017-06-25,Swargate Bus Stand,10,31
+2017-06-26,Swargate Bus Stand,11,1
+2017-06-27,Swargate Bus Stand,14,29
+2017-06-28,Swargate Bus Stand,12,92
+2017-06-29,Swargate Bus Stand,15,38
+2015-11-01,Vidya Nagar,36,49
+2015-11-02,Vidya Nagar,29,61
+2015-11-03,Vidya Nagar,30,45
+2015-11-04,Vidya Nagar,22,92
+2015-11-05,Vidya Nagar,20,30
+2015-11-06,Vidya Nagar,19,82
+2015-11-07,Vidya Nagar,19,42
+2015-11-08,Vidya Nagar,13,19
+2015-11-09,Vidya Nagar,16,6
+2015-11-10,Vidya Nagar,14,67
+2015-11-11,Vidya Nagar,14,49
+2015-11-12,Vidya Nagar,13,92
+2015-11-13,Vidya Nagar,17,17
+2015-11-14,Vidya Nagar,23,83
+2015-11-15,Vidya Nagar,20,0
+2015-11-16,Vidya Nagar,19,16
+2015-11-17,Vidya Nagar,24,34
+2015-11-18,Vidya Nagar,22,84
+2015-11-19,Vidya Nagar,18,24
+2015-11-20,Vidya Nagar,21,5
+2015-11-21,Vidya Nagar,17,41
+2015-11-22,Vidya Nagar,18,99
+2015-11-23,Vidya Nagar,27,92
+2015-11-24,Vidya Nagar,26,69
+2015-11-25,Vidya Nagar,29,82
+2015-11-26,Vidya Nagar,25,75
+2015-11-27,Vidya Nagar,25,25
+2015-11-28,Vidya Nagar,21,73
+2015-11-29,Vidya Nagar,23,20
+2015-11-30,Vidya Nagar,17,56
+2015-12-01,Vidya Nagar,12,64
+2015-12-02,Vidya Nagar,13,94
+2015-12-03,Vidya Nagar,13,18
+2015-12-04,Vidya Nagar,12,26
+2015-12-05,Vidya Nagar,14,55
+2015-12-06,Vidya Nagar,16,18
+2015-12-07,Vidya Nagar,17,72
+2015-12-08,Vidya Nagar,22,20
+2015-12-09,Vidya Nagar,24,95
+2015-12-10,Vidya Nagar,23,21
+2015-12-11,Vidya Nagar,21,75
+2015-12-12,Vidya Nagar,23,43
+2015-12-13,Vidya Nagar,21,82
+2015-12-14,Vidya Nagar,23,85
+2015-12-15,Vidya Nagar,21,49
+2015-12-16,Vidya Nagar,24,15
+2015-12-17,Vidya Nagar,27,18
+2015-12-18,Vidya Nagar,28,56
+2015-12-19,Vidya Nagar,20,11
+2015-12-20,Vidya Nagar,24,19
+2015-12-21,Vidya Nagar,28,97
+2015-12-22,Vidya Nagar,23,5
+2015-12-23,Vidya Nagar,21,58
+2015-12-24,Vidya Nagar,16,26
+2015-12-25,Vidya Nagar,22,87
+2015-12-26,Vidya Nagar,18,49
+2015-12-27,Vidya Nagar,17,42
+2015-12-28,Vidya Nagar,16,97
+2015-12-29,Vidya Nagar,16,30
+2015-12-30,Vidya Nagar,22,10
+2015-12-31,Vidya Nagar,35,59
+2016-01-01,Vidya Nagar,44,48
+2016-01-02,Vidya Nagar,42,17
+2016-01-03,Vidya Nagar,45,47
+2016-01-04,Vidya Nagar,39,67
+2016-01-05,Vidya Nagar,41,11
+2016-01-06,Vidya Nagar,38,16
+2016-01-07,Vidya Nagar,38,64
+2016-01-08,Vidya Nagar,34,2
+2016-01-09,Vidya Nagar,35,6
+2016-01-10,Vidya Nagar,39,39
+2016-01-11,Vidya Nagar,40,69
+2016-01-12,Vidya Nagar,38,40
+2016-01-13,Vidya Nagar,37,52
+2016-01-14,Vidya Nagar,35,17
+2016-01-15,Vidya Nagar,32,40
+2016-01-16,Vidya Nagar,32,72
+2016-01-17,Vidya Nagar,24,41
+2016-01-18,Vidya Nagar,22,26
+2016-01-19,Vidya Nagar,20,83
+2016-01-20,Vidya Nagar,19,4
+2016-01-21,Vidya Nagar,20,69
+2016-01-22,Vidya Nagar,21,73
+2016-01-23,Vidya Nagar,24,85
+2016-01-24,Vidya Nagar,24,2
+2016-01-25,Vidya Nagar,34,95
+2016-01-26,Vidya Nagar,36,34
+2016-01-27,Vidya Nagar,32,78
+2016-01-28,Vidya Nagar,32,98
+2016-01-29,Vidya Nagar,38,4
+2016-01-30,Vidya Nagar,34,65
+2016-01-31,Vidya Nagar,37,55
+2016-02-01,Vidya Nagar,35,74
+2016-02-02,Vidya Nagar,38,97
+2016-02-03,Vidya Nagar,38,17
+2016-02-04,Vidya Nagar,33,93
+2016-02-05,Vidya Nagar,38,45
+2016-02-06,Vidya Nagar,37,95
+2016-02-07,Vidya Nagar,29,31
+2016-02-08,Vidya Nagar,30,6
+2016-02-09,Vidya Nagar,26,95
+2016-02-10,Vidya Nagar,28,86
+2016-02-11,Vidya Nagar,24,46
+2016-02-12,Vidya Nagar,20,34
+2016-02-13,Vidya Nagar,14,72
+2016-02-14,Vidya Nagar,16,35
+2016-02-15,Vidya Nagar,19,51
+2016-02-16,Vidya Nagar,21,66
+2016-02-17,Vidya Nagar,31,93
+2016-02-18,Vidya Nagar,37,33
+2016-02-19,Vidya Nagar,38,8
+2016-02-20,Vidya Nagar,39,48
+2016-02-21,Vidya Nagar,36,32
+2016-02-22,Vidya Nagar,33,49
+2016-02-23,Vidya Nagar,35,18
+2016-02-24,Vidya Nagar,34,27
+2016-02-25,Vidya Nagar,34,37
+2016-02-26,Vidya Nagar,34,60
+2016-02-27,Vidya Nagar,32,20
+2016-02-28,Vidya Nagar,36,67
+2016-02-29,Vidya Nagar,30,30
+2016-03-01,Vidya Nagar,33,82
+2016-03-02,Vidya Nagar,30,31
+2016-03-03,Vidya Nagar,29,99
+2016-03-04,Vidya Nagar,24,41
+2016-03-05,Vidya Nagar,29,41
+2016-03-06,Vidya Nagar,21,15
+2016-03-07,Vidya Nagar,18,15
+2016-03-08,Vidya Nagar,14,64
+2016-03-09,Vidya Nagar,17,47
+2016-03-10,Vidya Nagar,17,41
+2016-03-11,Vidya Nagar,21,97
+2016-03-12,Vidya Nagar,21,33
+2016-03-13,Vidya Nagar,24,16
+2016-03-14,Vidya Nagar,28,65
+2016-03-15,Vidya Nagar,34,40
+2016-03-16,Vidya Nagar,28,89
+2016-03-17,Vidya Nagar,32,73
+2016-03-18,Vidya Nagar,32,88
+2016-03-19,Vidya Nagar,31,12
+2016-03-20,Vidya Nagar,30,89
+2016-03-21,Vidya Nagar,33,45
+2016-03-22,Vidya Nagar,38,4
+2016-03-23,Vidya Nagar,33,83
+2016-03-24,Vidya Nagar,31,95
+2016-03-25,Vidya Nagar,32,83
+2016-03-26,Vidya Nagar,30,72
+2016-03-27,Vidya Nagar,25,76
+2016-03-28,Vidya Nagar,25,81
+2016-03-29,Vidya Nagar,21,81
+2016-03-30,Vidya Nagar,17,70
+2016-03-31,Vidya Nagar,16,34
+2016-04-01,Vidya Nagar,13,61
+2016-04-02,Vidya Nagar,13,41
+2016-04-03,Vidya Nagar,15,56
+2016-04-04,Vidya Nagar,20,78
+2016-04-05,Vidya Nagar,29,39
+2016-04-06,Vidya Nagar,39,4
+2016-04-07,Vidya Nagar,39,83
+2016-04-08,Vidya Nagar,41,95
+2016-04-09,Vidya Nagar,32,90
+2016-04-10,Vidya Nagar,34,45
+2016-04-11,Vidya Nagar,35,48
+2016-04-12,Vidya Nagar,33,73
+2016-04-13,Vidya Nagar,30,51
+2016-04-14,Vidya Nagar,31,31
+2016-04-15,Vidya Nagar,35,50
+2016-04-16,Vidya Nagar,31,54
+2016-04-17,Vidya Nagar,34,36
+2016-04-18,Vidya Nagar,30,37
+2016-04-19,Vidya Nagar,26,31
+2016-04-20,Vidya Nagar,27,89
+2016-04-21,Vidya Nagar,31,98
+2016-04-22,Vidya Nagar,24,61
+2016-04-23,Vidya Nagar,16,12
+2016-04-24,Vidya Nagar,16,67
+2016-04-25,Vidya Nagar,15,50
+2016-04-26,Vidya Nagar,14,3
+2016-04-27,Vidya Nagar,14,50
+2016-04-28,Vidya Nagar,15,65
