@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import r2_score
 import sklearn.metrics as metrics
+from statistics import *
 
 
 class Train:
@@ -19,6 +20,11 @@ class Train:
         self.testSize = testSize
         self.startTrainingProcess()
     
+    def appendAndStartTraining(self,newData):
+        newData2 = newData[newData.Junction == self.junction]
+        self.data = pd.concat([self.data, newData2])
+        self.startTrainingProcess()
+
     def startTrainingProcess(self):
         self.preprocessData()
         self.splitData()
@@ -142,6 +148,8 @@ class Train:
                 self.currTime += timedelta(days=7)
             if showBy == 'Months':
                 self.currTime += timedelta(days=30)
+            if showBy == 'Years':
+                self.currTime += timedelta(days=365)
 
     def constructFutureDataToBePredicted(self):
         self.toPredict = pd.DataFrame()
@@ -195,28 +203,61 @@ class Train:
             self.predictedData['datetime'] = self.toPredictDateTime
 
             return [self.predictedData]
-        
-    def customDatePrediction(self, datetime):
-        if self.trained:
-            self.singleToPredict = pd.DataFrame()
-            self.years = list()
-            self.months = list()
-            self.days = list()
-            self.hours = list()
-            self.dateTime = list()
-            
-            self.dateTime.append(datetime)
-            self.years.append(datetime.year)
-            self.months.append(datetime.month)
-            self.days.append(datetime.day)
-            self.hours.append(datetime.hour)
 
-            self.singleToPredict['Year'] = self.years
-            self.singleToPredict['Month'] = self.months
-            self.singleToPredict['Day'] = self.days
-            self.singleToPredict['Hour'] = self.hours
-            self.singleToPredict['DateTime'] = self.dateTime
-            self.singleToPredict.index = self.singleToPredict['DateTime']
-            self.singleToPredict = self.singleToPredict.drop(['DateTime'], axis='columns')
-            self.predictedSingle = self.model.predict(self.singleToPredict)
-            return self.predictedSingle
+    
+    def getRelativeChange(self, relativeChange, factor):
+        self.vehicles = self.junctionData.Vehicles
+
+        print('factor', factor)
+
+        if factor == 'Mean (Average)':
+            self.modeValue = mean(self.vehicles)
+        if factor == 'Mode':
+            self.modeValue = mode(self.vehicles)
+        if factor == 'Median':
+            self.modeValue = median(self.vehicles)
+        if factor == 'First Prediction Instance':
+            self.modeValue = self.futureDatesPredicted[0]
+        if factor == 'Last pcu observation':
+            self.modeValue = self.junctionData.tail(1).Vehicles[self.junctionData.tail(1).index[0]]
+
+        # self.modeValue = median(self.vehicles)
+        # self.modeValue = self.junctionData.tail(1).Vehicles[self.junctionData.tail(1).index[0]]
+        # self.modeValue = self.futureDatesPredicted[0]
+        # print(self.futureDatesPredicted[0])
+        # self.modeValue = mode(self.vehicles)
+        self.increasingVehiclesNumber = (relativeChange / 100) * mode(self.vehicles)
+        self.currentYear = self.time[0]
+        self.currVehiclesNumber = self.increasingVehiclesNumber
+        self.array = list()
+        for i in self.time:
+            self.array.append(self.currVehiclesNumber)
+            strYear = str(i)[:4]
+            if strYear != str(self.currentYear)[:4]:
+                self.currentYear = i
+                self.currVehiclesNumber += self.increasingVehiclesNumber
+
+        self.lastElement = self.array[-1]
+        self.firstElement = self.array[0]
+
+        self.difference = self.lastElement - self.firstElement
+        self.array2 = list()
+        for i in range(len(self.array)):
+            self.firstElement += (self.difference / len(self.array))
+            self.array2.append(self.firstElement)
+
+
+        self.array3 = list()
+        for i in self.array2:
+            i += (self.modeValue - self.increasingVehiclesNumber)
+            self.array3.append(i)
+        
+        if factor == 'First Prediction Instance':
+            self.adjust = self.array3[0] - self.futureDatesPredicted[0]
+            self.array4 = list()
+            for i in self.array3:
+                self.array4.append(i - self.adjust)
+            return self.array4
+        else:
+            return self.array3
+                

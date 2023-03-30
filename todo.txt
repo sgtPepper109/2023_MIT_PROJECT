@@ -39,3 +39,15 @@ help and about page
 add tooltips
 look about promises
 showByArray not changing
+add to dataset
+showBy array on change
+trend start from last entry in dataset
+percentage of predictions going above the limit
+change vehicles to pcu
+do something about csvInstance database
+optimize file change listener
+clean code
+remove self from python class
+create database backup
+change dimensions of chart in predictions page
+options in mean, median, mode, first prediction, last element

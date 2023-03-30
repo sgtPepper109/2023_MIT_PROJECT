@@ -12,28 +12,51 @@ from statsmodels.stats.stattools import jarque_bera, durbin_watson
 import statsmodels.api as sm
 from scipy.stats import skew, kurtosis
 from datetime import timedelta
+from statistics import *
 
 app = Flask(__name__)
 cors = CORS(app)
 
+
+@app.route('/checkIfTrained')
+def checkIfTrained():
+    global allTrainedData
+    args = request.args
+    args = args.to_dict()
+
+    junction = args['junction']
+    if "%20" in args['junction']:
+        junction = args['junction'].replace("%20", " ")
+
+    if junction in allTrainedData:
+        return make_response([True])
+    else:
+        return make_response([False])
+
+
+
 @app.route("/getCsvData")
 def getCsvData():
-    global springUrl
-    success = True
-    url = springUrl + '/process/exchangeCsvData'
-    try:
-        uResponse = requests.get(url)
-    except:
-        success = False
-        return {getCsvData: "Connection Error"}
-    
-    JResponse = uResponse.text
-    csvData = json.loads(JResponse)
 
+    # get/declare global variables
+    global springUrl
     global df
     global tempdf
     global uniqueJunctionsInDataset
     global typeOfData
+
+    # sets 'False' if getting csv data from spring backend is unsuccessful
+    success: bool = True
+    url: str = springUrl + '/process/exchangeCsvData'
+    try:
+        uResponse: any = requests.get(url)
+    except:
+        success = False
+        return {getCsvData: "Connection Error"}
+    
+    JResponse: str = uResponse.text
+    csvData: list = json.loads(JResponse)
+
 
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
@@ -161,12 +184,13 @@ def listenTime():
     url = springUrl + '/process/exchangeTime'
 
     try:
-        uResponse = requests.get(url)
+        uResponse: any = requests.get(url)
     except:
         success = False
         return "Connection Error"
-    JResponse = uResponse.text
-    response = json.loads(JResponse)
+    JResponse: str = uResponse.text
+    response: list = json.loads(JResponse)
+
     global time
     global timeFormat
     global showBy
@@ -190,35 +214,33 @@ def getJunctionRelatedDataFromDB():
     global junctionRoadwayWidthMaps
     global roadwayWidthMaxVehiclesMaps
     
-    junctionRoadwayWidthMaps = dict()
-    roadwayWidthMaxVehiclesMaps = dict()
+    junctionDistrictMaps = list()
+    junctionRoadwayWidthMaps = list()
+    roadwayWidthMaxVehiclesMaps = list()
 
-    url = springUrl + '/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps'
+    url: str = springUrl + '/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps'
     try:
-        uResponse = requests.get(url)
+        uResponse: any = requests.get(url)
     except:
         return "Connection Error"
-    JResponse = uResponse.text
+    JResponse: str = uResponse.text
     junctionDistrictMaps = json.loads(JResponse)
 
     url = springUrl + '/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps'
     try:
-        uResponse = requests.get(url)
+        uResponse: any = requests.get(url)
     except:
         return "Connection Error"
-    JResponse = uResponse.text
+    JResponse: str = uResponse.text
     junctionRoadwayWidthMaps = json.loads(JResponse)
 
-    url = springUrl + '/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps'
+    url: str = springUrl + '/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps'
     try:
-        uResponse = requests.get(url)
+        uResponse: any = requests.get(url)
     except:
         return "Connection Error"
-    JResponse = uResponse.text
+    JResponse: str = uResponse.text
     roadwayWidthMaxVehiclesMaps = json.loads(JResponse)
-    # with app.app_context():
-
-    #     return make_response(junctionDistrictMaps + junctionRoadwayWidthMaps + roadwayWidthMaxVehiclesMaps)
 
 
 
@@ -233,8 +255,8 @@ def listenTrainingInputs():
     except:
         success = False
         return "Connection Error"
-    JResponse = uResponse.text
-    response = json.loads(JResponse)
+    JResponse: str = uResponse.text
+    response: list = json.loads(JResponse)
     global junction
     global testRatio
     global algorithm
@@ -296,10 +318,12 @@ def addToMaster():
         algorithm = algorithm.replace("%20", " ")
 
     testRatio = float(args['testRatio'])
+    relativeChange = float(args['relativeChange'])
 
     global masterAlgorithmAndTestRatioForJunction
     global allTrainedData
     global masterData
+    global relativeChangeMap
 
     junction = args['junction']
     if "%20" in args['junction']:
@@ -308,8 +332,33 @@ def addToMaster():
 
     findTrained = allTrainedData[junction][algorithm][testRatio]
     masterData[junction] = findTrained
+    relativeChangeMap[junction] = relativeChange
     return make_response(args)
 
+
+@app.route('/getRelativeChange')
+def getRelativeChange():
+    global relativeChangeMap
+    global masterData
+    global junction
+
+    args = request.args
+    args = args.to_dict()
+
+    factor = args['factor']
+    if "%20" in factor:
+        factor = factor.replace("%20", " ")
+
+    trained = masterData[junction]
+    array = trained.getRelativeChange(relativeChangeMap[junction], factor)
+
+    return make_response(array)
+
+
+@app.route('/getAllRelativeChange')
+def getAllRelativeChangePercentage():
+    global relativeChangeMap
+    return make_response(relativeChangeMap)
 
 
 @app.route("/getMasterTrainedDataPlot")
@@ -377,6 +426,8 @@ def getTestingRatioComparisons():
     if "%20" in junction:
         junction = junction .replace("%20", " ")
 
+    action = args['action']
+
     possibleTestRatios = np.arange(0.1, 1, 0.1)
 
     algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
@@ -384,15 +435,32 @@ def getTestingRatioComparisons():
     response = dict()
     temp = dict()
 
-    for i in algorithms:
-        testRatioComparisons = dict()
-        trainedData = dict()
-        for j in possibleTestRatios:
-            trained = Train.Train(tempdf, i, junction, j)
-            trainedData[j] = trained
-            testRatioComparisons[j] = trained.accuracyScore
-        response[i] = testRatioComparisons
-        temp[i] = trainedData
+    if action == 'clear':
+        print('clear')
+        for i in algorithms:
+            testRatioComparisons = dict()
+            trainedData = dict()
+            for j in possibleTestRatios:
+                trained = Train.Train(tempdf, i, junction, j)
+                trainedData[j] = trained
+                testRatioComparisons[j] = trained.accuracyScore
+            response[i] = testRatioComparisons
+            temp[i] = trainedData
+    if action == 'append':
+        print('append')
+        newData = tempdf.copy()
+        for i in algorithms:
+            testRatioComparisons = dict()
+            trainedData = dict()
+            for j in possibleTestRatios:
+                # trained = Train.Train(tempdf, i, junction, j)
+                trained = allTrainedData[junction][i][j]
+                trained.appendAndStartTraining(newData)
+                trainedData[j] = trained
+                testRatioComparisons[j] = trained.accuracyScore
+            response[i] = testRatioComparisons
+            temp[i] = trainedData
+
 
     allTrainedData[junction] = temp
     return make_response(response)
@@ -474,35 +542,6 @@ def getActualVsPredictedComparisonTableData():
     return make_response(allActualVsPredictedTable)
 
 
-@app.route('/getDaysPrediction')
-def getDaysPredictionForFirstRecommendation():
-    global tempdf
-    global junction
-    global junctionRoadwayWidthMaps
-    global roadwayWidthMaxVehiclesMaps
-    global highestAccuracyTrained
-
-    for i in junctionRoadwayWidthMaps:
-        if i['junctionName'] == junction:
-            roadwayWidthOfJunction = i['roadwayWidth']
-            for j in roadwayWidthMaxVehiclesMaps:
-                if j['roadwayWidth'] == roadwayWidthOfJunction:
-                    maxVehiclesCapacityOfJunction = j['maxVehicles']
-
-    lastDateTimeInDataset = tempdf.tail(1).index[0]
-    dateTimeToPredict = lastDateTimeInDataset
-
-    daysIterator: int = 0
-    while daysIterator < 2000: # 2000 days
-        predicted = highestAccuracyTrained.customDatePrediction(dateTimeToPredict)
-        if predicted > maxVehiclesCapacityOfJunction:
-            break
-        dateTimeToPredict += timedelta(days=1)
-        daysIterator += 1
-    return make_response([daysIterator])
-
-
-
 if __name__ == "__main__":
 
     global df
@@ -526,6 +565,8 @@ if __name__ == "__main__":
     global highestAccuracyTestRatio
     global springUrl
     global showBy
+    global relativeChangeMap
+    global allJunctionsCsvData
 
     showBy: str = ""
     highestAccuracyAlgorithm = ""
@@ -541,6 +582,8 @@ if __name__ == "__main__":
     masterData = dict()
     masterDataTable = dict()
     masterJunctionsAccuracies = dict()
+    relativeChangeMap = dict()
+    allJunctionsCsvData = dict()
 
 
     if (len(sys.argv) == 1 or sys.argv[1] == 'DEV'):

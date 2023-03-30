@@ -19,22 +19,31 @@
     <br /><br />
 
 
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div 
+        class="offcanvas offcanvas-start" 
+        tabindex="-1" 
+        id="offcanvasExample" 
+        aria-labelledby="offcanvasExampleLabel"
+    >
         <div class="offcanvas-header">
             <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
+
         <mat-divider></mat-divider>
+
         <div class="offcanvas-body">
             <ul class="list-group list-group-flush">
-                <li class="offcanvasList list-group-item">
+                <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
                     <span style="float:left">Training</span>
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
                 </li>
+
                 <li class="offcanvasList list-group-item" (click)="navigateToPredictions()">
                     <span style="float:left">Predictions</span>
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
                 </li>
+
                 <li class="offcanvasList list-group-item" (click)="navigateToAdminInputs()">
                     <span style="float:left">Provide Junction Properties</span>
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
@@ -47,44 +56,72 @@
 
 
 
-    <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
+    <div
+        id="maincontainer" 
+        class="
+            container 
+            p-5 
+            my-5 
+            bg-primary 
+            shadow-lg 
+            p-3 
+            mb-5 
+            bg-white 
+            rounded
+        "
+    >
 
-
-
-
-
-
-
-
-
-
-
-
-
-        
 
         <section class="box">
             <h1><strong>Manage Training</strong></h1>
             <hr />
 
             <div class="alert alert-secondary">
-                <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+                <div
+                    *ngIf="toggleSuccessToast" 
+                    class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" 
+                    role="alert" 
+                    aria-live="assertive" 
+                    aria-atomic="true"
+                >
                     <div class="toast-header">
-                        <span class="me-3"><mat-icon style="color:green">check_circle</mat-icon></span>
+                        <span class="me-3">
+                            <mat-icon style="color:green">check_circle</mat-icon>
+                        </span>
                         <strong class="me-auto">System</strong>
                         <small>1 second ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button
+                            type="button" 
+                            class="btn-close" 
+                            data-bs-dismiss="toast" 
+                            aria-label="Close"
+                        ></button>
                     </div>
                     <div class="toast-body" style="color: green">
                         {{ errorString }}
                     </div>
                 </div>
-                <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+
+
+                <div
+                    *ngIf="toggleWarningToast" 
+                    class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" 
+                    role="alert" 
+                    aria-live="assertive" 
+                    aria-atomic="true"
+                >
                     <div class="toast-header">
-                        <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                        <span class="me-3">
+                            <mat-icon color="warn">report</mat-icon>
+                        </span>
                         <strong class="me-auto">System</strong>
                         <small>1 second ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button 
+                            type="button" 
+                            class="btn-close" 
+                            data-bs-dismiss="toast" 
+                            aria-label="Close"
+                        ></button>
                     </div>
                     <div class="toast-body" style="color: red">
                         {{ errorString }}
@@ -92,11 +129,22 @@
                 </div>
                 
                 <p>
-                    <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
-                        <mat-icon>description</mat-icon>
+                    <button 
+                        mat-icon-button 
+                        data-bs-toggle="collapse" 
+                        href="#collapseExample" 
+                        role="button" 
+                        aria-expanded="true" 
+                        aria-controls="collapseExample"
+                        (click)="changeDatasetDescriptionIcon()"
+                    >
+                        <mat-icon>{{ datasetDescriptionIcon }}</mat-icon>
                     </button>
                 </p>
-                <div class="collapse show" id="collapseExample">
+                <div
+                    class="collapse show" 
+                    id="collapseExample"
+                >
                     <div class="card card-body alert alert-dark">
                         <div class="container">
                             <div class="row">
@@ -124,9 +172,14 @@
                                                     </ul>
                                                 </li>
                                                 <li>
-                                                    Vehicles
+                                                    PCU
                                                     <ul style="list-style: circle;">
-                                                        <li>denotes the number of vehicles at the specified date-time</li>
+                                                        <li>
+                                                            (Passenger Car Unit) is a unit used for expressing roadway capacity
+                                                        </li>
+                                                        <li>
+                                                            denotes the PCU of the concerned junction at the date-time
+                                                        </li>
                                                         <li>(must be an integer or of number format)</li>
                                                     </ul>
                                                 </li>
@@ -150,14 +203,14 @@
                                         <thead>
                                             <tr>
                                                 <th scope="col">DateTime</th>
-                                                <th scope="col">Vehicles</th>
+                                                <th scope="col">PCU</th>
                                                 <th scope="col">Junction</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let instance of sampleCsvTableDaily">
                                                 <td>{{ instance.DateTime }}</td>
-                                                <td>{{ instance.Vehicles }}</td>
+                                                <td>{{ instance.PCU }}</td>
                                                 <td>{{ instance.Junction }}</td>
                                             </tr>
                                         </tbody>
@@ -169,14 +222,14 @@
                                         <thead>
                                             <tr>
                                                 <th scope="col">DateTime</th>
-                                                <th scope="col">Vehicles</th>
+                                                <th scope="col">PCU</th>
                                                 <th scope="col">Junction</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let instance of sampleCsvTableHourly">
                                                 <td>{{ instance.DateTime }}</td>
-                                                <td>{{ instance.Vehicles }}</td>
+                                                <td>{{ instance.PCU }}</td>
                                                 <td>{{ instance.Junction }}</td>
                                             </tr>
                                         </tbody>
@@ -184,8 +237,14 @@
                                 </div>
                             </div>
                         </div>
+
                         <div>
-                            <button mat-raised-button [matMenuTriggerFor]="samples"><mat-icon>get_app</mat-icon>Download Sample Data</button>
+                            <button
+                                mat-raised-button 
+                                [matMenuTriggerFor]="samples"
+                            >
+                                <mat-icon>get_app</mat-icon>Download Sample Data
+                            </button>
                             <mat-menu #samples="matMenu">
                                 <button mat-menu-item (click)="downloadSample('Hourly')">Hourly</button>
                                 <button mat-menu-item (click)="downloadSample('Daily')">Daily</button>
@@ -193,29 +252,71 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col">
                         <form class="was-validated">
                             <div class="mb-3">
-                                <input #file class="form-control" id="inputGroupFile02" type="file" accept=".csv" id="myfile" name="myfile" [(ngModel)]="dataset" (change)="fileChangeListener($event)" required>
+                                <input
+                                    #file 
+                                    class="form-control" 
+                                    id="inputGroupFile02" 
+                                    type="file" 
+                                    accept=".csv" 
+                                    id="myfile" 
+                                    name="myfile" 
+                                    [(ngModel)]="dataset" 
+                                    (change)="fileChangeListener($event)" 
+                                    required
+                                >
                                 <div class="invalid-feedback">Only .csv file required</div>
                             </div>
                         </form>
                     </div>
                     <div class="col">
                         <div style="padding-right: 300px">
-                            <div class="col-auto" (click)="validateDisabledInputJunction()">
-                                <label class="visually-hidden" for="autoSizingInputGroup">Username</label>
+                            <div
+                                class="col-auto" 
+                                (click)="validateDisabledInputJunction()"
+                            >
+                                <label class="visually-hidden" for="autoSizingInputGroup">Junction</label>
                                 <div class="input-group">
                                     <div class="input-group-text">Choose Junction</div>
-                                    <select [disabled]="inputJunctionDisabled" style="width: 400px" [(ngModel)]="inputJunction" class="form-select" aria-label="Default select example">
-                                        <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
+                                    <select
+                                        [disabled]="inputJunctionDisabled" 
+                                        style="width: 400px" 
+                                        [(ngModel)]="inputJunction" 
+                                        class="form-select" 
+                                        aria-label="Default select example"
+                                        (change)="checkJunction()"
+                                    >
+                                        <option
+                                            *ngFor="let junction of junctions" 
+                                            [value]="junction"
+                                        >{{ junction }}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div *ngIf="showTrainingOptions">
+                    <dl>
+                        <dt>
+                            <h3><strong>Important!: </strong>Choose Action</h3>
+                        </dt>
+                        <dd>
+                            <mat-radio-group [(ngModel)]="trainingAction" aria-label="Select an option">
+                                <mat-radio-button style="color: blue" value="clear">Clear all trained progress and start</mat-radio-button>
+                                <br />
+                                <mat-radio-button style="color: blue" value="append">Append data to existing trained model</mat-radio-button>
+                            </mat-radio-group>
+                        </dd>
+                    </dl>
+
+                </div>
+
                 <div *ngIf="fileProcessing">
                     <div class="spinner-grow" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -228,7 +329,10 @@
 
                 <div class="row">
                     <div class="text-center">
-                        <button mat-raised-button color="primary" (click)="startTraining()">Proceed</button>
+                        <button
+                            mat-raised-button color="primary" 
+                            (click)="processAndStartTraining()"
+                        >Proceed</button>
                     </div>
                 </div>
             </div>
@@ -239,7 +343,10 @@
             -->
             <br />
             <mat-divider></mat-divider>
-            <div *ngIf="startedTraining" class="d-flex align-items-center">
+            <div
+                *ngIf="startedTraining" 
+                class="d-flex align-items-center"
+            >
                 <mat-progress-bar mode="indeterminate"></mat-progress-bar>
             </div>
 
@@ -248,75 +355,83 @@
                 ** Future Predictions in table and in plot **
             -->
             <br />
-                        <div *ngIf="!gotTestingRatioComparisons && startedTraining">
-                            <br />
-                            <a class="btn btn-primary disabled placeholder col-4"></a>
-                            <p aria-hidden="true">
-                                <span class="placeholder col-6"></span>
-                            </p>
-                            <br />
-                            <div class="row">
-                                <div class="col">
-                                    <div class="card" aria-hidden="true">
-                                        <img src="assets/download.png" class="card-img-top" alt="...">
-                                        <div class="card-body">
-                                            <h5 class="card-title placeholder-glow">
-                                                <span class="placeholder col-6"></span>
-                                            </h5>
-                                            <p class="card-text placeholder-glow">
-                                                <span class="placeholder col-7"></span>
-                                                <span class="placeholder col-4"></span>
-                                                <span class="placeholder col-4"></span>
-                                                <span class="placeholder col-6"></span>
-                                                <span class="placeholder col-8"></span>
-                                            </p>
-                                            <a class="btn btn-primary disabled placeholder col-6"></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="card" aria-hidden="true">
-                                        <img src="assets/download.png" class="card-img-top" alt="...">
-                                        <div class="card-body">
-                                            <h5 class="card-title placeholder-glow">
-                                                <span class="placeholder col-6"></span>
-                                            </h5>
-                                            <p class="card-text placeholder-glow">
-                                                <span class="placeholder col-7"></span>
-                                                <span class="placeholder col-4"></span>
-                                                <span class="placeholder col-4"></span>
-                                                <span class="placeholder col-6"></span>
-                                                <span class="placeholder col-8"></span>
-                                            </p>
-                                            <a class="btn btn-primary disabled placeholder col-6"></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="card" aria-hidden="true">
-                                        <img src="assets/download.png" class="card-img-top" alt="...">
-                                        <div class="card-body">
-                                            <h5 class="card-title placeholder-glow">
-                                                <span class="placeholder col-6"></span>
-                                            </h5>
-                                            <p class="card-text placeholder-glow">
-                                                <span class="placeholder col-7"></span>
-                                                <span class="placeholder col-4"></span>
-                                                <span class="placeholder col-4"></span>
-                                                <span class="placeholder col-6"></span>
-                                                <span class="placeholder col-8"></span>
-                                            </p>
-                                            <a class="btn btn-primary disabled placeholder col-6"></a>
-                                        </div>
-                                    </div>
-                                </div>
+            <div *ngIf="!gotTestingRatioComparisons && startedTraining">
+                <br />
+                <a class="btn btn-primary disabled placeholder col-4"></a>
+                <p aria-hidden="true">
+                    <span class="placeholder col-6"></span>
+                </p>
+                <br />
+                <div class="row">
+                    <div class="col">
+                        <div class="card" aria-hidden="true">
+                            <img src="assets/download.png" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title placeholder-glow">
+                                    <span class="placeholder col-6"></span>
+                                </h5>
+                                <p class="card-text placeholder-glow">
+                                    <span class="placeholder col-7"></span>
+                                    <span class="placeholder col-4"></span>
+                                    <span class="placeholder col-4"></span>
+                                    <span class="placeholder col-6"></span>
+                                    <span class="placeholder col-8"></span>
+                                </p>
+                                <a class="btn btn-primary disabled placeholder col-6"></a>
                             </div>
                         </div>
+                    </div>
+                    <div class="col">
+                        <div class="card" aria-hidden="true">
+                            <img src="assets/download.png" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title placeholder-glow">
+                                    <span class="placeholder col-6"></span>
+                                </h5>
+                                <p class="card-text placeholder-glow">
+                                    <span class="placeholder col-7"></span>
+                                    <span class="placeholder col-4"></span>
+                                    <span class="placeholder col-4"></span>
+                                    <span class="placeholder col-6"></span>
+                                    <span class="placeholder col-8"></span>
+                                </p>
+                                <a class="btn btn-primary disabled placeholder col-6"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card" aria-hidden="true">
+                            <img src="assets/download.png" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title placeholder-glow">
+                                    <span class="placeholder col-6"></span>
+                                </h5>
+                                <p class="card-text placeholder-glow">
+                                    <span class="placeholder col-7"></span>
+                                    <span class="placeholder col-4"></span>
+                                    <span class="placeholder col-4"></span>
+                                    <span class="placeholder col-6"></span>
+                                    <span class="placeholder col-8"></span>
+                                </p>
+                                <a class="btn btn-primary disabled placeholder col-6"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
-            <div [hidden]="!predictionReady" class="accordion" id="accordionExample">
+            <div
+                [hidden]="!predictionReady" 
+                class="accordion" 
+                id="accordionExample"
+            >
 
-                <mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
+                <mat-stepper
+                    orientation="vertical" 
+                    [linear]="isLinear" 
+                    #stepper
+                >
                     <mat-step [hidden]="!comparisonChartHidden">
                         <!--
                             ** Actual and Predicted values comparison on test data **
@@ -327,14 +442,25 @@
                             <mat-card>
                                 <mat-card-content>
                                     <div class="row">
-                                        <div *ngIf="modelSummaryReady" class="col alert alert-primary" style="height: 60px">
+                                        <div
+                                            *ngIf="modelSummaryReady" 
+                                            class="col alert alert-primary" 
+                                            style="height: 60px"
+                                        >
                                             <h3><strong>{{ modelSummary[3].Property }}: {{ modelSummary[3].Value }}</strong></h3>
                                         </div>
                                         <div class="col">
-                                            <mat-form-field appearance="outline" style="width: 550px; margin-left: 85px">
+                                            <mat-form-field
+                                                appearance="outline" style="width: 550px; margin-left: 85px">
                                                 <mat-label>Show Comparisons of </mat-label>
-                                                <mat-select [(ngModel)]="renderedAlgorithm" (selectionChange)="renderAllComparisons()">
-                                                    <mat-option *ngFor="let algorithm of algorithms" [value]="algorithm">
+                                                <mat-select
+                                                    [(ngModel)]="renderedAlgorithm" 
+                                                    (selectionChange)="renderAllComparisons()"
+                                                >
+                                                    <mat-option
+                                                        *ngFor="let algorithm of algorithms" 
+                                                        [value]="algorithm"
+                                                    >
                                                         {{ algorithm }}
                                                     </mat-option>
                                                 </mat-select>
@@ -343,8 +469,14 @@
                                         <div class="col">
                                             <mat-form-field appearance="outline" class="example-full-width" style="margin-left: 10px">
                                                 <mat-label>Testing Ratio</mat-label>
-                                                <mat-select [(ngModel)]="renderedTestRatio" (selectionChange)="renderAllComparisons()">
-                                                    <mat-option *ngFor="let ratio of resultTestingRatios" [value]="ratio">
+                                                <mat-select
+                                                    [(ngModel)]="renderedTestRatio" 
+                                                    (selectionChange)="renderAllComparisons()"
+                                                >
+                                                    <mat-option
+                                                        *ngFor="let ratio of resultTestingRatios" 
+                                                        [value]="ratio"
+                                                    >
                                                         {{ ratio }}
                                                     </mat-option >
                                                 </mat-select>
@@ -381,11 +513,21 @@
                         <div [hidden]="!gotTestingRatioComparisons">
                             <div class="row">
                                 <div class="col">
-                                    <nav id="navbar-example4" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+                                    <nav
+                                        id="navbar-example4" 
+                                        class="navbar bg-body-tertiary px-3 mb-3" 
+                                        aria-labelledby="navHeading"
+                                    >
                                         <ul class="nav nav-pills">
                                             <h4 id="table2-desc"><strong>Actual Vs Predicted Values of trained model</strong></h4>
                                         </ul>
-                                        <select style="width: 150px" class="form-select" [(ngModel)]="comparisonOption" (change)="changeComparisonOption()" aria-label="Default select example">
+                                        <select 
+                                            style="width: 150px" 
+                                            class="form-select" 
+                                            [(ngModel)]="comparisonOption" 
+                                            (change)="changeComparisonOption()" 
+                                            aria-label="Default select example"
+                                        >
                                             <option selected>Line Plot</option>
                                             <option value="Table">Table</option>
                                         </select>
@@ -418,10 +560,30 @@
                                             <!--
                                                 ** Paginator for table **
                                             -->
-                                            <div id="paginator3" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                                <button type="button" [ngClass]="classForPreviousButtonPredicted" (click)="previousPredicted()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                                <button type="button" id="paginator3indicator" class="btn btn-outline-secondary" disabled>{{predictedTableIndex}} - {{predictedTableIndex + 5}} of {{numberOfRecordsPredicted}}</button>
-                                                <button type="button" [ngClass]="classForNextButtonPredicted" (click)="nextPredicted()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                            <div 
+                                                id="paginator3" 
+                                                class="justify-content-end btn-group" 
+                                                role="group" 
+                                                aria-label="Button group with nested dropdown"
+                                            >
+                                                <button 
+                                                    type="button" 
+                                                    [ngClass]="classForPreviousButtonPredicted" 
+                                                    (click)="previousPredicted()" 
+                                                    class="btn btn-outline-secondary"
+                                                >{{'\u21E6'}}</button>
+                                                <button 
+                                                    type="button" 
+                                                    id="paginator3indicator" 
+                                                    class="btn btn-outline-secondary" 
+                                                    disabled
+                                                >{{predictedTableIndex}} - {{predictedTableIndex + 5}} of {{numberOfRecordsPredicted}}</button>
+                                                <button 
+                                                    type="button" 
+                                                    [ngClass]="classForNextButtonPredicted" 
+                                                    (click)="nextPredicted()" 
+                                                    class="btn btn-outline-secondary"
+                                                >{{'\u21E8'}}</button>
                                             </div>
                                             
                                         </div>
@@ -583,6 +745,12 @@
                                     </mat-select>
                                 </mat-form-field>
                             </span>
+                            <span>
+                                <mat-form-field appearance="outline" style="width: 300px">
+                                    <mat-label>% (Ideal relative change)</mat-label>
+                                    <input type="text" [(ngModel)]="relativeChange" matInput placeholder="5 %">
+                                </mat-form-field>
+                            </span>
                             <button style="margin-left: 10px" mat-raised-button color="warn" data-bs-toggle="modal" data-bs-target="#exampleModal2">Add to master</button>
                             <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
@@ -632,11 +800,11 @@
                                 </span>
                                 <span>
                                     <mat-form-field appearance="outline">
-                                        <select matNativeControl [(ngModel)]="timeFormat" (selectionChange)="changeShowByArray()" required>
-                                            <option value="Days">Days</option>
-                                            <option value="Months">Months</option>
-                                            <option value="Years">Years</option>
-                                        </select>
+                                        <mat-select matNativeControl [(ngModel)]="timeFormat" (selectionChange)="changeShowByArray()" required>
+                                            <mat-option value="Days">Days</mat-option>
+                                            <mat-option value="Months">Months</mat-option>
+                                            <mat-option value="Years">Years</mat-option>
+                                        </mat-select>
                                     </mat-form-field>
                                 </span>
                                 <span>

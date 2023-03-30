@@ -32,6 +32,10 @@ export class FlaskService {
 		return this.http.post('process/sendTrainingSpecifics', trainingSpecifics)
 	}
 
+	public storeCsvData(csvData: any) {
+		return this.http.post('csvInstance/addCsvInstances', csvData)
+	}
+
 	public train() {
 		return this.http.get('process/train')
 	}
@@ -68,12 +72,30 @@ export class FlaskService {
 		return this.http.get('process/getListOfAllTrained')
 	}
 
-	public getTestingRatioComparisons(junction: string) {
-		return this.http.get('process/getTestingRatioComparisons?junction=' + junction)
+	public getTestingRatioComparisons(action: string, junction: string) {
+		return this.http.get('process/getTestingRatioComparisons?action=' + action + '&junction=' + junction)
 	}
 
-	public addToMaster(junction: string, algorithm: string, testRatio: number) {
-		return this.http.get('process/addToMaster?junction=' + junction + '&algorithm=' + algorithm + '&testRatio=' + testRatio)
+	public addToMaster(
+		junction: string, 
+		algorithm: string, 
+		testRatio: number,
+		relativeChange: number
+	) {
+		return this.http.get('process/addToMaster'
+			+ '?junction=' + junction 
+			+ '&algorithm=' + algorithm 
+			+ '&testRatio=' + testRatio 
+			+ "&relativeChange=" + relativeChange
+		)
+	}
+
+	public getRelativeChange(factor: string) {
+		return this.http.get('process/getRelativeChange?factor=' + factor)
+	}
+
+	public getAllRelativeChange() {
+		return this.http.get('process/getAllRelativeChange')
 	}
 
 	public getMasterTrainedDataPlot() {
@@ -91,6 +113,10 @@ export class FlaskService {
 	public predictForHighestAccuracy(junction: string, algorithm: string, testRatio: number) {
 		return this.http.get('process/predictForHighestAccuracy?junction=' + junction + '&algorithm=' + algorithm + '&testRatio=' + testRatio)
 	}
+	
+	public checkIfTrained(junction: string) {
+		return this.http.get('process/checkIfTrained?junction=' + junction)
+	}
 
 	public getActualVsPredictedComparison() {
 		return this.http.get('process/getActualVsPredictedComparison')
@@ -106,6 +132,10 @@ export class FlaskService {
 
 	public getDaysPrediction() {
 		return this.http.get('process/getDaysPrediction')
+	}
+
+	public checkIfJunctionDataExists() {
+		return this.http.get('process/checkIfJunctionDataExists')
 	}
 
 }

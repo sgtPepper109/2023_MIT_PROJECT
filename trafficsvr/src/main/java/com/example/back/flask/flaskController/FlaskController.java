@@ -2,6 +2,8 @@ package com.example.back.flask.flaskController;
 
 import java.util.Collections;
 
+import com.example.back.csvInstance.csvInstanceController.CsvInstanceController;
+import com.example.back.csvInstance.csvInstance.CsvInstance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -47,13 +49,20 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getAllUniqueJunctions");
 	}	
 	
-	
-	@GetMapping("/getTestingRatioComparisons")
-	public String getTestingRatioComparisons(@RequestParam String junction) {
+	@GetMapping("/checkIfTrained")
+	public String checkIfTrained(@RequestParam String junction) {
 		log.info("GET: /process/getTestingRatioComparisons");
 		GetURLContents getURLContents = new GetURLContents();
 		junction = junction.replaceAll("\\s", "%20");
-		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons?junction=" + junction);
+		return getURLContents.getData(flaskUrl + "/checkIfTrained?junction=" + junction);
+	}
+	
+	@GetMapping("/getTestingRatioComparisons")
+	public String getTestingRatioComparisons(@RequestParam String action, @RequestParam String junction) {
+		log.info("GET: /process/getTestingRatioComparisons");
+		GetURLContents getURLContents = new GetURLContents();
+		junction = junction.replaceAll("\\s", "%20");
+		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons?action=" + action + "&junction=" + junction);
 	}
 	
 	@GetMapping("/getAllModelSummaries")
@@ -102,7 +111,8 @@ public class FlaskController {
 	public String addToMaster(
 		@RequestParam String junction,
 		@RequestParam String algorithm,
-		@RequestParam String testRatio
+		@RequestParam String testRatio,
+		@RequestParam String relativeChange
 	) {
 		log.info("GET: /process/addToMaster");
 		GetURLContents getURLContents = new GetURLContents();
@@ -114,9 +124,27 @@ public class FlaskController {
 			flaskUrl + 
 			"/addToMaster?junction=" + junction + 
 			"&algorithm=" + algorithm + 
-			"&testRatio=" + testRatio
+			"&testRatio=" + testRatio +
+			"&relativeChange=" + relativeChange
 		);
 	}
+
+	@GetMapping("/getAllRelativeChange")
+	public String getAllRelativeChange() {
+		log.info("GET: /process/getAllRelativeChange");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getAllRelativeChange");
+	}
+	
+	@GetMapping("/getRelativeChange")
+	public String getRelativeChange(@RequestParam String factor) {
+		log.info("GET: /process/getRelativeChange");
+		factor = factor.replaceAll("\\s", "%20");
+		System.out.println(factor);
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getRelativeChange?factor=" + factor);
+	}
+	
 	
 	@GetMapping("/getMasterTrainedDataPlot")
 	public String getMasterTrainedDataPlot() {
