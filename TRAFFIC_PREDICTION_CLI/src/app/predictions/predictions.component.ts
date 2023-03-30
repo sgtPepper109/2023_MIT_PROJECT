@@ -8,7 +8,8 @@ import { ngxCsv } from 'ngx-csv';
 import { Router, NavigationEnd } from '@angular/router';
 import { tableRecord } from '../interfaces/all-interfaces';
 import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
-
+import {ThemePalette} from '@angular/material/core';
+import {ProgressBarMode} from '@angular/material/progress-bar';
 
 @Component({
 	selector: 'app-page2',
@@ -19,12 +20,24 @@ export class PredictionsComponent implements OnInit {
 	constructor(
 		private router: Router,
 		private propService: PropService,
-		private _snackBar: MatSnackBar,
 		private flaskService: FlaskService,
 		private junctionSpecificsService: JunctionSpecificsService
 	) {
 	}
 
+	percentageBarColor: ThemePalette = 'primary';
+	percentageBarMode: ProgressBarMode = 'determinate';
+	percentageBarBufferValue = 75;
+
+
+	percentageOfVehiclesCrossedTrendLimit: number = 0
+	relativeChangeFactor: string = ""
+	factorsForRelativeChange: Array<string> = ['Mean (Average)', 'Mode', 'Median', 'First Prediction Instance', 'Last pcu observation']
+	allRelativeChanges: any
+	relativeChange: number = 0
+	countVehiclesCrossedRelativeTrend: number = 0
+	showWhenFirstRecommendation: boolean = true
+	relativeChangeArray: Array<number> = []
 	firstDayOfTreatment: number = 0
 	countNumberOfDaysBeforeFirstTreatment: number = 0
 	firstTreatmentRecommendationTime: string = ""
@@ -177,7 +190,8 @@ export class PredictionsComponent implements OnInit {
 			this.toggleFuturePredictionsTable = false
 		}
 	}
-	
+
+
 
 
 	setVehiclesAndDateTime(param1: any, param2: any) {
@@ -221,7 +235,7 @@ export class PredictionsComponent implements OnInit {
 	}
 	
 
-	plotFuturePredictions(x: any, y: any, z: any) {
+	plotFuturePredictions(x: any, y: any, z: any, r: any) {
 		// prediction is done
 		this.futurePredictionsChartHidden = false
 
@@ -248,13 +262,13 @@ export class PredictionsComponent implements OnInit {
 						borderColor: '#0000FF',
 						fill: false
 					},
-					// {
-					// 	label: 'Max Value in prediction',
-					// 	data: this.maxInPlotArray,
-					// 	borderWidth: 1,
-					// 	borderColor: '#090',
-					// 	fill: false,
-					// }
+					{
+						label: 'Relative Change',
+						data: r,
+						borderWidth: 1,
+						borderColor: '#090',
+						fill: false,
+					}
 				]
 			},
 			options: {
@@ -439,8 +453,39 @@ export class PredictionsComponent implements OnInit {
 	nextMonth() {
 	}
 
+
+	async convertDateTimeToBePlotted(dateTimeToBePlotted: Array<string>) {
+		return new Promise<Array<string>>((resolve, reject) => {
+			let newDateTimeToBePlotted: Array<string> = []
+			if (this.showBy == 'Years') {
+				for (let element of dateTimeToBePlotted) {
+					newDateTimeToBePlotted.push(element.slice(0, 4))
+				}
+				resolve(newDateTimeToBePlotted)
+			} else if (this.showBy != 'Years' && this.showBy != 'Hours') {
+				for (let element of dateTimeToBePlotted) {
+					newDateTimeToBePlotted.push(element.slice(0, 10))
+				}
+				resolve(newDateTimeToBePlotted)
+			}
+		})
+	}
+
+
+
+	getPercentageOfTimesCrossed() {
+
+		this.percentageOfVehiclesCrossedTrendLimit = (this.countVehiclesCrossedRelativeTrend / this.vehiclesToBePlotted.length) * 100
+		console.log('this.percentageOfVehiclesCrossedTrendLimit', this.percentageOfVehiclesCrossedTrendLimit)
+		return this.percentageOfVehiclesCrossedTrendLimit
+
+	}
+
+
+
 	renderPredictions() {
 		this.numberOfTimesCrossedMaxCapacity = 0
+		this.countVehiclesCrossedRelativeTrend = 0
 		this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
 		this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
 		this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
@@ -457,8 +502,29 @@ export class PredictionsComponent implements OnInit {
 
 
 		this.maxVehicles = Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
-		this.plotFuturePredictions(this.dateTimeToBePlotted, this.vehiclesToBePlotted, this.maxVehicles)
 
+		this.convertDateTimeToBePlotted(this.dateTimeToBePlotted).then((result) => {
+			this.dateTimeToBePlotted = result
+			this.plotFuturePredictions(
+				this.dateTimeToBePlotted, 
+				this.vehiclesToBePlotted, 
+				this.maxVehicles,
+				this.relativeChangeArray
+			)
+		})
+
+
+
+		for (let i = 0; i < this.relativeChangeArray.length; i++) {
+			if (this.vehiclesToBePlotted[i] > this.relativeChangeArray[i]) {
+				this.countVehiclesCrossedRelativeTrend ++
+			}
+		}
+
+
+		console.log(this.getPercentageOfTimesCrossed())
+		console.log('a', this.countVehiclesCrossedRelativeTrend)
+		console.log('b', this.vehiclesToBePlotted.length)
 
 		this.firstTreatmentRecommendationTime = ""
 		this.firstTreatmentRecommendationVehicles = 0
@@ -471,6 +537,11 @@ export class PredictionsComponent implements OnInit {
 				break;
 			}
 		}
+
+		if (this.countNumberOfDaysBeforeFirstTreatment == this.dateTimeToBePlotted.length) {
+			this.showWhenFirstRecommendation = false
+		}
+
 
 		for (let element of this.vehiclesToBePlotted) {
 			if (element > this.currentMaxVehicles) {
@@ -540,13 +611,40 @@ export class PredictionsComponent implements OnInit {
 	}
 
 
+	changeFactor() {
+		this.predict()
+	}
+	
+
 
 	async renderAll() {
 		return new Promise<void>((resolve, reject) => {
-			this.renderPredictions()
-			this.renderJunctionComparison()
-			this.renderJunctionAccuracyPie()
-			resolve()
+			this.flaskService.getRelativeChange(this.relativeChangeFactor).subscribe({
+				next: (response) => {
+					this.relativeChangeArray = Object.values(response)
+
+					this.flaskService.getAllRelativeChange().subscribe({
+						next: (response) => {
+							this.allRelativeChanges = response
+							this.relativeChange = this.allRelativeChanges[this.junctionChoice]
+							this.renderPredictions()
+							this.renderJunctionComparison()
+							this.renderJunctionAccuracyPie()
+							resolve()
+						},
+						error: (error) => {
+							console.log('error', error)
+						}
+					})
+
+
+				},
+				error: (error: HttpErrorResponse) => {
+					console.log('error', error)
+					reject()
+				}
+
+			})
 		})
 	}
 
@@ -580,18 +678,6 @@ export class PredictionsComponent implements OnInit {
 				this.getMasterData().then(() => {
 					this.setAccuracyComparisonTableData().then(() => {
 						this.renderAll().then(() => {
-
-							// after rendering all plots, get the first treatment recommendation time
-							// this.flaskService.getDaysPrediction().subscribe({
-							// 	next: (response) => {
-							// 		console.log('response', response)
-							// 		this.firstDayOfTreatment = Object.values(response)[0]
-
-							// 	},
-							// 	error: (error: HttpErrorResponse) => {
-							// 		console.log('error', error)
-							// 	}
-							// })
 
 						})
 					})
@@ -639,7 +725,7 @@ export class PredictionsComponent implements OnInit {
 
 	changeShowByArray() {
 		if (this.time == 'Years') {
-			this.showByArray = ['Days', 'Weeks', 'Months']
+			this.showByArray = ['Days', 'Weeks', 'Months', 'Years']
 			this.showBy = 'Weeks'
 		}
 		if (this.time == 'Months') {
@@ -650,9 +736,12 @@ export class PredictionsComponent implements OnInit {
 			this.showByArray = ['Hours', 'Days']
 			this.showBy = 'Hours'
 		}
+		this.predict()
 	}
 
 	ngOnInit() {
+
+		this.relativeChangeFactor = this.factorsForRelativeChange[3]
 
 		this.getAllJunctionSpecificDataFromDB().then(() => {
 			this.duration = 5

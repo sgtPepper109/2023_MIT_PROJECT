@@ -24,3 +24,15 @@ export interface RoadwayWidthMaxVehiclesMap {
     roadwayWidth: number;
     maxVehicles: number;
 }
+
+export interface csvInstance {
+    dateTime: string,
+    junction: string,
+    vehicles: number
+}
+
+export interface trainingDetails {
+	junction: string,
+	testRatio: number,
+	algorithm: string
+}

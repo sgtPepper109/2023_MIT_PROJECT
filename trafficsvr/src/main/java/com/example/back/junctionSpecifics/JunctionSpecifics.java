@@ -49,7 +49,6 @@ public class JunctionSpecifics {
 		List<JunctionDistrictMap> allJunctionDistrictMaps = this.junctionDistrictMapService.getAllJunctionDistrictMaps();
 		List<String> allJunctions = new ArrayList<String>();
 		for (JunctionDistrictMap j: allJunctionDistrictMaps) {
-			System.out.println("here" + j.getJunctionName());
 			allJunctions.add(j.getJunctionName());
 		}
 		return new ResponseEntity<>(allJunctions, HttpStatus.OK);

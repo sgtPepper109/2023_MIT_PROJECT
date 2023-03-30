@@ -18,7 +18,7 @@ export class PropService {
 	public junctions: any
 	public datetime: any
 	public vehicles: any
-
+	public relativeChange: number = 0
 
 	constructor() {
 		// TODO Constructor

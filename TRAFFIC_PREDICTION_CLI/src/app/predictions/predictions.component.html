@@ -87,7 +87,7 @@
                                 </mat-form-field>
                                 <mat-form-field appearance="outline">
                                     <mat-label>Amount of Time</mat-label>
-                                    <mat-select [(ngModel)]="time">
+                                    <mat-select [(ngModel)]="time" (selectionChange)="changeShowByArray()">
                                         <mat-option value="Days">Days</mat-option>
                                         <mat-option value="Months">Months</mat-option>
                                         <mat-option value="Years">Years</mat-option>
@@ -96,13 +96,44 @@
                                 <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
                                 <mat-form-field appearance="outline">
                                     <mat-label>Show By</mat-label>
-                                    <mat-select [(ngModel)]="showBy">
+                                    <mat-select [(ngModel)]="showBy" (selectionChange)="predict()">
                                         <mat-option *ngFor="let element of showByArray" [value]="element">{{ element }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Factor</mat-label>
+                                    <mat-select [(ngModel)]="relativeChangeFactor" (selectionChange)="predict()">
+                                        <mat-option *ngFor="let element of factorsForRelativeChange" [value]="element">{{ element }}</mat-option>
                                     </mat-select>
                                 </mat-form-field>
 
                                 <div>
-                                    <h3>
+                                    <p>
+                                        <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
+                                            <mat-icon>description</mat-icon>
+                                        </button>
+                                    </p>
+                                    <div class="collapse show" id="collapseExample">
+                                        <div class="card card-body alert alert-dark">
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">Belongs to</th>
+                                                        <td>{{ currentDistrict }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row">Roadway Width</th>
+                                                        <td>{{ currentRoadwayWidth }} metres</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row">Capacity</th>
+                                                        <td>{{ currentMaxVehicles }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- <h3>
                                         Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
                                     </h3>
                                     <h3>
@@ -110,7 +141,7 @@
                                     </h3>
                                     <h3>
                                         Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
-                                    </h3>
+                                    </h3> -->
                                 </div>
                                 <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
                                     <thead>
@@ -181,7 +212,7 @@
                                 <input [(ngModel)]="duration" type="number" matInput placeholder="Enter period">
                             </mat-form-field>
                             <mat-form-field appearance="outline">
-                                <mat-label>Duration</mat-label>
+                                <mat-label>Amount Of Time</mat-label>
                                 <mat-select [(ngModel)]="time" (selectionChange)="changeShowByArray()">
                                     <mat-option value="Days">Days</mat-option>
                                     <mat-option value="Months">Months</mat-option>
@@ -191,12 +222,59 @@
                             <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
                             <mat-form-field style="float:right" appearance="outline">
                                 <mat-label>Show By</mat-label>
-                                <mat-select type="text" [(ngModel)]="showBy">
+                                <mat-select type="text" [(ngModel)]="showBy" (selectionChange)="predict()">
                                     <mat-option *ngFor="let time of showByArray" [value]="time">{{ time }}</mat-option>
                                 </mat-select>
                             </mat-form-field>
+                            <mat-form-field style="float:right; width: 300px" appearance="outline">
+                                <mat-label>Factor</mat-label>
+                                <mat-select [(ngModel)]="relativeChangeFactor" (selectionChange)="predict()">
+                                    <mat-option *ngFor="let element of factorsForRelativeChange" [value]="element">{{ element }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
                             <div>
-                                <h3>
+                                <p>
+                                    <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
+                                        <mat-icon>notification_important</mat-icon>
+                                    </button>
+                                </p>
+                                <div class="collapse" id="collapseExample" style="width:500px">
+                                    <div class="card card-body alert alert-dark">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">Belongs to</th>
+                                                    <td>{{ currentDistrict }} District</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Roadway Width</th>
+                                                    <td>{{ currentRoadwayWidth }} metres</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Capacity</th>
+                                                    <td>{{ currentMaxVehicles }}</td>
+                                                </tr>
+                                                <!-- <tr>
+                                                    <th scope="row">Number of times crossed max capacity</th>
+                                                    <td>{{ numberOfTimesCrossedMaxCapacity }}</td>
+                                                </tr> -->
+                                                <tr *ngIf="showWhenFirstRecommendation">
+                                                    <th scope="row">First Treatment needed in</th>
+                                                    <td>{{ countNumberOfDaysBeforeFirstTreatment }} {{ this.showBy }} after start</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Relative Change</th>
+                                                    <td>{{ relativeChange }} %</td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Number Of Times Crossed</th>
+                                                    <td>{{ countVehiclesCrossedRelativeTrend }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- <h3>
                                     Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
                                 </h3>
                                 <h3>
@@ -204,11 +282,11 @@
                                 </h3>
                                 <h3>
                                     Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
-                                </h3>
+                                </h3> -->
                             </div>
-                            <div [hidden]="futurePredictionsChartHidden">
-                                <div>
-                                    <canvas style="padding-left: 100px; padding-right: 100px;" id="myChart"></canvas>
+                            <div [hidden]="futurePredictionsChartHidden" style="padding-left: 150px;">
+                                <div class="chart-container" style="position: relative; height:75vh; width:150vw">
+                                    <canvas id="myChart"></canvas>
                                 </div>
                                 <div *ngIf="yearsPaginatorShow" style="padding-top: 10px;">
                                     <nav aria-label="Page navigation example">
@@ -242,6 +320,19 @@
                                         </strong>
                                     </p> -->
                                 </div>
+                            </div>
+                            <div>
+                                <br />
+                                <h1>Range of tendency towards treatment</h1>
+                                <section class="example-section">
+                                    <mat-progress-bar
+                                        class="example-margin"
+                                        [color]="percentageBarColor"
+                                        [mode]="percentageBarMode"
+                                        [value]="percentageOfVehiclesCrossedTrendLimit"
+                                        [bufferValue]="75">
+                                    </mat-progress-bar>
+                                </section>
                             </div>
                         </mat-card-content>
                     </mat-card>

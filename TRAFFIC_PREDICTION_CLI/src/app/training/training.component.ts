@@ -1,22 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { PropService } from '../services/propService/prop.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
-import { FormBuilder } from '@angular/forms';
 import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
 import { ngxCsv } from 'ngx-csv';
 import { SampleCsvData } from 'src/assets/sample';
-import { tableRecord } from '../interfaces/all-interfaces';
-
-interface trainingDetails {
-	junction: string,
-	testRatio: number,
-	algorithm: string
-}
+import { tableRecord, csvInstance, trainingDetails } from '../interfaces/all-interfaces';
 
 @Component({
 	selector: 'app-training',
@@ -34,6 +26,11 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
+	datasetDescriptionIcon = "speaker_notes_off"
+	trainingAction: string = ""
+	showTrainingOptions: boolean = false
+	junctionsAlreadyTrained = new Set<string>();
+	csvParsedData: any
 	ultimateData: Array<any>  = []
 	algorithms: Array<string> = [
 		'Random Forest Regression',
@@ -43,7 +40,7 @@ export class TrainingComponent implements OnInit {
 		'Lasso Regression',
 		'Bayesian Ridge Regression'
 	]
-
+	relativeChange: string = ""
 	highestAccuracy: number = 0
 	showBy: string = ""
 	showByArray: Array<string> = []
@@ -157,7 +154,7 @@ export class TrainingComponent implements OnInit {
 	numberOfRecords: number = 0  // total number of records in table for displaying in paginator
 	predictedTableIndex: number = 0  // holds paginator index for predicted values table
 	numberOfRecordsPredicted: number = 0  // total number of records in table for displaying in paginator
-	csvData: Array<any> = []
+	csvData: Array<csvInstance> = []
 
 	displayedColumns: Array<string> = []  // array that holds all column values that will be shown in mat-table
 	dataSource: any  // holds data for rendering row values in table
@@ -226,6 +223,15 @@ export class TrainingComponent implements OnInit {
 				alert(error.message)
 			}
 		})
+	}
+
+	changeDatasetDescriptionIcon() {
+		if (this.datasetDescriptionIcon == 'speaker_notes') {
+			this.datasetDescriptionIcon = 'speaker_notes_off'
+		}
+		else {
+			this.datasetDescriptionIcon = 'speaker_notes'
+		}
 	}
 
 
@@ -398,6 +404,44 @@ export class TrainingComponent implements OnInit {
 
 	}
 
+
+	processAndStartTraining() {
+		if (this.showTrainingOptions == false) {
+			this.startTraining('clear')
+		} else {
+			if (this.trainingAction == 'clear') {
+				this.startTraining('clear')
+			}
+			if (this.trainingAction == 'append') {
+				this.startTraining('append')
+			}
+		}
+	}
+
+	checkJunction() {
+		this.flaskService.checkIfTrained(this.inputJunction).subscribe({
+			next: (response) => {
+				if (Object.values(response)[0] == true) {
+					this.showTrainingOptions = true
+					this.trainingAction = 'clear'
+				}
+				if (Object.values(response)[0] == false) {
+					this.showTrainingOptions = false
+				}
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+			}
+		})
+
+
+		// if (this.junctionsAlreadyTrained.has(this.inputJunction)) {
+		// 	this.showTrainingOptions = true
+		// } else {
+		// 	this.showTrainingOptions = false
+		// }
+	}
+
 	fileChangeListener($event: any): void {
 
 		this.fileProcessing = true
@@ -412,6 +456,7 @@ export class TrainingComponent implements OnInit {
 			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
 				next: (result): void => {
+					this.csvParsedData = result
 					this.correctJunctions = true
 					this.uniqueJunctionsInDataset = []
 					for (const element of Object.values(result)) {
@@ -431,22 +476,37 @@ export class TrainingComponent implements OnInit {
 					if (this.correctJunctions) {
 						this.junctions = this.uniqueJunctionsInDataset
 						this.inputJunction = this.junctions[0]
+
+
+
+						for (let instance of Object.values(result)) {
+
+							let csvRecord: csvInstance = {
+								dateTime: instance['DateTime'].toString(),
+								junction: instance['Junction'],
+								vehicles: instance['Vehicles']
+							}
+							this.csvData.push(csvRecord)
+						}
+
+
+
+						this.checkJunction()
+
+						// this.flaskService.storeCsvData(this.csvData).subscribe({
+						// 	next: (response) => {
+						// 		console.log('response', response)
+						// 	},
+						// 	error: (error: HttpErrorResponse) => {
+						// 		console.log('error', error)
+						// 	}
+							
+						// })
+
+
 						this.flaskService.sendCsvData(result).subscribe({
 							next: (response) => {
-								for (const element of Object.values(result)) {
-									let record: Object = {
-										'Junction': element['Junction'],
-										'DateTime': element['DateTime'],
-										'Vehicles': element['Vehicles'],
-									}
-									this.datetime = []
-									this.datetime.push(element.DateTime)
-									this.vehicles = []
-									this.vehicles.push(element.Vehicle)
-									this.csvData.push(record)
-									this.csvDataParsed = true
-									this.propService.data = this.csvData
-								}
+								this.csvDataParsed = true
 								this.datasetUploaded = true
 								this.inputJunctionDisabled = false
 								this.fileProcessing = false
@@ -455,6 +515,9 @@ export class TrainingComponent implements OnInit {
 								alert(error.message)
 							}
 						})
+
+
+
 
 					} else {
 						this.dataset = ""
@@ -979,9 +1042,9 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-	async trainAllJunctionsAndGetComparisons() {
+	async trainAllJunctionsAndGetComparisons(action: string) {
 		return new Promise<void>((resolve, reject) => {
-			this.flaskService.getTestingRatioComparisons(this.inputJunction).subscribe({
+			this.flaskService.getTestingRatioComparisons(action, this.inputJunction).subscribe({
 				next: (response) => {
 					this.predictionReady = true
 					this.startedTraining = false
@@ -1005,8 +1068,8 @@ export class TrainingComponent implements OnInit {
 
 	changeShowByArray() {
 		if (this.timeFormat == 'Years') {
-			this.showByArray = ['Days', 'Weeks', 'Months']
-			this.showBy = 'Weeks'
+			this.showByArray = ['Days', 'Weeks', 'Months', 'Years']
+			this.showBy = 'Years'
 		}
 		if (this.timeFormat == 'Months') {
 			this.showByArray = ['Days', 'Weeks']
@@ -1019,7 +1082,7 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-	startTraining() {
+	startTraining(action: string) {
 		this.gotTestingRatioComparisons = false
 		this.predictionReady = false
 		this.comparisonChartHidden = false
@@ -1035,6 +1098,7 @@ export class TrainingComponent implements OnInit {
 			this.startProcess = true
 			this.toggleErrorString = false
 			if (this.inputJunction != '') {
+				this.junctionsAlreadyTrained.add(this.inputJunction)
 				let trainingSpecificData: trainingDetails = {
 					junction: this.inputJunction,
 					testRatio: parseFloat(this.inputTestRatio),
@@ -1042,9 +1106,9 @@ export class TrainingComponent implements OnInit {
 				}
 				if (this.uniqueJunctionsInDataset.includes(this.inputJunction)) {
 					this.getExistingData()
-					this.trainAllJunctionsAndGetComparisons().then(() => {
+					this.trainAllJunctionsAndGetComparisons(action).then(() => {
 						this.getAllModelSummaries().then(() => {
-							this.time = 5
+							this.time = 15
 							this.timeFormat = 'Years'
 							this.changeShowByArray()
 							this.predict()
@@ -1115,6 +1179,7 @@ export class TrainingComponent implements OnInit {
 									this.futurePredictionsTableData = Object.values(response)
 									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
 									this.futurePredictionsReady = true
+									this.checkJunction
 								},
 								error: (error: HttpErrorResponse) => {
 									alert(error.message)
@@ -1144,8 +1209,16 @@ export class TrainingComponent implements OnInit {
 
 	addToMaster() {
 
-		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "") {
-			this.flaskService.addToMaster(this.inputJunction, this.algorithmToAddToMaster, parseFloat(this.testRatioToAddToMaster)).subscribe({
+		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "" && this.relativeChange != "") {
+			let relativeChange = parseFloat(this.relativeChange)
+			this.propService.relativeChange = relativeChange
+			let testRatioToAddToMaster = parseFloat(this.testRatioToAddToMaster)
+			this.flaskService.addToMaster(
+				this.inputJunction, 
+				this.algorithmToAddToMaster, 
+				testRatioToAddToMaster,
+				relativeChange
+			).subscribe({
 				next: (response) => {
 					// this._snackBar.open('Added to master')
 					this.toggleSuccessToast = true

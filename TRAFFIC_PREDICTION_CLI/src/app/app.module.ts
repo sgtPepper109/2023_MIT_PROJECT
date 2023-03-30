@@ -40,6 +40,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTreeModule } from '@angular/material/tree';
+import { MatRadioModule } from '@angular/material/radio';
 
 
 
@@ -84,7 +85,8 @@ import { MatTreeModule } from '@angular/material/tree';
 		MatProgressSpinnerModule,
 		ScrollingModule,
 		MatExpansionModule,
-		MatTreeModule
+		MatTreeModule,
+		MatRadioModule
 	],
 	providers: [
 		{
