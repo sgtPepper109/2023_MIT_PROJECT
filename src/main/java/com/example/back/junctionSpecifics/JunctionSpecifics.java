@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -39,6 +41,17 @@ public class JunctionSpecifics {
 		roadwayWidthMaxVehiclesMapService.truncateRoadwayWidthMaxVehiclesMaps();
 		
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	
+	@GetMapping("/getAllJunctions")
+	public ResponseEntity<List<String>> getAllJunctions() {
+		List<JunctionDistrictMap> allJunctionDistrictMaps = this.junctionDistrictMapService.getAllJunctionDistrictMaps();
+		List<String> allJunctions = new ArrayList<String>();
+		for (JunctionDistrictMap j: allJunctionDistrictMaps) {
+			allJunctions.add(j.getJunctionName());
+		}
+		return new ResponseEntity<>(allJunctions, HttpStatus.OK);
 	}
 
 }

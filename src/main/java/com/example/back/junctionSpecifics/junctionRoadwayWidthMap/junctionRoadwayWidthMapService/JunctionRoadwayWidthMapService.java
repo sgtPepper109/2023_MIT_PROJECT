@@ -30,4 +30,13 @@ public class JunctionRoadwayWidthMapService {
 		return junctionRoadwayWidthMapRepository.findAll();
 	}
 
+    public void update(String junction, JunctionRoadwayWidthMap junctionRoadwayWidthMap) {
+    	junctionRoadwayWidthMapRepository.delete(junction);
+    	this.junctionRoadwayWidthMapRepository.save(junctionRoadwayWidthMap);
+    }
+    
+    public void delete(String junction) {
+    	junctionRoadwayWidthMapRepository.delete(junction);
+    }
+
 }

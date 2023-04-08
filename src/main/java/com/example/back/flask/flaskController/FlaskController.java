@@ -2,6 +2,8 @@ package com.example.back.flask.flaskController;
 
 import java.util.Collections;
 
+import com.example.back.csvInstance.csvInstanceController.CsvInstanceController;
+import com.example.back.csvInstance.csvInstance.CsvInstance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,25 +42,138 @@ public class FlaskController {
 	public FlaskController() {
 		/* NOTE: Document why this method is empty */ }
 
-	@GetMapping("/revealPredictions")
-	public String revealPredictions() {
+	@GetMapping("/getAllUniqueJunctions")
+	public String getAllUniqueJunctions() {
+		log.info("GET: /process/getAllUniqueJunctions");
 		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/revealPredictions");
+		return getURLContents.getData(flaskUrl + "/getAllUniqueJunctions");
+	}	
+	
+	@GetMapping("/checkIfTrained")
+	public String checkIfTrained(@RequestParam String junction) {
+		log.info("GET: /process/getTestingRatioComparisons");
+		GetURLContents getURLContents = new GetURLContents();
+		junction = junction.replaceAll("\\s", "%20");
+		return getURLContents.getData(flaskUrl + "/checkIfTrained?junction=" + junction);
+	}
+	
+	@GetMapping("/getTestingRatioComparisons")
+	public String getTestingRatioComparisons(@RequestParam String action, @RequestParam String junction) {
+		log.info("GET: /process/getTestingRatioComparisons");
+		GetURLContents getURLContents = new GetURLContents();
+		junction = junction.replaceAll("\\s", "%20");
+		return getURLContents.getData(flaskUrl + "/getTestingRatioComparisons?action=" + action + "&junction=" + junction);
+	}
+	
+	@GetMapping("/getAllModelSummaries")
+	public String getModelSummaries() {
+		log.info("GET: /process/getAllModelSummaries");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getAllModelSummaries");
+	}	
+	
+	@GetMapping("/getActualVsPredictedComparisonTableData")
+	public String getActualVsPredictedComparisonTableData() {
+		log.info("GET: /process/getActualVsPredictedComparisonTableData");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getActualVsPredictedComparisonTableData");
+	}	
+	
+	@GetMapping("/getActualVsPredictedComparison")
+	public String getActualVsPredictedComparison() {
+		log.info("GET: /process/getActualVsPredictedComparison");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getActualVsPredictedComparison");
+	}	
+	
+	
+	@GetMapping("/predictForHighestAccuracy")
+	public String predictForHighestAccuracy(
+		@RequestParam String junction,
+		@RequestParam String algorithm,
+		@RequestParam String testRatio
+	) {
+		log.info("GET: /process/predictForHighestAccuracy");
+		GetURLContents getURLContents = new GetURLContents();
+		
+		algorithm = algorithm.replaceAll("\\s", "%20");
+		junction = junction.replaceAll("\\s", "%20");
+		
+		return getURLContents.getData(
+			flaskUrl + 
+			"/predictForHighestAccuracy?junction=" + junction + 
+			"&algorithm=" + algorithm + 
+			"&testRatio=" + testRatio
+		);
+	}
+	
+	@GetMapping("/addToMaster")
+	public String addToMaster(
+		@RequestParam String junction,
+		@RequestParam String algorithm,
+		@RequestParam String testRatio,
+		@RequestParam String relativeChange
+	) {
+		log.info("GET: /process/addToMaster");
+		GetURLContents getURLContents = new GetURLContents();
+		
+		algorithm = algorithm.replaceAll("\\s", "%20");
+		junction = junction.replaceAll("\\s", "%20");
+		
+		return getURLContents.getData(
+			flaskUrl + 
+			"/addToMaster?junction=" + junction + 
+			"&algorithm=" + algorithm + 
+			"&testRatio=" + testRatio +
+			"&relativeChange=" + relativeChange
+		);
 	}
 
-	@GetMapping("/readData")
-	public String getData() {
-		log.info("GET: /process/readData");
+	@GetMapping("/getAllRelativeChange")
+	public String getAllRelativeChange() {
+		log.info("GET: /process/getAllRelativeChange");
 		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getTableData");
+		return getURLContents.getData(flaskUrl + "/getAllRelativeChange");
 	}
-
+	
+	@GetMapping("/getRelativeChange")
+	public String getRelativeChange(@RequestParam String factor) {
+		log.info("GET: /process/getRelativeChange");
+		factor = factor.replaceAll("\\s", "%20");
+		System.out.println(factor);
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getRelativeChange?factor=" + factor);
+	}
+	
+	
+	@GetMapping("/getMasterTrainedDataPlot")
+	public String getMasterTrainedDataPlot() {
+		log.info("GET: /process/getMasterTrainedDataPlot");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getMasterTrainedDataPlot");
+	}
+	
+	@GetMapping("/getMasterTrainedDataTable")
+	public String getMasterTrainedDataTable() {
+		log.info("GET: /process/getMasterTrainedDataTable");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getMasterTrainedDataTable");
+	}
+	
+	@GetMapping("/getMasterTrainedJunctionsAccuracies")
+	public String getMasterTrainedJunctionsAccuracies() {
+		log.info("GET: /process/getMasterTrainedJunctionsAccuracies");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getMasterTrainedJunctionsAccuracies");
+	}
+	
 	@GetMapping("/getPlot")
 	public String getPlot() {
 		log.info("GET: /process/getPlot");
 		GetURLContents getURLContents = new GetURLContents();
 		return getURLContents.getData(flaskUrl + "/plot");
-	}
+	}	
+	
 	
 	@GetMapping("/predictAllJunctions")
 	public String trainAllJunctions() {
@@ -80,13 +196,6 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getAllJunctionsFuturePredictionsTable");
 	}
 	
-	@PostMapping("/input")
-	public String getInput(@RequestBody Object response) {
-		log.warn("POST: localhost:8080/process/input");
-		this.input = response;
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/input");
-	}
 
 	@GetMapping("/exchangeTime")
 	public Object exchangeTime() {
@@ -100,12 +209,6 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/listenTime");
 	}
 
-	@GetMapping("/getPredicted")
-	public String predict() {
-		log.info("GET: /process/getPredicted");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/predict");
-	}
 	
 	@GetMapping("/getFuturePredictionsTable")
 	public String getFuturePredictionsTable() {
@@ -121,17 +224,8 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/predictAgainstTime");
 	}
 
-	@GetMapping("/setData")
-	public String setData() {
-		log.info("GET: /process/setData");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/setData");
-	}
-
 	@PostMapping("/setCsvData")
 	public String getCsvData(@RequestBody Object response) {
-		System.out.println("response " + response);
-		System.out.println("PostMapping");
 		log.warn("POST: localhost:8080/process/setCsvData");
 		this.csvData = response;
 		GetURLContents getURLContents = new GetURLContents();
@@ -142,33 +236,6 @@ public class FlaskController {
 	public Object exhangeCsvData() {
 		log.info("GET: /process/exchangeCsvData");
 		return this.csvData;
-	}
-
-	@GetMapping("/exchangeInput")
-	public Object exchangeInput() {
-		log.info("GET: /process/exchangeInput");
-		return this.input;
-	}
-
-	@GetMapping("/getResultTable")
-	public String getResultTable() {
-		log.info("GET: /process/getResultTable");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getResultTable");
-	}
-
-	@GetMapping("/getAccuracy")
-	public String getAccuracy() {
-		log.info("GET: /process/getAccuracy");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAccuracy");
-	}
-
-	@GetMapping("/getActualPredicted")
-	public String getActualPredicted() {
-		log.info("GET: /process/getActualPredicted");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getActualPredicted");
 	}
 
 	@GetMapping("/getActualPredictedForPlot")
@@ -182,14 +249,8 @@ public class FlaskController {
 	public String getModelSummary() {
 		log.info("GET: /process/getModelSummary");
 		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getModelSummary");
-	}
-
-	@GetMapping("/getAllJunctions")
-	public String getAllJunctions() {
-		log.info("GET: /process/getAllJunctions");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAllJunctions");
+		String s = getURLContents.getData(flaskUrl + "/getModelSummary");
+		return s;
 	}
 
 	@GetMapping("/getAccuracies")
@@ -212,35 +273,7 @@ public class FlaskController {
 		return this.trainingSpecifics;
 	}
 
-	@GetMapping("/getAllJunctionsAccuracies")
-	public String getAllJunctionsAccuracies() {
-		log.info("GET: /process/getAllJunctionsAccuracies");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAllJunctionsAccuracies");
-	}
 
-	@GetMapping("/getAllJunctionsAccuracyScore")
-	public String getAllJunctionsAccuracyScore() {
-		log.info("GET: /process/getAllJunctionsAccuracyScore");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAllJunctionsAccuracyScore");
-	}
-
-	@GetMapping("/getAllJunctionsPredictedTableData")
-	public String getPredictedTableData() {
-		log.info("GET: /process/getPredictedTableData");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAllJunctionsPredictedTableData");
-	}
-
-	@GetMapping("/getAllJunctionsPlotData")
-	public String getAllJunctionsPlotData() {
-		log.info("GET: /process/getAllJunctionsPlotData");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAllJunctionsPlotData");
-	}
-	
-	
 	@GetMapping("/train")
 	public String train() {
 		log.info("GET: /process/train");

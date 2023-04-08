@@ -80,18 +80,18 @@ export class FlaskService {
 		junction: string, 
 		algorithm: string, 
 		testRatio: number,
-		relativeChange: number
+		startYear: number
 	) {
 		return this.http.get('process/addToMaster'
 			+ '?junction=' + junction 
 			+ '&algorithm=' + algorithm 
 			+ '&testRatio=' + testRatio 
-			+ "&relativeChange=" + relativeChange
+			+ '&startYear=' + startYear
 		)
 	}
 
-	public getRelativeChange(factor: string) {
-		return this.http.get('process/getRelativeChange?factor=' + factor)
+	public getRelativeChange(factor: string, junction: string) {
+		return this.http.get('process/getRelativeChange?factor=' + factor + '&junction=' + junction)
 	}
 
 	public getAllRelativeChange() {
@@ -136,6 +136,46 @@ export class FlaskService {
 
 	public checkIfJunctionDataExists() {
 		return this.http.get('process/checkIfJunctionDataExists')
+	}
+
+	public getJunctionFromRecommended(junction: string) {
+		return this.http.get('recommended/getJunctionInstances?junction=' + junction)
+	}
+
+	public storeRecommendation(recommended: Object) {
+		return this.http.post('recommended/addRecommended', recommended)
+	}
+
+	public increaseDistrictTreatmentCount(districtName: string) {
+		return this.http.get('districtTreatmentCount/increaseDistrictTreatmentCount?districtName=' + districtName)
+	}
+
+	public getAllAlgorithms() {
+		return this.http.get('process/getAllAlgorithms')
+	}
+
+	public getEndYearFromDataset() {
+		return this.http.get('process/getEndYearFromDataset')
+	}
+
+	public getAllDistrictTreatmentCounts() {
+		return this.http.get('districtTreatmentCount/getAllDistrictTreatmentCounts')
+	}
+
+	public clearDistrictTreatmentCounts() {
+		return this.http.get('districtTreatmentCount/clearAllDistrictTreatmentCounts')
+	}
+	
+	public clearAllRecommended() {
+		return this.http.get('recommended/clearAllRecommended')
+	}
+
+	public deleteRecommendation(junction: string, district: string) {
+		return this.http.get('recommended/deleteRecommendation?junction=' + junction + '&district=' + district)
+	}
+
+	public decreaseDistrictTreatmentCount(district: string) {
+		return this.http.get('districtTreatmentCount/decreaseDistrictTreatmentCount?districtName=' + district)
 	}
 
 }

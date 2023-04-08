@@ -41,6 +41,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 
@@ -86,7 +87,8 @@ import { MatRadioModule } from '@angular/material/radio';
 		ScrollingModule,
 		MatExpansionModule,
 		MatTreeModule,
-		MatRadioModule
+		MatRadioModule,
+		MatCheckboxModule
 	],
 	providers: [
 		{

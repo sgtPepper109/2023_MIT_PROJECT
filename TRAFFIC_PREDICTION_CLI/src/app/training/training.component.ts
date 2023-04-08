@@ -26,20 +26,17 @@ export class TrainingComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 	) {}
 
+	startYear: number = 0
+	endYear: number = 0
+	temp: any
+	temp2: any
 	datasetDescriptionIcon = "speaker_notes_off"
 	trainingAction: string = ""
 	showTrainingOptions: boolean = false
 	junctionsAlreadyTrained = new Set<string>();
 	csvParsedData: any
 	ultimateData: Array<any>  = []
-	algorithms: Array<string> = [
-		'Random Forest Regression',
-		'Gradient Boosting Regression',
-		'Linear Regression',
-		'Ridge Regression',
-		'Lasso Regression',
-		'Bayesian Ridge Regression'
-	]
+	algorithms: Array<string> = []
 	relativeChange: string = ""
 	highestAccuracy: number = 0
 	showBy: string = ""
@@ -64,7 +61,7 @@ export class TrainingComponent implements OnInit {
 	algorithmHighestAccuracy: string = ""
 	testingRatios: Array<number> = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 	resultTestingRatios: Array<string> = []
-	ultimateComparisonChartFormat: string = "Line Plot"
+	ultimateComparisonChartFormat: string = "Bar Chart"
 	algorithmToAddToMaster: string = ""
 	testRatioToAddToMaster: string = ""
 	ultimateComparisonChart: any
@@ -213,17 +210,30 @@ export class TrainingComponent implements OnInit {
 	junctionsAvailableForTraining: Array<string> = []
 
 	ngOnInit() { 
+
 		/* TODO document why this method 'ngOnInit' is empty */
 		this.junctionSpecificsService.getAllJunctions().subscribe({
 			next: (response) => {
 				this.listedJunctions = Object.values(response)
-				this.propService.junctions = this.junctions
+				this.junctions = this.listedJunctions
+				this.inputJunction = this.junctions[0]
+
+				this.flaskService.getAllAlgorithms().subscribe({
+					next: (response) => {
+						this.algorithms = Object.values(response)
+					},
+					error: (error: HttpErrorResponse) => {
+						alert(error.message)
+					}
+				})
+
 			},
 			error: (error: HttpErrorResponse) => {
 				alert(error.message)
 			}
 		})
 	}
+
 
 	changeDatasetDescriptionIcon() {
 		if (this.datasetDescriptionIcon == 'speaker_notes') {
@@ -239,8 +249,12 @@ export class TrainingComponent implements OnInit {
 		if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
 		if (this.ultimateComparisonChartFormat == 'Line Plot') {
 
+			for (let element of this.ultimateData)
+				if (element.type == 'bar')
+					element.type = 'line'
+
 			this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
-				type: 'line',
+				// type: 'line',
 				data: {
 					labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
 					datasets: this.ultimateData,
@@ -252,12 +266,16 @@ export class TrainingComponent implements OnInit {
 						}
 					},
 					responsive: true,
-					maintainAspectRatio: true
+					maintainAspectRatio: true,
 				}
 				
 			});
 		}
 		if (this.ultimateComparisonChartFormat == 'Bar Chart') {
+
+			for (let element of this.ultimateData) 
+				if (element.type == 'line' && element.label != 'Max Accuracy')
+					element.type = 'bar'
 
 			this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
 				type: 'bar',
@@ -430,20 +448,11 @@ export class TrainingComponent implements OnInit {
 				}
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 			}
 		})
-
-
-		// if (this.junctionsAlreadyTrained.has(this.inputJunction)) {
-		// 	this.showTrainingOptions = true
-		// } else {
-		// 	this.showTrainingOptions = false
-		// }
 	}
 
 	fileChangeListener($event: any): void {
-
 		this.fileProcessing = true
 		const files = $event.srcElement.files;
 		let fileName = files[0]['name']
@@ -451,7 +460,7 @@ export class TrainingComponent implements OnInit {
 		header = (header as unknown as string) === 'true' || header === true;
 
 		const arr = fileName.split('.')
-		if (arr[arr.length - 1] === 'csv' || arr[arr.length - 1] === 'data' || arr[arr.length - 1] === 'xlsx') {
+		if (arr[arr.length - 1] === 'csv') {
 
 			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
@@ -465,19 +474,13 @@ export class TrainingComponent implements OnInit {
 						}
 					}
 
-					for (let item of this.uniqueJunctionsInDataset) {
-						if (item != '') {
-							if (!this.listedJunctions.includes(item)) {
-								this.correctJunctions = false
-							}
-						}
+					if (this.uniqueJunctionsInDataset.length == 1 && this.inputJunction == this.uniqueJunctionsInDataset[0]) {
+						this.correctJunctions = true
+					} else {
+						this.correctJunctions = false
 					}
 
 					if (this.correctJunctions) {
-						this.junctions = this.uniqueJunctionsInDataset
-						this.inputJunction = this.junctions[0]
-
-
 
 						for (let instance of Object.values(result)) {
 
@@ -493,22 +496,10 @@ export class TrainingComponent implements OnInit {
 
 						this.checkJunction()
 
-						// this.flaskService.storeCsvData(this.csvData).subscribe({
-						// 	next: (response) => {
-						// 		console.log('response', response)
-						// 	},
-						// 	error: (error: HttpErrorResponse) => {
-						// 		console.log('error', error)
-						// 	}
-							
-						// })
-
-
 						this.flaskService.sendCsvData(result).subscribe({
 							next: (response) => {
 								this.csvDataParsed = true
 								this.datasetUploaded = true
-								this.inputJunctionDisabled = false
 								this.fileProcessing = false
 							},
 							error: (error: HttpErrorResponse) => {
@@ -524,7 +515,7 @@ export class TrainingComponent implements OnInit {
 						this.fileProcessing = false
 						// this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
 						this.toggleWarningToast = true
-						this.errorString = 'Note: Please provide dataset with the listed junctions'
+						this.errorString = 'Note: Please provide dataset with the chosen junction only'
 						setTimeout(() => {
 							this.toggleWarningToast = false
 						}, 3000);
@@ -536,16 +527,8 @@ export class TrainingComponent implements OnInit {
 				}
 			});
 		} else {
-			this.errorstring = "Note: Incorrect file type (Please choose a .csv, or a .xlsx or a .data file"
-			this.toggleErrorString = true
-		}
-	}
-
-	validateDisabledInputJunction() {
-		if (this.inputJunctionDisabled) {
-			// this._snackBar.open("Note: Upload a dataset first", "x")
 			this.toggleWarningToast = true
-			this.errorString = 'Note: Upload a dataset first'
+			this.errorString = "Note: Incorrect file type (Please choose a .csv file"
 			setTimeout(() => {
 				this.toggleWarningToast = false
 			}, 3000);
@@ -609,6 +592,52 @@ export class TrainingComponent implements OnInit {
 	}
 
 
+
+
+
+
+	LineChart(x: any, y: any) {
+		this.plot = new Chart("plot", {
+			type: 'line',
+			data: {
+				labels: x,
+				datasets: [
+					{
+						label: '# of Vehicles',
+						data: y,
+						borderWidth: 1,
+						fill: false,
+						pointRadius: 2
+					},
+				]
+			},
+			options: {
+				maintainAspectRatio: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: 'Vehicles'
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: 'DateTime'
+						}
+					}
+				}
+			}
+		});
+	}
+
+
+
+	navigateToAdminInputs() {
+		this.router.navigate(['/junctionProperties'])
+	}
+
 	// on clicking next button in paginator of result table
 	nextResult() {
 		// if next button in paginator is active (not disabled)
@@ -661,51 +690,6 @@ export class TrainingComponent implements OnInit {
 				this.classForPreviousButtonResult = "page-item"
 			}
 		}
-	}
-
-
-
-
-	LineChart(x: any, y: any) {
-		this.plot = new Chart("plot", {
-			type: 'line',
-			data: {
-				labels: x,
-				datasets: [
-					{
-						label: '# of Vehicles',
-						data: y,
-						borderWidth: 1,
-						fill: false,
-						pointRadius: 2
-					},
-				]
-			},
-			options: {
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'DateTime'
-						}
-					}
-				}
-			}
-		});
-	}
-
-
-
-	navigateToAdminInputs() {
-		this.router.navigate(['/junctionProperties'])
 	}
 
 	// on clicking next button in paginator
@@ -976,11 +960,13 @@ export class TrainingComponent implements OnInit {
 						},
 						error: (error: HttpErrorResponse) => {
 							alert(error.message)
+							reject()
 						}
 					})
 				},
 				error: (error: HttpErrorResponse) => {
 					alert(error.message)
+					reject()
 				}
 			})
 
@@ -994,17 +980,17 @@ export class TrainingComponent implements OnInit {
 			this.flaskService.getAllModelSummaries().subscribe({
 				next: (response) => {
 					this.allModelSummaries = response
-					this.changeUltimateComparisonFormat()
-					this.renderAllComparisons()
 
 					let maxAccuracyOfAll: number = -1
 					let maxAccuracyDetails: Array<any> = []
+
 					for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
 						let ratioData = Object.values(this.testRatiosComparisonData)[i]
 						for (let j = 0; j < Object.values(ratioData).length; j++) {
 							let currentNumber: number = (Object.values(ratioData)[j] as number)
 							if (currentNumber > maxAccuracyOfAll) {
 								maxAccuracyOfAll = currentNumber
+								this.highestAccuracy = maxAccuracyOfAll
 								maxAccuracyDetails = [Object.keys(this.testRatiosComparisonData)[i], parseFloat(Object.keys(ratioData)[j])]
 							}
 						}
@@ -1013,12 +999,18 @@ export class TrainingComponent implements OnInit {
 					this.testRatioHighestAccuracy = maxAccuracyDetails[1]
 					this.algorithmHighestAccuracy = maxAccuracyDetails[0]
 					this.algorithmToAddToMaster = maxAccuracyDetails[0]
+					this.renderedAlgorithm = this.algorithmToAddToMaster
 					this.testRatioToAddToMaster = maxAccuracyDetails[1].toString()
+					this.renderedTestRatio = this.testRatioToAddToMaster
+
+					this.changeUltimateComparisonFormat()
+					this.renderAllComparisons()
 
 					resolve()
 				},
 				error: (error: HttpErrorResponse) => {
 					alert(error.message)
+					reject()
 				}
 			})
 		})
@@ -1027,16 +1019,45 @@ export class TrainingComponent implements OnInit {
 	
 	setUltimateChartData() {
 		return new Promise<void>((resolve, reject) => {
-			let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
+			// let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
+			// let colors: Array<string> = [
+			// 	'rgba(255, 99, 132, 0.2)',
+			// 	'rgba(255, 159, 64, 0.2)',
+			// 	'rgba(75, 192, 192, 0.2)',
+			// 	'rgba(54, 162, 235, 0.2)',
+			// 	'rgba(153, 102, 255, 0.2)',
+			// 	'rgba(255, 0, 0, 0.2)',
+			// 	'rgba(255, 0, 215, 0.2)',
+			// 	'rgba(0, 255, 0, 0.2)',
+			// 	'rgba(0, 236, 255, 0.2)'
+			// ]
 			this.ultimateData = []
+			let maxAccuracy: number = -1
+			let length: number = 0
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
 				let data: object = {
+					type: 'bar',
 					label: Object.keys(this.testRatiosComparisonData)[i],
-					fillColor: colors[i],
 					data: Object.values(Object.values(this.testRatiosComparisonData)[i])
 				}
+				let arr: Array<number> = Object.values(Object.values(this.testRatiosComparisonData)[i])
+				let currentMaxAccuracy: number = Math.max(...arr)
+				maxAccuracy = (currentMaxAccuracy > maxAccuracy) ? currentMaxAccuracy : maxAccuracy;
 				this.ultimateData.push(data)
+				length = arr.length
 			}
+			let maxAccuracyArray = new Array(length).fill(maxAccuracy)
+			let highestAccuracyLine: object = {
+				type: 'line',
+				label: 'Max Accuracy',
+				borderWidth: 3,
+				// borderColor: 'black',
+				fill: false,
+				pointRadius: 3,
+				pointStyle: 'line',
+				data: maxAccuracyArray
+			}
+			this.ultimateData.push(highestAccuracyLine)
 			resolve()
 		})
 	}
@@ -1068,17 +1089,15 @@ export class TrainingComponent implements OnInit {
 
 	changeShowByArray() {
 		if (this.timeFormat == 'Years') {
-			this.showByArray = ['Days', 'Weeks', 'Months', 'Years']
-			this.showBy = 'Years'
+			this.showByArray = ['Weeks', 'Months']
 		}
 		if (this.timeFormat == 'Months') {
 			this.showByArray = ['Days', 'Weeks']
-			this.showBy = 'Days'
 		}
 		if (this.timeFormat == 'Days') {
 			this.showByArray = ['Hours', 'Days']
-			this.showBy = 'Hours'
 		}
+		this.showBy = this.showByArray[0]
 	}
 
 
@@ -1097,39 +1116,43 @@ export class TrainingComponent implements OnInit {
 			this.testRatio = parseFloat(this.inputTestRatio)
 			this.startProcess = true
 			this.toggleErrorString = false
-			if (this.inputJunction != '') {
+			if (this.datasetUploaded) {
 				this.junctionsAlreadyTrained.add(this.inputJunction)
-				let trainingSpecificData: trainingDetails = {
-					junction: this.inputJunction,
-					testRatio: parseFloat(this.inputTestRatio),
-					algorithm: this.inputAlgorithm
-				}
-				if (this.uniqueJunctionsInDataset.includes(this.inputJunction)) {
-					this.getExistingData()
-					this.trainAllJunctionsAndGetComparisons(action).then(() => {
-						this.getAllModelSummaries().then(() => {
-							this.time = 15
-							this.timeFormat = 'Years'
-							this.changeShowByArray()
-							this.predict()
+				this.getExistingData()
+				this.trainAllJunctionsAndGetComparisons(action).then(() => {
+					this.getAllModelSummaries().then(() => {
+						this.time = 15
+						this.timeFormat = 'Years'
+						this.changeShowByArray()
+						this.predict()
+
+
+						this.flaskService.getEndYearFromDataset().subscribe({
+							next: (response) => {
+								this.startYear = Object.values(response)[0]
+								if (this.startYear % 2 != 0) {
+									this.startYear ++
+								}
+							},
+							error: (error: HttpErrorResponse) => {
+								alert(error.message)
+							}
 						})
+
+
 					})
-				} else {
-					this.toggleWarningToast = true
-					this.errorString = 'Note: ' + this.inputJunction + ' does not exist in the dataset (required for training)'
-					setTimeout(() => {
-						this.toggleWarningToast = false
-					}, 3000);
-				}
+				})
 			} else {
 				this.startedTraining = false
 				// this._snackBar.open('Note: All fields are required', '\u2716')
 				this.toggleWarningToast= true
-				this.errorString = 'Note: All fields are required'
+				this.errorString = 'Note: Upload a dataset first'
 				setTimeout(() => {
 					this.toggleWarningToast = false
 				}, 3000);
 			}
+		} else {
+			this.startedTraining = false
 		}
 	}
 
@@ -1165,7 +1188,8 @@ export class TrainingComponent implements OnInit {
 			let timeToBePredicted: object = {
 				timePeriod: this.time,
 				timeFormat: this.timeFormat,
-				showBy: this.showBy
+				showBy: this.showBy,
+				startYear: this.startYear
 			}
 
 			this.flaskService.sendInputTimeToPredict(timeToBePredicted).subscribe({
@@ -1179,7 +1203,7 @@ export class TrainingComponent implements OnInit {
 									this.futurePredictionsTableData = Object.values(response)
 									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
 									this.futurePredictionsReady = true
-									this.checkJunction
+									this.checkJunction()
 								},
 								error: (error: HttpErrorResponse) => {
 									alert(error.message)
@@ -1209,7 +1233,9 @@ export class TrainingComponent implements OnInit {
 
 	addToMaster() {
 
-		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "" && this.relativeChange != "") {
+		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "" && this.startYear != 0
+		// && this.relativeChange != ""
+		) {
 			let relativeChange = parseFloat(this.relativeChange)
 			this.propService.relativeChange = relativeChange
 			let testRatioToAddToMaster = parseFloat(this.testRatioToAddToMaster)
@@ -1217,7 +1243,7 @@ export class TrainingComponent implements OnInit {
 				this.inputJunction, 
 				this.algorithmToAddToMaster, 
 				testRatioToAddToMaster,
-				relativeChange
+				this.startYear
 			).subscribe({
 				next: (response) => {
 					// this._snackBar.open('Added to master')
@@ -1295,6 +1321,11 @@ export class TrainingComponent implements OnInit {
 					this.labels = this.plotLabels.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 				}
 			}
+
+			for (let i = 0; i < this.labels.length; i++) {
+				this.labels[i] = this.labels[i].slice(0, this.labels[i].length - 9)
+			}
+
 			resolve()
 		})
 	}
@@ -1377,7 +1408,9 @@ export class TrainingComponent implements OnInit {
 					accuracy: Object.values(this.testRatiosComparisonData)[i][this.renderedTestRatio]
 				}
 				this.accuracies.push(record)
-				accuracyBarChartAlgorithmsAxis.push(Object.keys(this.testRatiosComparisonData)[i])
+				let accuracyShortString = Object.keys(this.testRatiosComparisonData)[i]
+				accuracyShortString = accuracyShortString.slice(0, accuracyShortString.length - 11)
+				accuracyBarChartAlgorithmsAxis.push(accuracyShortString)
 
 				for (let j = 0; j < Object.keys(Object.values(this.testRatiosComparisonData)[i]).length; j++) {
 					if (Object.keys(Object.values(this.testRatiosComparisonData)[i])[j] == this.renderedTestRatio) {
@@ -1442,6 +1475,11 @@ export class TrainingComponent implements OnInit {
 					testRatioComparisonChartAccuraciesAxis = Object.values(Object.values(this.testRatiosComparisonData)[i])
 				}
 			}
+			for (let i = 0; i < testRatioComparisonChartTestRatiosAxis.length; i++) {
+				if (testRatioComparisonChartTestRatiosAxis[i].length > 3) {
+					testRatioComparisonChartTestRatiosAxis[i] = "0." + testRatioComparisonChartTestRatiosAxis[i][2]
+				}
+			}
 			resolve([testRatioComparisonChartTestRatiosAxis, testRatioComparisonChartAccuraciesAxis])
 		})
 	}
@@ -1499,7 +1537,6 @@ export class TrainingComponent implements OnInit {
 
 			}
 		}
-		this.highestAccuracy = this.modelSummary[3].Value
 	}
 
 

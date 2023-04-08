@@ -32,5 +32,13 @@ public class JunctionDistrictMapService {
 		return junctionDistrictMapRepository.findAll();
 	}
 	
-
+    public void update(String junction, JunctionDistrictMap junctionDistrictMap) {
+    	junctionDistrictMapRepository.delete(junction);
+    	this.junctionDistrictMapRepository.save(junctionDistrictMap);
+    }
+    
+    public void delete(String junction) {
+    	junctionDistrictMapRepository.delete(junction);
+    }
+	
 }

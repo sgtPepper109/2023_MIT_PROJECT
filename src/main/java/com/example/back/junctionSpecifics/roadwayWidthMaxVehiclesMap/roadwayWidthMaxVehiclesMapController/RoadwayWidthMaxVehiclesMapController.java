@@ -37,5 +37,26 @@ public class RoadwayWidthMaxVehiclesMapController {
 		}
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
+	
+	
+	
+	@PostMapping("/addSingleRoadwayWidthMaxVehiclesMaps")
+	public ResponseEntity<RoadwayWidthMaxVehiclesMap> addSingleRoadwayWidthMaxVehiclesMaps(@RequestBody RoadwayWidthMaxVehiclesMap roadwayWidthMaxVehiclesMapToBeAdded) {
+		RoadwayWidthMaxVehiclesMap roadwayWidthMaxVehiclesMap = roadwayWidthMaxVehiclesMapService.addRoadwayWidthMaxVehiclesMap(roadwayWidthMaxVehiclesMapToBeAdded);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+	
+    @PostMapping("/updateRoadwayWidthMaxVehiclesMap")
+    public ResponseEntity<List<RoadwayWidthMaxVehiclesMap>> update(@RequestParam Integer roadwayWidth, @RequestBody RoadwayWidthMaxVehiclesMap updatedMap) {
+        System.out.println(roadwayWidth);
+        roadwayWidthMaxVehiclesMapService.update(roadwayWidth, updatedMap);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/deleteRoadwayWidthMaxVehiclesMap")
+    public ResponseEntity<?> delete(@RequestParam Integer roadwayWidth) {
+    	roadwayWidthMaxVehiclesMapService.delete(roadwayWidth);
+    	return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

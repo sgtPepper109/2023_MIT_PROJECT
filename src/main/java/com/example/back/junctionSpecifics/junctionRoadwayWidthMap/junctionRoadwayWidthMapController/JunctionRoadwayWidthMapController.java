@@ -38,10 +38,33 @@ public class JunctionRoadwayWidthMapController {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	
+	
+	@PostMapping("/addSingleJunctionRoadwayWidthMap")
+	public ResponseEntity<JunctionRoadwayWidthMap> addSingleJunctionRoadwayWidthMap(@RequestBody JunctionRoadwayWidthMap junctionRoadwayWidthMapToBeAdded) {
+		
+		log.warn("POST: /junctionRoadwayWidth/addJunctionRoadwayWidthMap");
+		JunctionRoadwayWidthMap junctionRoadwayWidthMap = junctionRoadwayWidthMapService.addJunctionRoadWayWidthMap(junctionRoadwayWidthMapToBeAdded);
+		
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+	
 	@GetMapping("/getAllJunctionRoadwayWidthMaps")
 	public List<JunctionRoadwayWidthMap> getAllJunctionRoadwayWidthMaps() {
 		List<JunctionRoadwayWidthMap> junctionRoadwayWidthMaps = junctionRoadwayWidthMapService.getAllJunctionRoadwayWidthMaps();
 		return  junctionRoadwayWidthMaps;
 	}
+	
+    @PostMapping("/updateJunctionRoadwayWidthMap")
+    public ResponseEntity<List<JunctionRoadwayWidthMap>> update(@RequestParam String junction, @RequestBody JunctionRoadwayWidthMap updatedMap) {
+        System.out.println(junction + updatedMap);
+        junctionRoadwayWidthMapService.update(junction, updatedMap);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/deleteJunctionRoadwayWidthMap")
+    public ResponseEntity<?> delete(@RequestParam String junction) {
+    	junctionRoadwayWidthMapService.delete(junction);
+    	return new ResponseEntity<>(HttpStatus.OK);
+    }
 	
 }

@@ -9,11 +9,6 @@
         >
             <mat-icon>menu</mat-icon>
         </button>
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="navigateToTraining()">Training</button>
-            <button mat-menu-item (click)="navigateToPredictions()">Predictions</button>
-            <button mat-menu-item>Provide Junction Properties</button>
-        </mat-menu>
         <span>Traffic Intensity Prediction and Recommendation</span>
         <span class="example-spacer"></span>
     </mat-toolbar>
@@ -37,7 +32,7 @@
                 <span style="float:left">Predictions</span>
                 <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
             </li>
-            <li class="offcanvasList list-group-item">
+            <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
                 <span style="float:left">Provide Junction Properties</span>
                 <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
             </li>
@@ -71,9 +66,46 @@
                     {{ errorString }}
                 </div>
             </div>
-            <button style="margin-left:10px" mat-raised-button color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">
-                <mat-icon>add</mat-icon>Add Record
-            </button>
+            <div>
+                <span>
+                    <button style="margin-left:10px" mat-raised-button color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                        <mat-icon>add</mat-icon>Add Record
+                    </button>
+                </span>
+                <!-- <span>
+                    <button 
+                        style="margin-left:10px" 
+                        mat-raised-button color="primary" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#exampleModal2"
+                        [(ngModel)]="recordsFile"
+                        (change)="fileChangeListener($event)"
+                    >
+                        <mat-icon>add</mat-icon>Import Records from csv file
+                </span> -->
+                <br />
+                <br />
+                <br />
+                <div class="col">
+                    <form class="was-validated">
+                        <div class="mb-3">
+                            <input
+                                #file 
+                                class="form-control" 
+                                id="inputGroupFile02" 
+                                type="file" 
+                                accept=".csv" 
+                                id="myfile" 
+                                name="myfile" 
+                                [(ngModel)]="recordsFile" 
+                                (change)="fileChangeListener($event)" 
+                                required
+                            >
+                            <div class="invalid-feedback">Only .csv file required</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <br />
             <br />
             <table class="table" aria-describedby="table2-desc">
@@ -120,9 +152,20 @@
 
 
             <div class="modal fade modal-lg" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                        <strong class="me-auto">System</strong>
+                        <small>1 second ago</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" style="color: red">
+                        {{ errorString }}
+                    </div>
+                </div>
                 <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="toast-header">
-                        <span class="me-3"><mat-icon style="color: green">report</mat-icon></span>
+                        <span class="me-3"><mat-icon style="color: green">check_circle</mat-icon></span>
                         <strong class="me-auto">System</strong>
                         <small>1 second ago</small>
                         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -183,9 +226,20 @@
 
             <!-- Modal -->
             <div class="modal fade modal-lg" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                        <strong class="me-auto">System</strong>
+                        <small>1 second ago</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" style="color: red">
+                        {{ errorString }}
+                    </div>
+                </div>
                 <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="toast-header">
-                        <span class="me-3"><mat-icon style="color: green">report</mat-icon></span>
+                        <span class="me-3"><mat-icon style="color: green">check_circle</mat-icon></span>
                         <strong class="me-auto">System</strong>
                         <small>1 second ago</small>
                         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>

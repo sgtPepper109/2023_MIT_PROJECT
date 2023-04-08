@@ -29,5 +29,14 @@ public class RoadwayWidthMaxVehiclesMapService {
 	public void truncateRoadwayWidthMaxVehiclesMaps() {
 		roadwayWidthMaxVehiclesMapRepository.deleteAll();
 	}
+	
+    public void update(Integer roadwayWidth, RoadwayWidthMaxVehiclesMap roadwayWidthMaxVehiclesMap) {
+    	roadwayWidthMaxVehiclesMapRepository.delete(roadwayWidth);
+    	this.roadwayWidthMaxVehiclesMapRepository.save(roadwayWidthMaxVehiclesMap);
+    }
+    
+    public void delete(Integer roadwayWidth) {
+    	roadwayWidthMaxVehiclesMapRepository.delete(roadwayWidth);
+    }
 
 }
