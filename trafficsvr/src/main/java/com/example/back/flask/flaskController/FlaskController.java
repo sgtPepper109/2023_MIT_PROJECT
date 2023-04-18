@@ -42,6 +42,13 @@ public class FlaskController {
 	public FlaskController() {
 		/* NOTE: Document why this method is empty */ }
 
+	@GetMapping("/getAllAlgorithms")
+	public String getAllAlgorithms() {
+		log.info("GET: /process/getAllAlgorithms");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getAllAlgorithms");
+	}	
+
 	@GetMapping("/getAllUniqueJunctions")
 	public String getAllUniqueJunctions() {
 		log.info("GET: /process/getAllUniqueJunctions");
@@ -112,7 +119,7 @@ public class FlaskController {
 		@RequestParam String junction,
 		@RequestParam String algorithm,
 		@RequestParam String testRatio,
-		@RequestParam String relativeChange
+		@RequestParam String startYear
 	) {
 		log.info("GET: /process/addToMaster");
 		GetURLContents getURLContents = new GetURLContents();
@@ -125,7 +132,7 @@ public class FlaskController {
 			"/addToMaster?junction=" + junction + 
 			"&algorithm=" + algorithm + 
 			"&testRatio=" + testRatio +
-			"&relativeChange=" + relativeChange
+			"&startYear=" + startYear
 		);
 	}
 
@@ -136,13 +143,22 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getAllRelativeChange");
 	}
 	
+	
+	@GetMapping("/getStartYearMap")
+	public String getStartYearMap() {
+		log.info("GET: /process/getStartYearMap");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getStartYearMap");
+	}
+	
+	
 	@GetMapping("/getRelativeChange")
-	public String getRelativeChange(@RequestParam String factor) {
+	public String getRelativeChange(@RequestParam String factor, @RequestParam String junction) {
 		log.info("GET: /process/getRelativeChange");
 		factor = factor.replaceAll("\\s", "%20");
-		System.out.println(factor);
+		junction = junction.replaceAll("\\s", "%20");
 		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getRelativeChange?factor=" + factor);
+		return getURLContents.getData(flaskUrl + "/getRelativeChange?factor=" + factor + "&junction=" + junction);
 	}
 	
 	
@@ -173,14 +189,6 @@ public class FlaskController {
 		GetURLContents getURLContents = new GetURLContents();
 		return getURLContents.getData(flaskUrl + "/plot");
 	}	
-	
-	
-	@GetMapping("/predictAllJunctions")
-	public String trainAllJunctions() {
-		log.info("GET: /process/predictAllJunctions");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/predictAllJunctions");
-	}
 	
 	@GetMapping("/getAccuraciesOfAllJunctions")
 	public String getAccuraciesOfAllJunctions() {
@@ -216,13 +224,6 @@ public class FlaskController {
 		GetURLContents getURLContents = new GetURLContents();
 		return getURLContents.getData(flaskUrl + "/getFuturePredictionsTable");
 	}
-	
-	@GetMapping("/predictAgainstTime")
-	public String predictAgainstTime() {
-		log.info("GET: /process/predictAgainstTime");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/predictAgainstTime");
-	}
 
 	@PostMapping("/setCsvData")
 	public String getCsvData(@RequestBody Object response) {
@@ -238,47 +239,10 @@ public class FlaskController {
 		return this.csvData;
 	}
 
-	@GetMapping("/getActualPredictedForPlot")
-	public String getActualPredictedForPlot() {
-		log.info("GET: /process/getActualPredictedForPlot");
+	@GetMapping("/getEndYearFromDataset")
+	public String getEndDateFromDataset() {
+		log.info("GET: /process/getEndYearFromDataset");
 		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getActualPredictedForPlot");
+		return getURLContents.getData(flaskUrl + "/getEndYearFromDataset");
 	}
-
-	@GetMapping("/getModelSummary")
-	public String getModelSummary() {
-		log.info("GET: /process/getModelSummary");
-		GetURLContents getURLContents = new GetURLContents();
-		String s = getURLContents.getData(flaskUrl + "/getModelSummary");
-		return s;
-	}
-
-	@GetMapping("/getAccuracies")
-	public String getAccuracies() {
-		log.info("GET: /process/getAccuracies");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/getAccuracies");
-	}
-
-	@PostMapping("/sendTrainingSpecifics")
-	public String sendTrainingSpecifics(@RequestBody Object trainingInputs) {
-		this.trainingSpecifics = trainingInputs;
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/listenToTrainingInputs");
-	}
-
-	@GetMapping("/exchangeTrainingInputs")
-	public Object exchangeTrainingSpecifics() {
-		log.info("GET: /process/exchangeInput");
-		return this.trainingSpecifics;
-	}
-
-
-	@GetMapping("/train")
-	public String train() {
-		log.info("GET: /process/train");
-		GetURLContents getURLContents = new GetURLContents();
-		return getURLContents.getData(flaskUrl + "/train");
-	}
-
 }

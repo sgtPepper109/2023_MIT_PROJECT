@@ -1,11 +1,16 @@
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso, BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import r2_score
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.preprocessing import PolynomialFeatures
 import sklearn.metrics as metrics
 from statistics import *
 
@@ -18,12 +23,32 @@ class Train:
         self.algorithm = algorithm
         self.junction = junction
         self.testSize = testSize
+        # print("self.testSize", self.testSize)
         self.startTrainingProcess()
     
     def appendAndStartTraining(self,newData):
-        newData2 = newData[newData.Junction == self.junction]
-        self.data = pd.concat([self.data, newData2])
-        self.startTrainingProcess()
+        newData = newData[newData.Junction == self.junction]
+
+        existingDataDateTimeColumn = []
+        for i in range(len(self.junctionData.Year)):
+            existingDataDateTimeColumn.append(datetime(self.data.Year[i], self.data.Month[i], self.data.Day[i]))
+        self.junctionData.index = existingDataDateTimeColumn
+
+        newDataDateTimeColumn = []
+        for i in range(len(newData.Year)):
+            newDataDateTimeColumn.append(datetime(newData.Year[i], newData.Month[i], newData.Day[i]))
+        newData.index = newDataDateTimeColumn
+        newData.drop('Junction', axis=1, inplace=True)
+
+        for i in newData.index:
+            if i in self.junctionData.index:
+                self.junctionData = self.junctionData.drop(i)
+
+        self.junctionData = pd.concat([self.junctionData, newData])
+        self.junctionData.index = pd.to_datetime(self.junctionData.index)
+        self.splitData()
+        self.training()
+        self.actualVsPredicted()
 
     def startTrainingProcess(self):
         self.preprocessData()
@@ -47,20 +72,43 @@ class Train:
 
     def training(self):
         if self.algorithm == "Random Forest Regression":
+            self.model2 = RandomForestRegressor()
             self.model = RandomForestRegressor()
         elif self.algorithm == "Gradient Boosting Regression":
+            self.model2 = GradientBoostingRegressor()
             self.model = GradientBoostingRegressor()
         elif self.algorithm == "Linear Regression":
+            self.model2 = LinearRegression()
             self.model = LinearRegression()
         elif self.algorithm == "Logistic Regression":
+            self.model2 = LogisticRegression()
             self.model = LogisticRegression()
         elif self.algorithm == "Ridge Regression":
-            self.model = Ridge(alpha=1.0)
+            self.model2 = Ridge(alpha=2.0)
+            self.model = Ridge(alpha=2.0)
         elif self.algorithm == "Lasso Regression":
+            self.model2 = Lasso(alpha=1.0)
             self.model = Lasso(alpha=1.0)
         elif self.algorithm == "Bayesian Ridge Regression":
+            self.model2 = BayesianRidge()
             self.model = BayesianRidge()
+        elif self.algorithm == "Decision Tree Regression":
+            self.model2 = DecisionTreeRegressor(random_state=0)
+            self.model = DecisionTreeRegressor(random_state=0)
+        elif self.algorithm == "K Nearest Neighbors Regression":
+            self.model2 = KNeighborsRegressor(n_neighbors=3)
+            self.model = KNeighborsRegressor(n_neighbors=3)
+        elif self.algorithm == "Support Vector Regression":
+            self.model2 = SVR(kernel='rbf')
+            self.model = SVR(kernel='rbf')
+        elif self.algorithm == "Gaussian Process Regression":
+            self.model2 = GaussianProcessRegressor(random_state=4)
+            self.model = GaussianProcessRegressor(random_state=4)
 
+
+        self.completeXtrain = self.junctionData.drop(['Vehicles'], axis='columns')
+        self.completeYtrain = self.junctionData.Vehicles
+        self.model2 .fit(self.completeXtrain, self.completeYtrain)
         self.model.fit(self.xtrain, self.ytrain)
         self.trained = True
         self.whenTrained = datetime.now()
@@ -119,8 +167,9 @@ class Train:
             self.testAgainst.append(str(i))
         
 
-    def constructFutureTimeToBePredicted(self, timePeriod: int, timeFormat: str, showBy: str):
+    def constructFutureTimeToBePredicted(self, timePeriod: int, timeFormat: str, showBy: str, startYear: str):
         self.currTime = self.junctionData.tail(1).index[0]
+        self.currTime = pd.to_datetime(date(2018, 1, 1))
         
         if timeFormat == "Days":
             self.endTime = self.currTime + pd.DateOffset(days=timePeriod) 
@@ -175,15 +224,15 @@ class Train:
         self.toPredict = self.toPredict.drop(['DateTime'], axis='columns')
 
 
-    def predict(self, timePeriod: int, timeFormat: str, showBy: str):
+    def predict(self, timePeriod: int, timeFormat: str, showBy: str, startYear: int):
 
         # returns predicted data for given timePeriod and timeFormat (e.g. 2, 'Days')
 
         if self.trained:
-            self.constructFutureTimeToBePredicted(timePeriod, timeFormat, showBy)
+            self.constructFutureTimeToBePredicted(timePeriod, timeFormat, showBy, startYear)
             self.constructFutureDataToBePredicted()
 
-            self.futureDatesPredicted = self.model.predict(self.toPredict)  # toPredict variable comes from data constructed
+            self.futureDatesPredicted = self.model2.predict(self.toPredict)  # toPredict variable comes from data constructed
             self.tableData = self.toPredict.copy()
 
             self.columnDateTime = list()
@@ -207,8 +256,6 @@ class Train:
     
     def getRelativeChange(self, relativeChange, factor):
         self.vehicles = self.junctionData.Vehicles
-
-        print('factor', factor)
 
         if factor == 'Mean (Average)':
             self.modeValue = mean(self.vehicles)

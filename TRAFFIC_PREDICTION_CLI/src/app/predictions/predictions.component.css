@@ -4,8 +4,13 @@
     max-width: 3000px;
 }
 
+#maincontainer2 {
+    padding: 10px;
+    box-shadow: 5px 10px;
+    max-width: 600px;
+}
+
 #predictionComponentBody {
-    overflow-y: scroll;
 }
 
 ng-container, th, td {
@@ -14,7 +19,7 @@ ng-container, th, td {
 
 .offcanvasList:hover { 
     cursor: pointer; 
-    background:#D6D6D6
+    background:#e6e6e6
 }
 
 #hrTag1 { height: 2px; }
@@ -36,3 +41,8 @@ tr, th { height: 45px; }
 #toggleJunction { margin-left: 425px; }
 
 #inputJunctionTime { height: 30px; }
+
+
+.toast-header {
+    background-color: #f6f6f6;
+}

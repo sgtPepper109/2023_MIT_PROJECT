@@ -1,0 +1,129 @@
+<!-- <p class="fixed-top">
+    <mat-toolbar>
+        <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
+            aria-controls="offcanvasExample" aria-label="Example icon-button with menu icon">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <span>Traffic Intensity Prediction and Recommendation</span>
+        <span class="example-spacer"></span>
+    </mat-toolbar>
+</p> -->
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" aria-label="navbar" style="background-color: #e6e6e6;">
+    <div class="container-fluid" style="background-color: #e6e6e6">
+        <a class="navbar-brand">
+            <span>
+                <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
+                    aria-controls="offcanvasExample" aria-label="Example icon-button with menu icon">
+                    <mat-icon>menu</mat-icon>
+                </button>
+            </span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li style="font-size: 20px" class="nav-item">Traffic Intensity Prediction and Recommendation</li>
+            </ul>
+            <!-- <form class="d-flex" role="search">
+                <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+                    <mat-icon>account_circle</mat-icon>
+                </button>
+            </form> -->
+        </div>
+    </div>
+</nav>
+
+<br /><br />
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="offcanvas-body">
+        <ul class="list-group list-group-flush">
+            <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
+                <span style="float:left">Sign in</span>
+                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+            </li>
+            <li class="offcanvasList list-group-item" (click)="navigateToRegister()" data-bs-dismiss="offcanvas">
+                <span style="float:left">Apply for registration</span>
+                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div id="maincontainer" class="
+        container
+        my-5 
+        bg-primary 
+        shadow-lg 
+        p-3 
+        mb-5 
+        bg-white 
+        rounded
+">
+    <div class="card text-center">
+        <div class="card-header">
+            Sign in
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">
+                User Management
+            </h5>
+            <h3 class="card-text">
+                <strong>
+                    Traffic Intensity Prediction and Recommendation
+                </strong>
+            </h3>
+            <div style="padding-top: 10px;" class="example-form">
+                <mat-form-field appearance="outline" class="example-full-width">
+                    <mat-label>Enter your email</mat-label>
+                    <input type="email" matInput [(ngModel)]="email" [formControl]="emailFormControl" [errorStateMatcher]="matcher"
+                        placeholder="Ex. pat@example.com">
+                    <mat-hint>Email</mat-hint>
+                    <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+                        Please enter a valid email address
+                    </mat-error>
+                    <mat-error *ngIf="emailFormControl.hasError('required')">
+                        Email is <strong>required</strong>
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div style="padding-top: 20px;" class="example-form">
+                <mat-form-field appearance="outline">
+                    <mat-label>Enter your password</mat-label>
+                    <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password">
+                    <mat-hint>Password</mat-hint>
+                    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="hide">
+                        <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+            <div style="padding-top: 20px">
+                <button mat-raised-button color="primary" (click)="signIn()"><mat-icon>how_to_reg</mat-icon>Sign in</button>
+            </div>
+            <div style="padding-top: 10px">
+                <button mat-button color="warn" (click)="navigateToRegister()"><mat-icon>person_add</mat-icon>Apply for registration</button>
+            </div>
+        </div>
+        <div class="card-footer text-body-secondary">
+            2 days ago
+        </div>
+    </div>
+    <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+            <strong class="me-auto">System</strong>
+            <small>1 second ago</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" style="color: red">
+            {{ errorString }}
+        </div>
+    </div>
+</div>

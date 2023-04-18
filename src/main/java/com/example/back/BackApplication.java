@@ -19,6 +19,9 @@ public class BackApplication extends SpringBootServletInitializer {
 	@Value("${ng.url}")
 	private String ngUrl;
 	
+	@Value("{ng.prod.url}")
+	private String ngProdUrl;
+	
 	@Value("${spring.datasource.url}")
 	private static String url;
 	
@@ -37,7 +40,7 @@ public class BackApplication extends SpringBootServletInitializer {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
 		corsConfiguration.setAllowCredentials(true);
-		corsConfiguration.setAllowedOrigins(Arrays.asList(ngUrl));  // Front-end angular http route
+		corsConfiguration.setAllowedOrigins(Arrays.asList(ngUrl, ngProdUrl));  // Front-end angular http route
 		corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Access-Control-Allow-Origin", "Content-Type",
 				"Accept", "Authorization", "Origin, Accept", "X-Requested-With",
 				"Access-Control-Request-Method", "Access-Control-Request-Headers"));

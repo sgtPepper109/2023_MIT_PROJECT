@@ -17,6 +17,21 @@ from statistics import *
 app = Flask(__name__)
 cors = CORS(app)
 
+@app.route('/getAllAlgorithms')
+def getAllAlgorithms():
+    global algorithms
+    return make_response(algorithms)
+
+
+@app.route('/getEndYearFromDataset')
+def getEndYearFromDataset():
+    global df
+    response = list()
+    endDate = list(df.DateTime)[-1]
+    year = pd.to_datetime(endDate).year
+    response.append(year)
+    return make_response(response)
+
 
 @app.route('/checkIfTrained')
 def checkIfTrained():
@@ -69,38 +84,41 @@ def getCsvData():
     
     tempdf = df.copy()
 
-    tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
-    tempdf = tempdf.set_index('DateTime')
+    try:
+        tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
+        tempdf = tempdf.set_index('DateTime')
 
-    timeDifference = tempdf.index[1] - tempdf.index[0]
-    timeDifference = str(timeDifference)
-    timeDifference = int(timeDifference.split(' ')[0])
+        timeDifference = tempdf.index[1] - tempdf.index[0]
+        timeDifference = str(timeDifference)
+        timeDifference = int(timeDifference.split(' ')[0])
 
-    if timeDifference == 0:
-        typeOfData = 'Hours'
-    elif timeDifference == 1:
-        typeOfData = 'Days'
-    elif timeDifference == 30:
-        typeOfData = 'Months'
+        if timeDifference == 0:
+            typeOfData = 'Hours'
+        elif timeDifference == 1:
+            typeOfData = 'Days'
+        elif timeDifference == 30:
+            typeOfData = 'Months'
 
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    
-    if 'ID' in tempdf.columns:
-        tempdf.drop('ID', axis=1, inplace=True)
+        tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+        tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+        tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+        tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+        
+        if 'ID' in tempdf.columns:
+            tempdf.drop('ID', axis=1, inplace=True)
 
 
-    uniqueJunctionsInDataset = list(np.unique(df.Junction))
+        uniqueJunctionsInDataset = list(np.unique(df.Junction))
 
-    dictionary = dict()
-    if success:
-        dictionary['getCsvData'] = "success"
-        return make_response(dictionary)
-    else:
-        dictionary['getCsvData'] = "fail"
-        return make_response(dictionary)
+        dictionary = dict()
+        if success:
+            dictionary['getCsvData'] = "success"
+            return make_response(dictionary)
+        else:
+            dictionary['getCsvData'] = "fail"
+            return make_response(dictionary)
+    except:
+        return make_response({'getCsvData': 'fail'})
 
 
 @app.route('/getAllUniqueJunctions')
@@ -136,7 +154,10 @@ def plot():
 def f_test(x: list, y: list):
     x = np.array(x)
     y = np.array(y)
-    f = np.var(x, ddof=1)/np.var(y, ddof=1) #calculate F test statistic 
+    if np.var(y, ddof=1) == 0.0:
+        f = np.var(x, ddof=1)/0.01
+    else:
+        f = np.var(x, ddof=1)/np.var(y, ddof=1) #calculate F test statistic 
     dfn = x.size-1 #define degrees of freedom numerator 
     dfd = y.size-1 #define degrees of freedom denominator 
     p = 1- scipy.stats.f.cdf(f, dfn, dfd) #find p-value of F test statistic 
@@ -244,35 +265,6 @@ def getJunctionRelatedDataFromDB():
 
 
 
-@app.route('/listenToTrainingInputs')
-def listenTrainingInputs():
-    global springUrl
-    success = True
-    url = springUrl + '/process/exchangeTrainingInputs'
-
-    try:
-        uResponse = requests.get(url)
-    except:
-        success = False
-        return "Connection Error"
-    JResponse: str = uResponse.text
-    response: list = json.loads(JResponse)
-    global junction
-    global testRatio
-    global algorithm
-
-    junction = response['junction']
-    testRatio = response['testRatio']
-    algorithm = response['algorithm']
-    dictionary = dict()
-    if success:
-        dictionary['gotTrainingSpecifics'] = "success"
-        return make_response(dictionary)
-    else:
-        dictionary['gotTrainingSpecifics'] = "fail"
-        return make_response(dictionary)
-
-
 @app.route('/getAccuraciesOfAllJunctions')
 def getAccuraciesOfAllJunctions():
     global allJunctionsAccuracies
@@ -299,13 +291,24 @@ def predictForHighestAccuracy():
     global highestAccuracyTestRatio
     global highestAccuracyTrained
     global showBy
+    global startYear
+    global startYearMap
 
     highestAccuracyAlgorithm = ""
     highestAccuracyTestRatio = float(0)
     highestAccuracyTrained = allTrainedData[junction][algorithm][testRatio]
-    plotResponse = highestAccuracyTrained.predict(time, timeFormat, showBy)
+    plotResponse = highestAccuracyTrained.predict(time, timeFormat, showBy, startYear)
+    startYearMap[junction] = startYear
     return make_response(plotResponse)
     
+
+
+@app.route('/getStartYearMap')
+def getStartYearMap():
+    global startYearMap
+    print(startYearMap)
+    return make_response(startYearMap)
+
 
 
 @app.route("/addToMaster")
@@ -318,21 +321,24 @@ def addToMaster():
         algorithm = algorithm.replace("%20", " ")
 
     testRatio = float(args['testRatio'])
-    relativeChange = float(args['relativeChange'])
+    # relativeChange = float(args['relativeChange'])
 
     global masterAlgorithmAndTestRatioForJunction
     global allTrainedData
     global masterData
-    global relativeChangeMap
+    global startYear
+    # global relativeChangeMap
 
     junction = args['junction']
     if "%20" in args['junction']:
         junction = args['junction'].replace("%20", " ")
     masterTrainedAlgorithmAndTestRatioForJunction = (algorithm, testRatio)
+    startYear = int(args['startYear'])
 
     findTrained = allTrainedData[junction][algorithm][testRatio]
     masterData[junction] = findTrained
-    relativeChangeMap[junction] = relativeChange
+    startYearMap[junction] = startYear
+    # relativeChangeMap[junction] = relativeChange
     return make_response(args)
 
 
@@ -340,7 +346,6 @@ def addToMaster():
 def getRelativeChange():
     global relativeChangeMap
     global masterData
-    global junction
 
     args = request.args
     args = args.to_dict()
@@ -348,6 +353,9 @@ def getRelativeChange():
     factor = args['factor']
     if "%20" in factor:
         factor = factor.replace("%20", " ")
+    junction = args['junction']
+    if "%20" in junction:
+        junction= junction.replace("%20", " ")
 
     trained = masterData[junction]
     array = trained.getRelativeChange(relativeChangeMap[junction], factor)
@@ -370,13 +378,14 @@ def getMasterTrainedDataPlot():
     global masterDataTable
     global masterJunctionsAccuracies
     global showBy
+    global startYear
     
     masterDataTable = dict()
     response = dict()
     masterJunctionsAccuracies = dict()
     for i in masterData:
         trained = masterData[i]
-        response[i] = trained.predict(time, timeFormat, showBy)
+        response[i] = trained.predict(time, timeFormat, showBy, startYear)
         masterJunctionsAccuracies[i] = trained.accuracyScore
 
         table = []
@@ -418,6 +427,7 @@ def getTestingRatioComparisons():
     global tempdf
     global junction
     global allTrainedData
+    global algorithms
 
     args = request.args
     args = args.to_dict()
@@ -430,24 +440,21 @@ def getTestingRatioComparisons():
 
     possibleTestRatios = np.arange(0.1, 1, 0.1)
 
-    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
-                  'Lasso Regression', 'Bayesian Ridge Regression']
     response = dict()
     temp = dict()
 
     if action == 'clear':
-        print('clear')
         for i in algorithms:
             testRatioComparisons = dict()
             trainedData = dict()
             for j in possibleTestRatios:
+                j = round(j, 3)
                 trained = Train.Train(tempdf, i, junction, j)
                 trainedData[j] = trained
                 testRatioComparisons[j] = trained.accuracyScore
             response[i] = testRatioComparisons
             temp[i] = trainedData
     if action == 'append':
-        print('append')
         newData = tempdf.copy()
         for i in algorithms:
             testRatioComparisons = dict()
@@ -567,7 +574,17 @@ if __name__ == "__main__":
     global showBy
     global relativeChangeMap
     global allJunctionsCsvData
+    global algorithms
+    global startYear
+    global startYearMap
+    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+                'Lasso Regression', 'Bayesian Ridge Regression', 'Decision Tree Regression', 
+                'K Nearest Neighbors Regression', 'Support Vector Regression'
+                #   'Gaussian Process Regression'
+    ]
 
+    startYear: int = 0
+    startYearMap = dict()
     showBy: str = ""
     highestAccuracyAlgorithm = ""
     highestAccuracyTestRatio = float(0)
@@ -591,6 +608,7 @@ if __name__ == "__main__":
         getJunctionRelatedDataFromDB()
         app.run()
     elif (sys.argv[1] == 'PROD'):
+        # will work only after spring deployment is done
         springUrl = config.spring_prod_url
         getJunctionRelatedDataFromDB()
         app.run(debug=True, host='0.0.0.0')

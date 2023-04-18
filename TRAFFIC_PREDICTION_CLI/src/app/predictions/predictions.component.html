@@ -1,23 +1,33 @@
 <div id="predictionComponentBody">
-    <p class="fixed-top">
-        <mat-toolbar>
-            <button mat-icon-button  
-                class="example-icon" 
-                data-bs-toggle="offcanvas" 
-                data-bs-target="#offcanvasExample" 
-                aria-controls="offcanvasExample" 
-                aria-label="Example icon-button with menu icon"
-            >
-                <mat-icon>menu</mat-icon>
-            </button>
-            <span>Traffic Intensity Prediction and Recommendation</span>
-            <span class="example-spacer"></span>
-        </mat-toolbar>
-    </p>
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" aria-label="navbar"
+        style="background-color: #e6e6e6;">
+        <div class="container-fluid" style="background-color: #e6e6e6">
+            <a class="navbar-brand">
+                <span>
+                    <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+                        <mat-icon>menu</mat-icon>
+                    </button>
+                </span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li style="font-size: 20px" class="nav-item">Traffic Intensity Prediction and Recommendation</li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <button mat-icon-button class="example-icon favorite-icon"
+                        aria-label="Example icon-button with heart icon">
+                        <mat-icon>account_circle</mat-icon>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
 
     <br /><br /><br /><br />
 
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions"
+        aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
             <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -29,7 +39,7 @@
                     <span style="float:left">Training</span>
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
                 </li>
-                <li class="offcanvasList list-group-item">
+                <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
                     <span style="float:left">Predictions</span>
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
                 </li>
@@ -38,161 +48,84 @@
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
                 </li>
             </ul>
-            <!-- <mat-list>
-                <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item>Predictions</mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item (click)="navigateToAdminInputs()">Provide Junction Properties</mat-list-item>
-            </mat-list> -->
         </div>
     </div>
 
 
-        <section>
-            <mat-stepper orientation="vertical" [linear]="isLinear" #stepper>
-                <mat-step>
-                    <br />
-                    <ng-template matStepLabel>See Predictions</ng-template>
-                    <mat-progress-bar *ngIf="!predictionsReady" mode="indeterminate"></mat-progress-bar>
-                    <div *ngIf="predictionsReady">
-                        <mat-card *ngIf="!toggleFuturePredictionsTable">
-                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                <ul class="nav nav-pills">
-                                    <div class="container">
-                                        <div class="row">
-                                            <div style="width: 240px" class="col">
-                                                <h4>Result for Junction</h4> 
-                                            </div>
-                                            <div class="col">
-                                                <select style="width: 200px" class="form-select" (change)="renderPredictions()" [(ngModel)]="junctionChoice" aria-label="Default select example">
-                                                    <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-5">
-                                                <h4>for duration of <strong>{{ duration }} {{ time }}</strong></h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </ul>
-                                <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
-                                    <option selected>Line Plot</option>
-                                    <option value="Table">Table</option>
-                                </select>
-                            </nav>
-                            <mat-card-content *ngIf="resultTableReady">
-                                <mat-form-field appearance="outline">
-                                    <mat-label>Duration</mat-label>
-                                    <input [(ngModel)]="duration" type="number" matInput placeholder="Enter period">
-                                </mat-form-field>
-                                <mat-form-field appearance="outline">
-                                    <mat-label>Amount of Time</mat-label>
-                                    <mat-select [(ngModel)]="time" (selectionChange)="changeShowByArray()">
-                                        <mat-option value="Days">Days</mat-option>
-                                        <mat-option value="Months">Months</mat-option>
-                                        <mat-option value="Years">Years</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
-                                <mat-form-field appearance="outline">
-                                    <mat-label>Show By</mat-label>
-                                    <mat-select [(ngModel)]="showBy" (selectionChange)="predict()">
-                                        <mat-option *ngFor="let element of showByArray" [value]="element">{{ element }}</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <mat-form-field appearance="outline">
-                                    <mat-label>Factor</mat-label>
-                                    <mat-select [(ngModel)]="relativeChangeFactor" (selectionChange)="predict()">
-                                        <mat-option *ngFor="let element of factorsForRelativeChange" [value]="element">{{ element }}</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-
-                                <div>
-                                    <p>
-                                        <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
-                                            <mat-icon>description</mat-icon>
-                                        </button>
-                                    </p>
-                                    <div class="collapse show" id="collapseExample">
-                                        <div class="card card-body alert alert-dark">
-                                            <table class="table">
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row">Belongs to</th>
-                                                        <td>{{ currentDistrict }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row">Roadway Width</th>
-                                                        <td>{{ currentRoadwayWidth }} metres</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row">Capacity</th>
-                                                        <td>{{ currentMaxVehicles }}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <!-- <h3>
-                                        Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
-                                    </h3>
-                                    <h3>
-                                        Junction {{junctionChoice}} has Roadway width of <strong>{{ currentRoadwayWidth }} meters</strong>
-                                    </h3>
-                                    <h3>
-                                        Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
-                                    </h3> -->
-                                </div>
-                                <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">DateTime</th>
-                                            <th scope="col">Vehicles</th>
-                                            <th scope="col">Year</th>
-                                            <th scope="col">Month</th>
-                                            <th scope="col">Day</th>
-                                            <th scope="col">Hour</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let record of dataSourceResult">
-                                            <th scope="row">{{ record.DateTime }}</th>
-                                            <td>{{ record.Vehicles }}</td>
-                                            <td>{{ record.Year }}</td>
-                                            <td>{{ record.Month }}</td>
-                                            <td>{{ record.Day }}</td>
-                                            <td>{{ record.Hour }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+    <section>
+        <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <span class="me-3">
+                    <mat-icon style="color:green">check_circle</mat-icon>
+                </span>
+                <strong class="me-auto">System</strong>
+                <small>1 second ago</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" style="color: green">
+                {{ errorString }}
+            </div>
+        </div>
+        <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <span class="me-3">
+                    <mat-icon color="warn">report</mat-icon>
+                </span>
+                <strong class="me-auto">System</strong>
+                <small>1 second ago</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" style="color: red">
+                {{ errorString }}
+            </div>
+        </div>
 
 
-                                <!--
-                                    ** Paginator for Prediction table **
-                                -->
-                                <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                    <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
-                                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                                </div>
-                            </mat-card-content>
-                        </mat-card>
-                    </div>
 
-                    <!--
-                        ** Vehicles vs DateTime chart for provided junction number and number of days **
-                    -->
-                    <mat-card [hidden]="!toggleFuturePredictionsTable">
-                        <nav *ngIf="predictionsReady" id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
+
+
+        <div [hidden]="predictionsExist" id="maincontainer2" class="
+                container
+                my-5 
+                bg-primary 
+                shadow-lg 
+                p-3 
+                mb-5 
+                bg-white 
+                rounded
+        ">
+            <div class="card text-center text-bg-danger mb-3">
+                <div class="card-header">
+                    Note! Entries not found. Please sign in again after some time
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <mat-stepper [hidden]="!predictionsExist" orientation="horizontal" [linear]="isLinear" #stepper>
+            <mat-step>
+                <ng-template matStepLabel>See Predictions</ng-template>
+                <mat-progress-bar *ngIf="!predictionsReady" mode="indeterminate"></mat-progress-bar>
+                <div *ngIf="predictionsReady">
+                    <mat-card *ngIf="!toggleFuturePredictionsTable">
+                        <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
+                            aria-labelledby="navHeading">
                             <ul class="nav nav-pills">
                                 <div class="container">
                                     <div class="row">
-                                        <div style="width: 240px" class="col">
-                                            <h4>Result for Junction</h4> 
+                                        <div style="width: 260px" class="col">
+                                            <h4>Result for Junction</h4>
                                         </div>
                                         <div class="col">
-                                            <select style="width: 200px" class="form-select" (change)="renderPredictions()" [(ngModel)]="junctionChoice" aria-label="Default select example">
-                                                <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
+                                            <select style="width: 200px" class="form-select" (change)="predict()"
+                                                [(ngModel)]="junctionChoice" aria-label="Default select example">
+                                                <option *ngFor="let junction of junctions" [value]="junction">{{
+                                                    junction }}</option>
                                             </select>
                                         </div>
                                         <div class="col-5">
@@ -201,243 +134,620 @@
                                     </div>
                                 </div>
                             </ul>
-                            <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
+                            <select style="width: 150px" class="form-select" [(ngModel)]="showBy" (change)="predict()"
+                                aria-label="Default select example">
+                                <option selected>Weeks</option>
+                                <option value="Table">Months</option>
+                            </select>
+                            <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption"
+                                (change)="changePredictionsOption()" aria-label="Default select example">
                                 <option selected>Line Plot</option>
                                 <option value="Table">Table</option>
                             </select>
                         </nav>
-                        <mat-card-content [hidden]="!predictionsReady">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Duration</mat-label>
-                                <input [(ngModel)]="duration" type="number" matInput placeholder="Enter period">
-                            </mat-form-field>
-                            <mat-form-field appearance="outline">
-                                <mat-label>Amount Of Time</mat-label>
-                                <mat-select [(ngModel)]="time" (selectionChange)="changeShowByArray()">
-                                    <mat-option value="Days">Days</mat-option>
-                                    <mat-option value="Months">Months</mat-option>
-                                    <mat-option value="Years">Years</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <button style="margin-left: 10px" (click)="predict()" mat-raised-button color="primary">Predict</button>
-                            <mat-form-field style="float:right" appearance="outline">
-                                <mat-label>Show By</mat-label>
-                                <mat-select type="text" [(ngModel)]="showBy" (selectionChange)="predict()">
-                                    <mat-option *ngFor="let time of showByArray" [value]="time">{{ time }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <mat-form-field style="float:right; width: 300px" appearance="outline">
-                                <mat-label>Factor</mat-label>
-                                <mat-select [(ngModel)]="relativeChangeFactor" (selectionChange)="predict()">
-                                    <mat-option *ngFor="let element of factorsForRelativeChange" [value]="element">{{ element }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <div>
-                                <p>
-                                    <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
-                                        <mat-icon>notification_important</mat-icon>
-                                    </button>
-                                </p>
-                                <div class="collapse" id="collapseExample" style="width:500px">
-                                    <div class="card card-body alert alert-dark">
-                                        <table class="table">
-                                            <tbody>
-                                                <tr>
-                                                    <th scope="row">Belongs to</th>
-                                                    <td>{{ currentDistrict }} District</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">Roadway Width</th>
-                                                    <td>{{ currentRoadwayWidth }} metres</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">Capacity</th>
-                                                    <td>{{ currentMaxVehicles }}</td>
-                                                </tr>
-                                                <!-- <tr>
-                                                    <th scope="row">Number of times crossed max capacity</th>
-                                                    <td>{{ numberOfTimesCrossedMaxCapacity }}</td>
-                                                </tr> -->
-                                                <tr *ngIf="showWhenFirstRecommendation">
-                                                    <th scope="row">First Treatment needed in</th>
-                                                    <td>{{ countNumberOfDaysBeforeFirstTreatment }} {{ this.showBy }} after start</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">Relative Change</th>
-                                                    <td>{{ relativeChange }} %</td>
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">Number Of Times Crossed</th>
-                                                    <td>{{ countVehiclesCrossedRelativeTrend }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <!-- <h3>
-                                    Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
-                                </h3>
-                                <h3>
-                                    Junction {{junctionChoice}} has Roadway width of <strong>{{ currentRoadwayWidth }} meters</strong>
-                                </h3>
-                                <h3>
-                                    Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
-                                </h3> -->
-                            </div>
-                            <div [hidden]="futurePredictionsChartHidden" style="padding-left: 150px;">
-                                <div class="chart-container" style="position: relative; height:75vh; width:150vw">
-                                    <canvas id="myChart"></canvas>
-                                </div>
-                                <div *ngIf="yearsPaginatorShow" style="padding-top: 10px;">
-                                    <nav aria-label="Page navigation example">
-                                        <ul class="pagination justify-content-center">
-                                            <button mat-button [disabled]="yearsPaginatorPreviousButtonDisabled" (click)="previousMonth()">
-                                                <mat-icon>keyboard_arrow_left</mat-icon>
-                                            </button>
-                                            <button mat-button>{{ yearsIndex }} of {{ index }}</button>
-                                            <button mat-button [disabled]="yearsPaginatorNextButtonDisabled" (click)="nextMonth()">
-                                                <mat-icon>keyboard_arrow_right</mat-icon>
-                                            </button>
-                                        </ul>
-                                    </nav>
-                                </div>
-                            </div>
-                            <div *ngIf="showMaxCapacity">
-                                <div class="alert alert-primary">
-                                    <p>
-                                        <strong>
-                                            Number of times crossed the maximum limit: {{numberOfTimesCrossedMaxCapacity}}
-                                        </strong>
-                                    </p>
-                                    <p>
-                                        <strong>
-                                            First Treatment was needed {{ countNumberOfDaysBeforeFirstTreatment }} {{ this.showBy }} after start-time
-                                        </strong>
-                                    </p>
-                                    <!-- <p>
-                                        <strong>
-                                            First Treatment was needed {{ firstDayOfTreatment }} Days after start-time
-                                        </strong>
-                                    </p> -->
-                                </div>
-                            </div>
-                            <div>
-                                <br />
-                                <h1>Range of tendency towards treatment</h1>
-                                <section class="example-section">
-                                    <mat-progress-bar
-                                        class="example-margin"
-                                        [color]="percentageBarColor"
-                                        [mode]="percentageBarMode"
-                                        [value]="percentageOfVehiclesCrossedTrendLimit"
-                                        [bufferValue]="75">
-                                    </mat-progress-bar>
-                                </section>
-                            </div>
-                        </mat-card-content>
-                    </mat-card>
-                </mat-step>
+                        <mat-card-content *ngIf="resultTableReady">
 
-
-
-                <mat-step *ngIf="autoTrained">
-                    
-                    <ng-template matStepLabel>Accuracies of Differenct Junctions</ng-template>
-                    <div style="padding-top: 10px" class="container">
-                        <div class="row">
-                            <div class="col">
-                                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                    <ul class="nav nav-pills">
-                                        <div class="container">
-                                            <div class="row">
-                                                <div style="width: 240px" class="col">
-                                                    <h4>Accuracies of all junctions</h4> 
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ul>
-                                    <select style="width: 150px" class="form-select" [(ngModel)]="accuraciesOption" (change)="changeAccuraciesOption()" aria-label="Default select example">
-                                        <option selected>Line Plot</option>
-                                        <option value="Table">Table</option>
-                                    </select>
-                                </nav>
-                                <div>
-                                    <div [hidden]="!toggleAccuracyTable">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
                                         <div>
-                                            <canvas width="600" height="600" id="accuracyComparison"></canvas>
-                                        </div>
-                                    </div>
-                                    <div [hidden]="toggleAccuracyTable">
-                                        <div>
-                                            <table class="table">
+                                            <table class="table table-bordered border table-striped"
+                                                aria-describedby="table2-desc">
                                                 <thead>
                                                     <tr>
-                                                        <th scope="col">Junction</th>
-                                                        <th scope="col">Accuracy</th>
+                                                        <th scope="col">DateTime</th>
+                                                        <th scope="col">Vehicles</th>
+                                                        <th scope="col">Year</th>
+                                                        <th scope="col">Month</th>
+                                                        <th scope="col">Day</th>
+                                                        <th scope="col">Hour</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr *ngFor="let record of accuracyComparisonTableData">
-                                                        <th scope="row">{{ record.junctionOrAlgorithm }}</th>
-                                                        <td>{{ record.accuracy }}</td>
+                                                    <tr *ngFor="let record of dataSourceResult">
+                                                        <th scope="row">{{ record.DateTime }}</th>
+                                                        <td>{{ record.Vehicles }}</td>
+                                                        <td>{{ record.Year }}</td>
+                                                        <td>{{ record.Month }}</td>
+                                                        <td>{{ record.Day }}</td>
+                                                        <td>{{ record.Hour }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                    <ul class="nav nav-pills">
-                                        <div class="container">
-                                            <div class="row">
-                                                <div style="width: 240px" class="col">
-                                                    <h4>Accuracy for junction</h4> 
-                                                </div>
-                                                <div class="col">
-                                                    <select style="width: 200px" class="form-select" (change)="renderJunctionAccuracyPie()" [(ngModel)]="currentPie" aria-label="Default select example">
-                                                        <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}</option>
-                                                    </select>
+                                    <div class="col">
+                                        <div>
+                                            <div class="alert alert-{{alert}}">
+                                                <section>
+                                                    <div class="collapse show" id="collapseStarsTable">
+                                                        <div>
+                                                            <div>
+                                                                <button mat-fab extended color="warn">
+                                                                    <mat-icon
+                                                                        *ngFor="let icon of starsTableDesc[importanceLevel]">{{
+                                                                        icon }}</mat-icon>
+                                                                </button>
+                                                                <button mat-icon-button type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target="#collapseExample"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="collapseExample">
+                                                                    <mat-icon>info</mat-icon>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h1>{{starsTableMeaning[importanceLevel]}}</h1>
+                                                        </div>
+                                                        <div class="collapse" id="collapseExample"
+                                                            style="padding-top: 10px">
+                                                            <table class="table table-bordered border-danger">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th scope="col">Stars</th>
+                                                                        <th scope="col">Meaning</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[0]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[0]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[1]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[1]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[2]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[2]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[3]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[3]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[4]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[4]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[5]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[5]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[6]">{{
+                                                                                icon }}</mat-icon>
+                                                                        </th>
+                                                                        <td>
+                                                                            <p>{{starsTableMeaning[6]}}</p>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <p><mat-checkbox [(ngModel)]="checkRecommendation"
+                                                                color="primary" [disabled]="disableCheck">Recommend
+                                                                treatment for ({{ this.junctionChoice }}, {{
+                                                                this.currentDistrict }}
+                                                                district)? </mat-checkbox></p>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <button mat-raised-button
+                                                                [disabled]="disableCheck || !checkRecommendation"
+                                                                (click)="enqueueRecommendation()"><mat-icon>queue</mat-icon>Enqueue
+                                                                treatment
+                                                                recommendation</button>
+                                                        </span>
+                                                        <span style="padding-left: 10px">
+                                                            <button mat-raised-button [disabled]="alert=='danger'"
+                                                                (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue
+                                                                Recommendation</button>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div style="padding-top: 10px">
+                                                            <span>
+                                                                <button mat-raised-button data-bs-toggle="modal"
+                                                                    data-bs-target="#exampleModal"><mat-icon>delete_sweep</mat-icon>Clear
+                                                                    All Recommendations</button>
+                                                            </span>
+                                                            <span style="padding-left: 10px">
+                                                                <button mat-raised-button color="primary"
+                                                                    (click)="downloadPredictions()"><mat-icon>save</mat-icon>Download
+                                                                    Predictions as csv file</button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                                <div class="modal fade" id="exampleModal" tabindex="-1"
+                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                                                    Clear All Recommendations
+                                                                </h1>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                Are you sure you want to clear all recommendations?
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" mat-raised-button color="warn"
+                                                                    data-bs-dismiss="modal">Close</button>
+                                                                <button (click)="clearAllRecommendations()"
+                                                                    type="button" mat-raised-button color="primary"
+                                                                    data-bs-dismiss="modal">Save
+                                                                    changes</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </ul>
-                                </nav>
-                                <div>
-                                    <div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!--
+                                    ** Paginator for Prediction table **
+                                -->
+                            <div id="paginator2" class="justify-content-end btn-group" role="group"
+                                aria-label="Button group with nested dropdown">
+                                <button type="button" [ngClass]="classForPreviousButtonResult"
+                                    (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                <button type="button" id="paginator2indicator" class="btn btn-outline-secondary"
+                                    disabled>{{indexResult}} - {{indexResult + 10}} of
+                                    {{numberOfRecordsResult}}</button>
+                                <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()"
+                                    class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </div>
+
+                <!--
+                        ** Vehicles vs DateTime chart for provided junction number and number of days **
+                    -->
+                <mat-card [hidden]="!toggleFuturePredictionsTable">
+                    <nav *ngIf="predictionsReady" id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
+                        aria-labelledby="navHeading">
+                        <ul class="nav nav-pills">
+                            <div class="container">
+                                <div class="row">
+                                    <div style="width: 260px" class="col">
+                                        <h4>Result for Junction</h4>
+                                    </div>
+                                    <div class="col">
+                                        <select style="width: 200px" class="form-select" (change)="predict()"
+                                            [(ngModel)]="junctionChoice" aria-label="Default select example">
+                                            <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-5">
+                                        <h4>for duration of <strong>{{ duration }} {{ time }}</strong></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </ul>
+                        <select style="float:right; width: 150px" class="form-select" [(ngModel)]="showBy"
+                            (change)="predict()" aria-label="Default select example">
+                            <option selected>Weeks</option>
+                            <option value="Table">Months</option>
+                        </select>
+                        <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption"
+                            (change)="changePredictionsOption()" aria-label="Default select example">
+                            <option selected>Line Plot</option>
+                            <option value="Table">Table</option>
+                        </select>
+                    </nav>
+                    <mat-card-content [hidden]="!predictionsReady">
+                        <div>
+                            <div class="row">
+                                <div class="col">
+                                    <div [hidden]="futurePredictionsChartHidden">
                                         <div>
-                                            <canvas width="600" height="600" id="accuracyPie"></canvas>
+                                            <canvas style="height: 200px" id="myChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div>
+                                        <div class="alert alert-{{alert}}">
+                                            <section>
+                                                <div class="collapse show" id="collapseStarsTable">
+                                                    <div>
+                                                        <div>
+                                                            <button mat-fab extended color="warn">
+                                                                <mat-icon
+                                                                    *ngFor="let icon of starsTableDesc[importanceLevel]">{{
+                                                                    icon }}</mat-icon>
+                                                            </button>
+                                                            <button mat-icon-button type="button"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#collapseExample" aria-expanded="false"
+                                                                aria-controls="collapseExample">
+                                                                <mat-icon>info</mat-icon>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h1>{{starsTableMeaning[importanceLevel]}}</h1>
+                                                    </div>
+                                                    <div class="collapse" id="collapseExample"
+                                                        style="padding-top: 10px">
+                                                        <table class="table table-bordered border-danger">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Stars</th>
+                                                                    <th scope="col">Meaning</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[0]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[0]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[1]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[1]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[2]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[2]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[3]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[3]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[4]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[4]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[5]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[5]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[6]">{{
+                                                                            icon }}</mat-icon>
+                                                                    </th>
+                                                                    <td>
+                                                                        <p>{{starsTableMeaning[6]}}</p>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p><mat-checkbox [(ngModel)]="checkRecommendation" color="primary"
+                                                            [disabled]="disableCheck">Recommend
+                                                            treatment for ({{ this.junctionChoice }}, {{
+                                                            this.currentDistrict }}
+                                                            district)? </mat-checkbox></p>
+                                                </div>
+                                                <div>
+                                                    <span>
+                                                        <button mat-raised-button
+                                                            [disabled]="disableCheck || !checkRecommendation"
+                                                            (click)="enqueueRecommendation()"><mat-icon>queue</mat-icon>Enqueue
+                                                            treatment
+                                                            recommendation</button>
+                                                    </span>
+                                                    <span style="padding-left: 10px">
+                                                        <button mat-raised-button [disabled]="alert=='danger'"
+                                                            (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue
+                                                            Recommendation</button>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <div style="padding-top: 10px">
+                                                        <span>
+                                                            <button mat-raised-button data-bs-toggle="modal"
+                                                                data-bs-target="#exampleModal"><mat-icon>delete_sweep</mat-icon>Clear
+                                                                All Recommendations</button>
+                                                        </span>
+                                                        <span style="padding-left: 10px">
+                                                            <button mat-raised-button color="primary"
+                                                                (click)="downloadPredictions()"><mat-icon>save</mat-icon>Download
+                                                                Predictions as csv file</button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                            <div class="modal fade" id="exampleModal" tabindex="-1"
+                                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                                                Clear All Recommendations
+                                                            </h1>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to clear all recommendations?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" mat-raised-button color="warn"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            <button (click)="clearAllRecommendations()" type="button"
+                                                                mat-raised-button color="primary"
+                                                                data-bs-dismiss="modal">Save
+                                                                changes</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+
+                    </mat-card-content>
+                </mat-card>
+            </mat-step>
+
+
+            <mat-step>
+                <ng-template matStepLabel>Districts with treatments</ng-template>
+
+
+
+                <div style="padding-left: 200px; padding-right: 200px; padding-top: 20px">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header">
+                            <small class="text-body-secondary">
+                                <ul class="nav nav-pills card-header-pills">
+                                    <li>
+                                        <span>
+                                            <h3>2 years from: </h3>
+                                        </span>
+                                    </li>
+                                    <li class="nav-item">
+                                        <span>
+                                            <select [(ngModel)]="yearToRender" (change)="changeYearToRender()"
+                                                style="width: 150px" class="form-select"
+                                                aria-label="Default select example">
+                                                <option *ngFor="let year of allYears" [value]="year">{{ year }}</option>
+                                            </select>
+                                        </span>
+                                    </li>
+                                    <li class="nav-item" style="float:right">
+                                        <span>
+                                            <select style="width: 150px" class="form-select"
+                                                [(ngModel)]="representationFormat"
+                                                (change)="changeRepresentationFormat()"
+                                                aria-label="Default select example">
+                                                <option value="Geomap">Geomap</option>
+                                                <option value="Table">Table</option>
+                                            </select>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <div *ngIf="!showGeoMap">
+                                <div>
+                                    <div class="card">
+                                        <div id="main" echarts [options]="mapOption" class="demo-chart"
+                                            (chartClick)="onChartClick($event)"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="showGeoMap">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">District</th>
+                                            <th scope="col">Number of treatment recommendations</th>
+                                            <th scope="col">StartYear</th>
+                                            <th scope="col">Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let element of allDistrictsRecommended">
+                                            <th scope="row">{{ element.districtName }}</th>
+                                            <td>{{ element.numberOfTreatmentRecommendations }}</td>
+                                            <td>{{ element.startYear }}</td>
+                                            <td>{{ element.durationYears }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer" *ngIf="districtClicked">
+                            <div>
+                                <table class="table" aria-label="info table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Junction</th>
+                                            <th scope="col">District</th>
+                                            <th scope="col">from (Year)</th>
+                                            <th scope="col">Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let instance of districtClickInfoTable">
+                                            <th>{{ instance.junctionName }}</th>
+                                            <td>{{ instance.districtName }}</td>
+                                            <td>{{ instance.startYear }}</td>
+                                            <td>{{ instance.durationYears }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- <div class="card-body">
+                            <h3>
+                                <strong>
+                                    Predictions of {{ inputJunction }} for next {{ time }} {{ timeFormat }}
+                                </strong>
+                            </h3>
+                            <p id="table2-desc">
+                                for {{ algorithmHighestAccuracy }} and {{ testRatioHighestAccuracy }}
+                            </p>
+                            <h5>
+                                After training process, the trained model having the combination of algorithm
+                                and testing ratio with highest accuracy is chosen and predictions of chosen
+                                junction with this trained model for {{ time }} {{ timeFormat }} are shown
+                            </h5>
+                        </div> -->
                     </div>
-                </mat-step>
-            </mat-stepper>
+                </div>
 
 
-            <br />
-            <br />
-            <hr />
-            <br />
 
-            <!--
-                ** Export To CSV option
-            -->
-            <div *ngIf="resultTableReady" class="text-center">
-                <button id="exportButton" type="button" class="btn btn-primary" (click)="exportToCsv()">Donwload Predictions as csv file</button>
-            </div>
 
-            <!--
-                ** Error Alert
-            -->
-            <div id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
-                {{ errorstring }}
-            </div>
+            </mat-step>
 
-        </section>
+
+            <mat-step *ngIf="autoTrained">
+
+                <ng-template matStepLabel>Accuracies of different junctions</ng-template>
+                <div style="padding-top: 10px" class="container">
+                    <div class="row">
+                        <div class="col">
+                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
+                                aria-labelledby="navHeading">
+                                <ul class="nav nav-pills">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div style="width: 240px" class="col">
+                                                <h4>Accuracy for junction</h4>
+                                            </div>
+                                            <div class="col">
+                                                <select style="width: 200px" class="form-select"
+                                                    (change)="renderJunctionAccuracyPie()" [(ngModel)]="currentPie"
+                                                    aria-label="Default select example">
+                                                    <option *ngFor="let junction of junctions" [value]="junction">{{
+                                                        junction }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ul>
+                            </nav>
+                            <div>
+                                <div>
+                                    <div>
+                                        <canvas width="600" height="600" id="accuracyPie"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-step>
+        </mat-stepper>
+    </section>
 
 
 </div>

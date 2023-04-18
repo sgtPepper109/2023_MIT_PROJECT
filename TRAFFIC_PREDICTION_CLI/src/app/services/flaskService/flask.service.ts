@@ -80,18 +80,18 @@ export class FlaskService {
 		junction: string, 
 		algorithm: string, 
 		testRatio: number,
-		relativeChange: number
+		startYear: number
 	) {
 		return this.http.get('process/addToMaster'
 			+ '?junction=' + junction 
 			+ '&algorithm=' + algorithm 
 			+ '&testRatio=' + testRatio 
-			+ "&relativeChange=" + relativeChange
+			+ '&startYear=' + startYear
 		)
 	}
 
-	public getRelativeChange(factor: string) {
-		return this.http.get('process/getRelativeChange?factor=' + factor)
+	public getRelativeChange(factor: string, junction: string) {
+		return this.http.get('process/getRelativeChange?factor=' + factor + '&junction=' + junction)
 	}
 
 	public getAllRelativeChange() {
@@ -136,6 +136,18 @@ export class FlaskService {
 
 	public checkIfJunctionDataExists() {
 		return this.http.get('process/checkIfJunctionDataExists')
+	}
+
+	public getAllAlgorithms() {
+		return this.http.get('process/getAllAlgorithms')
+	}
+
+	public getEndYearFromDataset() {
+		return this.http.get('process/getEndYearFromDataset')
+	}
+
+	public getStartYearMap() {
+		return this.http.get('process/getStartYearMap')
 	}
 
 }
