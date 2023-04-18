@@ -1,18 +1,33 @@
 <div id="predictionComponentBody">
-    <p class="fixed-top">
-        <mat-toolbar>
-            <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
-                aria-controls="offcanvasExample" aria-label="Example icon-button with menu icon">
-                <mat-icon>menu</mat-icon>
-            </button>
-            <span>Traffic Intensity Prediction and Recommendation</span>
-            <span class="example-spacer"></span>
-        </mat-toolbar>
-    </p>
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" aria-label="navbar"
+        style="background-color: #e6e6e6;">
+        <div class="container-fluid" style="background-color: #e6e6e6">
+            <a class="navbar-brand">
+                <span>
+                    <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+                        <mat-icon>menu</mat-icon>
+                    </button>
+                </span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li style="font-size: 20px" class="nav-item">Traffic Intensity Prediction and Recommendation</li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <button mat-icon-button class="example-icon favorite-icon"
+                        aria-label="Example icon-button with heart icon">
+                        <mat-icon>account_circle</mat-icon>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
 
     <br /><br /><br /><br />
 
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions"
+        aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
             <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -66,7 +81,33 @@
                 {{ errorString }}
             </div>
         </div>
-        <mat-stepper orientation="horizontal" [linear]="isLinear" #stepper>
+
+
+
+
+
+        <div [hidden]="predictionsExist" id="maincontainer2" class="
+                container
+                my-5 
+                bg-primary 
+                shadow-lg 
+                p-3 
+                mb-5 
+                bg-white 
+                rounded
+        ">
+            <div class="card text-center text-bg-danger mb-3">
+                <div class="card-header">
+                    Note! Entries not found. Please sign in again after some time
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <mat-stepper [hidden]="!predictionsExist" orientation="horizontal" [linear]="isLinear" #stepper>
             <mat-step>
                 <ng-template matStepLabel>See Predictions</ng-template>
                 <mat-progress-bar *ngIf="!predictionsReady" mode="indeterminate"></mat-progress-bar>
@@ -81,9 +122,8 @@
                                             <h4>Result for Junction</h4>
                                         </div>
                                         <div class="col">
-                                            <select style="width: 200px" class="form-select"
-                                                (change)="predict()" [(ngModel)]="junctionChoice"
-                                                aria-label="Default select example">
+                                            <select style="width: 200px" class="form-select" (change)="predict()"
+                                                [(ngModel)]="junctionChoice" aria-label="Default select example">
                                                 <option *ngFor="let junction of junctions" [value]="junction">{{
                                                     junction }}</option>
                                             </select>
@@ -94,8 +134,8 @@
                                     </div>
                                 </div>
                             </ul>
-                            <select style="width: 150px" class="form-select" [(ngModel)]="showBy"
-                                (change)="predict()" aria-label="Default select example">
+                            <select style="width: 150px" class="form-select" [(ngModel)]="showBy" (change)="predict()"
+                                aria-label="Default select example">
                                 <option selected>Weeks</option>
                                 <option value="Table">Months</option>
                             </select>
@@ -111,7 +151,8 @@
                                 <div class="row">
                                     <div class="col">
                                         <div>
-                                            <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
+                                            <table class="table table-bordered border table-striped"
+                                                aria-describedby="table2-desc">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">DateTime</th>
@@ -143,9 +184,15 @@
                                                         <div>
                                                             <div>
                                                                 <button mat-fab extended color="warn">
-                                                                    <mat-icon *ngFor="let icon of starsTableDesc[importanceLevel]">{{ icon }}</mat-icon>
+                                                                    <mat-icon
+                                                                        *ngFor="let icon of starsTableDesc[importanceLevel]">{{
+                                                                        icon }}</mat-icon>
                                                                 </button>
-                                                                <button mat-icon-button type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                                                <button mat-icon-button type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target="#collapseExample"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="collapseExample">
                                                                     <mat-icon>info</mat-icon>
                                                                 </button>
                                                             </div>
@@ -153,7 +200,8 @@
                                                         <div>
                                                             <h1>{{starsTableMeaning[importanceLevel]}}</h1>
                                                         </div>
-                                                        <div class="collapse" id="collapseExample" style="padding-top: 10px">
+                                                        <div class="collapse" id="collapseExample"
+                                                            style="padding-top: 10px">
                                                             <table class="table table-bordered border-danger">
                                                                 <thead>
                                                                     <tr>
@@ -164,7 +212,9 @@
                                                                 <tbody>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[0]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[0]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[0]}}</p>
@@ -172,7 +222,9 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[1]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[1]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[1]}}</p>
@@ -180,7 +232,9 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[2]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[2]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[2]}}</p>
@@ -188,7 +242,9 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[3]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[3]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[3]}}</p>
@@ -196,7 +252,9 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[4]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[4]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[4]}}</p>
@@ -204,7 +262,9 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[5]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[5]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[5]}}</p>
@@ -212,7 +272,9 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <th scope="row">
-                                                                            <mat-icon *ngFor="let icon of starsTableDesc[6]">{{ icon }}</mat-icon>
+                                                                            <mat-icon
+                                                                                *ngFor="let icon of starsTableDesc[6]">{{
+                                                                                icon }}</mat-icon>
                                                                         </th>
                                                                         <td>
                                                                             <p>{{starsTableMeaning[6]}}</p>
@@ -223,28 +285,32 @@
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <p><mat-checkbox [(ngModel)]="checkRecommendation" color="primary" [disabled]="disableCheck">Recommend
-                                                            treatment for ({{ this.junctionChoice }}, {{ this.currentDistrict }}
-                                                            district)? </mat-checkbox></p>
+                                                        <p><mat-checkbox [(ngModel)]="checkRecommendation"
+                                                                color="primary" [disabled]="disableCheck">Recommend
+                                                                treatment for ({{ this.junctionChoice }}, {{
+                                                                this.currentDistrict }}
+                                                                district)? </mat-checkbox></p>
                                                     </div>
                                                     <div>
                                                         <span>
-                                                            <button mat-raised-button [disabled]="disableCheck || !checkRecommendation"
-                                                                (click)="enqueueRecommendation()"
-                                                                ><mat-icon>queue</mat-icon>Enqueue treatment
+                                                            <button mat-raised-button
+                                                                [disabled]="disableCheck || !checkRecommendation"
+                                                                (click)="enqueueRecommendation()"><mat-icon>queue</mat-icon>Enqueue
+                                                                treatment
                                                                 recommendation</button>
                                                         </span>
                                                         <span style="padding-left: 10px">
-                                                            <button mat-raised-button [disabled]="alert=='danger'" (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue Recommendation</button>
+                                                            <button mat-raised-button [disabled]="alert=='danger'"
+                                                                (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue
+                                                                Recommendation</button>
                                                         </span>
                                                     </div>
                                                     <div>
                                                         <div style="padding-top: 10px">
                                                             <span>
-                                                                <button mat-raised-button
-                                                                    data-bs-toggle="modal" 
-                                                                    data-bs-target="#exampleModal"
-                                                                ><mat-icon>delete_sweep</mat-icon>Clear All Recommendations</button>
+                                                                <button mat-raised-button data-bs-toggle="modal"
+                                                                    data-bs-target="#exampleModal"><mat-icon>delete_sweep</mat-icon>Clear
+                                                                    All Recommendations</button>
                                                             </span>
                                                             <span style="padding-left: 10px">
                                                                 <button mat-raised-button color="primary"
@@ -262,18 +328,18 @@
                                                                 <h1 class="modal-title fs-5" id="exampleModalLabel">
                                                                     Clear All Recommendations
                                                                 </h1>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                    aria-label="Close"></button>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
                                                             <div class="modal-body">
-                                                                Are you sure you want to clear all recommendations? 
+                                                                Are you sure you want to clear all recommendations?
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" mat-raised-button color="warn"
                                                                     data-bs-dismiss="modal">Close</button>
-                                                                <button (click)="clearAllRecommendations()" type="button" mat-raised-button color="primary"
-                                                                data-bs-dismiss="modal"
-                                                                >Save
+                                                                <button (click)="clearAllRecommendations()"
+                                                                    type="button" mat-raised-button color="primary"
+                                                                    data-bs-dismiss="modal">Save
                                                                     changes</button>
                                                             </div>
                                                         </div>
@@ -357,9 +423,14 @@
                                                     <div>
                                                         <div>
                                                             <button mat-fab extended color="warn">
-                                                                <mat-icon *ngFor="let icon of starsTableDesc[importanceLevel]">{{ icon }}</mat-icon>
+                                                                <mat-icon
+                                                                    *ngFor="let icon of starsTableDesc[importanceLevel]">{{
+                                                                    icon }}</mat-icon>
                                                             </button>
-                                                            <button mat-icon-button type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                                            <button mat-icon-button type="button"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#collapseExample" aria-expanded="false"
+                                                                aria-controls="collapseExample">
                                                                 <mat-icon>info</mat-icon>
                                                             </button>
                                                         </div>
@@ -367,7 +438,8 @@
                                                     <div>
                                                         <h1>{{starsTableMeaning[importanceLevel]}}</h1>
                                                     </div>
-                                                    <div class="collapse" id="collapseExample" style="padding-top: 10px">
+                                                    <div class="collapse" id="collapseExample"
+                                                        style="padding-top: 10px">
                                                         <table class="table table-bordered border-danger">
                                                             <thead>
                                                                 <tr>
@@ -378,7 +450,9 @@
                                                             <tbody>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[0]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[0]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[0]}}</p>
@@ -386,7 +460,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[1]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[1]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[1]}}</p>
@@ -394,7 +470,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[2]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[2]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[2]}}</p>
@@ -402,7 +480,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[3]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[3]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[3]}}</p>
@@ -410,7 +490,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[4]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[4]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[4]}}</p>
@@ -418,7 +500,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[5]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[5]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[5]}}</p>
@@ -426,7 +510,9 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th scope="row">
-                                                                        <mat-icon *ngFor="let icon of starsTableDesc[6]">{{ icon }}</mat-icon>
+                                                                        <mat-icon
+                                                                            *ngFor="let icon of starsTableDesc[6]">{{
+                                                                            icon }}</mat-icon>
                                                                     </th>
                                                                     <td>
                                                                         <p>{{starsTableMeaning[6]}}</p>
@@ -437,28 +523,32 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <p><mat-checkbox [(ngModel)]="checkRecommendation" color="primary" [disabled]="disableCheck">Recommend
-                                                        treatment for ({{ this.junctionChoice }}, {{ this.currentDistrict }}
-                                                        district)? </mat-checkbox></p>
+                                                    <p><mat-checkbox [(ngModel)]="checkRecommendation" color="primary"
+                                                            [disabled]="disableCheck">Recommend
+                                                            treatment for ({{ this.junctionChoice }}, {{
+                                                            this.currentDistrict }}
+                                                            district)? </mat-checkbox></p>
                                                 </div>
                                                 <div>
                                                     <span>
-                                                        <button mat-raised-button [disabled]="disableCheck || !checkRecommendation"
-                                                            (click)="enqueueRecommendation()"
-                                                            ><mat-icon>queue</mat-icon>Enqueue treatment
+                                                        <button mat-raised-button
+                                                            [disabled]="disableCheck || !checkRecommendation"
+                                                            (click)="enqueueRecommendation()"><mat-icon>queue</mat-icon>Enqueue
+                                                            treatment
                                                             recommendation</button>
                                                     </span>
                                                     <span style="padding-left: 10px">
-                                                        <button mat-raised-button [disabled]="alert=='danger'" (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue Recommendation</button>
+                                                        <button mat-raised-button [disabled]="alert=='danger'"
+                                                            (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue
+                                                            Recommendation</button>
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <div style="padding-top: 10px">
                                                         <span>
-                                                            <button mat-raised-button
-                                                                data-bs-toggle="modal" 
-                                                                data-bs-target="#exampleModal"
-                                                            ><mat-icon>delete_sweep</mat-icon>Clear All Recommendations</button>
+                                                            <button mat-raised-button data-bs-toggle="modal"
+                                                                data-bs-target="#exampleModal"><mat-icon>delete_sweep</mat-icon>Clear
+                                                                All Recommendations</button>
                                                         </span>
                                                         <span style="padding-left: 10px">
                                                             <button mat-raised-button color="primary"
@@ -476,18 +566,18 @@
                                                             <h1 class="modal-title fs-5" id="exampleModalLabel">
                                                                 Clear All Recommendations
                                                             </h1>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            Are you sure you want to clear all recommendations? 
+                                                            Are you sure you want to clear all recommendations?
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" mat-raised-button color="warn"
                                                                 data-bs-dismiss="modal">Close</button>
-                                                            <button (click)="clearAllRecommendations()" type="button" mat-raised-button color="primary"
-                                                            data-bs-dismiss="modal"
-                                                            >Save
+                                                            <button (click)="clearAllRecommendations()" type="button"
+                                                                mat-raised-button color="primary"
+                                                                data-bs-dismiss="modal">Save
                                                                 changes</button>
                                                         </div>
                                                     </div>
@@ -507,73 +597,123 @@
 
             <mat-step>
                 <ng-template matStepLabel>Districts with treatments</ng-template>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">District</th>
-                            <th scope="col">Number of treatment recommendations</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let element of allDistrictsRecommended">
-                            <th scope="row">{{ element.districtName }}</th>
-                            <td>{{ element.numberOfTreatmentRecommendations }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+
+
+                <div style="padding-left: 200px; padding-right: 200px; padding-top: 20px">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header">
+                            <small class="text-body-secondary">
+                                <ul class="nav nav-pills card-header-pills">
+                                    <li>
+                                        <span>
+                                            <h3>2 years from: </h3>
+                                        </span>
+                                    </li>
+                                    <li class="nav-item">
+                                        <span>
+                                            <select [(ngModel)]="yearToRender" (change)="changeYearToRender()"
+                                                style="width: 150px" class="form-select"
+                                                aria-label="Default select example">
+                                                <option *ngFor="let year of allYears" [value]="year">{{ year }}</option>
+                                            </select>
+                                        </span>
+                                    </li>
+                                    <li class="nav-item" style="float:right">
+                                        <span>
+                                            <select style="width: 150px" class="form-select"
+                                                [(ngModel)]="representationFormat"
+                                                (change)="changeRepresentationFormat()"
+                                                aria-label="Default select example">
+                                                <option value="Geomap">Geomap</option>
+                                                <option value="Table">Table</option>
+                                            </select>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <div *ngIf="!showGeoMap">
+                                <div>
+                                    <div class="card">
+                                        <div id="main" echarts [options]="mapOption" class="demo-chart"
+                                            (chartClick)="onChartClick($event)"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="showGeoMap">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">District</th>
+                                            <th scope="col">Number of treatment recommendations</th>
+                                            <th scope="col">StartYear</th>
+                                            <th scope="col">Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let element of allDistrictsRecommended">
+                                            <th scope="row">{{ element.districtName }}</th>
+                                            <td>{{ element.numberOfTreatmentRecommendations }}</td>
+                                            <td>{{ element.startYear }}</td>
+                                            <td>{{ element.durationYears }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer" *ngIf="districtClicked">
+                            <div>
+                                <table class="table" aria-label="info table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Junction</th>
+                                            <th scope="col">District</th>
+                                            <th scope="col">from (Year)</th>
+                                            <th scope="col">Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let instance of districtClickInfoTable">
+                                            <th>{{ instance.junctionName }}</th>
+                                            <td>{{ instance.districtName }}</td>
+                                            <td>{{ instance.startYear }}</td>
+                                            <td>{{ instance.durationYears }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- <div class="card-body">
+                            <h3>
+                                <strong>
+                                    Predictions of {{ inputJunction }} for next {{ time }} {{ timeFormat }}
+                                </strong>
+                            </h3>
+                            <p id="table2-desc">
+                                for {{ algorithmHighestAccuracy }} and {{ testRatioHighestAccuracy }}
+                            </p>
+                            <h5>
+                                After training process, the trained model having the combination of algorithm
+                                and testing ratio with highest accuracy is chosen and predictions of chosen
+                                junction with this trained model for {{ time }} {{ timeFormat }} are shown
+                            </h5>
+                        </div> -->
+                    </div>
+                </div>
+
+
+
 
             </mat-step>
 
 
             <mat-step *ngIf="autoTrained">
 
-                <ng-template matStepLabel>Accuracies of Differenct Junctions</ng-template>
+                <ng-template matStepLabel>Accuracies of different junctions</ng-template>
                 <div style="padding-top: 10px" class="container">
                     <div class="row">
-                        <div class="col">
-                            <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
-                                aria-labelledby="navHeading">
-                                <ul class="nav nav-pills">
-                                    <div class="container">
-                                        <div class="row">
-                                            <div style="width: 240px" class="col">
-                                                <h4>Accuracies of all junctions</h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </ul>
-                                <select style="width: 150px" class="form-select" [(ngModel)]="accuraciesOption"
-                                    (change)="changeAccuraciesOption()" aria-label="Default select example">
-                                    <option selected>Line Plot</option>
-                                    <option value="Table">Table</option>
-                                </select>
-                            </nav>
-                            <div>
-                                <div [hidden]="!toggleAccuracyTable">
-                                    <div>
-                                        <canvas width="600" height="600" id="accuracyComparison"></canvas>
-                                    </div>
-                                </div>
-                                <div [hidden]="toggleAccuracyTable">
-                                    <div>
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Junction</th>
-                                                    <th scope="col">Accuracy</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr *ngFor="let record of accuracyComparisonTableData">
-                                                    <th scope="row">{{ record.junctionOrAlgorithm }}</th>
-                                                    <td>{{ record.accuracy }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="col">
                             <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
                                 aria-labelledby="navHeading">

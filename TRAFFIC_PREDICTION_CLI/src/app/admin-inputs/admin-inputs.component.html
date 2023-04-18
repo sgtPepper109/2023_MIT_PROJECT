@@ -1,78 +1,90 @@
-<p class="fixed-top">
-    <mat-toolbar>
-        <button mat-icon-button  
-            class="example-icon" 
-            data-bs-toggle="offcanvas" 
-            data-bs-target="#offcanvasExample" 
-            aria-controls="offcanvasExample" 
-            aria-label="Example icon-button with menu icon"
-        >
-            <mat-icon>menu</mat-icon>
-        </button>
-        <span>Traffic Intensity Prediction and Recommendation</span>
-        <span class="example-spacer"></span>
-    </mat-toolbar>
-</p>
+<div id="junctionPropertiesComponentBody">
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" aria-label="navbar"
+        style="background-color: #e6e6e6;">
+        <div class="container-fluid" style="background-color: #e6e6e6">
+            <a class="navbar-brand">
+                <span>
+                    <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+                        <mat-icon>menu</mat-icon>
+                    </button>
+                </span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li style="font-size: 20px" class="nav-item">Traffic Intensity Prediction and Recommendation</li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <button mat-icon-button class="example-icon favorite-icon"
+                        aria-label="Example icon-button with heart icon">
+                        <mat-icon>account_circle</mat-icon>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
 
-<br /><br /><br /><br />
+    <br /><br /><br /><br />
 
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-    <div class="offcanvas-header">
-        <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <mat-divider></mat-divider>
-    <div class="offcanvas-body">
-        <ul class="list-group list-group-flush">
-            <li class="offcanvasList list-group-item" (click)="navigateToTraining()">
-                <span style="float:left">Training</span>
-                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
-            </li>
-            <li class="offcanvasList list-group-item" (click)="navigateToPredictions()">
-                <span style="float:left">Predictions</span>
-                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
-            </li>
-            <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
-                <span style="float:left">Provide Junction Properties</span>
-                <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
-            </li>
-        </ul>
-        <!-- <mat-list>
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+            <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="offcanvas-body">
+            <ul class="list-group list-group-flush">
+                <li class="offcanvasList list-group-item" (click)="navigateToTraining()">
+                    <span style="float:left">Training</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+                <li class="offcanvasList list-group-item" (click)="navigateToPredictions()">
+                    <span style="float:left">Predictions</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+                <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
+                    <span style="float:left">Provide Junction Properties</span>
+                    <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
+                </li>
+            </ul>
+            <!-- <mat-list>
             <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
             <mat-divider></mat-divider>
             <mat-list-item (click)="navigateToPredictions()">Predictions</mat-list-item>
             <mat-divider></mat-divider>
             <mat-list-item>Provide Junction Properties</mat-list-item>
         </mat-list> -->
+        </div>
     </div>
-</div>
 
 
 
-<div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
-    <section>
-        <h1>Junction Properties</h1>
-        <hr />
+    <div id="maincontainer" class="container p-5 my-5 bg-primary shadow-lg p-3 mb-5 bg-white rounded">
+        <section>
+            <h1>Junction Properties</h1>
+            <hr />
 
-        <div>
-            <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
-                    <strong class="me-auto">System</strong>
-                    <small>1 second ago</small>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body" style="color: red">
-                    {{ errorString }}
-                </div>
-            </div>
             <div>
-                <span>
-                    <button style="margin-left:10px" mat-raised-button color="primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">
-                        <mat-icon>add</mat-icon>Add Record
-                    </button>
-                </span>
-                <!-- <span>
+                <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                    role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                        <strong class="me-auto">System</strong>
+                        <small>1 second ago</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" style="color: red">
+                        {{ errorString }}
+                    </div>
+                </div>
+                <div>
+                    <span>
+                        <button style="margin-left:10px" mat-raised-button color="primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal2">
+                            <mat-icon>add</mat-icon>Add Record
+                        </button>
+                    </span>
+                    <!-- <span>
                     <button 
                         style="margin-left:10px" 
                         mat-raised-button color="primary" 
@@ -83,229 +95,251 @@
                     >
                         <mat-icon>add</mat-icon>Import Records from csv file
                 </span> -->
+                    <br />
+                    <br />
+                    <br />
+                    <div class="col">
+                        <form class="was-validated">
+                            <div class="mb-3">
+                                <input #file class="form-control" id="inputGroupFile02" type="file" accept=".csv"
+                                    id="myfile" name="myfile" [(ngModel)]="recordsFile"
+                                    (change)="fileChangeListener($event)" required>
+                                <div class="invalid-feedback">Only .csv file required</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <br />
                 <br />
-                <br />
-                <div class="col">
-                    <form class="was-validated">
-                        <div class="mb-3">
-                            <input
-                                #file 
-                                class="form-control" 
-                                id="inputGroupFile02" 
-                                type="file" 
-                                accept=".csv" 
-                                id="myfile" 
-                                name="myfile" 
-                                [(ngModel)]="recordsFile" 
-                                (change)="fileChangeListener($event)" 
-                                required
-                            >
-                            <div class="invalid-feedback">Only .csv file required</div>
+                <table class="table" aria-describedby="table2-desc">
+                    <thead>
+                        <tr>
+                            <th scope="col">Junction</th>
+                            <th scope="col">District</th>
+                            <th scope="col">Roadway Width</th>
+                            <th scope="col">Maximum Capacity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let record of allJunctionsInformation">
+                            <th scope="row">{{ record.junctionName }}</th>
+                            <td>{{ record.district }}</td>
+                            <td>{{ record.roadwayWidth }}</td>
+                            <td>{{ record.maxVehicles }}</td>
+
+
+                            <td style="width: 50px;">
+                                <button mat-icon-button color="primary" (click)="editRecord(record)"
+                                    data-bs-toggle="modal" data-bs-target="#exampleModal" matTooltip="Edit Record">
+                                    <mat-icon>create</mat-icon>
+                                </button>
+                            </td>
+                            <td style="width: 50px;">
+                                <button mat-icon-button color="warn" (click)="delete(record)"
+                                    matTooltip="Delete Record">
+                                    <mat-icon>remove_circle</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+
+                <div class="modal fade modal-lg" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                            <strong class="me-auto">System</strong>
+                            <small>1 second ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                         </div>
-                    </form>
-                </div>
-            </div>
-            <br />
-            <br />
-            <table class="table" aria-describedby="table2-desc">
-                <thead>
-                    <tr>
-                        <th scope="col">Junction</th>
-                        <th scope="col">District</th>
-                        <th scope="col">Roadway Width</th>
-                        <th scope="col">Maximum Capacity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let record of allJunctionsInformation">
-                        <th scope="row">{{ record.junctionName }}</th>
-                        <td>{{ record.district }}</td>
-                        <td>{{ record.roadwayWidth }}</td>
-                        <td>{{ record.maxVehicles }}</td>
-
-
-                        <td style="width: 50px;">
-                            <button mat-icon-button 
-                                color="primary" 
-                                (click)="editRecord(record)" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#exampleModal"
-                                matTooltip="Edit Record"
-                            >
-                                <mat-icon>create</mat-icon>
-                            </button>
-                        </td>
-                        <td style="width: 50px;">
-                            <button mat-icon-button
-                                color="warn" 
-                                (click)="delete(record)"
-                                matTooltip="Delete Record"
-                            >
-                                <mat-icon>remove_circle</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-
-
-            <div class="modal fade modal-lg" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
-                        <strong class="me-auto">System</strong>
-                        <small>1 second ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body" style="color: red">
-                        {{ errorString }}
-                    </div>
-                </div>
-                <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <span class="me-3"><mat-icon style="color: green">check_circle</mat-icon></span>
-                        <strong class="me-auto">System</strong>
-                        <small>1 second ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body" style="color: green">
-                        {{ errorString }}
-                    </div>
-                </div>
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Record</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="toast-body" style="color: red">
+                            {{ errorString }}
                         </div>
-                        <div class="modal-body">
-                            <div class="container text-center">
-                                <div class="row">
-                                    <div class="col">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label>Enter Junction Name</mat-label>
-                                            <input [(ngModel)]="newJunctionName" type="text" matInput placeholder="Enter Junction Name">
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-floating">
-                                            <select id="floatingSelect" class="form-select" [(ngModel)]="newDistrict" aria-label="Default select example">
-                                                <option value="{{district}}" *ngFor="let district of allDistricts">{{district}}</option>
-                                            </select>
-                                            <label for="floatingSelect">Enter District</label>
+                    </div>
+                    <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <span class="me-3"><mat-icon style="color: green">check_circle</mat-icon></span>
+                            <strong class="me-auto">System</strong>
+                            <small>1 second ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: green">
+                            {{ errorString }}
+                        </div>
+                    </div>
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Record</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container text-center">
+                                    <div class="row">
+                                        <div class="col">
+                                            <mat-form-field appearance="outline">
+                                                <mat-label>Enter Junction Name</mat-label>
+                                                <input [(ngModel)]="newJunctionName" type="text" matInput
+                                                    placeholder="Enter Junction Name">
+                                            </mat-form-field>
                                         </div>
-                                    </div>
-                                    <div class="col">
-                                        <div style="width: 250px" class="form-floating">
-                                            <select id="floatingSelect" class="form-select" [(ngModel)]="newRoadwayWidth" aria-label="Default select example">
-                                                <option value="{{roadwayWidth}}" *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}} metres</option>
-                                            </select>
-                                            <label for="floatingSelect">Enter Roadway Width</label>
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                <select id="floatingSelect" class="form-select"
+                                                    [(ngModel)]="newDistrict" aria-label="Default select example">
+                                                    <option value="{{district}}" *ngFor="let district of allDistricts">
+                                                        {{district}}</option>
+                                                </select>
+                                                <label for="floatingSelect">Enter District</label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label>Enter Maximum Vehicles Capacity</mat-label>
-                                            <input [(ngModel)]="newMaxVehicles" type="number" matInput placeholder="Enter Maximum Vehicles Capacity">
-                                        </mat-form-field>
+                                        <div class="col">
+                                            <div style="width: 250px" class="form-floating">
+                                                <select id="floatingSelect" class="form-select"
+                                                    [(ngModel)]="newRoadwayWidth" aria-label="Default select example">
+                                                    <option value="{{roadwayWidth}}"
+                                                        *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}}
+                                                        metres</option>
+                                                </select>
+                                                <label for="floatingSelect">Enter Roadway Width</label>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <mat-form-field appearance="outline">
+                                                <mat-label>Enter Maximum Vehicles Capacity</mat-label>
+                                                <input [(ngModel)]="newMaxVehicles" type="number" matInput
+                                                    placeholder="Enter Maximum Vehicles Capacity">
+                                            </mat-form-field>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button mat-raised-button color="warn" data-bs-dismiss="modal">Close</button>
-                            <button mat-raised-button color="primary" (click)="addRecord()">Save</button>
+                            <div class="modal-footer">
+                                <button mat-raised-button color="warn" data-bs-dismiss="modal">Close</button>
+                                <button mat-raised-button color="primary" (click)="addRecord()">Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+
+
+                <!-- Modal -->
+                <div class="modal fade modal-lg" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
+                            <strong class="me-auto">System</strong>
+                            <small>1 second ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red">
+                            {{ errorString }}
+                        </div>
+                    </div>
+                    <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <span class="me-3"><mat-icon style="color: green">check_circle</mat-icon></span>
+                            <strong class="me-auto">System</strong>
+                            <small>1 second ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: green">
+                            {{ errorString }}
+                        </div>
+                    </div>
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit
+                                    <strong>{{recordToBeEdited.junctionName}}'s</strong> information</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table" aria-describedby="table2-desc">
+                                    <thead>
+                                        <tr>
+                                            <td></td>
+                                            <th scope="col">
+                                                <h3 style="font-weight: bold;">Old Information</h3>
+                                            </th>
+                                            <th scope="col">
+                                                <h3 style="font-weight: bold;">New Information</h3>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">
+                                                <h3 style="font-weight: bold;">District</h3>
+                                            </th>
+                                            <td>
+                                                <h3>{{ recordToBeEdited.district }}</h3>
+                                            </td>
+                                            <td>
+                                                <select class="form-select" [(ngModel)]="updatedDistrict"
+                                                    aria-label="Default select example">
+                                                    <option value="{{district}}" *ngFor="let district of allDistricts">
+                                                        {{district}}</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <h3 style="font-weight: bold;">Roadway Width</h3>
+                                            </th>
+                                            <td>
+                                                <h3>{{ recordToBeEdited.roadwayWidth }}</h3>
+                                            </td>
+                                            <td>
+                                                <select class="form-select" [(ngModel)]="updatedRoadwayWidth"
+                                                    aria-label="Default select example">
+                                                    <option value="{{roadwayWidth}}"
+                                                        *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}}
+                                                        metres</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">
+                                                <h3 style="font-weight: bold;">Maximum Vehicles Capacity</h3>
+                                            </th>
+                                            <td>
+                                                <h3>{{ recordToBeEdited.maxVehicles }}</h3>
+                                            </td>
+                                            <td>
+                                                <mat-form-field style="width:395px" appearance="outline">
+                                                    <mat-label>Max Vehicles Capacity</mat-label>
+                                                    <input [(ngModel)]="updatedMaxVehicles" type="number" matInput
+                                                        placeholder="Enter Maximum Vehicles Capacity">
+                                                </mat-form-field>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button mat-raised-button color="warn" data-bs-dismiss="modal">Close</button>
+                                <button mat-raised-button color="primary" (click)="update()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
             </div>
-
-
-
-            <!-- Modal -->
-            <div class="modal fade modal-lg" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <span class="me-3"><mat-icon color="warn">report</mat-icon></span>
-                        <strong class="me-auto">System</strong>
-                        <small>1 second ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body" style="color: red">
-                        {{ errorString }}
-                    </div>
-                </div>
-                <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <span class="me-3"><mat-icon style="color: green">check_circle</mat-icon></span>
-                        <strong class="me-auto">System</strong>
-                        <small>1 second ago</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body" style="color: green">
-                        {{ errorString }}
-                    </div>
-                </div>
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit <strong>{{recordToBeEdited.junctionName}}'s</strong> information</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <table class="table" aria-describedby="table2-desc">
-                                <thead>
-                                    <tr>
-                                        <td></td>
-                                        <th scope="col"><h3 style="font-weight: bold;">Old Information</h3></th>
-                                        <th scope="col"><h3 style="font-weight: bold;">New Information</h3></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row"><h3 style="font-weight: bold;">District</h3></th>
-                                        <td><h3>{{ recordToBeEdited.district }}</h3></td>
-                                        <td>
-                                            <select class="form-select" [(ngModel)]="updatedDistrict" aria-label="Default select example">
-                                                <option value="{{district}}" *ngFor="let district of allDistricts">{{district}}</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><h3 style="font-weight: bold;">Roadway Width</h3></th>
-                                        <td><h3>{{ recordToBeEdited.roadwayWidth }}</h3></td>
-                                        <td>
-                                            <select class="form-select" [(ngModel)]="updatedRoadwayWidth" aria-label="Default select example">
-                                                <option value="{{roadwayWidth}}" *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}} metres</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><h3 style="font-weight: bold;">Maximum Vehicles Capacity</h3></th>
-                                        <td><h3>{{ recordToBeEdited.maxVehicles }}</h3></td>
-                                        <td>
-                                            <mat-form-field style="width:395px" appearance="outline">
-                                                <mat-label>Max Vehicles Capacity</mat-label>
-                                                <input [(ngModel)]="updatedMaxVehicles" type="number" matInput placeholder="Enter Maximum Vehicles Capacity">
-                                            </mat-form-field>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="modal-footer">
-                            <button mat-raised-button color="warn" data-bs-dismiss="modal">Close</button>
-                            <button mat-raised-button color="primary" (click)="update()">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-        </div>
-    </section>
+        </section>
+    </div>
 </div>

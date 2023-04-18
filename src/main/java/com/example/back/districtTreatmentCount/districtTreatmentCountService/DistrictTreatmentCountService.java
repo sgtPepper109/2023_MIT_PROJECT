@@ -25,5 +25,6 @@ public class DistrictTreatmentCountService {
 	public void deleteDistrictTreatmentCount(DistrictTreatmentCount districtTreatmentCount) {
 		districtTreatmentCountRepository.delete(districtTreatmentCount);
 	}
+	public void clearAllDistrictTreatmentCounts() { districtTreatmentCountRepository.deleteAll(); }
 
 }

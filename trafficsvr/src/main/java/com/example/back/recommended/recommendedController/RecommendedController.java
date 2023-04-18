@@ -29,28 +29,58 @@ public class RecommendedController {
 		super();
 		this.recommendedService = recommendedService;
 	}
+	
+	
+	
+	@GetMapping("/checkIfAlreadyRecommended")
+	public boolean checkIfAlreadyRecommended(@RequestParam String junction, @RequestParam Integer startYear) {
+		List<Recommended> existing = recommendedService.getJunctionWithStartYear(junction, startYear);
+		boolean response = false;
+		response = (existing.isEmpty())? false: true;
+		return response;
+	}
+	
+	
+	
 
 	@GetMapping("/getAllRecommended")
 	public ResponseEntity<List<Recommended>> getAllRecommended() {
 		return new ResponseEntity<List<Recommended>>(recommendedService.getAllRecommended(), HttpStatus.OK);
 	}
 	
+	@GetMapping("/getDistrictInstancesWithStartYear")
+	public ResponseEntity<List<Recommended>> getDistrictInstancesWithStartYear(
+			@RequestParam String district,
+			@RequestParam Integer startYear
+	) {
+		return new ResponseEntity<List<Recommended>>(
+				recommendedService.getDistrictInstancesWithStartYear(district, startYear), 
+				HttpStatus.OK
+		);
+	}
+	
 	@PostMapping("/addRecommended")
 	public ResponseEntity<Recommended> addRecommended(@RequestBody Recommended recommended) {
-		return new ResponseEntity<Recommended>(recommendedService.addRecommended(recommended), HttpStatus.OK);
+		return new ResponseEntity<Recommended>(
+				recommendedService.addRecommended(recommended), 
+				HttpStatus.OK
+		);
 	}
 	
 	@GetMapping("/getJunctionInstances")
 	public ResponseEntity<List<Recommended>> getJunctionInstances(@RequestParam String junction) {
-		return new ResponseEntity<List<Recommended>>(recommendedService.getJunctionInstances(junction), HttpStatus.OK);
+		return new ResponseEntity<List<Recommended>>(
+				recommendedService.getJunctionInstances(junction), 
+				HttpStatus.OK
+		);
 	}
 	
 	@GetMapping("/clearAllRecommended")
 	public void clearAllRecommended() { recommendedService.clearAllRecommended(); }
 	
 	@GetMapping("deleteRecommendation")
-	public void deleteRecommendation(@RequestParam String junction, @RequestParam String district) {
-		Recommended existing = recommendedService.getJunctionInstances(junction).get(0);
+	public void deleteRecommendation(@RequestParam String junction, @RequestParam String district, @RequestParam Integer startYear, @RequestParam Integer durationYears) {
+		Recommended existing = recommendedService.getJunctionWithStartYear(junction, startYear).get(0);
 		recommendedService.deleteRecommendation(existing);
 	}
 

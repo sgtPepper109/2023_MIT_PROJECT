@@ -18,13 +18,17 @@ public class RecommendedService {
 		this.recommendedRepository = recommendedRepository;
 	}
 
-	public List<Recommended> getAllRecommended() { return recommendedRepository.findAll(); }
 	public Recommended addRecommended(Recommended recommended) { return recommendedRepository.save(recommended); }
-	public List<Recommended> getJunctionInstances(String junction) { return recommendedRepository.getJunctionInstances(junction); }
 	public void clearAllRecommended() { recommendedRepository.deleteAll(); }
 	public void deleteRecommendation(Recommended recommended) { recommendedRepository.delete(recommended); }
-	public void deleteById(Long id) {
-		recommendedRepository.deleteById(id);
+	public void deleteById(Long id) { recommendedRepository.deleteById(id); }
+	public List<Recommended> getAllRecommended() { return recommendedRepository.findAll(); }
+	public List<Recommended> getJunctionInstances(String junction) { return recommendedRepository.getJunctionInstances(junction); }
+	public List<Recommended> getJunctionWithStartYear(String junction, Integer startYear) {
+		return recommendedRepository.getJunctionWithStartYear(junction, startYear);
+	}
+	public List<Recommended> getDistrictInstancesWithStartYear(String district, Integer startYear) {
+		return recommendedRepository.getDistrictInstancesWithStartYear(district, startYear);
 	}
 
 }

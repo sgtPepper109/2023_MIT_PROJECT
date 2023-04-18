@@ -21,5 +21,10 @@ public class RecommendedService {
 	public List<Recommended> getAllRecommended() { return recommendedRepository.findAll(); }
 	public Recommended addRecommended(Recommended recommended) { return recommendedRepository.save(recommended); }
 	public List<Recommended> getJunctionInstances(String junction) { return recommendedRepository.getJunctionInstances(junction); }
+	public void clearAllRecommended() { recommendedRepository.deleteAll(); }
+	public void deleteRecommendation(Recommended recommended) { recommendedRepository.delete(recommended); }
+	public void deleteById(Long id) {
+		recommendedRepository.deleteById(id);
+	}
 
 }

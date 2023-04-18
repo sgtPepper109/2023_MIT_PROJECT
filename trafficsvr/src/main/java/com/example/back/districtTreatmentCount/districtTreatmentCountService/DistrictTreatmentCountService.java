@@ -21,7 +21,7 @@ public class DistrictTreatmentCountService {
 	public DistrictTreatmentCount addDistrictTreatmentCount(DistrictTreatmentCount districtTreatmentCount) {
 		return districtTreatmentCountRepository.save(districtTreatmentCount);
 	}
-	public List<DistrictTreatmentCount> getDistrictInstances(String district) { return districtTreatmentCountRepository.getDistrictInstances(district); }
+	public List<DistrictTreatmentCount> getDistrictInstances(String district, Integer startYear) { return districtTreatmentCountRepository.getDistrictInstancesWithStartTime(district, startYear); }
 	public void deleteDistrictTreatmentCount(DistrictTreatmentCount districtTreatmentCount) {
 		districtTreatmentCountRepository.delete(districtTreatmentCount);
 	}

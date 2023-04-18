@@ -44,5 +44,14 @@ public class RecommendedController {
 	public ResponseEntity<List<Recommended>> getJunctionInstances(@RequestParam String junction) {
 		return new ResponseEntity<List<Recommended>>(recommendedService.getJunctionInstances(junction), HttpStatus.OK);
 	}
+	
+	@GetMapping("/clearAllRecommended")
+	public void clearAllRecommended() { recommendedService.clearAllRecommended(); }
+	
+	@GetMapping("deleteRecommendation")
+	public void deleteRecommendation(@RequestParam String junction, @RequestParam String district) {
+		Recommended existing = recommendedService.getJunctionInstances(junction).get(0);
+		recommendedService.deleteRecommendation(existing);
+	}
 
 }

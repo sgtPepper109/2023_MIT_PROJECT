@@ -143,6 +143,15 @@ public class FlaskController {
 		return getURLContents.getData(flaskUrl + "/getAllRelativeChange");
 	}
 	
+	
+	@GetMapping("/getStartYearMap")
+	public String getStartYearMap() {
+		log.info("GET: /process/getStartYearMap");
+		GetURLContents getURLContents = new GetURLContents();
+		return getURLContents.getData(flaskUrl + "/getStartYearMap");
+	}
+	
+	
 	@GetMapping("/getRelativeChange")
 	public String getRelativeChange(@RequestParam String factor, @RequestParam String junction) {
 		log.info("GET: /process/getRelativeChange");

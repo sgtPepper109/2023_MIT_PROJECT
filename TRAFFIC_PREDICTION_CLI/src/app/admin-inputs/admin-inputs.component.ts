@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
+import { JunctionSpecificsService } from '../services/db/junctionSpecifics/junction-specifics.service';
 import { Router } from '@angular/router';
 import { JunctionDistrictMap, JunctionRoadwayWidthMap, RoadwayWidthMaxVehiclesMap, JunctionInformation } from '../interfaces/all-interfaces';
 import { NgxCsvParser } from 'ngx-csv-parser';
@@ -158,62 +158,70 @@ export class AdminInputsComponent implements OnInit {
 
 	addRecord() {
 		if (this.newJunctionName != "" && this.newDistrict != "" && this.newRoadwayWidth != 0 && (this.newMaxVehicles != null && this.newMaxVehicles != 0)) {
-
-			let newJunctionInformation: JunctionInformation = {
-				junctionName: this.newJunctionName,
-				district: this.newDistrict,
-				roadwayWidth: this.newRoadwayWidth,
-				maxVehicles: this.newMaxVehicles
-			}
-
-			let newJunctionDistrictMap: JunctionDistrictMap = {
-				junctionName: this.newJunctionName,
-				district: this.newDistrict
-			}
-
-			let newJunctionRoadwayWidthMap: JunctionRoadwayWidthMap = {
-				junctionName: this.newJunctionName,
-				roadwayWidth: this.newRoadwayWidth
-			}
-
-			let newRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxVehiclesMap = {
-				roadwayWidth: this.newRoadwayWidth,
-				maxVehicles: this.newMaxVehicles
-			}
-
-
-			this.allJunctionDistrictMaps.push(newJunctionDistrictMap)
-			this.allJunctionRoadwayWidthMaps.push(newJunctionRoadwayWidthMap)
-			this.allRoadwayWidthMaxVehiclesMaps.push(newRoadwayWidthMaxVehiclesMap)
-
-			this.junctionSpecificsService.addSingleJunctionDistrictMap(newJunctionDistrictMap).subscribe({
-				next: (response) => {
-					this.junctionSpecificsService.addSingleJunctionRoadwayWidthMap(newJunctionRoadwayWidthMap).subscribe({
-						next: (response) => {
-							this.junctionSpecificsService.addSingleRoadwayWidthMaxVehiclesMap(newRoadwayWidthMaxVehiclesMap).subscribe({
-								next: (response) => {
-									this.allJunctionsInformation.push(newJunctionInformation)
-									// this._snackBar.open('Added Record Successfully', '\u2716')
-									this.toggleSuccessToast = true
-									this.errorString = 'Added Record Successfully'
-									setTimeout(() => {
-										this.toggleSuccessToast = false
-									}, 3000);
-								},
-								error: (error: HttpErrorResponse) => {
-									alert(error.message)
-								}
-							})
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
-						}
-					})
-				},
-				error: (error: HttpErrorResponse) => {
-					alert(error.message)
+			if (this.newJunctionName.length < 255 && this.newDistrict.length < 255) {
+				let newJunctionInformation: JunctionInformation = {
+					junctionName: this.newJunctionName,
+					district: this.newDistrict,
+					roadwayWidth: this.newRoadwayWidth,
+					maxVehicles: this.newMaxVehicles
 				}
-			})
+
+				let newJunctionDistrictMap: JunctionDistrictMap = {
+					junctionName: this.newJunctionName,
+					district: this.newDistrict
+				}
+
+				let newJunctionRoadwayWidthMap: JunctionRoadwayWidthMap = {
+					junctionName: this.newJunctionName,
+					roadwayWidth: this.newRoadwayWidth
+				}
+
+				let newRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxVehiclesMap = {
+					roadwayWidth: this.newRoadwayWidth,
+					maxVehicles: this.newMaxVehicles
+				}
+
+
+				this.allJunctionDistrictMaps.push(newJunctionDistrictMap)
+				this.allJunctionRoadwayWidthMaps.push(newJunctionRoadwayWidthMap)
+				this.allRoadwayWidthMaxVehiclesMaps.push(newRoadwayWidthMaxVehiclesMap)
+
+				this.junctionSpecificsService.addSingleJunctionDistrictMap(newJunctionDistrictMap).subscribe({
+					next: (response) => {
+						this.junctionSpecificsService.addSingleJunctionRoadwayWidthMap(newJunctionRoadwayWidthMap).subscribe({
+							next: (response) => {
+								this.junctionSpecificsService.addSingleRoadwayWidthMaxVehiclesMap(newRoadwayWidthMaxVehiclesMap).subscribe({
+									next: (response) => {
+										this.allJunctionsInformation.push(newJunctionInformation)
+										// this._snackBar.open('Added Record Successfully', '\u2716')
+										this.toggleSuccessToast = true
+										this.errorString = 'Added Record Successfully'
+										setTimeout(() => {
+											this.toggleSuccessToast = false
+										}, 3000);
+									},
+									error: (error: HttpErrorResponse) => {
+										alert(error.message)
+									}
+								})
+							},
+							error: (error: HttpErrorResponse) => {
+								alert(error.message)
+							}
+						})
+					},
+					error: (error: HttpErrorResponse) => {
+						alert(error.message)
+					}
+				})
+			} else {
+				this.toggleWarningToast = true
+				this.errorString = 'Note: Information too long'
+				setTimeout(() => {
+					this.toggleWarningToast = false
+				}, 3000);
+			}
+
 		} else {
 			this.toggleWarningToast = true
 			this.errorString = 'Note: All Fields are required'
@@ -335,10 +343,8 @@ export class AdminInputsComponent implements OnInit {
 			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
 			.pipe().subscribe({
 				next: (result) => {
-					console.log('result', result)
 				},
 				error: (error: HttpErrorResponse) => {
-					console.log('error', error)
 					alert(error.message)
 				}
 			})

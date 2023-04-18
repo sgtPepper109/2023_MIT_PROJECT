@@ -23,6 +23,7 @@ class Train:
         self.algorithm = algorithm
         self.junction = junction
         self.testSize = testSize
+        # print("self.testSize", self.testSize)
         self.startTrainingProcess()
     
     def appendAndStartTraining(self,newData):
@@ -71,28 +72,43 @@ class Train:
 
     def training(self):
         if self.algorithm == "Random Forest Regression":
+            self.model2 = RandomForestRegressor()
             self.model = RandomForestRegressor()
         elif self.algorithm == "Gradient Boosting Regression":
+            self.model2 = GradientBoostingRegressor()
             self.model = GradientBoostingRegressor()
         elif self.algorithm == "Linear Regression":
+            self.model2 = LinearRegression()
             self.model = LinearRegression()
         elif self.algorithm == "Logistic Regression":
+            self.model2 = LogisticRegression()
             self.model = LogisticRegression()
         elif self.algorithm == "Ridge Regression":
+            self.model2 = Ridge(alpha=2.0)
             self.model = Ridge(alpha=2.0)
         elif self.algorithm == "Lasso Regression":
+            self.model2 = Lasso(alpha=1.0)
             self.model = Lasso(alpha=1.0)
         elif self.algorithm == "Bayesian Ridge Regression":
+            self.model2 = BayesianRidge()
             self.model = BayesianRidge()
         elif self.algorithm == "Decision Tree Regression":
+            self.model2 = DecisionTreeRegressor(random_state=0)
             self.model = DecisionTreeRegressor(random_state=0)
         elif self.algorithm == "K Nearest Neighbors Regression":
+            self.model2 = KNeighborsRegressor(n_neighbors=3)
             self.model = KNeighborsRegressor(n_neighbors=3)
         elif self.algorithm == "Support Vector Regression":
+            self.model2 = SVR(kernel='rbf')
             self.model = SVR(kernel='rbf')
         elif self.algorithm == "Gaussian Process Regression":
+            self.model2 = GaussianProcessRegressor(random_state=4)
             self.model = GaussianProcessRegressor(random_state=4)
 
+
+        self.completeXtrain = self.junctionData.drop(['Vehicles'], axis='columns')
+        self.completeYtrain = self.junctionData.Vehicles
+        self.model2 .fit(self.completeXtrain, self.completeYtrain)
         self.model.fit(self.xtrain, self.ytrain)
         self.trained = True
         self.whenTrained = datetime.now()
@@ -216,7 +232,7 @@ class Train:
             self.constructFutureTimeToBePredicted(timePeriod, timeFormat, showBy, startYear)
             self.constructFutureDataToBePredicted()
 
-            self.futureDatesPredicted = self.model.predict(self.toPredict)  # toPredict variable comes from data constructed
+            self.futureDatesPredicted = self.model2.predict(self.toPredict)  # toPredict variable comes from data constructed
             self.tableData = self.toPredict.copy()
 
             self.columnDateTime = list()

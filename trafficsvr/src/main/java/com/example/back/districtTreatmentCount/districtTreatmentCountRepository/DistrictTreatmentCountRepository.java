@@ -10,6 +10,6 @@ import com.example.back.districtTreatmentCount.districtTreatmentCount.DistrictTr
 
 public interface DistrictTreatmentCountRepository extends JpaRepository<DistrictTreatmentCount, Long> {
 	@Modifying
-	@Query("SELECT instances from DistrictTreatmentCount instances WHERE instances.districtName= :district")
-	List<DistrictTreatmentCount> getDistrictInstances(@Param("district") String district);
+	@Query("SELECT d from DistrictTreatmentCount d WHERE d.districtName= :district and d.startYear= :startYear")
+	List<DistrictTreatmentCount> getDistrictInstancesWithStartTime(@Param("district") String district, @Param("startYear") Integer startYear);
 }

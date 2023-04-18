@@ -4,30 +4,14 @@
     max-width: 3000px;
 }
 
-#trainingComponentBody {
-    overflow-y: scroll;
-}
-
-.text-center {
-    text-align: center;
-}
-
+.text-center { text-align: center; }
 #hrTag { height: 2px; }
-
-#guideFileType { 
-    margin-top: 5px; 
-    color: red;
-}
-
+#guideFileType {  margin-top: 5px; color: red; }
 #labelTraining, #labelTesting, #labelValidation { margin-left: 10px; }
-
 #startProcessButton { text-align: center; }
-
 #errorAlert { margin-top: 10px; }
-
 #helpCanvas { margin-right: 10px; }
-
-.offcanvasList:hover {
-    cursor: pointer;
-    background:#D6D6D6
-}
+.offcanvas { overflow: auto; }
+.offcanvasList:hover { cursor: pointer; background:#e6e6e6 }
+.toast-header { background-color: #f6f6f6; }
+.nav-item, .navbar-brand { cursor: pointer; }

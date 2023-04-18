@@ -6,5 +6,9 @@
 
 .offcanvasList:hover { 
     cursor: pointer;
-    background: #d6d6d6;
+    background:#e6e6e6
+}
+
+.toast-header {
+    background-color: #f6f6f6;
 }

@@ -138,18 +138,6 @@ export class FlaskService {
 		return this.http.get('process/checkIfJunctionDataExists')
 	}
 
-	public getJunctionFromRecommended(junction: string) {
-		return this.http.get('recommended/getJunctionInstances?junction=' + junction)
-	}
-
-	public storeRecommendation(recommended: Object) {
-		return this.http.post('recommended/addRecommended', recommended)
-	}
-
-	public increaseDistrictTreatmentCount(districtName: string) {
-		return this.http.get('districtTreatmentCount/increaseDistrictTreatmentCount?districtName=' + districtName)
-	}
-
 	public getAllAlgorithms() {
 		return this.http.get('process/getAllAlgorithms')
 	}
@@ -158,24 +146,8 @@ export class FlaskService {
 		return this.http.get('process/getEndYearFromDataset')
 	}
 
-	public getAllDistrictTreatmentCounts() {
-		return this.http.get('districtTreatmentCount/getAllDistrictTreatmentCounts')
-	}
-
-	public clearDistrictTreatmentCounts() {
-		return this.http.get('districtTreatmentCount/clearAllDistrictTreatmentCounts')
-	}
-	
-	public clearAllRecommended() {
-		return this.http.get('recommended/clearAllRecommended')
-	}
-
-	public deleteRecommendation(junction: string, district: string) {
-		return this.http.get('recommended/deleteRecommendation?junction=' + junction + '&district=' + district)
-	}
-
-	public decreaseDistrictTreatmentCount(district: string) {
-		return this.http.get('districtTreatmentCount/decreaseDistrictTreatmentCount?districtName=' + district)
+	public getStartYearMap() {
+		return this.http.get('process/getStartYearMap')
 	}
 
 }

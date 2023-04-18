@@ -1,14 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PropService } from '../services/propService/prop.service';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { Chart } from 'chart.js/auto';
-import { JunctionSpecificsService } from '../services/junctionSpecificsService/junction-specifics.service';
+import { JunctionSpecificsService } from '../services/db/junctionSpecifics/junction-specifics.service';
 import { ngxCsv } from 'ngx-csv';
 import { SampleCsvData } from 'src/assets/sample';
+import { HourlySampleData } from 'src/assets/hourly_sample';
+import { DailySampleData } from 'src/assets/daily_sample';
 import { tableRecord, csvInstance, trainingDetails } from '../interfaces/all-interfaces';
+import { UserService } from '../services/db/user/user.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+// import { EChartsOption } from 'echarts';
+// import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
+// import { treeInstance } from '../interfaces/all-interfaces';
+
 
 @Component({
 	selector: 'app-training',
@@ -19,13 +27,49 @@ import { tableRecord, csvInstance, trainingDetails } from '../interfaces/all-int
 export class TrainingComponent implements OnInit {
 	constructor(
 		private sampleCsv: SampleCsvData,
+		private hourlyData: HourlySampleData,
+		private dailyData: DailySampleData,
 		private router: Router,
 		private propService: PropService,
 		private ngxCsvParser: NgxCsvParser,
 		private flaskService: FlaskService,
 		private junctionSpecificsService: JunctionSpecificsService,
-	) {}
+		private userService: UserService,
+		private _snackBar: MatSnackBar
+	) { }
 
+	mapOptionDataVisualization: echarts.EChartsOption = {}
+	mapOptionActualVsPredicted: echarts.EChartsOption = {}
+	mapOptionAlgorithmComparison: echarts.EChartsOption = {}
+	mapOptionTestingRatiosComparison: echarts.EChartsOption = {}
+	mapOptionUltimateComparison: echarts.EChartsOption = {}
+	mapOptionFuturePredictions: echarts.EChartsOption = {}
+	actualVsPredictedCardHidden: boolean = false
+	algorithmComparisonCardHidden: boolean = false
+	testingRatioComparisonCardHidden: boolean = false
+	addedToMaster: boolean = false
+	masterAddedJunctions: Array<string> = []
+	addToMasterStatus: string = "success"
+	trained: boolean = false
+	showActualVsPredInfo: boolean = false
+	showAccuracyComparisons: boolean = false
+	showAccuracyComparisonsTestingRatios: boolean = false
+	footerOn: boolean = false
+	// treeData: Array<treeInstance> = []
+	testRatioComparisonChartHidden: boolean = false;
+	testRatioComparisonTableData: Array<any> = []
+	accuracyOptionAlgorithm: string = "Line Plot"
+	datasetHasImproperValues: boolean = false
+	existingActive: boolean = false
+	predictionsActive: boolean = false
+	manageTrainingActive: boolean = true
+	trainingSummaryActive: boolean = false
+	currentNav: string = "manageTraining"
+	inputTabClass: string = "nav-link active"
+	predictionsTabClass: string = "nav-link"
+	trainingSummaryTabClass: string = "nav-link"
+	existingDataTabClass: string = "nav-link"
+	showFiller: boolean = false
 	startYear: number = 0
 	endYear: number = 0
 	temp: any
@@ -35,7 +79,7 @@ export class TrainingComponent implements OnInit {
 	showTrainingOptions: boolean = false
 	junctionsAlreadyTrained = new Set<string>();
 	csvParsedData: any
-	ultimateData: Array<any>  = []
+	ultimateData: Array<any> = []
 	algorithms: Array<string> = []
 	relativeChange: string = ""
 	highestAccuracy: number = 0
@@ -54,7 +98,7 @@ export class TrainingComponent implements OnInit {
 	allModelSummaries: Object = {}
 	allActualVsPredicedComparisonTableData: Object = {}
 	actualVsPredictedComparisonTableData: any
-	actualVsPredictedComparisonPlotData: Object = {} 
+	actualVsPredictedComparisonPlotData: Object = {}
 	allActualVsPredictedComparisonPlotData: Object = {}
 	renderedTestRatio: string = ""
 	testRatioHighestAccuracy: number = 0
@@ -97,7 +141,7 @@ export class TrainingComponent implements OnInit {
 	classForPreviousButtonResult: string = ""
 	allJunctionsPredictedData: any
 	allJunctionsPlotData: any
-    plotDataReady: boolean = false
+	plotDataReady: boolean = false
 	duration: number = 0
 	existingDataOption: string = 'Line Plot'
 	comparisonOption: string = 'Line Plot'
@@ -209,7 +253,7 @@ export class TrainingComponent implements OnInit {
 	junctionSpecificDetailsProvided: boolean = false
 	junctionsAvailableForTraining: Array<string> = []
 
-	ngOnInit() { 
+	ngOnInit() {
 
 		/* TODO document why this method 'ngOnInit' is empty */
 		this.junctionSpecificsService.getAllJunctions().subscribe({
@@ -234,7 +278,6 @@ export class TrainingComponent implements OnInit {
 		})
 	}
 
-
 	changeDatasetDescriptionIcon() {
 		if (this.datasetDescriptionIcon == 'speaker_notes') {
 			this.datasetDescriptionIcon = 'speaker_notes_off'
@@ -246,50 +289,51 @@ export class TrainingComponent implements OnInit {
 
 
 	changeUltimateComparisonFormat() {
-		if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
-		if (this.ultimateComparisonChartFormat == 'Line Plot') {
+		// if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
+		// if (this.ultimateComparisonChartFormat == 'Line Plot') {
 
-			for (let element of this.ultimateData)
-				if (element.type == 'bar')
-					element.type = 'line'
+		// 	for (let element of this.ultimateData)
+		// 		if (element.type == 'bar')
+		// 			element.type = 'line'
 
-			this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
-				// type: 'line',
-				data: {
-					labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
-					datasets: this.ultimateData,
-				},
-				options: {
-					elements: {
-						line: {
-							tension: 0 // change this to change to curved plot
-						}
-					},
-					responsive: true,
-					maintainAspectRatio: true,
-				}
-				
-			});
-		}
-		if (this.ultimateComparisonChartFormat == 'Bar Chart') {
 
-			for (let element of this.ultimateData) 
-				if (element.type == 'line' && element.label != 'Max Accuracy')
-					element.type = 'bar'
+		// 	this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
+		// 		// type: 'line',
+		// 		data: {
+		// 			labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
+		// 			datasets: this.ultimateData,
+		// 		},
+		// 		options: {
+		// 			elements: {
+		// 				line: {
+		// 					tension: 0 // change this to change to curved plot
+		// 				}
+		// 			},
+		// 			responsive: true,
+		// 			maintainAspectRatio: true,
+		// 		}
 
-			this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
-				type: 'bar',
-				data: {
-					labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
-					datasets: this.ultimateData,
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: true
-				}
-				
-			});
-		}
+		// 	});
+		// }
+		// if (this.ultimateComparisonChartFormat == 'Bar Chart') {
+
+		// 	for (let element of this.ultimateData)
+		// 		if (element.type == 'line' && element.label != 'Max Accuracy')
+		// 			element.type = 'bar'
+
+		// 	this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
+		// 		type: 'bar',
+		// 		data: {
+		// 			labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
+		// 			datasets: this.ultimateData,
+		// 		},
+		// 		options: {
+		// 			responsive: true,
+		// 			maintainAspectRatio: true
+		// 		}
+
+		// 	});
+		// }
 	}
 
 
@@ -356,7 +400,7 @@ export class TrainingComponent implements OnInit {
 				labels: x,
 				datasets: [
 					{
-						label: 'Vehicles Vs DateTime',
+						label: 'PCU Vs DateTime',
 						data: y,
 						borderWidth: 1,
 						borderColor: '#900',
@@ -364,7 +408,7 @@ export class TrainingComponent implements OnInit {
 						pointRadius: 2
 					},
 					{
-						label: 'Max Vehicles at Junction ',
+						label: 'Max PCU of Junction ',
 						data: z,
 						borderWidth: 1,
 						borderColor: '#0000FF',
@@ -381,7 +425,7 @@ export class TrainingComponent implements OnInit {
 						beginAtZero: true,
 						title: {
 							display: true,
-							text: 'Vehicles'
+							text: 'PCU'
 						}
 					},
 					x: {
@@ -412,9 +456,9 @@ export class TrainingComponent implements OnInit {
 		};
 		try {
 			if (sampleType == 'Hourly') {
-				new ngxCsv(this.sampleCsv.sampleCsvDataHourly, "sample_hourly", options);
+				new ngxCsv(this.hourlyData.HourlySampleData, "sample_hourly", options);
 			} else {
-				new ngxCsv(this.sampleCsv.sampleCsvDataDaily, "sample_daily", options);
+				new ngxCsv(this.dailyData.DailySampleData, "sample_daily", options);
 			}
 		} catch (error) {
 			alert(error)
@@ -423,15 +467,41 @@ export class TrainingComponent implements OnInit {
 	}
 
 
+	checkIfAddedToMaster() {
+		this.flaskService.getMasterTrainedDataPlot().subscribe({
+			next: (response) => {
+				console.log(response)
+				this.masterAddedJunctions = Object.keys(response)
+				if (this.masterAddedJunctions.includes(this.inputJunction)) {
+					this.addToMasterStatus = "success"
+					this.addedToMaster = true
+				} else {
+					this.addToMasterStatus = "danger"
+					this.addedToMaster = false
+				}
+			},
+			error: (error: HttpErrorResponse) => {
+				console.log(error)
+				alert(error.message)
+			}
+		})
+	}
+
 	processAndStartTraining() {
 		if (this.showTrainingOptions == false) {
-			this.startTraining('clear')
+			this.startTraining('clear').then(() => {
+				this.checkIfAddedToMaster()
+			})
 		} else {
 			if (this.trainingAction == 'clear') {
-				this.startTraining('clear')
+				this.startTraining('clear').then(() => {
+					this.checkIfAddedToMaster()
+				})
 			}
 			if (this.trainingAction == 'append') {
-				this.startTraining('append')
+				this.startTraining('append').then(() => {
+					this.checkIfAddedToMaster()
+				})
 			}
 		}
 	}
@@ -452,6 +522,12 @@ export class TrainingComponent implements OnInit {
 		})
 	}
 
+
+	isInteger(value: string) {
+		return /^\d+$/.test(value);
+	}
+
+
 	fileChangeListener($event: any): void {
 		this.fileProcessing = true
 		const files = $event.srcElement.files;
@@ -463,69 +539,91 @@ export class TrainingComponent implements OnInit {
 		if (arr[arr.length - 1] === 'csv') {
 
 			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
-			.pipe().subscribe({
-				next: (result): void => {
-					this.csvParsedData = result
-					this.correctJunctions = true
-					this.uniqueJunctionsInDataset = []
-					for (const element of Object.values(result)) {
-						if (this.uniqueJunctionsInDataset.includes(element.Junction) == false && element.Junction != "") {
-							this.uniqueJunctionsInDataset.push(element.Junction)
-						}
-					}
-
-					if (this.uniqueJunctionsInDataset.length == 1 && this.inputJunction == this.uniqueJunctionsInDataset[0]) {
+				.pipe().subscribe({
+					next: (result): void => {
+						this.csvParsedData = result
 						this.correctJunctions = true
-					} else {
-						this.correctJunctions = false
-					}
-
-					if (this.correctJunctions) {
-
-						for (let instance of Object.values(result)) {
-
-							let csvRecord: csvInstance = {
-								dateTime: instance['DateTime'].toString(),
-								junction: instance['Junction'],
-								vehicles: instance['Vehicles']
+						this.uniqueJunctionsInDataset = []
+						for (const element of Object.values(result)) {
+							if (element.Junction != '' && element.DateTime != '' && element.Vehicles != '') {
+								if (this.uniqueJunctionsInDataset.includes(element.Junction) == false && element.Junction != "") {
+									this.uniqueJunctionsInDataset.push(element.Junction)
+								}
+								if (!this.isInteger(element.Vehicles)) {
+									this.datasetHasImproperValues = true
+								}
+							} else {
+								this.datasetHasImproperValues = true
 							}
-							this.csvData.push(csvRecord)
+						}
+
+						if (this.uniqueJunctionsInDataset.length == 1 && this.inputJunction == this.uniqueJunctionsInDataset[0]) {
+							this.correctJunctions = true
+						} else {
+							this.correctJunctions = false
 						}
 
 
 
-						this.checkJunction()
+						if (!this.datasetHasImproperValues) {
+							if (this.correctJunctions) {
+								for (let instance of Object.values(result)) {
 
-						this.flaskService.sendCsvData(result).subscribe({
-							next: (response) => {
-								this.csvDataParsed = true
-								this.datasetUploaded = true
+									let csvRecord: csvInstance = {
+										dateTime: instance['DateTime'].toString(),
+										junction: instance['Junction'],
+										vehicles: instance['Vehicles']
+									}
+									this.csvData.push(csvRecord)
+								}
+
+
+
+								this.checkJunction()
+
+								this.flaskService.sendCsvData(result).subscribe({
+									next: (response) => {
+										if (Object.values(response)[0] == 'fail') {
+											this.dataset = ""
+											this.fileProcessing = false
+											this._snackBar.open('Note: Corrupted dataset', '\u2716')
+										} else {
+											this.datasetHasImproperValues = false
+											this.csvDataParsed = true
+											this.datasetUploaded = true
+											this.fileProcessing = false
+											this.getExistingData()
+										}
+									},
+									error: (error: HttpErrorResponse) => {
+										alert(error.message)
+									}
+								})
+
+
+
+
+							} else {
+								this.dataset = ""
 								this.fileProcessing = false
-							},
-							error: (error: HttpErrorResponse) => {
-								alert(error.message)
+								// this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
+								this.toggleWarningToast = true
+								this.errorString = 'Note: Please provide dataset with the chosen junction only'
+								setTimeout(() => {
+									this.toggleWarningToast = false
+								}, 3000);
 							}
-						})
+						} else {
+							this.dataset = ""
+							this.fileProcessing = false
+							this._snackBar.open('Note: Corrupted dataset', '\u2716')
+						}
 
-
-
-
-					} else {
-						this.dataset = ""
-						this.fileProcessing = false
-						// this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
-						this.toggleWarningToast = true
-						this.errorString = 'Note: Please provide dataset with the chosen junction only'
-						setTimeout(() => {
-							this.toggleWarningToast = false
-						}, 3000);
+					},
+					error: (error: NgxCSVParserError): void => {
+						alert(error.message)
 					}
-
-				},
-				error: (error: NgxCSVParserError): void => {
-					alert(error.message)
-				}
-			});
+				});
 		} else {
 			this.toggleWarningToast = true
 			this.errorString = "Note: Incorrect file type (Please choose a .csv file"
@@ -558,7 +656,7 @@ export class TrainingComponent implements OnInit {
 	}
 
 	show(param1: string) {
-		this.vehiclesVsDateTimeChartHidden = false; 
+		this.vehiclesVsDateTimeChartHidden = false;
 
 		this.datetime = this.recievedPlotData[param1][0]['datetime']
 		this.vehicles = this.recievedPlotData[param1][0]['vehicles']
@@ -597,39 +695,58 @@ export class TrainingComponent implements OnInit {
 
 
 	LineChart(x: any, y: any) {
-		this.plot = new Chart("plot", {
-			type: 'line',
-			data: {
-				labels: x,
-				datasets: [
-					{
-						label: '# of Vehicles',
-						data: y,
-						borderWidth: 1,
-						fill: false,
-						pointRadius: 2
-					},
-				]
+		this.mapOptionDataVisualization = {
+			xAxis: {
+				type: 'category',
+				data: x,
 			},
-			options: {
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'DateTime'
-						}
-					}
-				}
-			}
-		});
+			yAxis: {
+				type: 'value',
+			},
+			series: [
+				{
+					data: y,
+					type: 'line',
+				},
+			],
+
+		}
+
+
+		// this.plot = new Chart("plot", {
+		// 	type: 'line',
+		// 	data: {
+		// 		labels: x,
+		// 		datasets: [
+		// 			{
+		// 				label: 'PCU capacity',
+		// 				data: y,
+		// 				borderWidth: 1,
+		// 				fill: false,
+		// 				pointRadius: 2
+		// 			},
+		// 		]
+		// 	},
+		// 	options: {
+		// 		maintainAspectRatio: true,
+		// 		scales: {
+		// 			y: {
+		// 				beginAtZero: true,
+		// 				title: {
+		// 					display: true,
+		// 					text: 'PCU'
+		// 				}
+		// 			},
+		// 			x: {
+		// 				title: {
+		// 					display: true,
+		// 					text: 'DateTime'
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// });
+
 	}
 
 
@@ -1016,7 +1133,7 @@ export class TrainingComponent implements OnInit {
 		})
 	}
 
-	
+
 	setUltimateChartData() {
 		return new Promise<void>((resolve, reject) => {
 			// let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
@@ -1068,10 +1185,21 @@ export class TrainingComponent implements OnInit {
 			this.flaskService.getTestingRatioComparisons(action, this.inputJunction).subscribe({
 				next: (response) => {
 					this.predictionReady = true
+					this.trained = true
 					this.startedTraining = false
 					this.gotTestingRatioComparisons = true
 					this.testingRatioComparisonChartNotReady = false
 					this.testRatiosComparisonData = response
+					console.log('this.testRatiosComparisonData', this.testRatiosComparisonData)
+
+
+
+					// this.treeData = []
+					// for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i ++) {
+
+					// }
+
+
 					this.setUltimateChartData().then(() => {
 						this.getActualVsPredictedComparisons().then(() => {
 							resolve()
@@ -1101,59 +1229,70 @@ export class TrainingComponent implements OnInit {
 	}
 
 
-	startTraining(action: string) {
-		this.gotTestingRatioComparisons = false
-		this.predictionReady = false
-		this.comparisonChartHidden = false
-		this.modelSummaryReady = false
-		this.comparisonTableReady = false
-		this.modelSummary = []
-		this.csvDataStored = true
-		this.startedTraining = true
-		if (this.csvDataStored) {
-			this.dataSource = this.csvData.slice(this.index, this.index + 5)
-			this.numberOfRecords = this.csvData.length
-			this.testRatio = parseFloat(this.inputTestRatio)
-			this.startProcess = true
-			this.toggleErrorString = false
-			if (this.datasetUploaded) {
-				this.junctionsAlreadyTrained.add(this.inputJunction)
-				this.getExistingData()
-				this.trainAllJunctionsAndGetComparisons(action).then(() => {
-					this.getAllModelSummaries().then(() => {
-						this.time = 15
-						this.timeFormat = 'Years'
-						this.changeShowByArray()
-						this.predict()
+	async startTraining(action: string) {
+		return new Promise<void>((resolve, reject) => {
+			this.gotTestingRatioComparisons = false
+			this.predictionReady = false
+			this.comparisonChartHidden = false
+			this.modelSummaryReady = false
+			this.comparisonTableReady = false
+			this.modelSummary = []
+			this.csvDataStored = true
+			this.startedTraining = true
+			if (this.dataset != "" && this.uniqueJunctionsInDataset[0] == this.inputJunction) {
+				if (this.csvDataStored) {
+					this.dataSource = this.csvData.slice(this.index, this.index + 5)
+					this.numberOfRecords = this.csvData.length
+					this.testRatio = parseFloat(this.inputTestRatio)
+					this.startProcess = true
+					this.toggleErrorString = false
+					if (this.datasetUploaded) {
+						this.junctionsAlreadyTrained.add(this.inputJunction)
+						this.trainAllJunctionsAndGetComparisons(action).then(() => {
+							this.getAllModelSummaries().then(() => {
+								this.time = 2
+								this.timeFormat = 'Years'
+								this.changeShowByArray()
+								this.predict()
 
 
-						this.flaskService.getEndYearFromDataset().subscribe({
-							next: (response) => {
-								this.startYear = Object.values(response)[0]
-								if (this.startYear % 2 != 0) {
-									this.startYear ++
-								}
-							},
-							error: (error: HttpErrorResponse) => {
-								alert(error.message)
-							}
+								this.flaskService.getEndYearFromDataset().subscribe({
+									next: (response) => {
+										this.startYear = Object.values(response)[0]
+										if (this.startYear % 2 != 0) {
+											this.startYear++
+											resolve()
+										}
+									},
+									error: (error: HttpErrorResponse) => {
+										reject()
+										alert(error.message)
+									}
+								})
+
+
+							})
 						})
-
-
-					})
-				})
+					} else {
+						this.startedTraining = false
+						// this._snackBar.open('Note: All fields are required', '\u2716')
+						this.toggleWarningToast = true
+						this.errorString = 'Note: Upload a dataset first'
+						setTimeout(() => {
+							this.toggleWarningToast = false
+						}, 3000);
+						reject()
+					}
+				} else {
+					this.startedTraining = false
+					reject()
+				}
 			} else {
+				this._snackBar.open('Note: Upload a proper dataset first', '\u2716')
 				this.startedTraining = false
-				// this._snackBar.open('Note: All fields are required', '\u2716')
-				this.toggleWarningToast= true
-				this.errorString = 'Note: Upload a dataset first'
-				setTimeout(() => {
-					this.toggleWarningToast = false
-				}, 3000);
+				reject()
 			}
-		} else {
-			this.startedTraining = false
-		}
+		})
 	}
 
 
@@ -1170,7 +1309,7 @@ export class TrainingComponent implements OnInit {
 		if (this.plotDataReady) {
 			if (this.plotDataReady) {
 				this.setVehiclesAndDateTime(
-					futurePredictionsPlotData[0]['vehicles'], 
+					futurePredictionsPlotData[0]['vehicles'],
 					futurePredictionsPlotData[0]['datetime']
 				)
 				let maxVehiclesCapacityArray: Array<number> = []
@@ -1234,24 +1373,25 @@ export class TrainingComponent implements OnInit {
 	addToMaster() {
 
 		if (this.algorithmToAddToMaster != "" && this.testRatioToAddToMaster != "" && this.startYear != 0
-		// && this.relativeChange != ""
+			// && this.relativeChange != ""
 		) {
 			let relativeChange = parseFloat(this.relativeChange)
 			this.propService.relativeChange = relativeChange
 			let testRatioToAddToMaster = parseFloat(this.testRatioToAddToMaster)
 			this.flaskService.addToMaster(
-				this.inputJunction, 
-				this.algorithmToAddToMaster, 
+				this.inputJunction,
+				this.algorithmToAddToMaster,
 				testRatioToAddToMaster,
 				this.startYear
 			).subscribe({
 				next: (response) => {
-					// this._snackBar.open('Added to master')
-					this.toggleSuccessToast = true
-					this.errorString = 'Note: Added to master'
-					setTimeout(() => {
-						this.toggleSuccessToast = false
-					}, 3000);
+					this._snackBar.open('Added to master', '\u2716')
+					this.checkIfAddedToMaster()
+					// this.toggleSuccessToast = true
+					// this.errorString = 'Note: Added to master'
+					// setTimeout(() => {
+					// 	this.toggleSuccessToast = false
+					// }, 3000);
 				},
 				error: (error: HttpErrorResponse) => {
 					alert(error.message)
@@ -1289,7 +1429,7 @@ export class TrainingComponent implements OnInit {
 			if (Object.keys(this.allActualVsPredicedComparisonTableData)[i] == this.renderedAlgorithm) {
 				for (let j = 0; j < Object.keys(Object.values(this.allActualVsPredicedComparisonTableData)[i]).length; j++) {
 					if (Object.keys(Object.values(this.allActualVsPredicedComparisonTableData)[i])[j] == this.renderedTestRatio) {
-						this.actualVsPredictedComparisonTableData = Object.values(Object.values(this.allActualVsPredicedComparisonTableData)[i])[j] 
+						this.actualVsPredictedComparisonTableData = Object.values(Object.values(this.allActualVsPredicedComparisonTableData)[i])[j]
 					}
 				}
 			}
@@ -1314,7 +1454,7 @@ export class TrainingComponent implements OnInit {
 				}
 				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'difference') {
 					this.plotDifference = Object.values(this.actualVsPredictedComparisonPlotData)[i]
-					this.difference= this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
+					this.difference = this.plotDifference.slice(this.predictedChartIndex, this.predictedChartIndex + 10)
 				}
 				if (Object.keys(this.actualVsPredictedComparisonPlotData)[i] == 'labels') {
 					this.plotLabels = Object.values(this.actualVsPredictedComparisonPlotData)[i]
@@ -1332,62 +1472,63 @@ export class TrainingComponent implements OnInit {
 
 	compareChart(labels: string[], actual: number[], predicted: number[], difference: number[]) {
 		// if comparison chart (canvas) is in use then destroy it
-		if (this.predictedChart != null) { this.predictedChart.destroy() }
-		this.predictedChart = new Chart("predictedChart", {
-			data: {
-				labels: labels,
-				datasets: [
-					{
-						type: 'line',
-						label: "actual",
-						backgroundColor: "white",
-						borderWidth: 1,
-						borderColor: "#900",
-						fill: false,
-						pointRadius: 2,
-						data: actual,
-					},
-					{
-						type: 'line',
-						label: "predicted",
-						backgroundColor: "white",
-						borderWidth: 1,
-						borderColor: "#090",
-						fill: false,
-						pointRadius: 2,
-						data: predicted
-					},
-					{
-						type: 'bar',
-						label: "difference",
-						data: difference
-					}
-				]
-			},
-			options: {
-				elements: {
-					line: {
-						tension: 0
-					}
-				},
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'DateTime'
-						}
-					}
-				}
-			}
-		});
+		// if (this.predictedChart != null) { this.predictedChart.destroy() }
+		// this.predictedChart = new Chart("predictedChart", {
+		// 	data: {
+		// 		labels: labels,
+		// 		datasets: [
+		// 			{
+		// 				type: 'line',
+		// 				label: "actual",
+		// 				backgroundColor: "white",
+		// 				borderWidth: 1,
+		// 				borderColor: "#900",
+		// 				fill: false,
+		// 				pointRadius: 2,
+		// 				data: actual,
+		// 			},
+		// 			{
+		// 				type: 'line',
+		// 				label: "predicted",
+		// 				backgroundColor: "white",
+		// 				borderWidth: 1,
+		// 				borderColor: "#090",
+		// 				fill: false,
+		// 				pointRadius: 2,
+		// 				data: predicted
+		// 			},
+		// 			{
+		// 				type: 'bar',
+		// 				label: "difference",
+		// 				data: difference
+		// 			}
+		// 		]
+		// 	},
+		// 	options: {
+		// 		elements: {
+		// 			line: {
+		// 				tension: 0
+		// 			}
+		// 		},
+		// 		maintainAspectRatio: true,
+		// 		responsive: true,
+		// 		scales: {
+		// 			y: {
+		// 				beginAtZero: true,
+		// 				title: {
+		// 					display: true,
+		// 					text: 'PCU'
+		// 				}
+		// 			},
+		// 			x: {
+		// 				title: {
+		// 					display: true,
+		// 					text: 'DateTime'
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// });
 	}
 
 	plotActualVsComparisonPlot() {
@@ -1426,41 +1567,63 @@ export class TrainingComponent implements OnInit {
 	plotAccuracyBarChart(accuracyBarChartAlgorithmsAxis: Array<string>, accuracyBarChartAccuraciesAxis: Array<number>) {
 		this.accuracyBarChartHidden = false
 		this.testingRatioComparisonChartNotReady = false
-		if (this.accuracyBarChart!= null) { this.accuracyBarChart.destroy() }
-		this.accuracyBarChart = new Chart("accuracyBarChart", {
-			type: 'bar',
-			data: {
-				labels: accuracyBarChartAlgorithmsAxis,
-				datasets: [
-					{
-						label: "Accuracies",
-						data: accuracyBarChartAccuraciesAxis,
-						backgroundColor: 'rgba(54, 162, 235, 0.2)',
-						borderColor: 'rgb(255, 99, 132)',
-						borderWidth: 1
-					}
-				],
-			},
-			options: {
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						max: 1.0,
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: "Accuracies"
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: "Algorithms"
-						}
-					}
+		console.log('accuracyBarChartAlgorithmsAxis', accuracyBarChartAlgorithmsAxis)
+		this.mapOptionAlgorithmComparison = {
+			xAxis: {
+				type: 'category',
+				data: accuracyBarChartAlgorithmsAxis,
+				axisLabel: {
+					interval: 0,
+					rotate: 20,
 				}
-			}
-		})
+				// data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+			},
+			yAxis: {
+				type: 'value'
+			},
+			series: [
+				{
+					data: accuracyBarChartAccuraciesAxis,
+					// data: [120, 200, 150, 80, 70, 110, 130],
+					type: 'bar'
+				}
+			]
+		}
+		// this.accuracyBarChart = new Chart("accuracyBarChart", {
+		// 	type: 'bar',
+		// 	data: {
+		// 		labels: accuracyBarChartAlgorithmsAxis,
+		// 		datasets: [
+		// 			{
+		// 				label: "Accuracies",
+		// 				data: accuracyBarChartAccuraciesAxis,
+		// 				backgroundColor: 'rgba(54, 162, 235, 0.2)',
+		// 				borderColor: 'rgb(255, 99, 132)',
+		// 				borderWidth: 1
+		// 			}
+		// 		],
+		// 	},
+		// 	options: {
+		// 		maintainAspectRatio: true,
+		// 		responsive: true,
+		// 		scales: {
+		// 			y: {
+		// 				max: 1.0,
+		// 				beginAtZero: true,
+		// 				title: {
+		// 					display: true,
+		// 					text: "Accuracies"
+		// 				}
+		// 			},
+		// 			x: {
+		// 				title: {
+		// 					display: true,
+		// 					text: "Algorithms"
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// })
 	}
 
 
@@ -1484,43 +1647,60 @@ export class TrainingComponent implements OnInit {
 		})
 	}
 
-	
+
 	plotTestRatioComparisonsChart(testRatioComparisonChartTestRatiosAxis: Array<string>, testRatioComparisonChartAccuraciesAxis: Array<number>) {
 		if (this.testRatioComparisonChart != null) { this.testRatioComparisonChart.destroy() }
-		this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
-			type: 'bar',
-			data: {
-				labels: testRatioComparisonChartTestRatiosAxis,
-				datasets: [
-					{
-						label: "Accuracies",
-						data: testRatioComparisonChartAccuraciesAxis,
-						backgroundColor: "rgba(255, 99, 132, 0.2)",
-						borderColor: "rgb(54, 162, 235)",
-						borderWidth: 1
-					}
-				],
+		this.mapOptionTestingRatiosComparison = {
+			xAxis: {
+				type: 'category',
+				data: testRatioComparisonChartTestRatiosAxis,
+				// data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 			},
-			options: {
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						max: 1.0,
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: "Accuracies"
-						}
-					},
-					x: {
-						title: {
-							display: true,
-							text: "Testing Ratios"
-						}
-					}
+			yAxis: {
+				type: 'value'
+			},
+			series: [
+				{
+					data: testRatioComparisonChartAccuraciesAxis,
+					// data: [120, 200, 150, 80, 70, 110, 130],
+					type: 'bar'
 				}
-			}
-		});
+			]
+		}
+		// this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
+		// 	type: 'bar',
+		// 	data: {
+		// 		labels: testRatioComparisonChartTestRatiosAxis,
+		// 		datasets: [
+		// 			{
+		// 				label: "Accuracies",
+		// 				data: testRatioComparisonChartAccuraciesAxis,
+		// 				backgroundColor: "rgba(255, 99, 132, 0.2)",
+		// 				borderColor: "rgb(54, 162, 235)",
+		// 				borderWidth: 1
+		// 			}
+		// 		],
+		// 	},
+		// 	options: {
+		// 		maintainAspectRatio: true,
+		// 		scales: {
+		// 			y: {
+		// 				max: 1.0,
+		// 				beginAtZero: true,
+		// 				title: {
+		// 					display: true,
+		// 					text: "Accuracies"
+		// 				}
+		// 			},
+		// 			x: {
+		// 				title: {
+		// 					display: true,
+		// 					text: "Testing Ratios"
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// });
 	}
 
 
@@ -1528,7 +1708,7 @@ export class TrainingComponent implements OnInit {
 		this.modelSummaryReady = true
 		for (let i = 0; i < Object.keys(this.allModelSummaries).length; i++) {
 			if (Object.keys(this.allModelSummaries)[i] == this.renderedAlgorithm) {
-				
+
 				for (let j = 0; j < Object.keys(Object.values(this.allModelSummaries)[i]).length; j++) {
 					if (Object.keys(Object.values(this.allModelSummaries)[i])[j] == this.renderedTestRatio) {
 						this.modelSummary = Object.values(Object.values(this.allModelSummaries)[i])[j]
@@ -1550,12 +1730,114 @@ export class TrainingComponent implements OnInit {
 		this.setAccuracyBarChartData().then((array: [string[], number[]]) => {
 			this.plotAccuracyBarChart(array[0], array[1])
 		})
-		
+
 		this.setTestRatioComparisonChartData().then((array: [string[], number[]]) => {
 			this.plotTestRatioComparisonsChart(array[0], array[1])
+
+
+			for (let i = 0; i < array[0].length; i++) {
+				let record: Object = {
+					testRatio: array[0][i],
+					accuracy: array[1][i]
+				}
+				this.testRatioComparisonTableData.push(record)
+			}
+
+
 		})
 
 		this.setModelSummary()
+	}
+
+	signOut() {
+		// this.userService.setUserInactive()
+	}
+
+
+	navSwitch(whichNav: string) {
+		if (this.currentNav != whichNav) {
+			if (whichNav == 'manageTraining' || whichNav == 'firstTab') {
+				this.trainingSummaryActive = false
+				this.predictionsActive = false
+				this.existingActive = false
+				this.manageTrainingActive = true
+
+				this.inputTabClass = "nav-link active"
+				this.predictionsTabClass = "nav-link"
+				this.trainingSummaryTabClass = "nav-link"
+				this.existingDataTabClass = "nav-link"
+				this.dataset = ""
+			}
+
+
+			if (whichNav == 'trainingSummary') {
+				if (this.predictionReady && !this.comparisonChartHidden) {
+					this.manageTrainingActive = false
+					this.predictionsActive = false
+					this.existingActive = false
+					this.trainingSummaryActive = true
+
+					this.inputTabClass = "nav-link"
+					this.predictionsTabClass = "nav-link"
+					this.trainingSummaryTabClass = "nav-link active"
+					this.existingDataTabClass = "nav-link"
+				} else {
+					this._snackBar.open('Training process incomplete', '\u2716')
+				}
+			}
+
+			if (whichNav == 'predictions') {
+				if (this.predictionReady) {
+					this.manageTrainingActive = false
+					this.trainingSummaryActive = false
+					this.existingActive = false
+					this.predictionsActive = true
+
+					this.inputTabClass = "nav-link"
+					this.predictionsTabClass = "nav-link active"
+					this.trainingSummaryTabClass = "nav-link"
+					this.existingDataTabClass = "nav-link"
+				} else {
+					this._snackBar.open('Training process incomplete', '\u2716')
+				}
+			}
+
+			if (whichNav == 'existing') {
+				if (!this.csvDataParsed && !this.datasetUploaded) {
+					this._snackBar.open('Upload a dataset first', '\u2716')
+				} else {
+					this.manageTrainingActive = false
+					this.trainingSummaryActive = false
+					this.predictionsActive = false
+					this.existingActive = true
+
+					this.inputTabClass = "nav-link"
+					this.predictionsTabClass = "nav-link"
+					this.trainingSummaryTabClass = "nav-link"
+					this.existingDataTabClass = "nav-link active"
+				}
+			}
+		}
 
 	}
+
+
+	toggleActualVsPredInfo() { this.showActualVsPredInfo = !this.showActualVsPredInfo }
+	toggleAccuracyComparisons() { this.showAccuracyComparisons = !this.showAccuracyComparisons }
+	toggleAccuracyComparisonsTestingRatios() { this.showAccuracyComparisonsTestingRatios = !this.showAccuracyComparisonsTestingRatios }
+	changeAccuracyOptionForAlgorithm() { this.testRatioComparisonChartHidden = !this.testRatioComparisonChartHidden }
+
+	toggleFooter() {
+		this.footerOn = !this.footerOn
+	}
+
+	logger() {
+		console.log('hello')
+	}
+	changeJunction() {
+		this.trained = false
+	}
+
+
+
 }

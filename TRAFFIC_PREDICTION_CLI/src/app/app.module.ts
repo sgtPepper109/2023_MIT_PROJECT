@@ -7,7 +7,7 @@ import { PredictionsComponent } from './predictions/predictions.component'
 import { TrainingComponent } from './training/training.component'
 import { AdminInputsComponent } from './admin-inputs/admin-inputs.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { SignupComponent } from './signup/signup.component'
+import { SigninComponent } from './signIn/signin.component'
 import { HttpClientModule } from '@angular/common/http'
 import { PropService } from './services/propService/prop.service'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
@@ -42,16 +42,17 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
-
+import { RegisterComponent } from './register/register.component';
+import { NgxEchartsModule } from 'ngx-echarts'
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		PredictionsComponent,
-		SignupComponent,
+		SigninComponent,
 		AdminInputsComponent,
 		TrainingComponent,
+		RegisterComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -88,7 +89,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 		MatExpansionModule,
 		MatTreeModule,
 		MatRadioModule,
-		MatCheckboxModule
+		MatCheckboxModule,
+		NgxEchartsModule.forRoot({
+			echarts: () => import('echarts')
+		})
 	],
 	providers: [
 		{

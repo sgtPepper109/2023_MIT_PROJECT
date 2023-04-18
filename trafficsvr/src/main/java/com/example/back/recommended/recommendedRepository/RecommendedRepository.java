@@ -14,4 +14,12 @@ public interface RecommendedRepository extends JpaRepository<Recommended, Long> 
 	@Modifying
 	@Query("SELECT instances from Recommended instances WHERE instances.junctionName=:junction")
 	List<Recommended> getJunctionInstances(@Param("junction") String junction);
+
+	@Modifying
+	@Query("SELECT r from Recommended r WHERE r.junctionName=:junction and r.startYear=:startYear")
+	List<Recommended> getJunctionWithStartYear(@Param("junction") String junction, @Param("startYear") Integer startYear);
+	
+	@Modifying
+	@Query("SELECT r from Recommended r WHERE r.districtName=:district and r.startYear=:startYear")
+	List<Recommended> getDistrictInstancesWithStartYear(@Param("district") String district, @Param("startYear") Integer startYear);
 }

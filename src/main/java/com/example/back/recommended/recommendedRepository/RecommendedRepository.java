@@ -12,6 +12,6 @@ import com.example.back.recommended.recommended.Recommended;
 
 public interface RecommendedRepository extends JpaRepository<Recommended, Long> {
 	@Modifying
-	@Query("SELECT instances from Recommended instances WHERE instances.junctionName = :junction")
+	@Query("SELECT instances from Recommended instances WHERE instances.junctionName=:junction")
 	List<Recommended> getJunctionInstances(@Param("junction") String junction);
 }

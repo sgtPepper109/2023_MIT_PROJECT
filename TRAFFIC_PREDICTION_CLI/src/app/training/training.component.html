@@ -1,37 +1,41 @@
 <div id="trainingComponentBody">
-
-    <p class="fixed-top">
-        <mat-toolbar>
-            <button mat-icon-button  
-                class="example-icon" 
-                data-bs-toggle="offcanvas" 
-                data-bs-target="#offcanvasExample" 
-                aria-controls="offcanvasExample" 
-                aria-label="Example icon-button with menu icon"
-            >
-                <mat-icon>menu</mat-icon>
-            </button>
-            <span>Traffic Intensity Prediction and Recommendation</span>
-            <span class="example-spacer"></span>
-        </mat-toolbar>
-    </p>
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" aria-label="navbar"
+        style="background-color: #e6e6e6;">
+        <div class="container-fluid" style="background-color: #e6e6e6">
+            <a class="navbar-brand">
+                <span>
+                    <button mat-icon-button class="example-icon" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+                        <mat-icon>menu</mat-icon>
+                    </button>
+                </span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li style="font-size: 20px" class="nav-item">Traffic Intensity Prediction and Recommendation</li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <button mat-icon-button [matMenuTriggerFor]="accountMenu" class="example-icon favorite-icon"
+                        aria-label="Example icon-button with heart icon">
+                        <mat-icon>account_circle</mat-icon>
+                    </button>
+                    <mat-menu #accountMenu="matMenu">
+                        <button mat-stroked-button (click)="signOut()">Sign out</button>
+                    </mat-menu>
+                </form>
+            </div>
+        </div>
+    </nav>
 
     <br /><br />
 
-
-    <div 
-        class="offcanvas offcanvas-start" 
-        tabindex="-1" 
-        id="offcanvasExample" 
-        aria-labelledby="offcanvasExampleLabel"
-    >
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions"
+        aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
             <h1 style="margin-left: 125px" class="offcanvas-title" id="offcanvasExampleLabel">Menu</h1>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-
         <mat-divider></mat-divider>
-
         <div class="offcanvas-body">
             <ul class="list-group list-group-flush">
                 <li class="offcanvasList list-group-item" data-bs-dismiss="offcanvas">
@@ -56,9 +60,7 @@
 
 
 
-    <div
-        id="maincontainer" 
-        class="
+    <div id="maincontainer" class="
             container 
             p-5 
             my-5 
@@ -68,408 +70,454 @@
             mb-5 
             bg-white 
             rounded
-        "
-    >
+        ">
 
+        <ul class="nav nav-tabs">
+            <li class="nav-item" (click)="navSwitch('firstTab')">
+                <a class="{{ inputTabClass }}" aria-current="page">
+                    <strong>
+                        Manage Training
+                    </strong>
+                </a>
+            </li>
+            <li class="nav-item" (click)="navSwitch('trainingSummary')">
+                <a class="{{ trainingSummaryTabClass }}">
+                    <strong>
+                        Training Summary
+                    </strong>
+                </a>
+            </li>
+            <li class="nav-item" (click)="navSwitch('predictions')">
+                <a class="{{ predictionsTabClass }}">
+                    <strong>
+                        Predictions
+                    </strong>
+                </a>
+            </li>
+            <li class="nav-item" (click)="navSwitch('existing')">
+                <a class="{{ existingDataTabClass }}">
+                    <strong>
+                        Visualize provided data
+                    </strong>
+                </a>
+            </li>
+        </ul>
 
         <section class="box">
-            <h1><strong>Manage Training</strong></h1>
-            <hr />
-
-            <div class="alert alert-secondary">
-                <div
-                    *ngIf="toggleSuccessToast" 
-                    class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" 
-                    role="alert" 
-                    aria-live="assertive" 
-                    aria-atomic="true"
-                >
-                    <div class="toast-header">
-                        <span class="me-3">
-                            <mat-icon style="color:green">check_circle</mat-icon>
-                        </span>
-                        <strong class="me-auto">System</strong>
-                        <small>1 second ago</small>
-                        <button
-                            type="button" 
-                            class="btn-close" 
-                            data-bs-dismiss="toast" 
-                            aria-label="Close"
-                        ></button>
-                    </div>
-                    <div class="toast-body" style="color: green">
-                        {{ errorString }}
-                    </div>
-                </div>
+            <div *ngIf="manageTrainingActive" style="padding-top: 30px">
+                <!-- <h1><strong>{{ inputJunction }}, {{ currentDistrict }}</strong></h1> -->
+                <!-- <h1><strong>Manage Training</strong></h1>
+                <hr /> -->
 
 
-                <div
-                    *ngIf="toggleWarningToast" 
-                    class="toast show position-fixed bottom-0 end-0 p-3 box-overlay" 
-                    role="alert" 
-                    aria-live="assertive" 
-                    aria-atomic="true"
-                >
-                    <div class="toast-header">
-                        <span class="me-3">
-                            <mat-icon color="warn">report</mat-icon>
-                        </span>
-                        <strong class="me-auto">System</strong>
-                        <small>1 second ago</small>
-                        <button 
-                            type="button" 
-                            class="btn-close" 
-                            data-bs-dismiss="toast" 
-                            aria-label="Close"
-                        ></button>
+                <div>
+                    <div *ngIf="toggleSuccessToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <span class="me-3">
+                                <mat-icon style="color:green">check_circle</mat-icon>
+                            </span>
+                            <strong class="me-auto">System</strong>
+                            <small>1 second ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: green">
+                            {{ errorString }}
+                        </div>
                     </div>
-                    <div class="toast-body" style="color: red">
-                        {{ errorString }}
+
+
+                    <div *ngIf="toggleWarningToast" class="toast show position-fixed bottom-0 end-0 p-3 box-overlay"
+                        role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <span class="me-3">
+                                <mat-icon color="warn">report</mat-icon>
+                            </span>
+                            <strong class="me-auto">System</strong>
+                            <small>1 second ago</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" style="color: red">
+                            {{ errorString }}
+                        </div>
                     </div>
-                </div>
-                
-                <p>
-                    <button 
-                        mat-icon-button 
-                        data-bs-toggle="collapse" 
-                        href="#collapseExample" 
-                        role="button" 
-                        aria-expanded="true" 
-                        aria-controls="collapseExample"
-                        (click)="changeDatasetDescriptionIcon()"
-                    >
-                        <mat-icon>{{ datasetDescriptionIcon }}</mat-icon>
-                    </button>
-                </p>
-                <div
-                    class="collapse show" 
-                    id="collapseExample"
-                >
-                    <div class="card card-body alert alert-dark">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col">
-                                    <h3>Dataset Guide:</h3>
-                                    <ul style="list-style-type: lower-alpha;">
-                                        <li>
-                                            <p style="color:red">Must be a .csv (Comma Separated Values file)</p>
-                                        </li>
-                                        <li>
-                                            <h4>Three Columns/features, viz.,</h4>
-                                            <ol>
-                                                <li>
-                                                    DateTime
-                                                    <ul style="list-style: circle;">
-                                                        <li>
-                                                            denotes the date-time of the instance or observation
-                                                        </li>
-                                                        <li>
-                                                            (must be a string or of text format)
-                                                        </li>
-                                                        <li>
-                                                            ('yyyy-MM-dd' for daily and 'yyyy-MM-dd hh-mm-ss' for hourly)
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    PCU
-                                                    <ul style="list-style: circle;">
-                                                        <li>
-                                                            (Passenger Car Unit) is a unit used for expressing roadway capacity
-                                                        </li>
-                                                        <li>
-                                                            denotes the PCU of the concerned junction at the date-time
-                                                        </li>
-                                                        <li>(must be an integer or of number format)</li>
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    Junction
-                                                    <ul style="list-style: circle;">
-                                                        <li>denotes the name of the junction</li>
-                                                        <li>(must be a string or of text format)</li>
-                                                    </ul>
-                                                </li>
-                                            </ol>
-                                        </li>
-                                        <li>
-                                            <p>Hence, a single row of csv data represents: The number of vehicles at the junction at given date-time</p>
-                                        </li>
+
+                    <p>
+                        <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample" role="button"
+                            aria-expanded="true" aria-controls="collapseExample"
+                            (click)="changeDatasetDescriptionIcon()">
+                            <mat-icon>{{ datasetDescriptionIcon }}</mat-icon>
+                        </button>
+                    </p>
+                    <div class="collapse" id="collapseExample">
+                        <div class="card card-body alert alert-dark">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <h3>Dataset Guide:</h3>
+                                        <ul style="list-style-type: lower-alpha;">
+                                            <li>
+                                                <p style="color:red">Must be a .csv (Comma Separated Values) file</p>
+                                            </li>
+                                            <li>
+                                                <h4>Three Columns/features, viz.,</h4>
+                                                <ol>
+                                                    <li>
+                                                        DateTime
+                                                        <ul style="list-style: circle;">
+                                                            <li>
+                                                                denotes the date-time of the instance or observation
+                                                            </li>
+                                                            <li>
+                                                                (must be a string or of text format)
+                                                            </li>
+                                                            <li>
+                                                                ('yyyy-MM-dd' for daily and 'yyyy-MM-dd hh-mm-ss' for
+                                                                hourly)
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        PCU
+                                                        <ul style="list-style: circle;">
+                                                            <li>
+                                                                (Passenger Car Unit) is a unit used for expressing
+                                                                roadway
+                                                                capacity
+                                                            </li>
+                                                            <li>
+                                                                denotes the PCU of the concerned junction at the
+                                                                date-time
+                                                            </li>
+                                                            <li>(must be an integer or of number format)</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        Junction
+                                                        <ul style="list-style: circle;">
+                                                            <li>denotes the name of the junction</li>
+                                                            <li>(must be a string or of text format)</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                            </li>
+                                            <li>
+                                                <strong>
+                                                    The dataset must have a minimum of 30 records
+                                                </strong>
+                                            </li>
+                                            <li>
+                                                <p>Hence, a single row of csv data represents: The number of vehicles at
+                                                    the
+                                                    junction at given date-time</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col">
+                                        <h3>Sample data: (daily)</h3>
+                                        <table class="table table-bordered border-primary">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">DateTime</th>
+                                                    <th scope="col">PCU</th>
+                                                    <th scope="col">Junction</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let instance of sampleCsvTableDaily">
+                                                    <td>{{ instance.DateTime }}</td>
+                                                    <td>{{ instance.PCU }}</td>
+                                                    <td>{{ instance.Junction }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>...</td>
+                                                    <td>...</td>
+                                                    <td>...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col">
+                                        <h3>Sample data: (hourly)</h3>
+                                        <table class="table table-bordered border-primary">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">DateTime</th>
+                                                    <th scope="col">PCU</th>
+                                                    <th scope="col">Junction</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let instance of sampleCsvTableHourly">
+                                                    <td>{{ instance.DateTime }}</td>
+                                                    <td>{{ instance.PCU }}</td>
+                                                    <td>{{ instance.Junction }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>...</td>
+                                                    <td>...</td>
+                                                    <td>...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="dropdown">
+                                    <button mat-raised-button data-bs-toggle="dropdown" aria-expanded="false">
+                                        <mat-icon>get_app</mat-icon>Download Sample Data
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" (click)="downloadSample('Daily')">Daily</a></li>
+                                        <li><a class="dropdown-item" (click)="downloadSample('Hourly')">Hourly</a></li>
                                     </ul>
                                 </div>
-                                <div class="col">
-                                    <h3>Sample data: (daily)</h3>
-                                    <table class="table table-bordered border-primary">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">DateTime</th>
-                                                <th scope="col">PCU</th>
-                                                <th scope="col">Junction</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr *ngFor="let instance of sampleCsvTableDaily">
-                                                <td>{{ instance.DateTime }}</td>
-                                                <td>{{ instance.PCU }}</td>
-                                                <td>{{ instance.Junction }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="col">
-                                    <h3>Sample data: (hourly)</h3>
-                                    <table class="table table-bordered border-primary">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">DateTime</th>
-                                                <th scope="col">PCU</th>
-                                                <th scope="col">Junction</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr *ngFor="let instance of sampleCsvTableHourly">
-                                                <td>{{ instance.DateTime }}</td>
-                                                <td>{{ instance.PCU }}</td>
-                                                <td>{{ instance.Junction }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="dropdown">
-                                <button mat-raised-button data-bs-toggle="dropdown" aria-expanded="false">
-                                    <mat-icon>get_app</mat-icon>Download Sample Data
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" (click)="downloadSample('Daily')">Daily</a></li>
-                                    <li><a class="dropdown-item" (click)="downloadSample('Hourly')">Hourly</a></li>
-                                </ul>
                             </div>
                         </div>
                     </div>
-                </div>
 
 
 
-                <div class="row">
-                    <div class="col">
-                        <div>
-                            <div
-                                class="col-auto" 
-                            >
-                                <label class="visually-hidden" for="autoSizingInputGroup">Junction</label>
-                                <div class="input-group">
-                                    <div class="input-group-text">Choose Junction</div>
-                                    <select
-                                        style="width: 400px" 
-                                        [(ngModel)]="inputJunction" 
-                                        class="form-select" 
-                                        aria-label="Default select example"
-                                    >
-                                        <option
-                                            *ngFor="let junction of junctions" 
-                                            [value]="junction"
-                                        >{{ junction }}</option>
-                                    </select>
+                    <div id="maincontainer2" style="max-width: 1200px;" class="
+                            container
+                            bg-primary 
+                            shadow-lg 
+                            p-3 
+                            mb-5 
+                            bg-white 
+                            rounded
+                    ">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <strong style="font-size: 20px">ManageTraining</strong>
+                            </div>
+                            <div class="card-body">
+                                <h3 class="card-text">
+                                    <strong>
+                                        Traffic Intensity Prediction and Recommendation
+                                    </strong>
+                                </h3>
+                                <div style="padding-top: 10px;" class="example-form">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div>
+                                                <div class="col-auto">
+                                                    <label class="visually-hidden" for="autoSizingInputGroup">Junction</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-text">Choose Junction</div>
+                                                        <select (change)="changeJunction()" [(ngModel)]="inputJunction"
+                                                            class="form-select" aria-label="Default select example">
+                                                            <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <form class="was-validated">
+                                                <div class="mb-3">
+                                                    <input #file class="form-control" id="inputGroupFile02" type="file" accept=".csv"
+                                                        id="myfile" name="myfile" [(ngModel)]="dataset"
+                                                        (change)="fileChangeListener($event)" required>
+                                                    <div class="invalid-feedback">Only .csv file required</div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="fileProcessing">
+                                        <div class="spinner-grow" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <div>
+                                            <p>Processing File</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="showTrainingOptions && dataset && correctJunctions">
+                                    <div style="color: red">
+                                        <strong>Important!</strong>
+                                    </div>
+                                    <div>
+                                        <h5><strong>Choose Action</strong></h5>
+                                        <!-- <p>Based on your choice, the existing trained progress for this
+                                            junction will be modified</p> -->
+                                        <mat-radio-group [(ngModel)]="trainingAction" aria-label="Select an option">
+                                            <mat-radio-button color="primary" value="clear">Clear all trained progress and
+                                                start</mat-radio-button>
+                                            <br />
+                                            <mat-radio-button color="primary" value="append">Append data to existing trained
+                                                model</mat-radio-button>
+                                        </mat-radio-group>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer text-body-secondary">
+                                <div class="text-center">
+                                    <button mat-raised-button color="primary"
+                                        (click)="processAndStartTraining()">Proceed</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <form class="was-validated">
-                            <div class="mb-3">
-                                <input
-                                    #file 
-                                    class="form-control" 
-                                    id="inputGroupFile02" 
-                                    type="file" 
-                                    accept=".csv" 
-                                    id="myfile" 
-                                    name="myfile" 
-                                    [(ngModel)]="dataset" 
-                                    (change)="fileChangeListener($event)" 
-                                    required
-                                >
-                                <div class="invalid-feedback">Only .csv file required</div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
 
-                <div *ngIf="showTrainingOptions && datasetUploaded && correctJunctions">
-                    <dl>
-                        <dt>
-                            <h3 style="color: red"><strong>Important!: </strong>Choose Action</h3>
-                        </dt>
-                        <dd>
-                            <mat-radio-group [(ngModel)]="trainingAction" aria-label="Select an option">
-                                <mat-radio-button color="primary" value="clear">Clear all trained progress and start</mat-radio-button>
-                                <br />
-                                <mat-radio-button color="primary" value="append">Append data to existing trained model</mat-radio-button>
-                            </mat-radio-group>
-                        </dd>
-                    </dl>
 
-                </div>
 
-                <div *ngIf="fileProcessing">
-                    <div class="spinner-grow" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <div>
-                        <p>Processing File</p>
-                    </div>
+                    <!-- <div class="row">
+                        <div class="text-center">
+                            <button mat-raised-button color="primary"
+                                (click)="processAndStartTraining()">Proceed</button>
+                        </div>
+                    </div> -->
                 </div>
 
 
-                <div class="row">
-                    <div class="text-center">
-                        <button
-                            mat-raised-button color="primary" 
-                            (click)="processAndStartTraining()"
-                        >Proceed</button>
-                    </div>
-                </div>
-            </div>
-            
-
-            <!--
-                ** spinner **
-            -->
-            <br />
-            <mat-divider></mat-divider>
-            <div
-                *ngIf="startedTraining" 
-                class="d-flex align-items-center"
-            >
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            </div>
-
-
-            <!--
-                ** Future Predictions in table and in plot **
-            -->
-            <br />
-            <div *ngIf="!gotTestingRatioComparisons && startedTraining">
+                <!--
+                    ** spinner **
+                -->
                 <br />
-                <a class="btn btn-primary disabled placeholder col-4"></a>
-                <p aria-hidden="true">
-                    <span class="placeholder col-6"></span>
-                </p>
-                <br />
-                <div class="row">
-                    <div class="col">
-                        <div class="card" aria-hidden="true">
-                            <img src="assets/download.png" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title placeholder-glow">
-                                    <span class="placeholder col-6"></span>
-                                </h5>
-                                <p class="card-text placeholder-glow">
-                                    <span class="placeholder col-7"></span>
-                                    <span class="placeholder col-4"></span>
-                                    <span class="placeholder col-4"></span>
-                                    <span class="placeholder col-6"></span>
-                                    <span class="placeholder col-8"></span>
-                                </p>
-                                <a class="btn btn-primary disabled placeholder col-6"></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card" aria-hidden="true">
-                            <img src="assets/download.png" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title placeholder-glow">
-                                    <span class="placeholder col-6"></span>
-                                </h5>
-                                <p class="card-text placeholder-glow">
-                                    <span class="placeholder col-7"></span>
-                                    <span class="placeholder col-4"></span>
-                                    <span class="placeholder col-4"></span>
-                                    <span class="placeholder col-6"></span>
-                                    <span class="placeholder col-8"></span>
-                                </p>
-                                <a class="btn btn-primary disabled placeholder col-6"></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card" aria-hidden="true">
-                            <img src="assets/download.png" class="card-img-top" alt="...">
-                            <div class="card-body">
-                                <h5 class="card-title placeholder-glow">
-                                    <span class="placeholder col-6"></span>
-                                </h5>
-                                <p class="card-text placeholder-glow">
-                                    <span class="placeholder col-7"></span>
-                                    <span class="placeholder col-4"></span>
-                                    <span class="placeholder col-4"></span>
-                                    <span class="placeholder col-6"></span>
-                                    <span class="placeholder col-8"></span>
-                                </p>
-                                <a class="btn btn-primary disabled placeholder col-6"></a>
-                            </div>
-                        </div>
+                <mat-divider></mat-divider>
+                <div *ngIf="startedTraining" class="d-flex align-items-center">
+                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+
+
+                <div>
+                    <div *ngIf="trained" class="alert alert-success">
+                        <strong>
+                            Training process completed
+                        </strong>
                     </div>
                 </div>
             </div>
+            <div *ngIf="existingActive" style="padding-top: 30px">
+                <h1><strong>{{ inputJunction }}, {{ currentDistrict }}</strong></h1>
+                <hr />
+                <ng-template matStepLabel>Existing Data</ng-template>
 
 
-            <div
-                [hidden]="!predictionReady" 
-                class="accordion" 
-                id="accordionExample"
-            >
 
-                <mat-stepper
-                    orientation="vertical" 
-                    [linear]="isLinear" 
-                    #stepper
-                >
-                    <mat-step [hidden]="!comparisonChartHidden">
-                        <!--
-                            ** Actual and Predicted values comparison on test data **
-                        -->
+
+
+                <div style="padding-left: 200px; padding-right: 200px; padding-top: 20px">
+                    <div class="card border-primary mb-3">
+                        <div class="card-header">
+                            <nav class="navbar bg-body-tertiary" aria-label="navbarCard">
+                                <div class="container-fluid">
+                                    <a class="navbar-brand">
+                                        <strong>
+                                            Visualization of provided dataset {{ '\u24D8' }}
+                                        </strong>
+                                    </a>
+                                    <div class="d-flex" style="float:right">
+                                        <select style="width: 150px" class="form-select"
+                                            [(ngModel)]="existingDataOption" (change)="changeExistingDataOption()"
+                                            aria-label="Default select example">
+                                            <option selected>Line Plot</option>
+                                            <option value="Table">Table</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="card">
+
+
+                            <div *ngIf="!toggleDataVisualizationTable">
+                                <table class="table table-bordered" aria-describedby="tabe1-desc">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Junction</th>
+                                            <th scope="col">DateTime</th>
+                                            <th scope="col">Vehicles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let record of dataSource">
+                                            <th scope="row">{{ record.junction }}</th>
+                                            <td>{{ record.datetime }}</td>
+                                            <td>{{ record.vehicles }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- 
+                                    ** Paginator for table **
+                                -->
+                                <div id="paginator1" class="justify-content-end btn-group" role="group"
+                                    aria-label="Button group with nested dropdown">
+                                    <button type="button" [ngClass]="classForPreviousButton" (click)="previous()"
+                                        class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                    <button type="button" id="paginator1indicator" class="btn btn-outline-secondary"
+                                        disabled>{{index}} - {{index +5}} of
+                                        {{numberOfRecords}}</button>
+                                    <button type="button" [ngClass]="classForNextButton" (click)="next()"
+                                        class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                </div>
+                            </div>
+                            <div *ngIf="toggleDataVisualizationTable">
+                                <div *ngIf="!vehiclesVsDateTimeChartHidden"> <!-- Canvas for showing plot -->
+                                    <div class="card">
+                                        <div echarts [options]="mapOptionDataVisualization" class="demo-chart"></div>
+                                        <!-- <canvas id="plot"></canvas> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3>
+                            </h3>
+                            <p id="table2-desc">
+                                PCU over date-time
+                            </p>
+                            <h5>
+                                After choosing a dataset (CSV file) for training, it is parsed and processed to
+                                be used for training the ML model. The dataset has two main features: DateTime
+                                and PCU. Both the features have clear correlation between them.
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div *ngIf="predictionReady" class="accordion" id="accordionExample">
+
+                <div orientation="vertical" style="padding-top: 20px">
+                    <div *ngIf="trainingSummaryActive">
+                        <button (click)="logger()">hello</button>
                         <ng-template matStepLabel>Compare Actual and Predicted Values</ng-template>
 
-                        <div>
+                        <div style="padding-top: 10px">
+                            <h1><strong>{{ inputJunction }}, {{ currentDistrict }}</strong></h1>
+                            <hr />
                             <div *ngIf="modelSummaryReady">
                                 <h4><strong>{{ modelSummary[3].Property }}: {{ modelSummary[3].Value }}</strong></h4>
                             </div>
                             <div>
-                                <span> 
+                                <span>
                                     <mat-form-field appearance="outline" style="width: 300px">
                                         <mat-label>Show Comparisons of </mat-label>
-                                        <mat-select
-                                            [(ngModel)]="renderedAlgorithm" 
-                                            (selectionChange)="renderAllComparisons()"
-                                        >
-                                            <mat-option
-                                                *ngFor="let algorithm of algorithms" 
-                                                [value]="algorithm"
-                                            >
+                                        <mat-select [(ngModel)]="renderedAlgorithm"
+                                            (selectionChange)="renderAllComparisons()">
+                                            <mat-option *ngFor="let algorithm of algorithms" [value]="algorithm">
                                                 {{ algorithm }}
                                             </mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </span>
                                 <span>
-                                    <mat-form-field appearance="outline" class="example-full-width" style="margin-left: 10px">
+                                    <mat-form-field appearance="outline" class="example-full-width"
+                                        style="margin-left: 10px">
                                         <mat-label>Testing Ratio</mat-label>
-                                        <mat-select
-                                            [(ngModel)]="renderedTestRatio" 
-                                            (selectionChange)="renderAllComparisons()"
-                                        >
-                                            <mat-option
-                                                *ngFor="let ratio of resultTestingRatios" 
-                                                [value]="ratio"
-                                            >
+                                        <mat-select [(ngModel)]="renderedTestRatio"
+                                            (selectionChange)="renderAllComparisons()">
+                                            <mat-option *ngFor="let ratio of resultTestingRatios" [value]="ratio">
                                                 {{ ratio }}
-                                            </mat-option >
+                                            </mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </span>
@@ -504,150 +552,243 @@
 
 
 
-                        <div [hidden]="!gotTestingRatioComparisons">
+                        <div *ngIf="gotTestingRatioComparisons">
                             <div class="row">
                                 <div class="col">
-                                    <nav
-                                        id="navbar-example4" 
-                                        class="navbar bg-body-tertiary px-3 mb-3" 
-                                        aria-labelledby="navHeading"
-                                    >
-                                        <ul class="nav nav-pills">
-                                            <h4 id="table2-desc"><strong>Actual Vs Predicted Values of trained model</strong></h4>
-                                        </ul>
-                                        <select 
-                                            style="width: 150px" 
-                                            class="form-select" 
-                                            [(ngModel)]="comparisonOption" 
-                                            (change)="changeComparisonOption()" 
-                                            aria-label="Default select example"
-                                        >
-                                            <option selected>Line Plot</option>
-                                            <option value="Table">Table</option>
-                                        </select>
-                                    </nav>
-
-                                    <div *ngIf="!toggleComparisonTable">
-                                        <div *ngIf="comparisonTableReady">
-                                            
-                                            <!--
-                                                ** Table for showing actual and predicted values comparison **
-                                            -->
-                                            
-                                            <table class="table table-bordered border table-striped-columns" aria-describedby="table3-desc">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Actual</th>
-                                                        <th scope="col">Predicted</th>
-                                                        <th scope="col">Difference</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr *ngFor="let record of dataSourcePredicted">
-                                                        <th scope="row">{{ record.actual }}</th>
-                                                        <td>{{ record.predicted }}</td>
-                                                        <td>{{ record.difference }}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
-                                            <!--
-                                                ** Paginator for table **
-                                            -->
-                                            <div 
-                                                id="paginator3" 
-                                                class="justify-content-end btn-group" 
-                                                role="group" 
-                                                aria-label="Button group with nested dropdown"
-                                            >
-                                                <button 
-                                                    type="button" 
-                                                    [ngClass]="classForPreviousButtonPredicted" 
-                                                    (click)="previousPredicted()" 
-                                                    class="btn btn-outline-secondary"
-                                                >{{'\u21E6'}}</button>
-                                                <button 
-                                                    type="button" 
-                                                    id="paginator3indicator" 
-                                                    class="btn btn-outline-secondary" 
-                                                    disabled
-                                                >{{predictedTableIndex}} - {{predictedTableIndex + 5}} of {{numberOfRecordsPredicted}}</button>
-                                                <button 
-                                                    type="button" 
-                                                    [ngClass]="classForNextButtonPredicted" 
-                                                    (click)="nextPredicted()" 
-                                                    class="btn btn-outline-secondary"
-                                                >{{'\u21E8'}}</button>
+                                    <div>
+                                        <span>
+                                            <p>
+                                                <mat-checkbox [(ngModel)]="actualVsPredictedCardHidden">Actual Vs
+                                                    Predicted</mat-checkbox>
+                                            </p>
+                                        </span>
+                                        <span>
+                                            <p>
+                                                <mat-checkbox [(ngModel)]="algorithmComparisonCardHidden">Accuracy
+                                                    Comparisons (Algorithms)</mat-checkbox>
+                                            </p>
+                                        </span>
+                                        <span>
+                                            <p>
+                                                <mat-checkbox [(ngModel)]="testingRatioComparisonCardHidden">Accuracy
+                                                    Comparisons (Testing Ratios)</mat-checkbox>
+                                            </p>
+                                        </span>
+                                    </div>
+                                    <div class="card-group">
+                                        <div class="card" *ngIf="!actualVsPredictedCardHidden">
+                                            <div class="card-header">
+                                                <nav class="navbar bg-body-tertiary" aria-label="navbarCard">
+                                                    <div class="container-fluid">
+                                                        <a class="navbar-brand" (click)="toggleActualVsPredInfo()">
+                                                            <strong style="font-size: 17px">Actual Vs Predicted {{
+                                                                '\u24D8' }}</strong>
+                                                        </a>
+                                                        <div class="d-flex" style="float:right">
+                                                            <select style="float:right" class="form-select"
+                                                                [(ngModel)]="comparisonOption"
+                                                                (change)="changeComparisonOption()"
+                                                                aria-label="Default select example">
+                                                                <option selected>Line Plot</option>
+                                                                <option value="Table">Table</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </nav>
                                             </div>
-                                            
-                                        </div>
-                                    </div>
+                                            <div class="card-body">
+                                                <div [hidden]="!toggleComparisonTable">
+                                                    <div [hidden]="comparisonChartHidden">
+                                                        <div>
+                                                            <canvas id="predictedChart"></canvas>
+                                                            <div id="paginator4" class="justify-content-end btn-group"
+                                                                role="group"
+                                                                aria-label="Button group with nested dropdown">
+                                                                <button type="button"
+                                                                    [ngClass]="classForPreviousButtonPlot"
+                                                                    (click)="previous10Plot()"
+                                                                    class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                                                <button type="button" id="paginator4indicator"
+                                                                    class="btn btn-outline-secondary"
+                                                                    disabled>{{predictedChartIndex}} -
+                                                                    {{predictedChartIndex
+                                                                    + 10}} of {{numberOfPlotDataEntries}}</button>
+                                                                <button type="button" [ngClass]="classForNextButtonPlot"
+                                                                    (click)="next10Plot()"
+                                                                    class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
+                                                <div *ngIf="!toggleComparisonTable">
+                                                    <div *ngIf="comparisonTableReady">
 
-                                    <!--
-                                        ** Chart For comparison of Actual and Predicted Values **
-                                    -->
-                                    <div [hidden]="!toggleComparisonTable">
-                                        <div [hidden]="comparisonChartHidden">
-                                            <div class="card">
-                                                <canvas id="predictedChart"></canvas>
+                                                        <!--
+                                                            ** Table for showing actual and predicted values comparison **
+                                                        -->
+
+                                                        <div>
+                                                            <table
+                                                                class="table table-bordered border table-striped-columns"
+                                                                aria-describedby="table3-desc">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th scope="col">Actual</th>
+                                                                        <th scope="col">Predicted</th>
+                                                                        <th scope="col">Difference</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr *ngFor="let record of dataSourcePredicted">
+                                                                        <th scope="row">{{ record.actual }}</th>
+                                                                        <td>{{ record.predicted }}</td>
+                                                                        <td>{{ record.difference }}</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <div id="paginator4" class="justify-content-end btn-group"
+                                                                role="group"
+                                                                aria-label="Button group with nested dropdown">
+                                                                <button type="button"
+                                                                    [ngClass]="classForPreviousButtonPlot"
+                                                                    (click)="previous10Plot()"
+                                                                    class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                                                <button type="button" id="paginator4indicator"
+                                                                    class="btn btn-outline-secondary"
+                                                                    disabled>{{predictedChartIndex}} -
+                                                                    {{predictedChartIndex
+                                                                    + 10}} of {{numberOfPlotDataEntries}}</button>
+                                                                <button type="button" [ngClass]="classForNextButtonPlot"
+                                                                    (click)="next10Plot()"
+                                                                    class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <!--
-                                            ** Paginator for Chart **
-                                        -->
-                                        <div id="paginator4" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                            <button type="button" [ngClass]="classForPreviousButtonPlot" (click)="previous10Plot()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                            <button type="button" id="paginator4indicator" class="btn btn-outline-secondary" disabled>{{predictedChartIndex}} - {{predictedChartIndex + 10}} of {{numberOfPlotDataEntries}}</button>
-                                            <button type="button" [ngClass]="classForNextButtonPlot" (click)="next10Plot()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-
-                                    <nav id="navbar-example4" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                        <ul class="nav nav-pills">
-                                            <h4 id="table2-desc"><strong>Accuracy Comparisons for {{ renderedTestRatio.slice(0,3) }} test ratio</strong></h4>
-                                        </ul>
-                                        <select style="width: 150px" class="form-select" [(ngModel)]="accuracyOption" (change)="changeAccuracyOption()" aria-label="Default select example">
-                                            <option selected>Line Plot</option>
-                                            <option value="Table">Table</option>
-                                        </select>
-                                    </nav>
-                                    <div *ngIf="toggleAccuracyBarChart">
-                                        <table class="table table-bordered" aria-describedby="tabe1-desc">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Algorithm</th>
-                                                    <th scope="col">Accuracy</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr *ngFor="let record of accuracies">
-                                                    <td>{{ record.junctionOrAlgorithm }}</td>
-                                                    <td>{{ record.accuracy }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div [hidden]="toggleAccuracyBarChart">
-                                        <div [hidden]="accuracyBarChartHidden">
-                                            <div class="card">
-                                                <canvas id="accuracyBarChart"></canvas>
+                                            <div class="card-footer" *ngIf="showActualVsPredInfo">
+                                                <p class="card-text">
+                                                    This is a wider card with supporting text below as a natural lead-in
+                                                    to additional content. This content is a little bit longer.
+                                                </p>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div [hidden]="testingRatioComparisonChartNotReady">
-                                        <nav id="navbar-example4" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                            <ul class="nav nav-pills">
-                                                <h4 id="table2-desc"><strong>Comparison of testing ratios for {{renderedAlgorithm}}</strong></h4>
-                                            </ul>
-                                        </nav>
 
-                                        <div class="card">
-                                            <canvas id="testRatioComparisonChart"></canvas>
+                                        <div class="card" *ngIf="!algorithmComparisonCardHidden">
+                                            <div class="card-header">
+                                                <nav class="navbar bg-body-tertiary" aria-label="navbarCard">
+                                                    <div class="container-fluid">
+                                                        <a class="navbar-brand" (click)="toggleAccuracyComparisons()">
+                                                            <strong style="font-size: 17px">Accuracy Comparisons
+                                                                (Algorithm) {{ '\u24D8' }}</strong>
+                                                        </a>
+                                                        <div class="d-flex" style="float:right">
+                                                            <select style="float:right" class="form-select"
+                                                                [(ngModel)]="accuracyOption"
+                                                                (change)="changeAccuracyOption()"
+                                                                aria-label="Default select example">
+                                                                <option selected>Line Plot</option>
+                                                                <option value="Table">Table</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </nav>
+                                            </div>
+                                            <div class="card-body">
+                                                <div *ngIf="toggleAccuracyBarChart">
+                                                    <table class="table table-bordered" aria-describedby="tabe1-desc">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Algorithm</th>
+                                                                <th scope="col">Accuracy</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr *ngFor="let record of accuracies">
+                                                                <td>{{ record.junctionOrAlgorithm }}</td>
+                                                                <td>{{ record.accuracy }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div *ngIf="!toggleAccuracyBarChart">
+                                                    <div *ngIf="!accuracyBarChartHidden">
+                                                        <div>
+                                                            <div echarts [options]="mapOptionAlgorithmComparison" class="demo-chart"></div>
+                                                            <!-- <canvas id="accuracyBarChart"></canvas> -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer" *ngIf="showAccuracyComparisons">
+                                                <p id="table2-desc">
+                                                    for {{ renderedTestRatio.slice(0,3) }} test ratio
+                                                </p>
+                                                <h5>
+                                                    The followed testing ratio when trained against all all algorithms,
+                                                    gives out a comparison of accuracies, which can prove helpful to
+                                                    employ the testing ratio with the highest accuracy
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="card" [hidden]="testingRatioComparisonCardHidden">
+                                            <div class="card-header">
+                                                <nav class="navbar bg-body-tertiary" aria-label="navbarCard">
+                                                    <div class="container-fluid">
+                                                        <a class="navbar-brand"
+                                                            (click)="toggleAccuracyComparisonsTestingRatios()">
+                                                            <strong style="font-size: 17px">
+                                                                Accuracy Comparisons (Testing ratios) {{ '\u24D8' }}
+                                                            </strong>
+                                                        </a>
+                                                        <div class="d-flex" style="float:right">
+                                                            <select style="float:right" class="form-select"
+                                                                [(ngModel)]="accuracyOptionAlgorithm"
+                                                                (change)="changeAccuracyOptionForAlgorithm()"
+                                                                aria-label="Default select example">
+                                                                <option selected>Line Plot</option>
+                                                                <option value="Table">Table</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </nav>
+                                            </div>
+                                            <div class="card-body">
+                                                <div [hidden]="testRatioComparisonChartHidden">
+                                                    <div [hidden]="testingRatioComparisonChartNotReady">
+                                                        <div echarts [options]="mapOptionTestingRatiosComparison" class="demo-chart"></div>
+                                                        <canvas id="testRatioComparisonChart"></canvas>
+                                                    </div>
+                                                </div>
+                                                <div [hidden]="!testRatioComparisonChartHidden">
+                                                    <table class="table table-bordered" aria-describedby="tabe1-desc">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Testing Ratio</th>
+                                                                <th scope="col">Accuracy</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr *ngFor="let record of testRatioComparisonTableData">
+                                                                <td>{{ record.testRatio }}</td>
+                                                                <td>{{ record.accuracy }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer" *ngIf="showAccuracyComparisonsTestingRatios">
+                                                <p id="table2-desc">
+                                                    for {{ renderedAlgorithm }} algorithm
+                                                </p>
+                                                <h5>
+                                                    The followed algorithm when trained against all testing ratios,
+                                                    gives out a comparison of accuracies, which can prove helpful to
+                                                    employ the algorithm with the highest accuracy
+                                                </h5>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -655,17 +796,47 @@
                         </div>
 
 
-                        <div style="padding-left: 200px; padding-right: 200px; padding-top: 20px">
-                            <div style="padding-left: 1100px">
-                                <select [(ngModel)]="ultimateComparisonChartFormat" (change)="changeUltimateComparisonFormat()" class="form-select" aria-label="Default select example">
-                                    <option value="Line Plot">Line Plot</option>
-                                    <option value="Bar Chart">Bar Chart</option>
-                                </select>
-                            </div>
-                            <div>
-                                <canvas id="ultimateComparisonChart"></canvas>
+
+                        <div style="padding-left: 200px; padding-right: 200px; padding-top: 50px">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <nav class="navbar bg-body-tertiary" aria-label="navbarCard">
+                                        <div class="container-fluid">
+                                            <a class="navbar-brand">
+                                                <strong>
+                                                    Ultimate Chart (Accuracy comparisons of algorithms and testing
+                                                    ratios) {{ '\u24D8' }}
+                                                </strong>
+                                            </a>
+                                            <div class="d-flex" style="float:right">
+                                                <select [(ngModel)]="ultimateComparisonChartFormat"
+                                                    (change)="changeUltimateComparisonFormat()" class="form-select"
+                                                    aria-label="Default select example">
+                                                    <option value="Line Plot">Line Plot</option>
+                                                    <option value="Bar Chart">Bar Chart</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </nav>
+                                </div>
+                                <div class="card">
+                                    <canvas id="ultimateComparisonChart"></canvas>
+                                </div>
+                                <div class="card-body">
+                                    <p id="table2-desc">
+                                        for all algorithms and all testing ratios
+                                    </p>
+                                    <h5>
+                                        When all algorithms are trained against all testing ratios, the followed
+                                        ultimate
+                                        comparison is obtained, which can prove the most helpful in choosing the
+                                        algorithm
+                                        and testing ratio with the highest accuracy
+                                    </h5>
+                                </div>
                             </div>
                         </div>
+
 
 
 
@@ -675,12 +846,14 @@
                         </button>
 
                         <!-- Modal -->
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h1 class="modal-title fs-5" id="exampleModalLabel">Model Summary</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
 
@@ -709,7 +882,8 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
@@ -717,352 +891,204 @@
 
 
 
-                        <div>
-                            <h4>Choose algorithm and testing ratio for {{ inputJunction }} to show to user</h4>
-                            <span> 
-                                <mat-form-field appearance="outline" style="width: 300px">
-                                    <mat-label>Choose Algorithm to add to master</mat-label>
-                                    <mat-select [(ngModel)]="algorithmToAddToMaster">
-                                        <mat-option *ngFor="let algorithm of algorithms" [value]="algorithm">
-                                            {{ algorithm }}
-                                        </mat-option >
-                                    </mat-select>
-                                </mat-form-field>
-                            </span>
-                            <span>
-                                <mat-form-field appearance="outline" style="width: 300px">
-                                    <mat-label>Choose test ratio to add to master</mat-label>
-                                    <mat-select [(ngModel)]="testRatioToAddToMaster">
-                                        <mat-option *ngFor="let testRatio of resultTestingRatios" [value]="testRatio">
-                                            {{ testRatio }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </span>
-                            <!-- <span>
-                                <mat-form-field appearance="outline" style="width: 300px">
-                                    <mat-label>% (Ideal relative change)</mat-label>
-                                    <input type="text" [(ngModel)]="relativeChange" matInput placeholder="5 %">
-                                </mat-form-field>
-                            </span> -->
-                        </div>
-                        <div>
-                            <span>
-                                <mat-form-field appearance="outline" style="width: 300px">
-                                    <mat-label>Prediction for two years from</mat-label>
-                                    <input type="text" [(ngModel)]="startYear" matInput placeholder="5 %">
-                                </mat-form-field>
-                            </span>
-                            <!-- <span>
-                                <mat-form-field appearance="outline" style="width: 300px">
-                                    <mat-label>End Year</mat-label>
-                                    <input type="text" [(ngModel)]="startYear" matInput placeholder="5 %">
-                                </mat-form-field>
-                            </span> -->
-                            <button style="margin-left: 10px" mat-raised-button color="warn" data-bs-toggle="modal" data-bs-target="#exampleModal2">Add to master</button>
-                            <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm Add</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="alert alert-warning">
-                                                <!-- <h4>Junction: <strong>{{ this.inputJunction }}</strong></h4>
-                                                <h4>trained with</h4>
-                                                <h4>Algorithm: <strong>{{ algorithmToAddToMaster }}</strong></h4>
-                                                <h4>Testing Ratio: <strong>{{ testRatioToAddToMaster }}</strong></h4>
-                                                <h4>Accuracy: <strong>{{ highestAccuracy }}</strong></h4> -->
-                                                <table class="table table-bordered border-primary">
-                                                    <tbody>
-                                                        <tr>
-                                                            <th scope="row">Junction:</th>
-                                                            <td>{{ this.inputJunction }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th scope="row">Algorithm: </th>
-                                                            <td>{{ algorithmToAddToMaster }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th scope="row">Testing Ratio: </th>
-                                                            <td>{{ testRatioToAddToMaster }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th scope="row">Accuracy: </th>
-                                                            <td>{{ highestAccuracy }}</td>
-                                                        </tr>
-                                                        <!-- <tr>
-                                                            <th scope="row">Relative Change: </th>
-                                                            <td>{{ relativeChange }} %</td>
-                                                        </tr> -->
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="button" (click)="addToMaster()" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
-                                        </div>
+                        <div class="card border-{{ addToMasterStatus }} mb-3" style="max-width: 40rem;">
+                            <div class="card-body text-{{ addToMasterStatus }}">
+                                <div *ngIf="addedToMaster">
+                                    <div class="alert alert-success">
+                                        <mat-icon>check</mat-icon>
+                                        Already added to master
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        
-
-                    </mat-step>
-
-
-                    <mat-step>
-                        <ng-template matStepLabel>Predictions (highest accuracy)</ng-template>
-                        <br />
-                            <div class="col alert alert-warning">
-                                <h3><strong>Algorithm: {{ algorithmHighestAccuracy }}</strong></h3>
-                                <h3><strong>Test Ratio: {{ testRatioHighestAccuracy }}</strong></h3>
-                            </div>
-                            <div>
-                                <span> 
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Time Period</mat-label>
-                                        <input matInput type="number" placeholder="0" [(ngModel)]="time">
-                                    </mat-form-field>
-                                </span>
-                                <span>
-                                    <mat-form-field appearance="outline">
-                                        <mat-select matNativeControl [(ngModel)]="timeFormat" (selectionChange)="changeShowByArray()" required>
-                                            <mat-option value="Days">Days</mat-option>
-                                            <mat-option value="Months">Months</mat-option>
-                                            <mat-option value="Years">Years</mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
-                                </span>
-                                <span>
-                                    <mat-form-field style="float:right" appearance="outline">
-                                        <mat-label>Show By</mat-label>
-                                        <mat-select type="text" [(ngModel)]="showBy">
-                                            <mat-option *ngFor="let time of showByArray" [value]="time">{{ time }}</mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
-                                </span>
-                                <button mat-raised-button style="margin-left: 10px" color="primary" (click)="predict()">Predict</button>
-                            </div>
-                            <div *ngIf="futurePredictionsReady">
-                                <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                                    <ul class="nav nav-pills">
-                                        <h4 id="table2-desc">Result for Junction <strong>{{ inputJunction }}</strong> for duration of <strong>{{ time }} {{ timeFormat }}</strong></h4>
-                                    </ul>
-                                    <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption" (change)="changePredictionsOption()" aria-label="Default select example">
-                                        <option selected>Line Plot</option>
-                                        <option value="Table">Table</option>
-                                    </select>
-                                </nav>
-
-
-
-
-                                <div *ngIf="junctionSpecificDataAvailable" class="row">
-                                    <div class="col">
-                                        <p>
-                                            <button mat-icon-button data-bs-toggle="collapse" href="#collapseExample2" role="button" aria-expanded="true" aria-controls="collapseExample2">
-                                                <mat-icon style="color: #fc6a03">notification_important</mat-icon>
-                                            </button>
-                                        </p>
-                                        <div class="collapse" id="collapseExample2">
-                                            <div class="card card-body alert alert-dark">
-                                                <h3>
-                                                    Junction {{junctionChoice}} belongs to <strong>{{currentDistrict}}</strong> 
-                                                </h3>
-                                                <h3>
-                                                    Junction {{junctionChoice}} has Roadway width of <strong>{{ currentRoadwayWidth }} meters</strong>
-                                                </h3>
-                                                <h3>
-                                                    Hence, has the capacity of <strong>{{ currentMaxVehicles}}</strong>
-                                                </h3>
+                                <div *ngIf="!addedToMaster">
+                                    <div class="alert alert-danger">
+                                        <mat-icon>close</mat-icon>
+                                        Not added to master yet
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4>Choose algorithm and testing ratio for {{ inputJunction }} to show to user</h4>
+                                    <span>
+                                        <mat-form-field appearance="outline" style="width: 300px">
+                                            <mat-label>Choose Algorithm to add to master</mat-label>
+                                            <mat-select [(ngModel)]="algorithmToAddToMaster">
+                                                <mat-option *ngFor="let algorithm of algorithms" [value]="algorithm">
+                                                    {{ algorithm }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </span>
+                                    <span>
+                                        <mat-form-field appearance="outline" style="width: 300px">
+                                            <mat-label>Choose test ratio to add to master</mat-label>
+                                            <mat-select [(ngModel)]="testRatioToAddToMaster">
+                                                <mat-option *ngFor="let testRatio of resultTestingRatios"
+                                                    [value]="testRatio">
+                                                    {{ testRatio }}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </span>
+                                    <!-- <span>
+                                        <mat-form-field appearance="outline" style="width: 300px">
+                                            <mat-label>% (Ideal relative change)</mat-label>
+                                            <input type="text" [(ngModel)]="relativeChange" matInput placeholder="5 %">
+                                        </mat-form-field>
+                                    </span> -->
+                                </div>
+                                <div>
+                                    <span>
+                                        <mat-form-field appearance="outline" style="width: 300px">
+                                            <mat-label>Prediction for two years from</mat-label>
+                                            <input type="text" [(ngModel)]="startYear" matInput placeholder="5 %">
+                                        </mat-form-field>
+                                    </span>
+                                    <!-- <span>
+                                        <mat-form-field appearance="outline" style="width: 300px">
+                                            <mat-label>End Year</mat-label>
+                                            <input type="text" [(ngModel)]="startYear" matInput placeholder="5 %">
+                                        </mat-form-field>
+                                    </span> -->
+                                    <button style="margin-left: 10px" mat-raised-button color="warn"
+                                        data-bs-toggle="modal" data-bs-target="#exampleModal2">Add to master</button>
+                                    <div class="modal fade" id="exampleModal2" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm Add</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="alert alert-warning">
+                                                        <!-- <h4>Junction: <strong>{{ this.inputJunction }}</strong></h4>
+                                                        <h4>trained with</h4>
+                                                        <h4>Algorithm: <strong>{{ algorithmToAddToMaster }}</strong></h4>
+                                                        <h4>Testing Ratio: <strong>{{ testRatioToAddToMaster }}</strong></h4>
+                                                        <h4>Accuracy: <strong>{{ highestAccuracy }}</strong></h4> -->
+                                                        <table class="table table-bordered border-primary">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th scope="row">Junction:</th>
+                                                                    <td>{{ this.inputJunction }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Algorithm: </th>
+                                                                    <td>{{ algorithmToAddToMaster }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Testing Ratio: </th>
+                                                                    <td>{{ testRatioToAddToMaster }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Accuracy: </th>
+                                                                    <td>{{ highestAccuracy }}</td>
+                                                                </tr>
+                                                                <!-- <tr>
+                                                                    <th scope="row">Relative Change: </th>
+                                                                    <td>{{ relativeChange }} %</td>
+                                                                </tr> -->
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" (click)="addToMaster()"
+                                                        class="btn btn-primary" data-bs-dismiss="modal">Add</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-
-
-                                <div *ngIf="!junctionSpecificDataAvailable">
-                                    <h3 style="color: red; margin-left: 10px"><strong>Note: Information not found for this junction</strong></h3>
-                                </div>
-                                <table class="table table-bordered border table-striped" aria-describedby="table2-desc">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">DateTime</th>
-                                            <th scope="col">Vehicles</th>
-                                            <th scope="col">Year</th>
-                                            <th scope="col">Month</th>
-                                            <th scope="col">Day</th>
-                                            <th scope="col">Hour</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let record of dataSourceResult">
-                                            <th scope="row">{{ record.DateTime }}</th>
-                                            <td>{{ record.Vehicles }}</td>
-                                            <td>{{ record.Year }}</td>
-                                            <td>{{ record.Month }}</td>
-                                            <td>{{ record.Day }}</td>
-                                            <td>{{ record.Hour }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-
-                                <!--
-                                    ** Paginator for Prediction table **
-                                -->
-                                <div id="paginator2" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                    <button type="button" [ngClass]="classForPreviousButtonResult" (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                    <button type="button" id="paginator2indicator" class="btn btn-outline-secondary" disabled>{{indexResult}} - {{indexResult + 10}} of {{numberOfRecordsResult}}</button>
-                                    <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                                </div>
                             </div>
+                        </div>
 
-                        <!--
-                            ** Vehicles vs DateTime chart for provided junction number and number of days **
-                        -->
-                        <div [hidden]="!toggleFuturePredictionsTable">
-                            <div style="padding-left: 100px; padding-right: 100px;" [hidden]="futurePredictionsChartHidden">
+
+                    </div>
+
+
+                    <div [hidden]="!predictionsActive" style="padding-top: 10px">
+                        <h1><strong>{{ inputJunction }}, {{ currentDistrict }}</strong></h1>
+                        <hr />
+                        <div style="padding-left: 200px; padding-right: 200px; padding-top: 20px">
+                            <div class="card border-primary mb-3">
+                                <div class="card-header">
+                                    <nav class="navbar bg-body-tertiary" aria-label="navbarCard">
+                                        <div class="container-fluid">
+                                            <a class="navbar-brand">
+                                                <strong>
+                                                    Predictions of {{ inputJunction }} for next {{ time }} {{ timeFormat
+                                                    }} {{ '\u24D8' }}
+                                                </strong>
+                                            </a>
+                                            <div class="d-flex" style="float:right">
+                                                <select style="width: 150px" class="form-select"
+                                                    [(ngModel)]="predictionsOption" (change)="changePredictionsOption()"
+                                                    aria-label="Default select example">
+                                                    <option selected>Line Plot</option>
+                                                    <option value="Table">Table</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </nav>
+                                </div>
                                 <div class="card">
-                                    <canvas id="myChart"></canvas>
+                                    <div [hidden]="!toggleFuturePredictionsTable">
+                                        <div style="padding-left: 100px; padding-right: 100px;"
+                                            [hidden]="futurePredictionsChartHidden">
+                                            <div class="card">
+                                                <canvas id="myChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="!toggleFuturePredictionsTable">
+                                        <table class="table table-bordered border table-striped"
+                                            aria-describedby="table2-desc">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">DateTime</th>
+                                                    <th scope="col">Vehicles</th>
+                                                    <th scope="col">Year</th>
+                                                    <th scope="col">Month</th>
+                                                    <th scope="col">Day</th>
+                                                    <th scope="col">Hour</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let record of dataSourceResult">
+                                                    <th scope="row">{{ record.DateTime }}</th>
+                                                    <td>{{ record.Vehicles }}</td>
+                                                    <td>{{ record.Year }}</td>
+                                                    <td>{{ record.Month }}</td>
+                                                    <td>{{ record.Day }}</td>
+                                                    <td>{{ record.Hour }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h3>
+                                    </h3>
+                                    <p id="table2-desc">
+                                        for {{ algorithmHighestAccuracy }} and {{ testRatioHighestAccuracy }}
+                                    </p>
+                                    <h5>
+                                        After training process, the trained model having the combination of algorithm
+                                        and testing ratio with highest accuracy is chosen and predictions of chosen
+                                        junction with this trained model for {{ time }} {{ timeFormat }} are shown
+                                    </h5>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
 
 
-
-                    </mat-step>
-
-
-                    <mat-step>
-                        <!-- 
-                            ** Table for displaying the csv data **
-                        -->
-                        <ng-template matStepLabel>Existing Data</ng-template>
-                        <br />
-                        <nav id="navbar-example4" class="navbar bg-body-tertiary px-3 mb-3" aria-labelledby="navHeading">
-                            <ul class="nav nav-pills">
-                                <h4><strong>How your data looks</strong></h4>
-                            </ul>
-                            <select style="width: 150px" class="form-select" [(ngModel)]="existingDataOption" (change)="changeExistingDataOption()" aria-label="Default select example">
-                                <option selected>Line Plot</option>
-                                <option value="Table">Table</option>
-                            </select>
-                        </nav>
-                        <br />
-                        <div *ngIf="!toggleDataVisualizationTable">
-                            
-                            <table class="table table-bordered" aria-describedby="tabe1-desc">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Junction</th>
-                                        <th scope="col">DateTime</th>
-                                        <th scope="col">Vehicles</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let record of dataSource">
-                                        <th scope="row">{{ record.Junction }}</th>
-                                        <td>{{ record.DateTime }}</td>
-                                        <td>{{ record.Vehicles }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <!-- 
-                                ** Paginator for table **
-                            -->
-                            <div id="paginator1" class="justify-content-end btn-group" role="group" aria-label="Button group with nested dropdown">
-                                <button type="button" [ngClass]="classForPreviousButton" (click)="previous()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                <button type="button" id="paginator1indicator" class="btn btn-outline-secondary" disabled>{{index}} - {{index +5}} of {{numberOfRecords}}</button>
-                                <button type="button" [ngClass]="classForNextButton" (click)="next()" class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                            </div>
-                        </div>
-
-                        
-                        <!-- 
-                            ** Vehicles vs DateTime plots for all junctions **
-                        -->
-                        <mat-card [hidden]="!toggleDataVisualizationTable">
-                            <mat-card-content>
-                                <div class="row">
-                                    <div class="col">
-                                        <h4><strong>Number of vehicles over time</strong></h4>
-                                    </div>
-                                </div>
-
-
-                                <div [hidden]="vehiclesVsDateTimeChartHidden">  <!-- Canvas for showing plot -->
-                                    <div class="card">
-                                        <canvas id="plot"></canvas>
-                                    </div>
-                                </div>
-                            </mat-card-content>
-                        </mat-card>
-                    </mat-step>
-
-
-                </mat-stepper>
-
-
-
-
-
-
-
-
-
-
-
-
-
-            </div>
-
-
-
-
-
-            <div class="text-center">
-                <span>
-                    <a href="#" id="helpCanvas" class="link-danger" data-bs-toggle="offcanvas"
-                        href="#offcanvasExample" role="button" aria-controls="offcanvasExample">Help</a>
-                    <a href="#" id="aboutCanvas" class="link-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-                        aria-controls="offcanvasRight">About</a>
-                </span>
-            </div>
-
-
-            <!-- Left Offcanvas -->
-            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
-                aria-labelledby="offcanvasExampleLabel">
-                <div class="offcanvas-header">
-                    <h1 class="offcanvas-title" id="offcanvasExampleLabel">Help</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
-                <div class="offcanvas-body">
-                </div>
-            </div>
 
-
-            <!-- Right Offcanvas -->
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                <div class="offcanvas-header">
-                    <h1 class="offcanvas-title" id="offcanvasRightLabel">About</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <h3>This is an application for the prediction of traffic intensity at provided junctions</h3>
-                </div>
-            </div>
-            <!-- Display error message when validation suggests errors -->
-            <div id="errorAlert" *ngIf="toggleErrorString" class="alert alert-danger" role="alert">
-                {{ errorstring }}
             </div>
         </section>
     </div>

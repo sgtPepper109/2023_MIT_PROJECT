@@ -36,3 +36,22 @@ export interface trainingDetails {
 	testRatio: number,
 	algorithm: string
 }
+
+export interface User {
+    name: string,
+    email: string,
+    password: string,
+    role: string,
+    active: boolean
+}
+
+export interface mapDataInstance {
+    name: string,
+    value: number
+}
+
+
+export interface treeInstance {
+    name: string,
+    children?: Array<treeInstance>
+}

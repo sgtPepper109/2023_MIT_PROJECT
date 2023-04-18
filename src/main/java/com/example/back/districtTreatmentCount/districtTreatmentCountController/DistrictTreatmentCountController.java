@@ -1,5 +1,6 @@
 package com.example.back.districtTreatmentCount.districtTreatmentCountController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,12 @@ public class DistrictTreatmentCountController {
 	
 	@GetMapping("/getAllDistrictTreatmentCounts")
 	public ResponseEntity<List<DistrictTreatmentCount>> getAllDistrictTreatmentCount() {
+		System.out.println(districtTreatmentCountService.getAllDistrictTreamentCounts());
 		return new ResponseEntity<List<DistrictTreatmentCount>>(districtTreatmentCountService.getAllDistrictTreamentCounts(), HttpStatus.OK);
 	}
+	
+	@GetMapping("/clearAllDistrictTreatmentCounts")
+	public void clearAllDistrictTreatmentCounts() { districtTreatmentCountService.clearAllDistrictTreatmentCounts(); }
 	
 	@GetMapping("/increaseDistrictTreatmentCount")
 	public ResponseEntity<DistrictTreatmentCount> increaseDistrictTreatmentCount(@RequestParam String districtName) {
@@ -42,11 +47,26 @@ public class DistrictTreatmentCountController {
 			firstTreatment.setDistrictName(districtName);
 			firstTreatment.setNumberOfTreatmentRecommendations(1);
 		} else {
+			districtTreatmentCountService.deleteDistrictTreatmentCount(existing.get(0));
 			firstTreatment.setDistrictName(districtName);
 			firstTreatment.setNumberOfTreatmentRecommendations(existing.get(0).getNumberOfTreatmentRecommendations() + 1);
-			districtTreatmentCountService.deleteDistrictTreatmentCount(firstTreatment);
 		}
 		return new ResponseEntity<DistrictTreatmentCount>(districtTreatmentCountService.addDistrictTreatmentCount(firstTreatment), HttpStatus.OK);
+	}
+	
+	@GetMapping("/decreaseDistrictTreatmentCount")
+	public void decreaseDistrictTreatmentCount(@RequestParam String districtName) {
+		List<DistrictTreatmentCount> existing = districtTreatmentCountService.getDistrictInstances(districtName);
+		if (!existing.isEmpty()) {
+			DistrictTreatmentCount recordExisting = existing.get(0);
+			districtTreatmentCountService.deleteDistrictTreatmentCount(recordExisting);
+			Integer currentNumberOfTreatments = recordExisting.getNumberOfTreatmentRecommendations();
+			if (currentNumberOfTreatments != 1) {
+				currentNumberOfTreatments --;
+				recordExisting.setNumberOfTreatmentRecommendations(currentNumberOfTreatments);
+				districtTreatmentCountService.addDistrictTreatmentCount(recordExisting);
+			}
+		}
 	}
 
 }

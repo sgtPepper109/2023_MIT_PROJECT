@@ -40,23 +40,27 @@ public class DistrictTreatmentCountController {
 	public void clearAllDistrictTreatmentCounts() { districtTreatmentCountService.clearAllDistrictTreatmentCounts(); }
 	
 	@GetMapping("/increaseDistrictTreatmentCount")
-	public ResponseEntity<DistrictTreatmentCount> increaseDistrictTreatmentCount(@RequestParam String districtName) {
-		List<DistrictTreatmentCount> existing = districtTreatmentCountService.getDistrictInstances(districtName);
+	public ResponseEntity<DistrictTreatmentCount> increaseDistrictTreatmentCount(@RequestParam String districtName, @RequestParam Integer startYear, @RequestParam Integer durationYears) {
+		List<DistrictTreatmentCount> existing = districtTreatmentCountService.getDistrictInstances(districtName, startYear);
 		DistrictTreatmentCount firstTreatment = new DistrictTreatmentCount();
 		if (existing.isEmpty()) {
 			firstTreatment.setDistrictName(districtName);
 			firstTreatment.setNumberOfTreatmentRecommendations(1);
+			firstTreatment.setStartYear(startYear);
+			firstTreatment.setDurationYears(durationYears);
 		} else {
 			districtTreatmentCountService.deleteDistrictTreatmentCount(existing.get(0));
 			firstTreatment.setDistrictName(districtName);
 			firstTreatment.setNumberOfTreatmentRecommendations(existing.get(0).getNumberOfTreatmentRecommendations() + 1);
+			firstTreatment.setStartYear(startYear);
+			firstTreatment.setDurationYears(durationYears);
 		}
 		return new ResponseEntity<DistrictTreatmentCount>(districtTreatmentCountService.addDistrictTreatmentCount(firstTreatment), HttpStatus.OK);
 	}
 	
 	@GetMapping("/decreaseDistrictTreatmentCount")
-	public void decreaseDistrictTreatmentCount(@RequestParam String districtName) {
-		List<DistrictTreatmentCount> existing = districtTreatmentCountService.getDistrictInstances(districtName);
+	public void decreaseDistrictTreatmentCount(@RequestParam String districtName, @RequestParam Integer startYear) {
+		List<DistrictTreatmentCount> existing = districtTreatmentCountService.getDistrictInstances(districtName, startYear);
 		if (!existing.isEmpty()) {
 			DistrictTreatmentCount recordExisting = existing.get(0);
 			districtTreatmentCountService.deleteDistrictTreatmentCount(recordExisting);

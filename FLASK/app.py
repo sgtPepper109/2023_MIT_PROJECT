@@ -84,38 +84,41 @@ def getCsvData():
     
     tempdf = df.copy()
 
-    tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
-    tempdf = tempdf.set_index('DateTime')
+    try:
+        tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
+        tempdf = tempdf.set_index('DateTime')
 
-    timeDifference = tempdf.index[1] - tempdf.index[0]
-    timeDifference = str(timeDifference)
-    timeDifference = int(timeDifference.split(' ')[0])
+        timeDifference = tempdf.index[1] - tempdf.index[0]
+        timeDifference = str(timeDifference)
+        timeDifference = int(timeDifference.split(' ')[0])
 
-    if timeDifference == 0:
-        typeOfData = 'Hours'
-    elif timeDifference == 1:
-        typeOfData = 'Days'
-    elif timeDifference == 30:
-        typeOfData = 'Months'
+        if timeDifference == 0:
+            typeOfData = 'Hours'
+        elif timeDifference == 1:
+            typeOfData = 'Days'
+        elif timeDifference == 30:
+            typeOfData = 'Months'
 
-    tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
-    tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
-    tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
-    tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-    
-    if 'ID' in tempdf.columns:
-        tempdf.drop('ID', axis=1, inplace=True)
+        tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
+        tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
+        tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
+        tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
+        
+        if 'ID' in tempdf.columns:
+            tempdf.drop('ID', axis=1, inplace=True)
 
 
-    uniqueJunctionsInDataset = list(np.unique(df.Junction))
+        uniqueJunctionsInDataset = list(np.unique(df.Junction))
 
-    dictionary = dict()
-    if success:
-        dictionary['getCsvData'] = "success"
-        return make_response(dictionary)
-    else:
-        dictionary['getCsvData'] = "fail"
-        return make_response(dictionary)
+        dictionary = dict()
+        if success:
+            dictionary['getCsvData'] = "success"
+            return make_response(dictionary)
+        else:
+            dictionary['getCsvData'] = "fail"
+            return make_response(dictionary)
+    except:
+        return make_response({'getCsvData': 'fail'})
 
 
 @app.route('/getAllUniqueJunctions')
@@ -289,13 +292,23 @@ def predictForHighestAccuracy():
     global highestAccuracyTrained
     global showBy
     global startYear
+    global startYearMap
 
     highestAccuracyAlgorithm = ""
     highestAccuracyTestRatio = float(0)
     highestAccuracyTrained = allTrainedData[junction][algorithm][testRatio]
     plotResponse = highestAccuracyTrained.predict(time, timeFormat, showBy, startYear)
+    startYearMap[junction] = startYear
     return make_response(plotResponse)
     
+
+
+@app.route('/getStartYearMap')
+def getStartYearMap():
+    global startYearMap
+    print(startYearMap)
+    return make_response(startYearMap)
+
 
 
 @app.route("/addToMaster")
@@ -321,10 +334,10 @@ def addToMaster():
         junction = args['junction'].replace("%20", " ")
     masterTrainedAlgorithmAndTestRatioForJunction = (algorithm, testRatio)
     startYear = int(args['startYear'])
-    print(startYear)
 
     findTrained = allTrainedData[junction][algorithm][testRatio]
     masterData[junction] = findTrained
+    startYearMap[junction] = startYear
     # relativeChangeMap[junction] = relativeChange
     return make_response(args)
 
@@ -435,6 +448,7 @@ def getTestingRatioComparisons():
             testRatioComparisons = dict()
             trainedData = dict()
             for j in possibleTestRatios:
+                j = round(j, 3)
                 trained = Train.Train(tempdf, i, junction, j)
                 trainedData[j] = trained
                 testRatioComparisons[j] = trained.accuracyScore
@@ -562,6 +576,7 @@ if __name__ == "__main__":
     global allJunctionsCsvData
     global algorithms
     global startYear
+    global startYearMap
     algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
                 'Lasso Regression', 'Bayesian Ridge Regression', 'Decision Tree Regression', 
                 'K Nearest Neighbors Regression', 'Support Vector Regression'
@@ -569,6 +584,7 @@ if __name__ == "__main__":
     ]
 
     startYear: int = 0
+    startYearMap = dict()
     showBy: str = ""
     highestAccuracyAlgorithm = ""
     highestAccuracyTestRatio = float(0)
@@ -592,6 +608,7 @@ if __name__ == "__main__":
         getJunctionRelatedDataFromDB()
         app.run()
     elif (sys.argv[1] == 'PROD'):
+        # will work only after spring deployment is done
         springUrl = config.spring_prod_url
         getJunctionRelatedDataFromDB()
         app.run(debug=True, host='0.0.0.0')
