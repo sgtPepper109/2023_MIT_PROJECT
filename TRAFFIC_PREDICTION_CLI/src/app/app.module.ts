@@ -25,9 +25,9 @@ import { MatGridListModule } from '@angular/material/grid-list'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatToolbarModule } from '@angular/material/toolbar'
-import { MatMenuModule } from  '@angular/material/menu'
+import { MatMenuModule } from '@angular/material/menu'
 import { MatTabsModule } from '@angular/material/tabs'
-import { MatSidenavModule }  from '@angular/material/sidenav'
+import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatSelectModule } from '@angular/material/select'
 import { MatListModule } from '@angular/material/list'
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'
@@ -44,6 +44,13 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RegisterComponent } from './register/register.component';
 import { NgxEchartsModule } from 'ngx-echarts'
+import { MatDialogModule } from '@angular/material/dialog';
+import { DatasetDescriptionComponent } from './dialogs/dataset-description/dataset-description.component';
+import { ModelSummaryComponent } from './dialogs/model-summary/model-summary.component';
+import { AddToMasterDialogComponent } from './dialogs/add-to-master-dialog/add-to-master-dialog.component';
+import { RatingInfoComponent } from './dialogs/rating-info/rating-info.component';
+import { ClearAppendDialogComponent } from './dialogs/clear-append-dialog/clear-append-dialog.component';
+
 
 @NgModule({
 	declarations: [
@@ -53,6 +60,11 @@ import { NgxEchartsModule } from 'ngx-echarts'
 		AdminInputsComponent,
 		TrainingComponent,
 		RegisterComponent,
+		DatasetDescriptionComponent,
+		ModelSummaryComponent,
+		AddToMasterDialogComponent,
+  RatingInfoComponent,
+  ClearAppendDialogComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -90,17 +102,12 @@ import { NgxEchartsModule } from 'ngx-echarts'
 		MatTreeModule,
 		MatRadioModule,
 		MatCheckboxModule,
+		MatDialogModule,
 		NgxEchartsModule.forRoot({
 			echarts: () => import('echarts')
 		})
 	],
 	providers: [
-		{
-			provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-			useValue: {
-				duration: 2500
-			}
-		},
 		PropService,
 		httpInterceptorProviders,
 		AppConfiguration, {
@@ -116,5 +123,5 @@ export class AppModule { }
 
 export function AppConfigurationFactory(
 	appConfig: AppConfiguration) {
-		return () => appConfig.ensureInit();
-	}
+	return () => appConfig.ensureInit();
+}

@@ -7,7 +7,6 @@ import { HttpClient } from '@angular/common/http';
 export class CsvInstanceService {
 	constructor(private http: HttpClient) { }
 
-
 	public storeCsvData(csvData: any) {
 		return this.http.post('csvInstance/addCsvInstances', csvData)
 	}

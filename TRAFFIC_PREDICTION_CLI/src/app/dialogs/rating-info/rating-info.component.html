@@ -1,0 +1,101 @@
+<h2 mat-dialog-title>Rating Guide</h2>
+<hr>
+<mat-dialog-content class="mat-typography">
+    <div>
+        <table aria-label="starsinfo" class="table table-bordered border-danger">
+            <thead>
+                <tr>
+                    <th scope="col">Stars</th>
+                    <th scope="col">Rating</th>
+                    <th scope="col">Indication</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[0]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[0]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[0]}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[1]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[1]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[1]}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[2]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[2]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[2]}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[3]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[3]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[3]}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[4]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[4]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[4]}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[5]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[5]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[5]}}</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <mat-icon *ngFor="let icon of starsTableDesc[6]">{{
+                            icon }}</mat-icon>
+                    </th>
+                    <td>
+                        <p>{{ratings[6]}} / 5</p>
+                    </td>
+                    <td>
+                        <p>{{starsTableMeaning[6]}}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</mat-dialog-content>

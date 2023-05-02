@@ -86,7 +86,7 @@
 
 
 
-        <div [hidden]="predictionsExist" id="maincontainer2" class="
+        <div *ngIf="!predictionsExist" id="maincontainer2" class="
                 container
                 my-5 
                 bg-primary 
@@ -107,12 +107,12 @@
 
 
 
-        <mat-stepper [hidden]="!predictionsExist" orientation="horizontal" [linear]="isLinear" #stepper>
+        <mat-stepper *ngIf="predictionsExist" orientation="horizontal" [linear]="isLinear" #stepper>
             <mat-step>
                 <ng-template matStepLabel>See Predictions</ng-template>
                 <mat-progress-bar *ngIf="!predictionsReady" mode="indeterminate"></mat-progress-bar>
                 <div *ngIf="predictionsReady">
-                    <mat-card *ngIf="!toggleFuturePredictionsTable">
+                    <mat-card>
                         <nav id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
                             aria-labelledby="navHeading">
                             <ul class="nav nav-pills">
@@ -128,29 +128,35 @@
                                                     junction }}</option>
                                             </select>
                                         </div>
-                                        <div class="col-5">
-                                            <h4>for duration of <strong>{{ duration }} {{ time }}</strong></h4>
+                                        <div class="col">
+                                            <h4>
+                                                from
+                                                <strong>
+                                                    {{ startYear }} to {{ startYear + 2 }}
+                                                </strong>
+                                            </h4>
                                         </div>
                                     </div>
                                 </div>
                             </ul>
-                            <select style="width: 150px" class="form-select" [(ngModel)]="showBy" (change)="predict()"
-                                aria-label="Default select example">
-                                <option selected>Weeks</option>
-                                <option value="Table">Months</option>
-                            </select>
                             <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption"
                                 (change)="changePredictionsOption()" aria-label="Default select example">
                                 <option selected>Line Plot</option>
                                 <option value="Table">Table</option>
                             </select>
                         </nav>
-                        <mat-card-content *ngIf="resultTableReady">
+                        <mat-card-content>
 
-                            <div class="container">
+                            <div>
                                 <div class="row">
                                     <div class="col">
-                                        <div>
+                                        <div *ngIf="predictionsOption == 'Line Plot' && resultTableReady">
+                                            <div>
+                                                <div echarts [options]="mapOptionFuturePredictions"
+                                                    class="demo-chart"></div>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="predictionsOption == 'Table' && resultTableReady">
                                             <table class="table table-bordered border table-striped"
                                                 aria-describedby="table2-desc">
                                                 <thead>
@@ -174,6 +180,22 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
+                                            <!--
+                                                    ** Paginator for Prediction table **
+                                                -->
+                                            <div id="paginator2" class="justify-content-end btn-group" role="group"
+                                                aria-label="Button group with nested dropdown">
+                                                <button type="button" [ngClass]="classForPreviousButtonResult"
+                                                    (click)="previousResult()"
+                                                    class="btn btn-outline-secondary">{{'\u21E6'}}</button>
+                                                <button type="button" id="paginator2indicator"
+                                                    class="btn btn-outline-secondary" disabled>{{indexResult}} -
+                                                    {{indexResult + 10}} of
+                                                    {{numberOfRecordsResult}}</button>
+                                                <button type="button" [ngClass]="classForNextButtonResult"
+                                                    (click)="nextResult()"
+                                                    class="btn btn-outline-secondary">{{'\u21E8'}}</button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col">
@@ -183,110 +205,50 @@
                                                     <div class="collapse show" id="collapseStarsTable">
                                                         <div>
                                                             <div>
-                                                                <button mat-fab extended color="warn">
+                                                                <button mat-fab extended color="warn" (click)="openRatingInfoDialog()">
                                                                     <mat-icon
                                                                         *ngFor="let icon of starsTableDesc[importanceLevel]">{{
                                                                         icon }}</mat-icon>
                                                                 </button>
-                                                                <button mat-icon-button type="button"
-                                                                    data-bs-toggle="collapse"
-                                                                    data-bs-target="#collapseExample"
-                                                                    aria-expanded="false"
-                                                                    aria-controls="collapseExample">
+                                                                <button mat-button color="warn" (click)="openRatingInfoDialog()"
+                                                                    >Rating: {{
+                                                                    ratingOutOfFive }} / 5</button>
+                                                                <button mat-icon-button type="button" (click)="openRatingInfoDialog()"
+                                                                >
                                                                     <mat-icon>info</mat-icon>
                                                                 </button>
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <h1>{{starsTableMeaning[importanceLevel]}}</h1>
-                                                        </div>
-                                                        <div class="collapse" id="collapseExample"
-                                                            style="padding-top: 10px">
-                                                            <table class="table table-bordered border-danger">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th scope="col">Stars</th>
-                                                                        <th scope="col">Meaning</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[0]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[0]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[1]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[1]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[2]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[2]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[3]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[3]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[4]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[4]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[5]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[5]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th scope="row">
-                                                                            <mat-icon
-                                                                                *ngFor="let icon of starsTableDesc[6]">{{
-                                                                                icon }}</mat-icon>
-                                                                        </th>
-                                                                        <td>
-                                                                            <p>{{starsTableMeaning[6]}}</p>
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
+                                                            <div>
+                                                                <button mat-button color="primary"
+                                                                    *ngIf="alreadyRecommended">
+                                                                    <mat-icon>check</mat-icon>
+                                                                    {{ this.junctionChoice }}: Already recommended for {{startYear}} - {{startYear
+                                                                    + 2}}
+                                                                </button>
+                                                            </div>
+                                                            <div>
+                                                                <button mat-button color="warn"
+                                                                    *ngIf="!alreadyRecommended">
+                                                                    <mat-icon>close</mat-icon>
+                                                                    Treatment recommendation for {{startYear}} - {{startYear +
+                                                                    2}} not enqueued
+                                                                </button>
+                                                            </div>
+                                                            <mat-divider></mat-divider>
+                                                            <h2>
+                                                                {{starsTableMeaning[importanceLevel][0]}}
+                                                            </h2>
+                                                            <h2>
+                                                                {{starsTableMeaning[importanceLevel][1]}}
+                                                            </h2>
                                                         </div>
                                                     </div>
                                                     <div>
                                                         <p><mat-checkbox [(ngModel)]="checkRecommendation"
-                                                                color="primary" [disabled]="disableCheck">Recommend
+                                                                color="primary"
+                                                                [disabled]="alreadyRecommended">Recommend
                                                                 treatment for ({{ this.junctionChoice }}, {{
                                                                 this.currentDistrict }}
                                                                 district)? </mat-checkbox></p>
@@ -294,7 +256,7 @@
                                                     <div>
                                                         <span>
                                                             <button mat-raised-button
-                                                                [disabled]="disableCheck || !checkRecommendation"
+                                                                [disabled]="alreadyRecommended || !checkRecommendation"
                                                                 (click)="enqueueRecommendation()"><mat-icon>queue</mat-icon>Enqueue
                                                                 treatment
                                                                 recommendation</button>
@@ -307,11 +269,6 @@
                                                     </div>
                                                     <div>
                                                         <div style="padding-top: 10px">
-                                                            <span>
-                                                                <button mat-raised-button data-bs-toggle="modal"
-                                                                    data-bs-target="#exampleModal"><mat-icon>delete_sweep</mat-icon>Clear
-                                                                    All Recommendations</button>
-                                                            </span>
                                                             <span style="padding-left: 10px">
                                                                 <button mat-raised-button color="primary"
                                                                     (click)="downloadPredictions()"><mat-icon>save</mat-icon>Download
@@ -320,31 +277,6 @@
                                                         </div>
                                                     </div>
                                                 </section>
-                                                <div class="modal fade" id="exampleModal" tabindex="-1"
-                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">
-                                                                    Clear All Recommendations
-                                                                </h1>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                Are you sure you want to clear all recommendations?
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" mat-raised-button color="warn"
-                                                                    data-bs-dismiss="modal">Close</button>
-                                                                <button (click)="clearAllRecommendations()"
-                                                                    type="button" mat-raised-button color="primary"
-                                                                    data-bs-dismiss="modal">Save
-                                                                    changes</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -352,246 +284,10 @@
                             </div>
 
 
-                            <!--
-                                    ** Paginator for Prediction table **
-                                -->
-                            <div id="paginator2" class="justify-content-end btn-group" role="group"
-                                aria-label="Button group with nested dropdown">
-                                <button type="button" [ngClass]="classForPreviousButtonResult"
-                                    (click)="previousResult()" class="btn btn-outline-secondary">{{'\u21E6'}}</button>
-                                <button type="button" id="paginator2indicator" class="btn btn-outline-secondary"
-                                    disabled>{{indexResult}} - {{indexResult + 10}} of
-                                    {{numberOfRecordsResult}}</button>
-                                <button type="button" [ngClass]="classForNextButtonResult" (click)="nextResult()"
-                                    class="btn btn-outline-secondary">{{'\u21E8'}}</button>
-                            </div>
                         </mat-card-content>
                     </mat-card>
                 </div>
 
-                <!--
-                        ** Vehicles vs DateTime chart for provided junction number and number of days **
-                    -->
-                <mat-card [hidden]="!toggleFuturePredictionsTable">
-                    <nav *ngIf="predictionsReady" id="navbar-example3" class="navbar bg-body-tertiary px-3 mb-3"
-                        aria-labelledby="navHeading">
-                        <ul class="nav nav-pills">
-                            <div class="container">
-                                <div class="row">
-                                    <div style="width: 260px" class="col">
-                                        <h4>Result for Junction</h4>
-                                    </div>
-                                    <div class="col">
-                                        <select style="width: 200px" class="form-select" (change)="predict()"
-                                            [(ngModel)]="junctionChoice" aria-label="Default select example">
-                                            <option *ngFor="let junction of junctions" [value]="junction">{{ junction }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-5">
-                                        <h4>for duration of <strong>{{ duration }} {{ time }}</strong></h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </ul>
-                        <select style="float:right; width: 150px" class="form-select" [(ngModel)]="showBy"
-                            (change)="predict()" aria-label="Default select example">
-                            <option selected>Weeks</option>
-                            <option value="Table">Months</option>
-                        </select>
-                        <select style="width: 150px" class="form-select" [(ngModel)]="predictionsOption"
-                            (change)="changePredictionsOption()" aria-label="Default select example">
-                            <option selected>Line Plot</option>
-                            <option value="Table">Table</option>
-                        </select>
-                    </nav>
-                    <mat-card-content [hidden]="!predictionsReady">
-                        <div>
-                            <div class="row">
-                                <div class="col">
-                                    <div [hidden]="futurePredictionsChartHidden">
-                                        <div>
-                                            <canvas style="height: 200px" id="myChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div>
-                                        <div class="alert alert-{{alert}}">
-                                            <section>
-                                                <div class="collapse show" id="collapseStarsTable">
-                                                    <div>
-                                                        <div>
-                                                            <button mat-fab extended color="warn">
-                                                                <mat-icon
-                                                                    *ngFor="let icon of starsTableDesc[importanceLevel]">{{
-                                                                    icon }}</mat-icon>
-                                                            </button>
-                                                            <button mat-icon-button type="button"
-                                                                data-bs-toggle="collapse"
-                                                                data-bs-target="#collapseExample" aria-expanded="false"
-                                                                aria-controls="collapseExample">
-                                                                <mat-icon>info</mat-icon>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <h1>{{starsTableMeaning[importanceLevel]}}</h1>
-                                                    </div>
-                                                    <div class="collapse" id="collapseExample"
-                                                        style="padding-top: 10px">
-                                                        <table class="table table-bordered border-danger">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th scope="col">Stars</th>
-                                                                    <th scope="col">Meaning</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[0]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[0]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[1]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[1]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[2]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[2]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[3]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[3]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[4]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[4]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[5]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[5]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="row">
-                                                                        <mat-icon
-                                                                            *ngFor="let icon of starsTableDesc[6]">{{
-                                                                            icon }}</mat-icon>
-                                                                    </th>
-                                                                    <td>
-                                                                        <p>{{starsTableMeaning[6]}}</p>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p><mat-checkbox [(ngModel)]="checkRecommendation" color="primary"
-                                                            [disabled]="disableCheck">Recommend
-                                                            treatment for ({{ this.junctionChoice }}, {{
-                                                            this.currentDistrict }}
-                                                            district)? </mat-checkbox></p>
-                                                </div>
-                                                <div>
-                                                    <span>
-                                                        <button mat-raised-button
-                                                            [disabled]="disableCheck || !checkRecommendation"
-                                                            (click)="enqueueRecommendation()"><mat-icon>queue</mat-icon>Enqueue
-                                                            treatment
-                                                            recommendation</button>
-                                                    </span>
-                                                    <span style="padding-left: 10px">
-                                                        <button mat-raised-button [disabled]="alert=='danger'"
-                                                            (click)="dequeueRecommendation()"><mat-icon>remove_circle_outline</mat-icon>Dequeue
-                                                            Recommendation</button>
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <div style="padding-top: 10px">
-                                                        <span>
-                                                            <button mat-raised-button data-bs-toggle="modal"
-                                                                data-bs-target="#exampleModal"><mat-icon>delete_sweep</mat-icon>Clear
-                                                                All Recommendations</button>
-                                                        </span>
-                                                        <span style="padding-left: 10px">
-                                                            <button mat-raised-button color="primary"
-                                                                (click)="downloadPredictions()"><mat-icon>save</mat-icon>Download
-                                                                Predictions as csv file</button>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </section>
-                                            <div class="modal fade" id="exampleModal" tabindex="-1"
-                                                aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">
-                                                                Clear All Recommendations
-                                                            </h1>
-                                                            <button type="button" class="btn-close"
-                                                                data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Are you sure you want to clear all recommendations?
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" mat-raised-button color="warn"
-                                                                data-bs-dismiss="modal">Close</button>
-                                                            <button (click)="clearAllRecommendations()" type="button"
-                                                                mat-raised-button color="primary"
-                                                                data-bs-dismiss="modal">Save
-                                                                changes</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </mat-card-content>
-                </mat-card>
             </mat-step>
 
 
@@ -636,14 +332,15 @@
                         <div class="card-body">
                             <div *ngIf="!showGeoMap">
                                 <div>
-                                    <div class="card">
-                                        <div id="main" echarts [options]="mapOption" class="demo-chart"
+                                    <div class="card text-center">
+                                        <div id="main" echarts [options]="mapOption"
+                                            style="width: 900px; height: 600px;" class="demo-chart"
                                             (chartClick)="onChartClick($event)"></div>
                                     </div>
                                 </div>
                             </div>
                             <div *ngIf="showGeoMap">
-                                <table class="table">
+                                <table aria-label="starsinfo()" class="table">
                                     <thead>
                                         <tr>
                                             <th scope="col">District</th>
@@ -676,7 +373,7 @@
                                     </thead>
                                     <tbody>
                                         <tr *ngFor="let instance of districtClickInfoTable">
-                                            <th>{{ instance.junctionName }}</th>
+                                            <td>{{ instance.junctionName }}</td>
                                             <td>{{ instance.districtName }}</td>
                                             <td>{{ instance.startYear }}</td>
                                             <td>{{ instance.durationYears }}</td>
@@ -685,26 +382,8 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- <div class="card-body">
-                            <h3>
-                                <strong>
-                                    Predictions of {{ inputJunction }} for next {{ time }} {{ timeFormat }}
-                                </strong>
-                            </h3>
-                            <p id="table2-desc">
-                                for {{ algorithmHighestAccuracy }} and {{ testRatioHighestAccuracy }}
-                            </p>
-                            <h5>
-                                After training process, the trained model having the combination of algorithm
-                                and testing ratio with highest accuracy is chosen and predictions of chosen
-                                junction with this trained model for {{ time }} {{ timeFormat }} are shown
-                            </h5>
-                        </div> -->
                     </div>
                 </div>
-
-
-
 
             </mat-step>
 
@@ -738,6 +417,7 @@
                             <div>
                                 <div>
                                     <div>
+                                        <div echarts [options]="mapOptionAccuracyPie" class="demo-chart"></div>
                                         <canvas width="600" height="600" id="accuracyPie"></canvas>
                                     </div>
                                 </div>

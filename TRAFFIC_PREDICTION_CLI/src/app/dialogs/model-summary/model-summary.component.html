@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Model Summary</h2>
+<hr>
+<mat-dialog-content class="mat-typography">
+    <div *ngIf="modelSummaryReady">
+        <br />
+
+        <div>
+            <table class="table table-bordered" aria-describedby="tabe1-desc">
+                <thead>
+                    <tr>
+                        <th scope="col">Property</th>
+                        <th scope="col">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of modelSummary">
+                        <td><strong>{{ record.Property }}</strong></td>
+                        <td>{{ record.Value }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</mat-dialog-content>

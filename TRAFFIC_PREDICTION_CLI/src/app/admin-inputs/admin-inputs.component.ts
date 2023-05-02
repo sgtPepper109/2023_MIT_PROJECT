@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FlaskService } from '../services/flaskService/flask.service';
 import { JunctionSpecificsService } from '../services/db/junctionSpecifics/junction-specifics.service';
 import { Router } from '@angular/router';
-import { JunctionDistrictMap, JunctionRoadwayWidthMap, RoadwayWidthMaxVehiclesMap, JunctionInformation } from '../interfaces/all-interfaces';
+import { JunctionDistrictMap, JunctionRoadwayWidthMap, RoadwayWidthMaxPcuMap, JunctionInformation } from '../interfaces/all-interfaces';
 import { NgxCsvParser } from 'ngx-csv-parser';
 import { PropService } from '../services/propService/prop.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -43,7 +43,7 @@ export class AdminInputsComponent implements OnInit {
 	allJunctionsInformation: Array<JunctionInformation> = []
 	allJunctionDistrictMaps: Array<JunctionDistrictMap> = []
 	allJunctionRoadwayWidthMaps: Array<JunctionRoadwayWidthMap> = []
-	allRoadwayWidthMaxVehiclesMaps: Array<RoadwayWidthMaxVehiclesMap> = []
+	allRoadwayWidthMaxVehiclesMaps: Array<RoadwayWidthMaxPcuMap> = []
 	allDistricts: Array<string> = []
 	allRoadwayWidths: Array<number> = []
 
@@ -57,17 +57,6 @@ export class AdminInputsComponent implements OnInit {
 					next: (response) => {
 						for (let element of Object.values(response)) {
 							this.allDistricts.push(element.name)
-						}
-					},
-					error: (error: HttpErrorResponse) => {
-						alert(error.message)
-					}
-				})
-
-				this.junctionSpecificsService.getAllRoadwayWidths().subscribe({
-					next: (response) => {
-						for (let element of Object.values(response)) {
-							this.allRoadwayWidths.push(element.roadway_width)
 						}
 					},
 					error: (error: HttpErrorResponse) => {
@@ -176,9 +165,9 @@ export class AdminInputsComponent implements OnInit {
 					roadwayWidth: this.newRoadwayWidth
 				}
 
-				let newRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxVehiclesMap = {
+				let newRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxPcuMap = {
 					roadwayWidth: this.newRoadwayWidth,
-					maxVehicles: this.newMaxVehicles
+					maxPcu: this.newMaxVehicles
 				}
 
 
@@ -193,12 +182,9 @@ export class AdminInputsComponent implements OnInit {
 								this.junctionSpecificsService.addSingleRoadwayWidthMaxVehiclesMap(newRoadwayWidthMaxVehiclesMap).subscribe({
 									next: (response) => {
 										this.allJunctionsInformation.push(newJunctionInformation)
-										// this._snackBar.open('Added Record Successfully', '\u2716')
-										this.toggleSuccessToast = true
-										this.errorString = 'Added Record Successfully'
-										setTimeout(() => {
-											this.toggleSuccessToast = false
-										}, 3000);
+										this._snackBar.open('Added Record Successfully', '\u2716', {
+											duration: 3000
+										})
 									},
 									error: (error: HttpErrorResponse) => {
 										alert(error.message)
@@ -215,19 +201,15 @@ export class AdminInputsComponent implements OnInit {
 					}
 				})
 			} else {
-				this.toggleWarningToast = true
-				this.errorString = 'Note: Information too long'
-				setTimeout(() => {
-					this.toggleWarningToast = false
-				}, 3000);
+				this._snackBar.open('Note: Information too long', '\u2716', {
+					duration: 3000
+				})
 			}
 
 		} else {
-			this.toggleWarningToast = true
-			this.errorString = 'Note: All Fields are required'
-			setTimeout(() => {
-				this.toggleWarningToast = false
-			}, 3000);
+			this._snackBar.open('Note: All Fields are required', '\u2716', {
+				duration: 3000
+			})
 		}
 	}
 
@@ -235,13 +217,6 @@ export class AdminInputsComponent implements OnInit {
 	update() {
 
 		if (this.updatedDistrict != "" && (this.updatedRoadwayWidth != null && this.updatedRoadwayWidth != 0) && (this.updatedMaxVehicles != null && this.updatedMaxVehicles != 0)) {
-
-			let updatedJunctionInformation: JunctionInformation = {
-				junctionName: this.recordToBeEdited.junctionName,
-				district: this.updatedDistrict,
-				roadwayWidth: this.updatedRoadwayWidth,
-				maxVehicles: this.updatedMaxVehicles
-			}
 
 			let updatedJunctionDistrictMap: JunctionDistrictMap = {
 				junctionName: this.recordToBeEdited.junctionName,
@@ -253,9 +228,9 @@ export class AdminInputsComponent implements OnInit {
 				roadwayWidth: this.updatedRoadwayWidth
 			}
 
-			let updatedRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxVehiclesMap = {
+			let updatedRoadwayWidthMaxVehiclesMap: RoadwayWidthMaxPcuMap = {
 				roadwayWidth: this.updatedRoadwayWidth,
-				maxVehicles: this.updatedMaxVehicles
+				maxPcu: this.updatedMaxVehicles
 			}
 
 			this.junctionSpecificsService.updateJunctionDistrictMap(updatedJunctionDistrictMap).subscribe({
@@ -265,12 +240,9 @@ export class AdminInputsComponent implements OnInit {
 							this.junctionSpecificsService.updateRoadwayWidthMaxVehiclesMap(updatedRoadwayWidthMaxVehiclesMap).subscribe({
 								next: (response) => {
 									this.getAllJunctionSpecificDataFromDB()
-									// this._snackBar.open('Updated Fields Successfully', '\u2716')
-									this.toggleSuccessToast = true
-									this.errorString = 'Updated Fields Successfully'
-									setTimeout(() => {
-										this.toggleSuccessToast = false
-									}, 3000);
+									this._snackBar.open('Updated Fields Successfully', '\u2716', {
+										duration: 3000
+									})
 								},
 								error: (error: HttpErrorResponse) => {
 									alert(error.message)
@@ -288,11 +260,9 @@ export class AdminInputsComponent implements OnInit {
 			})
 
 		} else {
-			this.toggleWarningToast = true
-			this.errorString = 'Note: All Fields are required'
-			setTimeout(() => {
-				this.toggleWarningToast = false
-			}, 3000);
+			this._snackBar.open('Note: All Fields are required', '\u2716', {
+				duration: 3000
+			})
 		}
 	}
 
@@ -306,12 +276,10 @@ export class AdminInputsComponent implements OnInit {
 							this.junctionSpecificsService.deleteRoadwayWidthMaxVehiclesMap(record.roadwayWidth).subscribe({
 								next: (response) => {
 									this.allJunctionsInformation = []
+									this._snackBar.open('Note: Deleted Record SuccessFully', '\u2716', {
+										duration: 3000
+									})
 									resolve('deletedFromDB')
-									this.toggleWarningToast = true
-									this.errorString = 'Deleted Record Successfully'
-									setTimeout(() => {
-										this.toggleWarningToast = false
-									}, 3000);
 								},
 								error: (error: HttpErrorResponse) => {
 									alert(error.message)
@@ -349,11 +317,9 @@ export class AdminInputsComponent implements OnInit {
 				}
 			})
 		} else {
-			this.toggleWarningToast = true
-			this.errorString = "Note: Incorrect file type (Please choose a .csv file"
-			setTimeout(() => {
-				this.toggleWarningToast = false
-			}, 3000);
+			this._snackBar.open("Note: Incorrect file type (Please choose a .csv file", '\u2716', {
+				duration: 3000
+			})
 		}
 	}
 

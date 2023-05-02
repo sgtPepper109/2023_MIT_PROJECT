@@ -41,16 +41,31 @@
 # see if prediction chart is working properly
 # add more regression algorithms
 # add services in angular
+# *****scrolling****
+# no records found on predictions page
+# table option in testRatiosComparison
+# optimize file change listener
+# remove self from python class
+# prediction table correct all format
+# training page add to master modal
+# add to master modal
+# recommendation categories
+# predictions threshold and max capacity
+# mat-step predictions
+# increase district treatment count
+# sonarlint flask
+# ridge regression alpha value
+# recommendation
+# add to master years option
+
+
 
 change dateTime format
 see about time in dateTime column
 remove unused part of code
 refactor code with comments
-no records found on predictions page
 see about 0.30000000004 and same for 0.7000...
-*****scrolling****
 improve paginator options
-table option in testRatiosComparison
 repair paginators
 responsive
 clean java code
@@ -59,22 +74,11 @@ help and about page
 add tooltips
 change vehicles to pcu
 do something about csvInstance database
-optimize file change listener
 clean code
-remove self from python class
-# recommendation
 user administration
-prediction table correct all format
-# ridge regression alpha value
 modify database tables with id column
-training page add to master modal
-# add to master years option
-add to master modal
-recommendation categories
-predictions threshold and max capacity
 vehicles per hour per lane or roadway (or) cars per hour
-repair paginators
-mat-step predictions
-
 change districts name
-increase district treatment count
+sonarlint svr
+sonarlint cli
+sonarqube

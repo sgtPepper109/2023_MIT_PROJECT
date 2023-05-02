@@ -19,23 +19,23 @@ export class NoopInterceptor implements HttpInterceptor {
 
 			switch (environment.name) {
 				case 'dev':
-				this.trafficPredApiUrl = 'http://localhost:8080/';
-				clonedRequest = request.clone({
-					url: this.trafficPredApiUrl + request.url
-				});
-				break;
+					this.trafficPredApiUrl = 'http://localhost:8080/';
+					clonedRequest = request.clone({
+						url: this.trafficPredApiUrl + request.url
+					});
+					break;
 
 				case 'production':
-				this.trafficPredApiUrl = '/trafficsvr-1.0.0/';
-				
-				clonedRequest = request.clone({
-					url: this.appConfig.restTrafficProdUrl + this.trafficPredApiUrl + request.url
-				});
-				break;
+					this.trafficPredApiUrl = '/trafficsvr-1.0.0/';
+
+					clonedRequest = request.clone({
+						url: this.appConfig.restTrafficProdUrl + this.trafficPredApiUrl + request.url
+					});
+					break;
 			}
 			return next.handle(clonedRequest);
 		}
-	
+
 	}
 
 }

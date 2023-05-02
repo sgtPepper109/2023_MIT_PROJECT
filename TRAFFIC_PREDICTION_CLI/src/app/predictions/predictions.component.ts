@@ -2,22 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { PropService } from '../services/propService/prop.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { Chart, TimeScale } from 'chart.js/auto';
 import { ngxCsv } from 'ngx-csv';
 import { Router } from '@angular/router';
-import { tableRecord } from '../interfaces/all-interfaces';
+import { tableRecord, mapDataInstance } from '../interfaces/all-interfaces';
 import { JunctionSpecificsService } from '../services/db/junctionSpecifics/junction-specifics.service';
 import { ThemePalette } from '@angular/material/core';
 import { ProgressBarMode } from '@angular/material/progress-bar';
 import { RecommendedService } from '../services/db/recommended/recommended.service';
 import { DistrictTreatmentCountService } from '../services/db/districtTreatmentCount/district-treatment-count.service'
 import * as echarts from 'echarts'
-import { mapDataInstance } from '../interfaces/all-interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RatingInfoComponent } from '../dialogs/rating-info/rating-info.component';
+import { MatDialog } from '@angular/material/dialog';
 
-declare var require: any
-var geoJsonData: any = require('src/assets/maharashtra.temp.geojson.json')
-
+declare let require: any
+let geoJsonData: any = require('src/assets/maharashtra.temp.geojson.json')
 
 @Component({
 	selector: 'app-page2',
@@ -32,49 +31,16 @@ export class PredictionsComponent implements OnInit {
 		private junctionSpecificsService: JunctionSpecificsService,
 		private recommendedService: RecommendedService,
 		private districtTreatmentCountService: DistrictTreatmentCountService,
-		private _snackbar: MatSnackBar
-	) {
-	}
+		private _snackbar: MatSnackBar,
+		public dialog: MatDialog
+	) {}
 
-
+	ratingOutOfFive: number =  0
+	alreadyRecommended: boolean = false
+	mapOptionFuturePredictions: echarts.EChartsOption = {}
+	mapOptionAccuracyPie: echarts.EChartsOption = {}
 	mapData: Array<mapDataInstance> = [
-		{ name: 'Ahmednagar', value: 0},
-		{ name: 'Amravati', value: 0 },
-		{ name: 'Bhandara', value: 0 },
-		{ name: 'Beed', value: 0 },
-		{ name: 'Dhule', value: 0 },
-		{ name: 'Jalgaon', value: 0 },
-		{ name: 'Kolhapur', value: 0 },
-		{ name: 'Nanded', value: 0 },
-		{ name: 'Nandurbar', value: 0 },
-		{ name: 'Nashik', value: 0 },
-		{ name: 'Osmanabad', value: 0 },
-		{ name: 'Pune', value: 0 },
-		{ name: 'Raigad', value: 0 },
-		{ name: 'Ratnagiri', value: 0 },
-		{ name: 'Sangli', value: 0 },
-		{ name: 'Sindhudurg', value: 0 },
-		{ name: 'Solapur', value: 0 },
-		{ name: 'Thane', value: 0 },
-		{ name: 'Yavatmal', value: 0 },
-		{ name: 'Latur', value: 0 },
-		{ name: 'Akola', value: 0 },
-		{ name: 'Aurangabad', value: 0 },
-		{ name: 'Buldhana', value: 0 },
-		{ name: 'Chandrapur', value: 0 },
-		{ name: 'Gadchiroli', value: 0 },
-		{ name: 'Gondia', value: 0 },
-		{ name: 'Mumbai Suburban', value: 0 },
-		{ name: 'Hingoli', value: 0 },
-		{ name: 'Jalna', value: 0 },
-		{ name: 'Nagpur', value: 0 },
-		{ name: 'Parbhani', value: 0 },
-		{ name: 'Satara', value: 0 },
-		{ name: 'Wardha', value: 0 },
-		{ name: 'Washim', value: 0 },
-	]
-	emptyMapData: Array<mapDataInstance> = [
-		{ name: 'Ahmednagar', value: 0},
+		{ name: 'Ahmednagar', value: 0 },
 		{ name: 'Amravati', value: 0 },
 		{ name: 'Bhandara', value: 0 },
 		{ name: 'Beed', value: 0 },
@@ -124,9 +90,10 @@ export class PredictionsComponent implements OnInit {
 
 
 	mapFunction() {
-		console.log('this.mapData', this.mapData)
 		echarts.registerMap('USA', geoJsonData);
 		this.mapOption = {
+			width: 900,
+			height: 600,
 			title: {
 				text: 'Traffic Intensity Prediction and Recommendation',
 				subtext: 'Maharashtra traffic congestion treatment recommendation counts',
@@ -188,25 +155,25 @@ export class PredictionsComponent implements OnInit {
 	starsTableMeaning: Array<any> = [
 		// no congestion
 		// no treatment needed
-		["No congestion, No Treatment Needed"],
+		["No congestion", "No Treatment Needed"],
 		// congestion level: low (acceptable/tolerable)
 		// treatment not recommended
-		["Congestion level: Low (acceptable/tolerable), Nreatment Not Recommended"],
+		["Congestion level: Low (acceptable/tolerable)", "Treatment Not Recommended"],
 		// congestion level: medium (acceptable/tolerable)
 		// attention level for treatment: important
-		["Congestion level: Medium (acceptable/tolerable), Attention level for treatment: Important"],
+		["Congestion level: Medium (acceptable/tolerable)", "Attention level for treatment: Important"],
 		// congestion level: increased (hardly acceptable/tolerable)
 		// attention level for treatment: fairly important
-		["Congestion level: Increased (hardly acceptable/tolerable), Attention level for treatment: Fairly Important"],
+		["Congestion level: Increased (hardly acceptable/tolerable)", "Attention level for treatment: Fairly Important"],
 		// congestion level: high (unacceptable/intolerable)
 		// attention level for treatment: highly important
-		["Congestion level: High (unacceptable/intolerable), Attention level for treatment: Highly Important"],
+		["Congestion level: High (unacceptable/intolerable)", "Attention level for treatment: Highly Important"],
 		// congestion level: very high (unnacceptable/intolerable)
 		// attention level for treatment: extremely important
-		["Congestion level: Very High (unnacceptable/intolerable), Attention level for treatment: Extremely Important"],
+		["Congestion level: Very High (unnacceptable/intolerable)", "Attention level for treatment: Extremely Important"],
 		// congestion level: extreme (unacceptable/intolerable)
 		// attention level for treatment: no opinion
-		["Congestion level: Extreme (unacceptable/intolerable), Attention level for treatment: No Opinion"]
+		["Congestion level: Extreme (unacceptable/intolerable)", "Attention level for treatment: No Opinion"]
 
 	]
 	starsTableDesc: Array<any> = [
@@ -221,7 +188,6 @@ export class PredictionsComponent implements OnInit {
 	importanceLevel: number = 0
 	starsIndicationColor: string = ""
 	defaultThresholdPercentage: number = 0.7 // 70 percent
-	disableCheck: boolean = false
 	allDistrictsRecommended: Array<any> = []
 	relativeChangeArrayMap = new Map()
 	alert: string = ""
@@ -336,7 +302,6 @@ export class PredictionsComponent implements OnInit {
 	predictedTableReady: boolean = false  // if true then renders the predicted values table
 	futurePredictionsReadyHidden: boolean = true
 	gotAccuracy: boolean = false  // if true then renders accuracy
-	futurePredictionsChartHidden: boolean = true // to show the prediction image when training ends 
 	vehiclesVsDateTimeChartHidden: boolean = true  // if true then renders the vehicles vs datetime plot for given junction
 	comparisonChartHidden: boolean = true // if true then renders the comparison chart
 
@@ -370,6 +335,9 @@ export class PredictionsComponent implements OnInit {
 
 
 
+	openRatingInfoDialog() {
+		this.dialog.open(RatingInfoComponent)
+	}
 
 	navigateToTraining() {
 		this.router.navigate(['/training'])
@@ -405,104 +373,189 @@ export class PredictionsComponent implements OnInit {
 	}
 
 
-	// barChart(param1: Array<string>, param2: Array<number>) {
-	// 	if (this.accuracyComparison != null) { this.accuracyComparison.destroy() }
-	// 	this.accuracyComparison = new Chart("accuracyComparison", {
-	// 		type: 'bar',
-	// 		data: {
-	// 			labels: param1,
-	// 			datasets: [
-	// 				{
-	// 					label: "Junctions",
-	// 					data: param2
-	// 				}
-	// 			]
-	// 		},
-	// 		options: {
-	// 			maintainAspectRatio: true,
-	// 			scales: {
-	// 				y: {
-	// 					beginAtZero: true,
-	// 					title: {
-	// 						display: true,
-	// 						text: 'Accuracy'
-	// 					}
-	// 				},
-	// 				x: {
-	// 					title: {
-	// 						display: true,
-	// 						text: 'Junctions'
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	});
-	// }
-
-
 	plotFuturePredictions(x: any, y: any, z: any, r: any) {
 		// prediction is done
-		this.futurePredictionsChartHidden = false
 
-		// plot chart (canvas) to show results
-		// destroy chart if already in use
-		if (this.myChart != null) { this.myChart.destroy() }
+		// this.mapOptionFuturePredictions = {
+		// 	tooltip: {
+		// 		trigger: 'axis'
+		// 	},
+		// 	legend: {
+		// 		data: ['Predicted', 'Max capacity', 'Threshold capacity']
+		// 	},
+		// 	xAxis: {
+		// 		data: x
+		// 	},
+		// 	yAxis: {},
+		// 	series: [
+		// 		{
+		// 			name: 'Predicted',
+		// 			data: y,
+		// 			type: 'line',
+		// 			symbol: 'none',
+		// 			lineStyle: {
+		// 				color: 'blue',
+		// 			}
+		// 		},
+		// 		{
+		// 			name: 'Max capacity',
+		// 			data: z,
+		// 			type: 'line',
+		// 			symbol: 'none',
+		// 			lineStyle: {
+		// 				color: '#000000',
+		// 				type: 'dotted'
+		// 			}
+		// 		},
+		// 		{
+		// 			name: 'Threshold capacity',
+		// 			data: r,
+		// 			type: 'line',
+		// 			symbol: 'none',
+		// 			lineStyle: {
+		// 				color: '#FF0000',
+		// 				type: 'dashed'
+		// 			}
+		// 		}
+		// 	]
+		// 	// title: {
+		// 	// 	text: 'Stacked Line'
+		// 	// },
+		// 	// tooltip: {
+		// 	// 	trigger: 'axis'
+		// 	// },
+		// 	// legend: {
+		// 	// 	data: ['']
+		// 	// },
+		// 	// grid: {
+		// 	// 	left: '3%',
+		// 	// 	right: '4%',
+		// 	// 	bottom: '3%',
+		// 	// 	containLabel: true
+		// 	// },
+		// 	// toolbox: {
+		// 	// 	feature: {
+		// 	// 		saveAsImage: {}
+		// 	// 	}
+		// 	// },
+		// 	// xAxis: {
+		// 	// 	type: 'category',
+		// 	// 	boundaryGap: false,
+		// 	// 	data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+		// 	// },
+		// 	// yAxis: {
+		// 	// 	type: 'value'
+		// 	// },
+		// 	// series: [
+		// 	// 	{
+		// 	// 		name: 'Email',
+		// 	// 		type: 'line',
+		// 	// 		//   stack: 'Total',
+		// 	// 		data: [120, 132, 101, 134, 90, 230, 210]
+		// 	// 	},
+		// 	// 	{
+		// 	// 		name: 'Union Ads',
+		// 	// 		type: 'line',
+		// 	// 		//   stack: 'Total',
+		// 	// 		data: [220, 182, 191, 234, 290, 330, 310]
+		// 	// 	},
+		// 	// 	{
+		// 	// 		name: 'Video Ads',
+		// 	// 		type: 'line',
+		// 	// 		//   stack: 'Total',
+		// 	// 		data: [150, 232, 201, 154, 190, 330, 410]
+		// 	// 	},
+		// 	// 	{
+		// 	// 		name: 'Direct',
+		// 	// 		type: 'line',
+		// 	// 		//   stack: 'Total',
+		// 	// 		data: [320, 332, 301, 334, 390, 330, 320]
+		// 	// 	},
+		// 	// 	{
+		// 	// 		name: 'Search Engine',
+		// 	// 		type: 'line',
+		// 	// 		//   stack: 'Total',
+		// 	// 		data: [820, 932, 901, 934, 1290, 1330, 1320]
+		// 	// 	}
+		// 	// ]
+		// }
+		let max = (z[0] > Math.max(...y))? z[0] : Math.max(...y)
 
-		this.myChart = new Chart("myChart", {
-			type: 'line',
-			data: {
-				labels: x,
-				datasets: [
-					{
-						label: 'Vehicles Vs DateTime',
-						data: y,
-						borderWidth: 1,
-						borderColor: 'blue',
-						fill: false,
-						pointRadius: 3,
-						pointStyle: 'line'
-					},
-					{
-						label: 'Maximum Capacity of ' + this.junctionChoice,
-						data: z,
-						borderWidth: 1,
-						borderColor: 'red',
-						fill: false,
-						pointRadius: 1,
-						pointStyle: 'line',
-						hidden: false
-					},
-					{
-						label: 'Threshold Limit',
-						data: r,
-						borderWidth: 1.5,
-						borderColor: 'black',
-						fill: false,
-						pointRadius: 1,
-						pointStyle: 'line'
-					}
-				]
+		this.mapOptionFuturePredictions = {
+			title: {
+				text: 'Predictions',
+				left: '1%'
 			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Vehicles'
-						}
+			tooltip: {
+				trigger: 'axis'
+			},
+			grid: {
+				left: '5%',
+				right: '15%',
+				bottom: '10%'
+			},
+			xAxis: {
+				data: x
+			},
+			yAxis: {
+				max: max
+			},
+			toolbox: {
+				right: 10,
+				feature: {
+					dataZoom: {
+						yAxisIndex: 'none'
 					},
-					x: {
-						title: {
-							display: true,
-							text: 'DateTime'
-						}
+					restore: {},
+					saveAsImage: {}
+				}
+			},
+			dataZoom: [
+				{
+					startValue: '2018-01-01'
+				},
+				{
+					type: 'inside'
+				}
+			],
+			visualMap: {
+				top: 50,
+				right: 10,
+				pieces: [
+					{
+						gt: r[0],
+						lte: z[0],
+						color: 'black'
+					},
+					{
+						gt: z[0],
+						color: 'red'
 					}
+				],
+				outOfRange: {
+					color: '#999'
+				}
+			},
+			series: {
+				name: 'Predicted',
+				type: 'line',
+				data: y,
+				markLine: {
+					silent: false,
+					lineStyle: {
+						color: '#333'
+					},
+					data: [
+						{
+							yAxis: r[0]
+						},
+						{
+							yAxis: z[0]
+						},
+					]
 				}
 			}
-		})
+		}
 
 	}
 
@@ -519,7 +572,7 @@ export class PredictionsComponent implements OnInit {
 
 			// go ahead 10 indices (meaning show next 10 table records accessing those indices)
 			this.indexResult = this.indexResult + 10
-			
+
 			// set next 10 row values from result table data (this.tableResult) to the dataSource variable
 			// so that it can be shown in table
 			this.dataSourceResult = this.currentJunctionsPredictedData.slice(this.indexResult, this.indexResult + 10)
@@ -570,17 +623,58 @@ export class PredictionsComponent implements OnInit {
 
 
 	// if new input is given then this function fires to switch off the predicted image 
-	disablePredictionImage() {
-		this.futurePredictionsChartHidden = true
+
+
+
+	async getRoadwayWidthMaxVehiclesMaps() {
+		return new Promise<void>((resolve, reject) => {
+			this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
+				next: (response) => {
+					for (const element of Object.values(response)) {
+						this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
+					}
+
+					this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
+					this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
+					this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
+
+
+					if (response != '') {
+						this.junctionSpecificDetailsProvided = true
+					}
+					resolve()
+				},
+				error: (error: HttpErrorResponse) => {
+					reject()
+				}
+			})
+		})
+	}
+
+
+	async getJunctionRoadwayWidthMaps() {
+		return new Promise<void>((resolve, reject) => {
+			this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
+				next: (response) => {
+					for (const element of Object.values(response)) {
+						this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
+					}
+
+					if (response != '') {
+						resolve()
+					}
+				},
+				error: (error: HttpErrorResponse) => {
+					reject()
+				}
+			})
+		})
 	}
 
 
 
-
-
-	async getAllJunctionSpecificDataFromDB() {
-		let promise = new Promise<any>((resolve, reject) => {
-
+	async getJunctionDistrictMaps() {
+		return new Promise<void>((resolve, reject) => {
 			this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
 				next: (response) => {
 					for (const element of Object.values(response)) {
@@ -588,57 +682,29 @@ export class PredictionsComponent implements OnInit {
 					}
 
 					if (response != '') {
-
-						this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
-							next: (response) => {
-								for (const element of Object.values(response)) {
-									this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
-								}
-
-								if (response != '') {
-
-									this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
-										next: (response) => {
-											for (const element of Object.values(response)) {
-												this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
-											}
-
-											this.currentDistrict = this.junctionDistrictMaps.get(this.junctionChoice)!
-											this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.junctionChoice)!)
-											this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
-
-											resolve('gotDBData')
-											// this.renderPredictions(this.futurePredictionsPlotData, this.futurePredictionsTableData)
-
-											if (response != '') {
-												this.junctionSpecificDetailsProvided = true
-											} else {
-												// review later
-											}
-										},
-										error: (error: HttpErrorResponse) => {
-											alert(error)
-										}
-									})
-								} else {
-									// review later
-								}
-							},
-							error: (error: HttpErrorResponse) => {
-								alert(error)
-							}
-						})
-					} else {
-						// review later
+						resolve()
 					}
 				},
 				error: (error: HttpErrorResponse) => {
-					alert(error)
+					reject()
 				}
 			})
-		})
-		return promise
 
+		})
+
+	}
+
+
+	async getAllJunctionSpecificDataFromDB() {
+		return new Promise<void>((resolve, reject) => {
+			this.getJunctionDistrictMaps().then(() => {
+				this.getJunctionRoadwayWidthMaps().then(() => {
+					this.getRoadwayWidthMaxVehiclesMaps().then(() => {
+						resolve()
+					})
+				})
+			})
+		})
 	}
 
 
@@ -680,6 +746,7 @@ export class PredictionsComponent implements OnInit {
 			this.halfFilledStars = []
 			this.starsIndicationColor = "primary"
 			this.importanceLevel = 0
+			this.ratingOutOfFive = 1
 
 			// no congestion
 			// no treatment needed
@@ -691,6 +758,7 @@ export class PredictionsComponent implements OnInit {
 			this.halfFilledStars = []
 			this.starsIndicationColor = "primary"
 			this.importanceLevel = 1
+			this.ratingOutOfFive = 2
 
 			// congestion level: low (acceptable/tolerable)
 			// treatment not recommended
@@ -702,6 +770,7 @@ export class PredictionsComponent implements OnInit {
 			this.halfFilledStars = []
 			this.starsIndicationColor = "accent"
 			this.importanceLevel = 2
+			this.ratingOutOfFive = 3
 			// congestion level: medium (acceptable/tolerable)
 			// attention level for treatment: important
 
@@ -712,6 +781,7 @@ export class PredictionsComponent implements OnInit {
 			this.nonFilledStars = ["star_border"]
 			this.starsIndicationColor = "accent"
 			this.importanceLevel = 3
+			this.ratingOutOfFive = 3.5
 
 			// congestion level: increased (hardly acceptable/tolerable)
 			// attention level for treatment: fairly important
@@ -722,6 +792,7 @@ export class PredictionsComponent implements OnInit {
 			this.halfFilledStars = []
 			this.starsIndicationColor = "warn"
 			this.importanceLevel = 4
+			this.ratingOutOfFive = 4
 
 			// congestion level: high (unacceptable/intolerable)
 			// attention level for treatment: highly important
@@ -732,6 +803,7 @@ export class PredictionsComponent implements OnInit {
 			this.nonFilledStars = []
 			this.starsIndicationColor = "warn"
 			this.importanceLevel = 5
+			this.ratingOutOfFive = 4.5
 
 			// congestion level: very high (unnacceptable/intolerable)
 			// attention level for treatment: extremely important
@@ -742,6 +814,7 @@ export class PredictionsComponent implements OnInit {
 			this.halfFilledStars = []
 			this.starsIndicationColor = "warn"
 			this.importanceLevel = 6
+			this.ratingOutOfFive = 5
 
 			// congestion level: extreme (unacceptable/intolerable)
 			// attention level for treatment: no opinion
@@ -782,7 +855,6 @@ export class PredictionsComponent implements OnInit {
 				this.vehiclesToBePlotted,
 				this.maxVehicles,
 				thresholdLine
-				// this.relativeChangeArray
 			)
 		})
 
@@ -825,42 +897,66 @@ export class PredictionsComponent implements OnInit {
 			this.showMaxCapacity = true
 		}
 
-
-
-
-
 	}
 
 
-	renderJunctionComparison() {
-		let junctionsAxis: Array<string> = Object.keys(this.junctionComparisonData)
-		let comparisonAxis: Array<number> = Object.values(this.junctionComparisonData)
-		// this.barChart(junctionsAxis, comparisonAxis)
+	async getStartYearMap() {
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.getStartYearMap().subscribe({
+				next: (response) => {
+					for (let i = 0; i < Object.keys(response).length; i++) {
+						this.startYear = (this.junctionChoice == Object.keys(response)[i]) ? Object.values(response)[i] : this.startYear;
+					}
+					resolve()
+				},
+				error: (error: HttpErrorResponse) => {
+				}
+			})
+		})
+	}
+
+	async getMasterDataAccuracies() {
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.getMasterTrainedJunctionsAccuracies().subscribe({
+				next: (response) => {
+					this.junctionComparisonData = response
+					resolve()
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+					reject()
+				}
+			})
+		})
 	}
 
 
+	async getMasterDataTable() {
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.getMasterTrainedDataForTable().subscribe({
+				next: (response) => {
+					this.resultTableReady = true
+					this.allJunctionsPredictedData = response
+					this.predictionsReady = true
+					resolve()
+				},
+				error: (error: HttpErrorResponse) => {
+					reject()
+				}
+			})
+		})
+	}
 
-
-
-	async getMasterData() {
+	async getMasterDataPlot() {
 		return new Promise<void>((resolve, reject) => {
 			this.flaskService.getMasterTrainedDataPlot().subscribe({
 				next: (response) => {
 
 					if (Object.values(response).length == 0) {
-						resolve()
 						this.predictionsExist = false
+						resolve()
 					} else {
 						this.predictionsExist = true
-						this.flaskService.getStartYearMap().subscribe({
-							next: (response) => {
-								for (let i = 0; i < Object.keys(response).length; i++) {
-									this.startYear = (this.junctionChoice == Object.keys(response)[i]) ? Object.values(response)[i] : this.startYear;
-								}
-							},
-							error: (error: HttpErrorResponse) => {
-							}
-						})
 					}
 
 
@@ -875,70 +971,39 @@ export class PredictionsComponent implements OnInit {
 					if (this.currentPie == "") {
 						this.currentPie = this.junctions[0]
 					}
-					this.flaskService.getMasterTrainedDataForTable().subscribe({
-						next: (response) => {
-							this.resultTableReady = true
-							this.allJunctionsPredictedData = response
-							this.predictionsReady = true
-							this.flaskService.getMasterTrainedJunctionsAccuracies().subscribe({
-								next: (response) => {
-									this.junctionComparisonData = response
-									resolve()
-								},
-								error: (error: HttpErrorResponse) => {
-									alert(error.message)
-								}
-							})
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error.message)
-						}
-					})
+					resolve()
 
 
 				},
 				error: (error: HttpErrorResponse) => {
-					alert(error.message)
+					reject()
 				}
 			})
 		})
 	}
 
 
-	// changeFactor() {
-	// 	this.predict()
-	// }
 
+	async getMasterData() {
+		return new Promise<void>((resolve, reject) => {
+			this.getMasterDataPlot().then(() => {
+				this.getMasterDataTable().then(() => {
+					this.getMasterDataAccuracies().then(() => {
+						this.getStartYearMap().then(() => {
+							resolve()
+						})
+					})
+				})
+			})
+		})
+	}
 
 
 	async renderAll() {
 		return new Promise<void>((resolve, reject) => {
 			this.renderPredictions()
-			this.renderJunctionComparison()
 			this.renderJunctionAccuracyPie()
 			resolve()
-			// this.flaskService.getRelativeChange(this.relativeChangeFactor, this.junctionChoice).subscribe({
-			// 	next: (response) => {
-			// 		this.relativeChangeArray = Object.values(response)
-			// 		this.relativeChangeArrayMap.set(this.junctionChoice, this.relativeChangeArray)
-
-			// 		this.flaskService.getAllRelativeChange().subscribe({
-			// 			next: (response) => {
-			// 				this.allRelativeChanges = response
-			// 				this.relativeChange = this.allRelativeChanges[this.junctionChoice]
-			// 			},
-			// 			error: (error) => {
-			// 				reject()
-			// 			}
-			// 		})
-
-
-			// 	},
-			// 	error: (error: HttpErrorResponse) => {
-			// 		reject()
-			// 	}
-
-			// })
 		})
 	}
 
@@ -958,27 +1023,6 @@ export class PredictionsComponent implements OnInit {
 	}
 
 
-	clearAllRecommendations() {
-		this.recommendedService.clearAllRecommended().subscribe({
-			next: (response) => {
-				this.districtTreatmentCountService.clearDistrictTreatmentCounts().subscribe({
-					next: (response) => {
-						this.checkIfAlreadyRecommended()
-						this.getAllDistrictTreatmentCounts().then(() => {
-							this.changeYearToRender().then(() => {
-								this.mapFunction()
-							})
-						})
-					},
-					error: (error: HttpErrorResponse) => {
-					}
-				})
-			},
-			error: (error: HttpErrorResponse) => {
-			}
-		})
-
-	}
 
 	async getAllDistrictTreatmentCounts() {
 		return new Promise<void>((resolve, reject) => {
@@ -1042,32 +1086,38 @@ export class PredictionsComponent implements OnInit {
 
 
 	renderJunctionAccuracyPie() {
-		if (this.accuracyPie != null) { this.accuracyPie.destroy() }
-		this.accuracyPie = new Chart("accuracyPie", {
-			type: 'pie',
-			data: {
-				labels: [
-					'accuracy',
-					'inaccuracy'
-				],
-				datasets: [{
-					label: 'Accuracy of ' + this.currentPie,
-					data: [
-						this.junctionComparisonData[this.currentPie],
-						1 - this.junctionComparisonData[this.currentPie]
-					],
-					backgroundColor: [
-						'rgb(54, 162, 235)',
-						'rgb(255, 99, 132)'
-					],
-					hoverOffset: 4
-				}]
+		this.mapOptionAccuracyPie = {
+			title: {
+				text: 'Accuracy and Inaccuracy of predictions',
+				subtext: this.junctionChoice,
+				left: 'center'
 			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false
-			}
-		})
+			tooltip: {
+				trigger: 'item'
+			},
+			legend: {
+				orient: 'vertical',
+				left: 'left'
+			},
+			series: [
+				{
+					name: 'Access From',
+					type: 'pie',
+					radius: '50%',
+					data: [
+						{ value: this.junctionComparisonData[this.currentPie], name: 'accuracy' },
+						{ value: 1 - this.junctionComparisonData[this.currentPie], name: 'inaccuracy' },
+					],
+					emphasis: {
+						itemStyle: {
+							shadowBlur: 10,
+							shadowOffsetX: 0,
+							shadowColor: 'rgba(0, 0, 0, 0.5)'
+						}
+					}
+				}
+			]
+		}
 	}
 
 	async changeShowByArray() {
@@ -1076,14 +1126,6 @@ export class PredictionsComponent implements OnInit {
 				this.showByArray = ['Weeks', 'Months']
 				this.showBy = 'Weeks'
 			}
-			// if (this.time == 'Months') {
-			// 	this.showByArray = ['Days', 'Weeks']
-			// 	this.showBy = 'Days'
-			// }
-			// if (this.time == 'Days') {
-			// 	this.showByArray = ['Hours', 'Days']
-			// 	this.showBy = 'Hours'
-			// }
 			resolve()
 		})
 	}
@@ -1103,7 +1145,7 @@ export class PredictionsComponent implements OnInit {
 			}
 			let record: Object = {
 				'DateTime': datetime,
-				'Vehicles': element.Vehicles,
+				'Pcu': element.Pcu,
 				'Junction': this.junctionChoice
 			}
 			dataToDownload.push(record)
@@ -1117,7 +1159,7 @@ export class PredictionsComponent implements OnInit {
 			showLabels: true,
 			useBom: true,
 			noDownload: false,
-			headers: ['DateTime', 'Vehicles', 'Junction']
+			headers: ['DateTime', 'Pcu', 'Junction']
 		};
 		try {
 			new ngxCsv(dataToDownload, "result_" + this.junctionChoice + "_" + this.duration + "_" + this.time, options);
@@ -1150,14 +1192,14 @@ export class PredictionsComponent implements OnInit {
 		return new Promise<string>((resolve, reject) => {
 			this.recommendedService.checkIfAlreadyRecommended(this.junctionChoice, this.startYear).subscribe({
 				next: (response) => {
-					if (response == false) {
+					if (!response) {
 						resolve("not recommended")
 						this.alert = "danger"
-						this.disableCheck = false
+						this.alreadyRecommended = false
 					} else {
 						resolve("already recommended")
 						this.alert = "success"
-						this.disableCheck = true
+						this.alreadyRecommended = true
 					}
 				},
 				error: (error: HttpErrorResponse) => {
@@ -1182,9 +1224,11 @@ export class PredictionsComponent implements OnInit {
 			next: (response) => {
 				this.districtTreatmentCountService.decreaseDistrictTreatmentCount(this.currentDistrict, this.startYear, 2).subscribe({
 					next: (response) => {
+						this._snackbar.open('Note: Recommendation dequeued for ' + this.junctionChoice, '\u2716', {
+							duration: 3000
+						})
 						this.checkIfAlreadyRecommended().then((status: string) => {
 							this.getAllDistrictTreatmentCounts().then(() => {
-								console.log('this.allDistrictsRecommended', this.allDistrictsRecommended)
 								this.changeYearToRender().then(() => {
 									this.mapFunction()
 								})
@@ -1214,18 +1258,17 @@ export class PredictionsComponent implements OnInit {
 							})
 						})
 						this.toggleSuccessToast = true
-						this.errorString = 'Note: Recommendation Enqueued'
+						this.errorString = 'Note: Recommendation Enqueued for ' + this.junctionChoice
 						setTimeout(() => {
 							this.toggleSuccessToast = false
 						}, 3000);
-						this._snackbar.open('Recommendation Enqueued', '\u2716')
+						this._snackbar.open('Recommendation Enqueued', '\u2716', {
+							duration: 3000
+						})
 					} else {
-						// this.getAllDistrictTreatmentCounts()
-						this.toggleWarningToast = true
-						this.errorString = 'Note: Already recommended (Not enqueued)'
-						setTimeout(() => {
-							this.toggleWarningToast = false
-						}, 3000);
+						this._snackbar.open('Already recommended (Not enqueued)', '\u2716', {
+							duration: 3000
+						})
 						reject()
 					}
 				})
@@ -1248,11 +1291,22 @@ export class PredictionsComponent implements OnInit {
 
 	changeRepresentationFormat() {
 		this.showGeoMap = (this.representationFormat == 'Geomap') ? false : true;
-		if (this.showGeoMap == false) {
+		if (this.showGeoMap) {
 			this.mapFunction()
 		}
 	}
 
+	setMapData() {
+		for (let element of this.allDistrictsRecommended) {
+			if (element.startYear == this.yearToRender) {
+				for (let districtInstance of this.mapData) {
+					if (districtInstance.name == element.districtName) {
+						districtInstance.value = element.numberOfTreatmentRecommendations
+					}
+				}
+			}
+		}
+	}
 
 	async changeYearToRender() {
 		return new Promise<void>((resolve, reject) => {
@@ -1262,30 +1316,19 @@ export class PredictionsComponent implements OnInit {
 			}
 
 			if (this.allDistrictsRecommended.length > 0) {
-				for (let element of this.allDistrictsRecommended) {
-					if (element.startYear == this.yearToRender) {
-						for (let districtInstance of this.mapData) {
-							if (districtInstance.name == element.districtName) {
-								districtInstance.value = element.numberOfTreatmentRecommendations
-							}
-						}
-					}
-				}
+				this.setMapData()
 			}
 			resolve()
 		})
 	}
 
 	onChartClick(event: any) {
-		console.log('event', event)
 		this.districtClicked = true
 		this.recommendedService.getDistrictInstancesWithStartYear(event.name, this.startYear).subscribe({
 			next: (response) => {
-				console.log('response', response)
 				this.districtClickInfoTable = Object.values(response)
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log('error', error)
 			}
 		})
 	}

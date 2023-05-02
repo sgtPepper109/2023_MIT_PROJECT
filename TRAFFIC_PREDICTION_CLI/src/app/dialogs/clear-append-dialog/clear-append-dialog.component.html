@@ -1,0 +1,34 @@
+<mat-dialog-content class="mat-typography">
+    <div *ngIf="action=='append'">
+        <div *ngIf="alreadyTrained">
+            <h2><strong>
+                    Are you sure you want to {{ action }}?
+                </strong></h2>
+            Warning! This will append the data to the existing trained model's data of {{ junction }}
+        </div>
+        <div *ngIf="!alreadyTrained">
+            <h2><strong>
+                    Are you sure you want to start?
+                </strong></h2>
+            Warning! No data for {{ junction }} has not been trained yet. Start new training?
+        </div>
+    </div>
+    <div *ngIf="action=='clear'">
+        <div *ngIf="alreadyTrained">
+            <h2><strong>
+                    Are you sure you want to {{ action }}?
+                </strong></h2>
+            Warning! This will clear all the trained progress of the existing model for {{ junction }}
+        </div>
+        <div *ngIf="!alreadyTrained">
+            <h2><strong>
+                    Are you sure you want to start?
+                </strong></h2>
+            Warning! No data for {{ junction }} has not been trained yet. Start new training?
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-flat-button color="primary" type="button" (click)="performAppendOrClearAction()">Confirm</button>
+        <button mat-flat-button color="warn" (click)="doNotPerformAction()">Close</button>
+    </div>
+</mat-dialog-content>

@@ -47,13 +47,6 @@
                     <mat-icon style="float:right">keyboard_arrow_right</mat-icon>
                 </li>
             </ul>
-            <!-- <mat-list>
-            <mat-list-item (click)="navigateToTraining()">Training</mat-list-item>
-            <mat-divider></mat-divider>
-            <mat-list-item (click)="navigateToPredictions()">Predictions</mat-list-item>
-            <mat-divider></mat-divider>
-            <mat-list-item>Provide Junction Properties</mat-list-item>
-        </mat-list> -->
         </div>
     </div>
 
@@ -84,17 +77,6 @@
                             <mat-icon>add</mat-icon>Add Record
                         </button>
                     </span>
-                    <!-- <span>
-                    <button 
-                        style="margin-left:10px" 
-                        mat-raised-button color="primary" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#exampleModal2"
-                        [(ngModel)]="recordsFile"
-                        (change)="fileChangeListener($event)"
-                    >
-                        <mat-icon>add</mat-icon>Import Records from csv file
-                </span> -->
                     <br />
                     <br />
                     <br />
@@ -201,20 +183,18 @@
                                         </div>
                                         <div class="col">
                                             <div style="width: 250px" class="form-floating">
-                                                <select id="floatingSelect" class="form-select"
-                                                    [(ngModel)]="newRoadwayWidth" aria-label="Default select example">
-                                                    <option value="{{roadwayWidth}}"
-                                                        *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}}
-                                                        metres</option>
-                                                </select>
-                                                <label for="floatingSelect">Enter Roadway Width</label>
+                                                <mat-form-field appearance="outline">
+                                                    <mat-label>Enter Roadway Width</mat-label>
+                                                    <input [(ngModel)]="newRoadwayWidth" type="number" matInput
+                                                        placeholder="Enter Maximum Vehicles Capacity">
+                                                </mat-form-field>
                                             </div>
                                         </div>
                                         <div class="col">
                                             <mat-form-field appearance="outline">
                                                 <mat-label>Enter Maximum Vehicles Capacity</mat-label>
                                                 <input [(ngModel)]="newMaxVehicles" type="number" matInput
-                                                    placeholder="Enter Maximum Vehicles Capacity">
+                                                    placeholder="Enter Maximum PCU Capacity">
                                             </mat-form-field>
                                         </div>
                                     </div>
@@ -302,12 +282,11 @@
                                                 <h3>{{ recordToBeEdited.roadwayWidth }}</h3>
                                             </td>
                                             <td>
-                                                <select class="form-select" [(ngModel)]="updatedRoadwayWidth"
-                                                    aria-label="Default select example">
-                                                    <option value="{{roadwayWidth}}"
-                                                        *ngFor="let roadwayWidth of allRoadwayWidths">{{roadwayWidth}}
-                                                        metres</option>
-                                                </select>
+                                                <mat-form-field appearance="outline">
+                                                    <mat-label>Enter Roadway Width</mat-label>
+                                                    <input [(ngModel)]="updatedRoadwayWidth" type="number" matInput
+                                                        placeholder="Enter Maximum Vehicles Capacity">
+                                                </mat-form-field>
                                             </td>
                                         </tr>
                                         <tr>

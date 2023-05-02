@@ -10,39 +10,16 @@
     max-width: 600px;
 }
 
-#predictionComponentBody {
-}
-
-ng-container, th, td {
-    color: black;
-}
-
-.offcanvasList:hover { 
-    cursor: pointer; 
-    background:#e6e6e6
-}
-
-#hrTag1 { height: 2px; }
-
-#paginator1, #paginator2, #paginator3, #paginator4 { float:right; }
-
-#paginator1indicator, #paginator2indicator, #paginator3indicator, #paginator4indicator { font-size: 13px; }
-
-#dropdown { height: 60px; }
-
-#predictionLabel, #spinner { margin-left: 10px; }
-
-#predictionStartButton, #exportButton { text-align: center; }
-
-#errorAlert { margin-top: 10px; }
-
+ng-container, th, td { color: black;}
 tr, th { height: 45px; }
-
+#hrTag1 { height: 2px; }
+#paginator1, #paginator2, #paginator3, #paginator4 { float:right; }
+#paginator1indicator, #paginator2indicator, #paginator3indicator, #paginator4indicator { font-size: 13px; }
+#dropdown { height: 60px; }
+#predictionLabel, #spinner { margin-left: 10px; }
+#predictionStartButton, #exportButton { text-align: center; }
+#errorAlert { margin-top: 10px; }
 #toggleJunction { margin-left: 425px; }
-
 #inputJunctionTime { height: 30px; }
-
-
-.toast-header {
-    background-color: #f6f6f6;
-}
+.toast-header { background-color: #f6f6f6; }
+.offcanvasList:hover { cursor: pointer; background:#e6e6e6 }

@@ -3,16 +3,6 @@
     box-shadow: 5px 10px;
     max-width: 600px;
 }
-
-mat-form-field {
-    width: 300px;
-}
-
-.offcanvasList:hover {
-    cursor: pointer;
-    background:#e6e6e6
-}
-
-.toast-header {
-    background-color: #f6f6f6;
-}
+mat-form-field { width: 300px; }
+.offcanvasList:hover { cursor: pointer; background:#e6e6e6 }
+.toast-header { background-color: #f6f6f6; }
