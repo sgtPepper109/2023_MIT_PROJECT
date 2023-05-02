@@ -1,21 +1,22 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PropService } from '../services/propService/prop.service';
 import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import { FlaskService } from '../services/flaskService/flask.service';
-import { Chart } from 'chart.js/auto';
 import { JunctionSpecificsService } from '../services/db/junctionSpecifics/junction-specifics.service';
 import { ngxCsv } from 'ngx-csv';
 import { SampleCsvData } from 'src/assets/sample';
 import { HourlySampleData } from 'src/assets/hourly_sample';
 import { DailySampleData } from 'src/assets/daily_sample';
-import { tableRecord, csvInstance, trainingDetails } from '../interfaces/all-interfaces';
-import { UserService } from '../services/db/user/user.service';
+import { tableRecord, csvInstance, csvParseRecord } from '../interfaces/all-interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import { EChartsOption } from 'echarts';
-// import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-// import { treeInstance } from '../interfaces/all-interfaces';
+import * as echarts from 'echarts';
+import { MatDialog } from '@angular/material/dialog';
+import { DatasetDescriptionComponent } from '../dialogs/dataset-description/dataset-description.component';
+import { ModelSummaryComponent } from '../dialogs/model-summary/model-summary.component';
+import { AddToMasterDialogComponent } from '../dialogs/add-to-master-dialog/add-to-master-dialog.component';
+import { ClearAppendDialogComponent } from '../dialogs/clear-append-dialog/clear-append-dialog.component';
 
 
 @Component({
@@ -34,19 +35,28 @@ export class TrainingComponent implements OnInit {
 		private ngxCsvParser: NgxCsvParser,
 		private flaskService: FlaskService,
 		private junctionSpecificsService: JunctionSpecificsService,
-		private userService: UserService,
-		private _snackBar: MatSnackBar
+		private _snackBar: MatSnackBar,
+		public dialog: MatDialog
 	) { }
 
+
+	tabIndex: number = 0
+	manageTrainingTabDisabled: boolean = false
+	trainingSummaryTabDisabled: boolean = false
+	predictionsTabDisabled: boolean = false
+	visualizationTabDisabled: boolean = false
+	csv: any
+	clearProgress: boolean = false
 	mapOptionDataVisualization: echarts.EChartsOption = {}
 	mapOptionActualVsPredicted: echarts.EChartsOption = {}
 	mapOptionAlgorithmComparison: echarts.EChartsOption = {}
 	mapOptionTestingRatiosComparison: echarts.EChartsOption = {}
 	mapOptionUltimateComparison: echarts.EChartsOption = {}
+	ultimateChartLegendsData: Array<string> = []
 	mapOptionFuturePredictions: echarts.EChartsOption = {}
-	actualVsPredictedCardHidden: boolean = false
-	algorithmComparisonCardHidden: boolean = false
-	testingRatioComparisonCardHidden: boolean = false
+	actualVsPredictedCardHidden: boolean = true
+	algorithmComparisonCardHidden: boolean = true
+	testingRatioComparisonCardHidden: boolean = true
 	addedToMaster: boolean = false
 	masterAddedJunctions: Array<string> = []
 	addToMasterStatus: string = "success"
@@ -65,10 +75,6 @@ export class TrainingComponent implements OnInit {
 	manageTrainingActive: boolean = true
 	trainingSummaryActive: boolean = false
 	currentNav: string = "manageTraining"
-	inputTabClass: string = "nav-link active"
-	predictionsTabClass: string = "nav-link"
-	trainingSummaryTabClass: string = "nav-link"
-	existingDataTabClass: string = "nav-link"
 	showFiller: boolean = false
 	startYear: number = 0
 	endYear: number = 0
@@ -278,107 +284,86 @@ export class TrainingComponent implements OnInit {
 		})
 	}
 
-	changeDatasetDescriptionIcon() {
-		if (this.datasetDescriptionIcon == 'speaker_notes') {
-			this.datasetDescriptionIcon = 'speaker_notes_off'
-		}
-		else {
-			this.datasetDescriptionIcon = 'speaker_notes'
-		}
+	openAddToMasterDialog() {
+		let dialogRef = this.dialog.open(AddToMasterDialogComponent, {
+			data: {
+				junction: this.inputJunction,
+				algorithmToAddToMaster: this.algorithmToAddToMaster,
+				testRatioToAddToMaster: this.testRatioToAddToMaster,
+				accuracy: this.modelSummary[3].Value,
+				startYear: this.startYear
+			}
+		})
+
+		dialogRef.afterClosed().subscribe(result => {
+			this.checkIfAddedToMaster()
+		})
+
 	}
 
+	openModelSummaryDialog() {
+		this.dialog.open(ModelSummaryComponent, {
+			data: {
+				modelSummaryReady: this.modelSummaryReady,
+				modelSummary: this.modelSummary
+			}
+		})
+	}
+
+	openDatasetDescriptionDialog() {
+		this.dialog.open(DatasetDescriptionComponent);
+	}
 
 	changeUltimateComparisonFormat() {
-		// if (this.ultimateComparisonChart != null) { this.ultimateComparisonChart.destroy() }
-		// if (this.ultimateComparisonChartFormat == 'Line Plot') {
-
-		// 	for (let element of this.ultimateData)
-		// 		if (element.type == 'bar')
-		// 			element.type = 'line'
-
-
-		// 	this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
-		// 		// type: 'line',
-		// 		data: {
-		// 			labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
-		// 			datasets: this.ultimateData,
-		// 		},
-		// 		options: {
-		// 			elements: {
-		// 				line: {
-		// 					tension: 0 // change this to change to curved plot
-		// 				}
-		// 			},
-		// 			responsive: true,
-		// 			maintainAspectRatio: true,
-		// 		}
-
-		// 	});
-		// }
-		// if (this.ultimateComparisonChartFormat == 'Bar Chart') {
-
-		// 	for (let element of this.ultimateData)
-		// 		if (element.type == 'line' && element.label != 'Max Accuracy')
-		// 			element.type = 'bar'
-
-		// 	this.ultimateComparisonChart = new Chart("ultimateComparisonChart", {
-		// 		type: 'bar',
-		// 		data: {
-		// 			labels: Object.keys(Object.values(this.testRatiosComparisonData)[1]),
-		// 			datasets: this.ultimateData,
-		// 		},
-		// 		options: {
-		// 			responsive: true,
-		// 			maintainAspectRatio: true
-		// 		}
-
-		// 	});
-		// }
-	}
-
-
-	changePredictionsOption() {
-		if (this.predictionsOption == 'Line Plot') {
-			this.toggleFuturePredictionsTable = true
+		if (this.ultimateComparisonChartFormat == 'Line Plot') {
+			for (let element of this.ultimateData) {
+				if (element.type == 'bar')
+					element.type = 'line'
+			}
 		} else {
-			this.toggleFuturePredictionsTable = false
+			for (let element of this.ultimateData) {
+				if (element.type == 'line' && element.name !='Max Accuracy')
+					element.type = 'bar'
+			}
 		}
-	}
-	changeExistingDataOption() {
-		if (this.existingDataOption == 'Line Plot') {
-			this.toggleDataVisualizationTable = true
-		} else {
-			this.toggleDataVisualizationTable = false
-		}
-	}
-	changeAccuracyOption() {
-		if (this.accuracyOption == 'Table') {
-			this.toggleAccuracyBarChart = true
-		} else {
-			this.toggleAccuracyBarChart = false
-		}
-	}
-	changeComparisonOption() {
-		for (let record of this.dataSourcePredicted) {
-		}
-		if (this.comparisonOption == 'Line Plot') {
-			this.toggleComparisonTable = true
-		} else {
-			this.toggleComparisonTable = false
+
+
+		this.mapOptionUltimateComparison = {
+			tooltip: {
+				trigger: 'axis',
+				axisPointer: {
+					type: 'shadow'
+				}
+			},
+			legend: {
+				data: this.ultimateChartLegendsData
+			},
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '3%',
+				containLabel: true
+			},
+			xAxis: {
+				type: 'category',
+				name: 'Testing ratios and algorithms',
+				nameLocation: 'middle',
+				nameGap: 20,
+				axisTick: { show: false },
+				data: Object.keys(Object.values(this.testRatiosComparisonData)[1])
+			},
+			yAxis: {
+				type: 'value',
+				name: 'Accuracy',
+				nameLocation: 'middle',
+				nameGap: 50,
+				boundaryGap: [0, 0.01]
+
+			},
+			series: this.ultimateData
 		}
 	}
 
-	changeDataVisualizationType() {
-		if (this.dataVisualizationType == "Table") {
-			this.vehiclesVsDateTimeChartHidden = true
-			this.toggleDataVisualizationChartHidden = true
-			this.toggleDataVisualizationTable = true
-		} else {
-			this.toggleDataVisualizationChartHidden = false
-			this.toggleDataVisualizationTable = false
-			this.changeJunctionToBePlotted()
-		}
-	}
 
 	setVehiclesAndDateTime(param1: any, param2: any) {
 		this.vehiclesToBePlotted = param1
@@ -388,55 +373,82 @@ export class TrainingComponent implements OnInit {
 		// prediction is done
 		this.futurePredictionsChartHidden = false
 
+		let max = (z[0] > Math.max(...y)) ? z[0] : Math.max(...y)
 
-		// plot chart (canvas) to show results
-		// destroy chart if already in use
-		if (this.myChart != null) { this.myChart.destroy() }
-
-
-		this.myChart = new Chart("myChart", {
-			type: 'line',
-			data: {
-				labels: x,
-				datasets: [
-					{
-						label: 'PCU Vs DateTime',
-						data: y,
-						borderWidth: 1,
-						borderColor: '#900',
-						fill: false,
-						pointRadius: 2
-					},
-					{
-						label: 'Max PCU of Junction ',
-						data: z,
-						borderWidth: 1,
-						borderColor: '#0000FF',
-						fill: false,
-						pointRadius: 2
-					},
-				]
+		this.mapOptionFuturePredictions = {
+			title: {
+				text: 'Predictions',
+				left: '1%'
 			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: true,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'PCU'
-						}
+			tooltip: {
+				trigger: 'axis'
+			},
+			grid: {
+				left: '5%',
+				right: '15%',
+				bottom: '10%'
+			},
+			xAxis: {
+				data: x,
+				name: 'Date-Time',
+				nameLocation: 'middle',
+				nameGap: 20
+			},
+			yAxis: {
+				max: max,
+				nameLocation: 'middle',
+				name: 'Predicted PCU',
+				nameGap: 50
+			},
+			toolbox: {
+				right: 10,
+				feature: {
+					dataZoom: {
+						yAxisIndex: 'none'
 					},
-					x: {
-						title: {
-							display: true,
-							text: 'DateTime'
-						}
-					}
+					restore: {},
+					saveAsImage: {}
+				}
+			},
+			dataZoom: [
+				{
+					startValue: '2018-01-01'
+				},
+				{
+					type: 'inside'
+				}
+			],
+			visualMap: {
+				top: 50,
+				right: 10,
+				pieces: [
+					{
+						gt: z[0],
+						lte: 100,
+						color: '#FD0100'
+					},
+				],
+				outOfRange: {
+					color: '#999'
+				}
+			},
+			series: {
+				name: 'Predicted',
+				type: 'line',
+				data: y,
+				markLine: {
+					silent: false,
+					lineStyle: {
+						color: '#333'
+					},
+					data: [
+						{
+							yAxis: z[0]
+						},
+					]
 				}
 			}
-		})
+		}
 	}
 
 
@@ -452,7 +464,7 @@ export class TrainingComponent implements OnInit {
 			showLabels: true,
 			useBom: true,
 			noDownload: false,
-			headers: ['DateTime', 'Vehicles', 'Junction']
+			headers: ['DateTime', 'Pcu', 'Junction']
 		};
 		try {
 			if (sampleType == 'Hourly') {
@@ -470,7 +482,6 @@ export class TrainingComponent implements OnInit {
 	checkIfAddedToMaster() {
 		this.flaskService.getMasterTrainedDataPlot().subscribe({
 			next: (response) => {
-				console.log(response)
 				this.masterAddedJunctions = Object.keys(response)
 				if (this.masterAddedJunctions.includes(this.inputJunction)) {
 					this.addToMasterStatus = "success"
@@ -481,39 +492,55 @@ export class TrainingComponent implements OnInit {
 				}
 			},
 			error: (error: HttpErrorResponse) => {
-				console.log(error)
 				alert(error.message)
 			}
 		})
 	}
 
 	processAndStartTraining() {
-		if (this.showTrainingOptions == false) {
-			this.startTraining('clear').then(() => {
-				this.checkIfAddedToMaster()
-			})
-		} else {
-			if (this.trainingAction == 'clear') {
-				this.startTraining('clear').then(() => {
-					this.checkIfAddedToMaster()
-				})
+
+		let dialogRef = this.dialog.open(ClearAppendDialogComponent, {
+			data: {
+				junction: this.inputJunction,
+				alreadyTrained: this.junctionsAlreadyTrained.has(this.inputJunction),
+				action: this.clearProgress? 'clear': 'append',
+				finalizedAction: false
 			}
-			if (this.trainingAction == 'append') {
-				this.startTraining('append').then(() => {
-					this.checkIfAddedToMaster()
-				})
+		})
+		dialogRef.afterClosed().subscribe(result => {
+			if (result.finalizedAction) {
+				if (!this.showTrainingOptions) {
+					this.startTraining('clear').then((status: string) => {
+						if (status == 'success')
+							this.checkIfAddedToMaster()
+					})
+				} else {
+					if (this.clearProgress) {
+						this.startTraining('clear').then((status: string) => {
+							if (status == 'success')
+								this.checkIfAddedToMaster()
+						})
+					}
+					else {
+						this.startTraining('append').then((status: string) => {
+							if (status == 'success')
+								this.checkIfAddedToMaster()
+						})
+					}
+				}
 			}
-		}
+		})
+
 	}
 
 	checkJunction() {
 		this.flaskService.checkIfTrained(this.inputJunction).subscribe({
 			next: (response) => {
-				if (Object.values(response)[0] == true) {
+				if (Object.values(response)[0]) {
 					this.showTrainingOptions = true
-					this.trainingAction = 'clear'
+					this.clearProgress = true
 				}
-				if (Object.values(response)[0] == false) {
+				if (!Object.values(response)[0]) {
 					this.showTrainingOptions = false
 				}
 			},
@@ -528,131 +555,135 @@ export class TrainingComponent implements OnInit {
 	}
 
 
+	async validateCsv(result: Array<csvParseRecord>) {
+		return new Promise<void>((resolve, reject) => {
+			for (const element of Object.values(result)) {
+				if (element.Junction != '' && element.DateTime != '' && element.Pcu != '') {
+					if (!this.uniqueJunctionsInDataset.includes(element.Junction) && element.Junction != "") {
+						this.uniqueJunctionsInDataset.push(element.Junction)
+					}
+					if (!this.isInteger(element.Pcu)) {
+						this.datasetHasImproperValues = true
+					}
+				} else {
+					this.datasetHasImproperValues = true
+				}
+			}
+
+			if (this.uniqueJunctionsInDataset.length == 1 && this.inputJunction == this.uniqueJunctionsInDataset[0]) {
+				this.correctJunctions = true
+			} else {
+				this.correctJunctions = false
+			}
+			resolve()
+		})
+	}
+
+	async parseCsv(files: any) {
+		return new Promise<Array<csvParseRecord>>((resolve, reject) => {
+			let header: boolean = true
+			header = (header as unknown as string) === 'true' || header === true;
+			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' }).pipe().subscribe({
+				next: (result): void => {
+					this.csv = result
+					this.csvParsedData = result
+					this.correctJunctions = true
+					this.uniqueJunctionsInDataset = []
+					resolve(result as Array<csvParseRecord>)
+
+				},
+				error: (error: NgxCSVParserError): void => {
+					reject()
+					alert(error.message)
+				}
+			});
+		})
+	}
+
+
+	async sendCsvData() {
+		return new Promise<void>((resolve, reject) => {
+			this.flaskService.sendCsvData(this.csv).subscribe({
+				next: (response) => {
+					let responseString = Object.values(response)[0]
+					if (responseString != "success") {
+						this.dataset = ""
+						this.fileProcessing = false
+						this._snackBar.open('Note: ' + responseString, '\u2716', {
+							horizontalPosition: 'right',
+							verticalPosition: 'bottom',
+							duration: 3000
+						})
+					} else {
+						this.datasetHasImproperValues = false
+						this.csvDataParsed = true
+						this.datasetUploaded = true
+						this.fileProcessing = false
+						this.getExistingData()
+					}
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error.message)
+				}
+			})
+		})
+	}
+
+
 	fileChangeListener($event: any): void {
 		this.fileProcessing = true
-		const files = $event.srcElement.files;
+		const files: any = $event.srcElement.files;
 		let fileName = files[0]['name']
-		let header: boolean = true
-		header = (header as unknown as string) === 'true' || header === true;
 
 		const arr = fileName.split('.')
 		if (arr[arr.length - 1] === 'csv') {
-
-			this.ngxCsvParser.parse(files[0], { header: header, delimiter: ',', encoding: 'utf8' })
-				.pipe().subscribe({
-					next: (result): void => {
-						this.csvParsedData = result
-						this.correctJunctions = true
-						this.uniqueJunctionsInDataset = []
-						for (const element of Object.values(result)) {
-							if (element.Junction != '' && element.DateTime != '' && element.Vehicles != '') {
-								if (this.uniqueJunctionsInDataset.includes(element.Junction) == false && element.Junction != "") {
-									this.uniqueJunctionsInDataset.push(element.Junction)
-								}
-								if (!this.isInteger(element.Vehicles)) {
-									this.datasetHasImproperValues = true
-								}
-							} else {
-								this.datasetHasImproperValues = true
+			this.parseCsv(files).then((result) => {
+				this.validateCsv(result).then(() => {
+					if (!this.datasetHasImproperValues && this.correctJunctions) {
+						for (let instance of Object.values(result)) {
+							let csvRecord: csvInstance = {
+								dateTime: instance['DateTime'].toString(),
+								junction: instance['Junction'],
+								pcu: parseInt(instance['Pcu'])
 							}
+							this.csvData.push(csvRecord)
 						}
 
-						if (this.uniqueJunctionsInDataset.length == 1 && this.inputJunction == this.uniqueJunctionsInDataset[0]) {
-							this.correctJunctions = true
-						} else {
-							this.correctJunctions = false
-						}
-
-
-
-						if (!this.datasetHasImproperValues) {
-							if (this.correctJunctions) {
-								for (let instance of Object.values(result)) {
-
-									let csvRecord: csvInstance = {
-										dateTime: instance['DateTime'].toString(),
-										junction: instance['Junction'],
-										vehicles: instance['Vehicles']
-									}
-									this.csvData.push(csvRecord)
-								}
-
-
-
-								this.checkJunction()
-
-								this.flaskService.sendCsvData(result).subscribe({
-									next: (response) => {
-										if (Object.values(response)[0] == 'fail') {
-											this.dataset = ""
-											this.fileProcessing = false
-											this._snackBar.open('Note: Corrupted dataset', '\u2716')
-										} else {
-											this.datasetHasImproperValues = false
-											this.csvDataParsed = true
-											this.datasetUploaded = true
-											this.fileProcessing = false
-											this.getExistingData()
-										}
-									},
-									error: (error: HttpErrorResponse) => {
-										alert(error.message)
-									}
-								})
-
-
-
-
-							} else {
-								this.dataset = ""
-								this.fileProcessing = false
-								// this._snackBar.open('Note: Please provide dataset with the listed junctions', '\u2716')
-								this.toggleWarningToast = true
-								this.errorString = 'Note: Please provide dataset with the chosen junction only'
-								setTimeout(() => {
-									this.toggleWarningToast = false
-								}, 3000);
-							}
-						} else {
-							this.dataset = ""
-							this.fileProcessing = false
-							this._snackBar.open('Note: Corrupted dataset', '\u2716')
-						}
-
-					},
-					error: (error: NgxCSVParserError): void => {
-						alert(error.message)
+						this.checkJunction()
+						this.sendCsvData()
+						this.existingActive = true
+					} else {
+						this.dataset = ""
+						this.fileProcessing = false
+						this._snackBar.open('Note: Invalid dataset. Please provide correct dataset', '\u2716', {
+							horizontalPosition: 'right',
+							verticalPosition: 'bottom',
+							duration: 3000
+						})
 					}
-				});
+				})
+			})
 		} else {
-			this.toggleWarningToast = true
-			this.errorString = "Note: Incorrect file type (Please choose a .csv file"
-			setTimeout(() => {
-				this.toggleWarningToast = false
-			}, 3000);
+			this.dataset = ""
+			this.fileProcessing = false
+			this._snackBar.open("Note: Incorrect file type (Please choose a .csv file", '', {
+				horizontalPosition: 'right',
+				verticalPosition: 'bottom'
+			})
 		}
 	}
 
 	changeTrain() {
 		if (parseFloat(this.inputTestRatio) < 0) {
-			this.errorstring = "Note: ratio cannot be a negative value"
-			this.toggleErrorString = true
 			this.inputTestRatio = "0"
+			this._snackBar.open("Note: ratio cannot be a negative value", '', {
+				horizontalPosition: 'right',
+				verticalPosition: 'bottom'
+			})
 		} else {
 			this.toggleErrorString = false
 			this.inputTrainRatio = (1 - parseFloat(this.inputTestRatio)).toString()
 		}
-	}
-
-	reset() {
-		this.inputTrainRatio = ""
-		this.inputTestRatio = ""
-		this.dataset = ""
-		this.csvRecords = {}
-	}
-
-	changeJunctionToBePlotted() {
-		this.show(this.junctionChoice)
 	}
 
 	show(param1: string) {
@@ -671,81 +702,39 @@ export class TrainingComponent implements OnInit {
 
 		// then show the chart
 		this.maxLimitArray = []
-		for (const element of this.datetime) {
-			this.maxLimitArray.push(this.maxVehicles)
-		}
+		this.maxLimitArray = new Array(this.datetime.length).fill(this.maxVehicles)
 		this.LineChart(this.datetime, this.vehicles)
 	}
 
-	changeComparisonDataRepresentationType() {
-		if (this.comparisonDataRepresentationType == "Table") {
-			this.toggleComparisonTable = true
-			this.toggleComparisonChartHidden = true
-			this.comparisonChartHidden = true
-		} else {
-			this.toggleComparisonTable = false
-			this.toggleComparisonChartHidden = false
-			this.comparisonChartHidden = false
-		}
-	}
-
-
-
-
-
-
 	LineChart(x: any, y: any) {
 		this.mapOptionDataVisualization = {
+			tooltip: {
+				trigger: 'axis'
+			},
 			xAxis: {
 				type: 'category',
+				boundaryGap: false,
 				data: x,
+				nameLocation: 'middle',
+				name: 'Date-Time',
+				nameGap: 20
 			},
 			yAxis: {
 				type: 'value',
+				nameLocation: 'middle',
+				name: 'PCU',
+				nameGap: 50
 			},
 			series: [
 				{
 					data: y,
 					type: 'line',
-				},
-			],
+					areaStyle: {}
+				}
+			]
 
 		}
 
-
-		// this.plot = new Chart("plot", {
-		// 	type: 'line',
-		// 	data: {
-		// 		labels: x,
-		// 		datasets: [
-		// 			{
-		// 				label: 'PCU capacity',
-		// 				data: y,
-		// 				borderWidth: 1,
-		// 				fill: false,
-		// 				pointRadius: 2
-		// 			},
-		// 		]
-		// 	},
-		// 	options: {
-		// 		maintainAspectRatio: true,
-		// 		scales: {
-		// 			y: {
-		// 				beginAtZero: true,
-		// 				title: {
-		// 					display: true,
-		// 					text: 'PCU'
-		// 				}
-		// 			},
-		// 			x: {
-		// 				title: {
-		// 					display: true,
-		// 					text: 'DateTime'
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// });
 
 	}
 
@@ -816,14 +805,14 @@ export class TrainingComponent implements OnInit {
 		if (this.classForNextButton !== "page-item disabled") {
 
 			// go ahead 5 indices (meaning show next 5 table records accessing those indices)
-			this.index = this.index + 5
+			this.index = this.index + 10
 
 			// set next 5 row values from CSV data (this.propService.data) to the dataSource variable
 			// so that it can be shown in table
-			this.dataSource = Object.values(this.csvData).slice(this.index, this.index + 5)
+			this.dataSource = Object.values(this.csvData).slice(this.index, this.index + 10)
 
 			// if index is pointing to last 5 records from the csv data then disable next button in paginator
-			if (this.index === Object.values(this.csvData).length - 5) {
+			if (this.index === Object.values(this.csvData).length - 10) {
 				this.classForNextButton = "page-item disabled"
 			}
 		}
@@ -843,11 +832,11 @@ export class TrainingComponent implements OnInit {
 		if (this.classForPreviousButton !== "page-item disabled") {
 
 			// go back 5 indices (meaning show previous 5 table records accessing those indices)
-			this.index = this.index - 5
+			this.index = this.index - 10
 
 			// set next 5 row values from CSV data (this.propService.data) to the dataSource variable 
 			// so that it can be shown in table
-			this.dataSource = Object.values(this.csvData).slice(this.index, this.index + 5)
+			this.dataSource = Object.values(this.csvData).slice(this.index, this.index + 10)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -872,11 +861,11 @@ export class TrainingComponent implements OnInit {
 		if (this.classForNextButtonPredicted !== "page-item disabled") {
 
 			// go ahead 5 indices (meaning show next 5 table records accessing those indices)
-			this.predictedTableIndex = this.predictedTableIndex + 5
+			this.predictedTableIndex = this.predictedTableIndex + 8
 
 			// set next 5 row values from comparison table data (this.comparisonTableData) to the dataSource variable
 			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+			this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 8)
 
 			// if index is pointing to last 5 records from the csv data then disable next button in paginator
 			if (this.predictedTableIndex === Object.values(this.actualVsPredictedComparisonTableData).length - 5) {
@@ -900,11 +889,11 @@ export class TrainingComponent implements OnInit {
 		if (this.classForPreviousButtonPredicted !== "page-item disabled") {
 
 			// go back 5 indices (meaning show previous 5 table records accessing those indices)
-			this.predictedTableIndex = this.predictedTableIndex - 5
+			this.predictedTableIndex = this.predictedTableIndex - 8
 
 			// set next 5 row values from comparison table data (this.comparisonTableData) to the dataSource variable 
 			// so that it can be shown in table
-			this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+			this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 8)
 
 			// if index is 0 then previous button is of no use in paginator
 			// hence disable it
@@ -997,50 +986,84 @@ export class TrainingComponent implements OnInit {
 		this.router.navigate(['/prediction'])
 	}
 
-	async getAllJunctionSpecificDataFromDBandRenderPredictions() {
-		this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
-			next: (response) => {
-				for (const element of Object.values(response)) {
-					this.junctionDistrictMaps.set(element['junctionName'], element['district'])
-					if (element['junctionName'] == this.inputJunction) {
-						this.junctionSpecificDataAvailable = true
+
+	async getAllRoadwayWidthMaxVehiclesMaps() {
+		return new Promise<void>((resolve, reject) => {
+			this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
+				next: (response) => {
+					for (const element of Object.values(response)) {
+						this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
 					}
+					this.currentDistrict = this.junctionDistrictMaps.get(this.inputJunction)!
+					this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.inputJunction)!)
+					this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
+					this.renderPredictions(this.futurePredictionsPlotData, this.futurePredictionsTableData)
+					if (response != '') {
+						this.junctionSpecificDetailsProvided = true
+						resolve()
+					}
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error)
+					reject()
 				}
-				if (response != '') {
-					this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
-						next: (response) => {
-							for (const element of Object.values(response)) {
-								this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
-							}
-							if (response != '') {
-								this.junctionSpecificsService.getAllRoadwayWidthMaxVehiclesMaps().subscribe({
-									next: (response) => {
-										for (const element of Object.values(response)) {
-											this.roadwayWidthMaxVehiclesMaps.set(element['roadwayWidth'], element['maxVehicles'])
-										}
-										this.currentDistrict = this.junctionDistrictMaps.get(this.inputJunction)!
-										this.currentRoadwayWidth = parseInt(this.junctionRoadwayWidthMaps.get(this.inputJunction)!)
-										this.currentMaxVehicles = this.roadwayWidthMaxVehiclesMaps.get(this.currentRoadwayWidth)!
-										this.renderPredictions(this.futurePredictionsPlotData, this.futurePredictionsTableData)
-										if (response != '') {
-											this.junctionSpecificDetailsProvided = true
-										}
-									},
-									error: (error: HttpErrorResponse) => {
-										alert(error)
-									}
-								})
-							}
-						},
-						error: (error: HttpErrorResponse) => {
-							alert(error)
+			})
+		})
+	}
+
+
+	async getAllJunctionRoadwayWidthMaps() {
+		return new Promise<void>((resolve, reject) => {
+			this.junctionSpecificsService.getAllJunctionRoadwayWidthMaps().subscribe({
+				next: (response) => {
+					for (const element of Object.values(response)) {
+						this.junctionRoadwayWidthMaps.set(element['junctionName'], element['roadwayWidth'])
+					}
+					if (response != '') {
+						resolve()
+					}
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error)
+					reject()
+				}
+			})
+		})
+	}
+
+
+	async getJunctionDistrictMaps() {
+		return new Promise<void>((resolve, reject) => {
+			this.junctionSpecificsService.getAllJunctionDistrictMaps().subscribe({
+				next: (response) => {
+					for (const element of Object.values(response)) {
+						this.junctionDistrictMaps.set(element['junctionName'], element['district'])
+						if (element['junctionName'] == this.inputJunction) {
+							this.junctionSpecificDataAvailable = true
 						}
-					})
+					}
+					if (response != '') {
+						resolve()
+					}
+				},
+				error: (error: HttpErrorResponse) => {
+					alert(error)
+					reject()
 				}
-			},
-			error: (error: HttpErrorResponse) => {
-				alert(error)
-			}
+			})
+		})
+	}
+
+
+	async getAllJunctionSpecificDataFromDBandRenderPredictions() {
+		return new Promise<void>((resolve, reject) => {
+			this.getJunctionDistrictMaps().then(() => {
+				this.getAllJunctionRoadwayWidthMaps().then(() => {
+					this.getAllRoadwayWidthMaxVehiclesMaps().then(() => {
+						resolve()
+					})
+				})
+			})
 		})
 	}
 
@@ -1053,7 +1076,7 @@ export class TrainingComponent implements OnInit {
 				this.recievedPlotData = response
 				this.junctionChoice = this.inputJunction
 				this.toggleDataVisualizationTable = true
-				this.changeJunctionToBePlotted()
+				this.show(this.junctionChoice)
 			},
 			error: (error: HttpErrorResponse) => {
 				alert(error.message)
@@ -1136,42 +1159,31 @@ export class TrainingComponent implements OnInit {
 
 	setUltimateChartData() {
 		return new Promise<void>((resolve, reject) => {
-			// let colors: Array<string> = ["blue", "red", "green", "yellow", "purple", "orange"]
-			// let colors: Array<string> = [
-			// 	'rgba(255, 99, 132, 0.2)',
-			// 	'rgba(255, 159, 64, 0.2)',
-			// 	'rgba(75, 192, 192, 0.2)',
-			// 	'rgba(54, 162, 235, 0.2)',
-			// 	'rgba(153, 102, 255, 0.2)',
-			// 	'rgba(255, 0, 0, 0.2)',
-			// 	'rgba(255, 0, 215, 0.2)',
-			// 	'rgba(0, 255, 0, 0.2)',
-			// 	'rgba(0, 236, 255, 0.2)'
-			// ]
 			this.ultimateData = []
 			let maxAccuracy: number = -1
-			let length: number = 0
 			for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i++) {
+				let legend: string = Object.keys(this.testRatiosComparisonData)[i]
+				this.ultimateChartLegendsData.push(legend)
 				let data: object = {
+					name: legend,
 					type: 'bar',
-					label: Object.keys(this.testRatiosComparisonData)[i],
+					barGap: 0,
+					opacity: 0.1,
+					emphasis: {
+						focus: 'series'
+					},
 					data: Object.values(Object.values(this.testRatiosComparisonData)[i])
 				}
 				let arr: Array<number> = Object.values(Object.values(this.testRatiosComparisonData)[i])
 				let currentMaxAccuracy: number = Math.max(...arr)
 				maxAccuracy = (currentMaxAccuracy > maxAccuracy) ? currentMaxAccuracy : maxAccuracy;
+				
 				this.ultimateData.push(data)
-				length = arr.length
 			}
-			let maxAccuracyArray = new Array(length).fill(maxAccuracy)
+			let maxAccuracyArray = new Array(9).fill(maxAccuracy)
 			let highestAccuracyLine: object = {
 				type: 'line',
-				label: 'Max Accuracy',
-				borderWidth: 3,
-				// borderColor: 'black',
-				fill: false,
-				pointRadius: 3,
-				pointStyle: 'line',
+				name: 'Max Accuracy',
 				data: maxAccuracyArray
 			}
 			this.ultimateData.push(highestAccuracyLine)
@@ -1184,21 +1196,15 @@ export class TrainingComponent implements OnInit {
 		return new Promise<void>((resolve, reject) => {
 			this.flaskService.getTestingRatioComparisons(action, this.inputJunction).subscribe({
 				next: (response) => {
-					this.predictionReady = true
 					this.trained = true
+					this._snackBar.open('Training process completed for ' + this.inputJunction, '', {
+						horizontalPosition: 'center',
+						verticalPosition: 'bottom'
+					})
 					this.startedTraining = false
 					this.gotTestingRatioComparisons = true
 					this.testingRatioComparisonChartNotReady = false
 					this.testRatiosComparisonData = response
-					console.log('this.testRatiosComparisonData', this.testRatiosComparisonData)
-
-
-
-					// this.treeData = []
-					// for (let i = 0; i < Object.keys(this.testRatiosComparisonData).length; i ++) {
-
-					// }
-
 
 					this.setUltimateChartData().then(() => {
 						this.getActualVsPredictedComparisons().then(() => {
@@ -1230,18 +1236,18 @@ export class TrainingComponent implements OnInit {
 
 
 	async startTraining(action: string) {
-		return new Promise<void>((resolve, reject) => {
-			this.gotTestingRatioComparisons = false
-			this.predictionReady = false
-			this.comparisonChartHidden = false
-			this.modelSummaryReady = false
-			this.comparisonTableReady = false
-			this.modelSummary = []
-			this.csvDataStored = true
-			this.startedTraining = true
+		return new Promise<string>((resolve, reject) => {
 			if (this.dataset != "" && this.uniqueJunctionsInDataset[0] == this.inputJunction) {
+				this.gotTestingRatioComparisons = false
+				this.predictionReady = false
+				this.comparisonChartHidden = false
+				this.modelSummaryReady = false
+				this.comparisonTableReady = false
+				this.modelSummary = []
+				this.csvDataStored = true
+				this.startedTraining = true
 				if (this.csvDataStored) {
-					this.dataSource = this.csvData.slice(this.index, this.index + 5)
+					this.dataSource = this.csvData.slice(this.index, this.index + 10)
 					this.numberOfRecords = this.csvData.length
 					this.testRatio = parseFloat(this.inputTestRatio)
 					this.startProcess = true
@@ -1261,11 +1267,13 @@ export class TrainingComponent implements OnInit {
 										this.startYear = Object.values(response)[0]
 										if (this.startYear % 2 != 0) {
 											this.startYear++
-											resolve()
+											this.trainingSummaryActive = true
+											this.predictionsActive = true
+											resolve('success')
 										}
 									},
 									error: (error: HttpErrorResponse) => {
-										reject()
+										resolve('error')
 										alert(error.message)
 									}
 								})
@@ -1275,22 +1283,28 @@ export class TrainingComponent implements OnInit {
 						})
 					} else {
 						this.startedTraining = false
-						// this._snackBar.open('Note: All fields are required', '\u2716')
-						this.toggleWarningToast = true
-						this.errorString = 'Note: Upload a dataset first'
-						setTimeout(() => {
-							this.toggleWarningToast = false
-						}, 3000);
-						reject()
+						this._snackBar.open('Note: Upload a dataset first', '', {
+							horizontalPosition: 'right',
+							verticalPosition: 'bottom'
+						})
+						resolve('error')
 					}
 				} else {
 					this.startedTraining = false
-					reject()
+					this._snackBar.open('Note: Error in processing the dataset', '', {
+						horizontalPosition: 'right',
+						verticalPosition: 'bottom'
+					})
+					resolve('error')
 				}
 			} else {
-				this._snackBar.open('Note: Upload a proper dataset first', '\u2716')
 				this.startedTraining = false
-				reject()
+				this._snackBar.open('Note: Upload a proper dataset first', '\u2716', {
+					horizontalPosition: 'right',
+					verticalPosition: 'bottom',
+					duration: 3000
+				})
+				resolve('error')
 			}
 		})
 	}
@@ -1312,10 +1326,7 @@ export class TrainingComponent implements OnInit {
 					futurePredictionsPlotData[0]['vehicles'],
 					futurePredictionsPlotData[0]['datetime']
 				)
-				let maxVehiclesCapacityArray: Array<number> = []
-				for (const element of this.dateTimeToBePlotted) {
-					maxVehiclesCapacityArray.push(this.currentMaxVehicles)
-				}
+				let maxVehiclesCapacityArray = new Array(this.dateTimeToBePlotted.length).fill(this.currentMaxVehicles)
 				this.plotFuturePredictions(maxVehiclesCapacityArray, this.dateTimeToBePlotted, this.vehiclesToBePlotted)
 			}
 		}
@@ -1343,6 +1354,7 @@ export class TrainingComponent implements OnInit {
 									this.getAllJunctionSpecificDataFromDBandRenderPredictions()
 									this.futurePredictionsReady = true
 									this.checkJunction()
+									this.predictionReady = true
 								},
 								error: (error: HttpErrorResponse) => {
 									alert(error.message)
@@ -1359,12 +1371,11 @@ export class TrainingComponent implements OnInit {
 				}
 			})
 		} else {
-			// this._snackBar.open('Note: provide time')
-			this.toggleWarningToast = true
-			this.errorString = 'Note: provide time'
-			setTimeout(() => {
-				this.toggleWarningToast = false
-			}, 3000);
+			this._snackBar.open('Note: provide time', '\u2716', {
+				horizontalPosition: 'right',
+				verticalPosition: 'bottom',
+				duration: 3000
+			})
 		}
 	}
 
@@ -1385,25 +1396,23 @@ export class TrainingComponent implements OnInit {
 				this.startYear
 			).subscribe({
 				next: (response) => {
-					this._snackBar.open('Added to master', '\u2716')
+					this._snackBar.open('Added to master', '\u2716', {
+						horizontalPosition: 'right',
+						verticalPosition: 'bottom',
+						duration: 3000
+					})
 					this.checkIfAddedToMaster()
-					// this.toggleSuccessToast = true
-					// this.errorString = 'Note: Added to master'
-					// setTimeout(() => {
-					// 	this.toggleSuccessToast = false
-					// }, 3000);
 				},
 				error: (error: HttpErrorResponse) => {
 					alert(error.message)
 				}
 			})
 		} else {
-			// this._snackBar.open('Note: provide details')
-			this.toggleWarningToast = true
-			this.errorString = 'Note: provide details'
-			setTimeout(() => {
-				this.toggleWarningToast = false
-			}, 3000);
+			this._snackBar.open('Note: Provide details', '\u2716', {
+				horizontalPosition: 'right',
+				verticalPosition: 'bottom',
+				duration: 3000
+			})
 		}
 
 	}
@@ -1435,7 +1444,7 @@ export class TrainingComponent implements OnInit {
 			}
 		}
 		this.numberOfRecordsPredicted = Object.values(this.actualPredictedTableData).length
-		this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 5)
+		this.dataSourcePredicted = Object.values(this.actualVsPredictedComparisonTableData).slice(this.predictedTableIndex, this.predictedTableIndex + 8)
 		this.comparisonTableReady = true
 	}
 
@@ -1471,64 +1480,50 @@ export class TrainingComponent implements OnInit {
 	}
 
 	compareChart(labels: string[], actual: number[], predicted: number[], difference: number[]) {
-		// if comparison chart (canvas) is in use then destroy it
-		// if (this.predictedChart != null) { this.predictedChart.destroy() }
-		// this.predictedChart = new Chart("predictedChart", {
-		// 	data: {
-		// 		labels: labels,
-		// 		datasets: [
-		// 			{
-		// 				type: 'line',
-		// 				label: "actual",
-		// 				backgroundColor: "white",
-		// 				borderWidth: 1,
-		// 				borderColor: "#900",
-		// 				fill: false,
-		// 				pointRadius: 2,
-		// 				data: actual,
-		// 			},
-		// 			{
-		// 				type: 'line',
-		// 				label: "predicted",
-		// 				backgroundColor: "white",
-		// 				borderWidth: 1,
-		// 				borderColor: "#090",
-		// 				fill: false,
-		// 				pointRadius: 2,
-		// 				data: predicted
-		// 			},
-		// 			{
-		// 				type: 'bar',
-		// 				label: "difference",
-		// 				data: difference
-		// 			}
-		// 		]
-		// 	},
-		// 	options: {
-		// 		elements: {
-		// 			line: {
-		// 				tension: 0
-		// 			}
-		// 		},
-		// 		maintainAspectRatio: true,
-		// 		responsive: true,
-		// 		scales: {
-		// 			y: {
-		// 				beginAtZero: true,
-		// 				title: {
-		// 					display: true,
-		// 					text: 'PCU'
-		// 				}
-		// 			},
-		// 			x: {
-		// 				title: {
-		// 					display: true,
-		// 					text: 'DateTime'
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// });
+		this.mapOptionActualVsPredicted = {
+			tooltip: {
+				trigger: 'axis'
+			},
+			xAxis: {
+				data: labels,
+				axisLabel: {
+					interval: 0,
+					rotate: 20,
+				},
+				nameLocation: 'middle',
+				name: 'Date-Time',
+				nameGap: 50
+			},
+			yAxis: {
+				nameLocation: 'middle',
+				name: 'Values',
+				nameGap: 30
+			},
+			series: [
+				{
+					data: actual,
+					type: 'line',
+				},
+				{
+					data: predicted,
+					type: 'line',
+				},
+				{
+					data: difference,
+					type: 'bar',
+					itemStyle: {
+						// barBorderRadius: 5,
+						borderWidth: 2,
+						borderType: 'solid',
+						borderColor: '#c0c0c0',
+						shadowColor: '#c0c0c0',
+						shadowBlur: 3,
+						opacity: 0.1
+					},
+				}
+			]
+		}
+
 	}
 
 	plotActualVsComparisonPlot() {
@@ -1567,63 +1562,42 @@ export class TrainingComponent implements OnInit {
 	plotAccuracyBarChart(accuracyBarChartAlgorithmsAxis: Array<string>, accuracyBarChartAccuraciesAxis: Array<number>) {
 		this.accuracyBarChartHidden = false
 		this.testingRatioComparisonChartNotReady = false
-		console.log('accuracyBarChartAlgorithmsAxis', accuracyBarChartAlgorithmsAxis)
 		this.mapOptionAlgorithmComparison = {
+			tooltip: {
+				trigger: 'axis'
+			},
 			xAxis: {
 				type: 'category',
 				data: accuracyBarChartAlgorithmsAxis,
 				axisLabel: {
 					interval: 0,
 					rotate: 20,
-				}
-				// data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+				},
+				nameLocation: 'middle',
+				name: 'Algorithm',
+				nameGap: 50
 			},
 			yAxis: {
-				type: 'value'
+				type: 'value',
+				nameLocation: 'middle',
+				name: 'Accuracy',
+				nameGap: 30
 			},
 			series: [
 				{
 					data: accuracyBarChartAccuraciesAxis,
-					// data: [120, 200, 150, 80, 70, 110, 130],
+					itemStyle: {
+						borderWidth: 2,
+						borderType: 'solid',
+						borderColor: '#ff0000',
+						shadowColor: '#0000ff',
+						shadowBlur: 3,
+						opacity: 0.3
+					},
 					type: 'bar'
 				}
-			]
+			],
 		}
-		// this.accuracyBarChart = new Chart("accuracyBarChart", {
-		// 	type: 'bar',
-		// 	data: {
-		// 		labels: accuracyBarChartAlgorithmsAxis,
-		// 		datasets: [
-		// 			{
-		// 				label: "Accuracies",
-		// 				data: accuracyBarChartAccuraciesAxis,
-		// 				backgroundColor: 'rgba(54, 162, 235, 0.2)',
-		// 				borderColor: 'rgb(255, 99, 132)',
-		// 				borderWidth: 1
-		// 			}
-		// 		],
-		// 	},
-		// 	options: {
-		// 		maintainAspectRatio: true,
-		// 		responsive: true,
-		// 		scales: {
-		// 			y: {
-		// 				max: 1.0,
-		// 				beginAtZero: true,
-		// 				title: {
-		// 					display: true,
-		// 					text: "Accuracies"
-		// 				}
-		// 			},
-		// 			x: {
-		// 				title: {
-		// 					display: true,
-		// 					text: "Algorithms"
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// })
 	}
 
 
@@ -1651,56 +1625,37 @@ export class TrainingComponent implements OnInit {
 	plotTestRatioComparisonsChart(testRatioComparisonChartTestRatiosAxis: Array<string>, testRatioComparisonChartAccuraciesAxis: Array<number>) {
 		if (this.testRatioComparisonChart != null) { this.testRatioComparisonChart.destroy() }
 		this.mapOptionTestingRatiosComparison = {
+			tooltip: {
+				trigger: 'axis'
+			},
 			xAxis: {
 				type: 'category',
 				data: testRatioComparisonChartTestRatiosAxis,
-				// data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+				nameLocation: 'middle',
+				name: 'Testing ratios',
+				nameGap: 50
 			},
 			yAxis: {
-				type: 'value'
+				type: 'value',
+				nameLocation: 'middle',
+				name: 'Accuracy',
+				nameGap: 30
 			},
 			series: [
 				{
 					data: testRatioComparisonChartAccuraciesAxis,
-					// data: [120, 200, 150, 80, 70, 110, 130],
-					type: 'bar'
+					type: 'bar',
+					itemStyle: {
+						borderWidth: 2,
+						borderType: 'solid',
+						shadowColor: '#ff0000',
+						borderColor: '#0000ff',
+						shadowBlur: 3,
+						opacity: 0.3
+					},
 				}
 			]
 		}
-		// this.testRatioComparisonChart = new Chart("testRatioComparisonChart", {
-		// 	type: 'bar',
-		// 	data: {
-		// 		labels: testRatioComparisonChartTestRatiosAxis,
-		// 		datasets: [
-		// 			{
-		// 				label: "Accuracies",
-		// 				data: testRatioComparisonChartAccuraciesAxis,
-		// 				backgroundColor: "rgba(255, 99, 132, 0.2)",
-		// 				borderColor: "rgb(54, 162, 235)",
-		// 				borderWidth: 1
-		// 			}
-		// 		],
-		// 	},
-		// 	options: {
-		// 		maintainAspectRatio: true,
-		// 		scales: {
-		// 			y: {
-		// 				max: 1.0,
-		// 				beginAtZero: true,
-		// 				title: {
-		// 					display: true,
-		// 					text: "Accuracies"
-		// 				}
-		// 			},
-		// 			x: {
-		// 				title: {
-		// 					display: true,
-		// 					text: "Testing Ratios"
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// });
 	}
 
 
@@ -1749,95 +1704,20 @@ export class TrainingComponent implements OnInit {
 		this.setModelSummary()
 	}
 
-	signOut() {
-		// this.userService.setUserInactive()
-	}
-
-
-	navSwitch(whichNav: string) {
-		if (this.currentNav != whichNav) {
-			if (whichNav == 'manageTraining' || whichNav == 'firstTab') {
-				this.trainingSummaryActive = false
-				this.predictionsActive = false
-				this.existingActive = false
-				this.manageTrainingActive = true
-
-				this.inputTabClass = "nav-link active"
-				this.predictionsTabClass = "nav-link"
-				this.trainingSummaryTabClass = "nav-link"
-				this.existingDataTabClass = "nav-link"
-				this.dataset = ""
-			}
-
-
-			if (whichNav == 'trainingSummary') {
-				if (this.predictionReady && !this.comparisonChartHidden) {
-					this.manageTrainingActive = false
-					this.predictionsActive = false
-					this.existingActive = false
-					this.trainingSummaryActive = true
-
-					this.inputTabClass = "nav-link"
-					this.predictionsTabClass = "nav-link"
-					this.trainingSummaryTabClass = "nav-link active"
-					this.existingDataTabClass = "nav-link"
-				} else {
-					this._snackBar.open('Training process incomplete', '\u2716')
-				}
-			}
-
-			if (whichNav == 'predictions') {
-				if (this.predictionReady) {
-					this.manageTrainingActive = false
-					this.trainingSummaryActive = false
-					this.existingActive = false
-					this.predictionsActive = true
-
-					this.inputTabClass = "nav-link"
-					this.predictionsTabClass = "nav-link active"
-					this.trainingSummaryTabClass = "nav-link"
-					this.existingDataTabClass = "nav-link"
-				} else {
-					this._snackBar.open('Training process incomplete', '\u2716')
-				}
-			}
-
-			if (whichNav == 'existing') {
-				if (!this.csvDataParsed && !this.datasetUploaded) {
-					this._snackBar.open('Upload a dataset first', '\u2716')
-				} else {
-					this.manageTrainingActive = false
-					this.trainingSummaryActive = false
-					this.predictionsActive = false
-					this.existingActive = true
-
-					this.inputTabClass = "nav-link"
-					this.predictionsTabClass = "nav-link"
-					this.trainingSummaryTabClass = "nav-link"
-					this.existingDataTabClass = "nav-link active"
-				}
-			}
-		}
-
-	}
-
-
-	toggleActualVsPredInfo() { this.showActualVsPredInfo = !this.showActualVsPredInfo }
-	toggleAccuracyComparisons() { this.showAccuracyComparisons = !this.showAccuracyComparisons }
-	toggleAccuracyComparisonsTestingRatios() { this.showAccuracyComparisonsTestingRatios = !this.showAccuracyComparisonsTestingRatios }
-	changeAccuracyOptionForAlgorithm() { this.testRatioComparisonChartHidden = !this.testRatioComparisonChartHidden }
-
-	toggleFooter() {
-		this.footerOn = !this.footerOn
-	}
-
-	logger() {
-		console.log('hello')
-	}
 	changeJunction() {
 		this.trained = false
+		this.dismissSnackBar()
 	}
 
+	dismissSnackBar() {
+		this._snackBar.dismiss()
+		if (this.tabIndex == 0  && this.trained) {
+			this._snackBar.open('Training process completed', '', {
+				horizontalPosition: 'center',
+				verticalPosition: 'bottom'
+			})
+		}
+	}
 
 
 }

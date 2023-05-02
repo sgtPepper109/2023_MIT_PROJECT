@@ -2,309 +2,286 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta, date
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso, BayesianRidge
+from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso, BayesianRidge, Lars, ElasticNet, OrthogonalMatchingPursuit, ARDRegression, SGDRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import r2_score
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.ensemble import AdaBoostClassifier
 import sklearn.metrics as metrics
-from statistics import *
 
 
 class Train:
-    def __init__(self, data, algorithm: str, junction: str, testSize: float):
-        #constructor
+    def __init__(self, data, algorithm: str, junction: str, test_size: float):
+        # constructor
+        self.table_data = None
+        self.to_predict = None
+        self.date_time = None
+        self.time = None
+        self.test_against = None
+        self.median_absolute_error = None
+        self.mean_squared_error = None
+        self.mean_absolute_error = None
+        self.explained_variance = None
+        self.r2 = None
+        self.accuracy_score = None
+        self.difference = None
+        self.predicted = None
+        self.actual = None
+        self.new_ytest = None
+        self.when_trained = None
+        self.model = None
+        self.model_trained_on_complete_dataset = None
+        self.ytest = None
+        self.ytrain = None
+        self.xtest = None
+        self.xtrain = None
+        self.junction_data = None
         self.trained = False
         self.data = data
         self.algorithm = algorithm
         self.junction = junction
-        self.testSize = testSize
-        # print("self.testSize", self.testSize)
-        self.startTrainingProcess()
-    
-    def appendAndStartTraining(self,newData):
-        newData = newData[newData.Junction == self.junction]
+        self.test_size = test_size
+        self.start_training_process()
 
-        existingDataDateTimeColumn = []
-        for i in range(len(self.junctionData.Year)):
-            existingDataDateTimeColumn.append(datetime(self.data.Year[i], self.data.Month[i], self.data.Day[i]))
-        self.junctionData.index = existingDataDateTimeColumn
+    def append_and_start_training(self, new_data):
+        new_data = new_data[new_data.Junction == self.junction]
 
-        newDataDateTimeColumn = []
-        for i in range(len(newData.Year)):
-            newDataDateTimeColumn.append(datetime(newData.Year[i], newData.Month[i], newData.Day[i]))
-        newData.index = newDataDateTimeColumn
-        newData.drop('Junction', axis=1, inplace=True)
+        existing_data_datetime_column = []
+        for i in range(len(self.junction_data.Year)):
+            existing_data_datetime_column.append(datetime(self.data.Year[i], self.data.Month[i], self.data.Day[i]))
+        self.junction_data.index = existing_data_datetime_column
 
-        for i in newData.index:
-            if i in self.junctionData.index:
-                self.junctionData = self.junctionData.drop(i)
+        new_data_datetime_column = []
+        for i in range(len(new_data.Year)):
+            new_data_datetime_column.append(datetime(new_data.Year[i], new_data.Month[i], new_data.Day[i]))
+        new_data.index = new_data_datetime_column
+        new_data.drop('Junction', axis=1, inplace=True)
 
-        self.junctionData = pd.concat([self.junctionData, newData])
-        self.junctionData.index = pd.to_datetime(self.junctionData.index)
-        self.splitData()
+        for i in new_data.index:
+            if i in self.junction_data.index:
+                self.junction_data = self.junction_data.drop(i)
+
+        self.junction_data = pd.concat([self.junction_data, new_data])
+        self.junction_data.index = pd.to_datetime(self.junction_data.index)
+        self.split_data()
         self.training()
-        self.actualVsPredicted()
+        self.actual_vs_predicted()
 
-    def startTrainingProcess(self):
-        self.preprocessData()
-        self.splitData()
+    def start_training_process(self):
+        self.preprocess_data()
+        self.split_data()
         self.training()
-        self.actualVsPredicted()
-    
-    def preprocessData(self):
+        self.actual_vs_predicted()
+
+    def preprocess_data(self):
         # drop all null value records
-        self.separateJunctionRelatedData()
-        self.junctionData = self.junctionData.dropna()
+        self.separate_junction_related_data()
+        self.junction_data = self.junction_data.dropna()
 
-    def separateJunctionRelatedData(self):
-        self.junctionData = self.data[self.data.Junction == self.junction]
-        self.junctionData = self.junctionData.drop(['Junction'], axis='columns')
+    def separate_junction_related_data(self):
+        self.junction_data = self.data[self.data.Junction == self.junction]
+        self.junction_data = self.junction_data.drop(['Junction'], axis='columns')
 
-    def splitData(self):
-        self.x = self.junctionData.drop(['Vehicles'], axis='columns')
-        self.y = self.junctionData.Vehicles
-        self.xtrain, self.xtest, self.ytrain, self.ytest = train_test_split(self.x, self.y, test_size = self.testSize)
+    def split_data(self):
+        x = self.junction_data.drop(['Pcu'], axis='columns')
+        y = self.junction_data.Pcu
+        self.xtrain, self.xtest, self.ytrain, self.ytest = train_test_split(x,  y,  test_size=self.test_size)
 
     def training(self):
         if self.algorithm == "Random Forest Regression":
-            self.model2 = RandomForestRegressor()
+            self.model_trained_on_complete_dataset = RandomForestRegressor()
             self.model = RandomForestRegressor()
         elif self.algorithm == "Gradient Boosting Regression":
-            self.model2 = GradientBoostingRegressor()
+            self.model_trained_on_complete_dataset = GradientBoostingRegressor()
             self.model = GradientBoostingRegressor()
         elif self.algorithm == "Linear Regression":
-            self.model2 = LinearRegression()
+            self.model_trained_on_complete_dataset = LinearRegression()
             self.model = LinearRegression()
         elif self.algorithm == "Logistic Regression":
-            self.model2 = LogisticRegression()
+            self.model_trained_on_complete_dataset = LogisticRegression()
             self.model = LogisticRegression()
         elif self.algorithm == "Ridge Regression":
-            self.model2 = Ridge(alpha=2.0)
+            self.model_trained_on_complete_dataset = Ridge(alpha=2.0)
             self.model = Ridge(alpha=2.0)
         elif self.algorithm == "Lasso Regression":
-            self.model2 = Lasso(alpha=1.0)
+            self.model_trained_on_complete_dataset = Lasso(alpha=1.0)
             self.model = Lasso(alpha=1.0)
         elif self.algorithm == "Bayesian Ridge Regression":
-            self.model2 = BayesianRidge()
+            self.model_trained_on_complete_dataset = BayesianRidge()
             self.model = BayesianRidge()
         elif self.algorithm == "Decision Tree Regression":
-            self.model2 = DecisionTreeRegressor(random_state=0)
+            self.model_trained_on_complete_dataset = DecisionTreeRegressor(random_state=0)
             self.model = DecisionTreeRegressor(random_state=0)
         elif self.algorithm == "K Nearest Neighbors Regression":
-            self.model2 = KNeighborsRegressor(n_neighbors=3)
+            self.model_trained_on_complete_dataset = KNeighborsRegressor(n_neighbors=3)
             self.model = KNeighborsRegressor(n_neighbors=3)
         elif self.algorithm == "Support Vector Regression":
-            self.model2 = SVR(kernel='rbf')
+            self.model_trained_on_complete_dataset = SVR(kernel='rbf')
             self.model = SVR(kernel='rbf')
         elif self.algorithm == "Gaussian Process Regression":
-            self.model2 = GaussianProcessRegressor(random_state=4)
+            self.model_trained_on_complete_dataset = GaussianProcessRegressor(random_state=4)
             self.model = GaussianProcessRegressor(random_state=4)
+        # elif self.algorithm == 'Ada Boost':
+
+        elif self.algorithm == 'Lars':
+            self.model_trained_on_complete_dataset = Lars(n_nonzero_coefs=5)
+            self.model = Lars(n_nonzero_coefs=5)
+        elif self.algorithm == 'Elastic-net':
+            self.model_trained_on_complete_dataset = ElasticNet(alpha=0.5, l1_ratio=0.5)
+            self.model = ElasticNet(alpha=0.5, l1_ratio=0.5)
+        # elif self.algorithm == 'OMP':
+        #     self.model_trained_on_complete_dataset = OrthogonalMatchingPursuit(n_nonzero_coefs=5)
+        #     self.model = OrthogonalMatchingPursuit(n_nonzero_coefs=5)
+        elif self.algorithm == 'ARD':
+            self.model_trained_on_complete_dataset = ARDRegression()
+            self.model = ARDRegression()
+        elif self.algorithm == 'SGD':
+            self.model_trained_on_complete_dataset = SGDRegressor()
+            self.model = SGDRegressor()
+        elif self.algorithm == 'MLP':
+            self.model_trained_on_complete_dataset = MLPClassifier(hidden_layer_sizes=(5, 2), activation='relu', solver='adam', max_iter=1000, random_state=42)
+            self.model = MLPClassifier(hidden_layer_sizes=(5, 2), activation='relu', solver='adam', max_iter=1000, random_state=42)
 
 
-        self.completeXtrain = self.junctionData.drop(['Vehicles'], axis='columns')
-        self.completeYtrain = self.junctionData.Vehicles
-        self.model2 .fit(self.completeXtrain, self.completeYtrain)
+        complete_xtrain = self.junction_data.drop(['Pcu'], axis='columns')
+        complete_ytrain = self.junction_data.Pcu
+        self.model_trained_on_complete_dataset.fit(complete_xtrain, complete_ytrain)
         self.model.fit(self.xtrain, self.ytrain)
         self.trained = True
-        self.whenTrained = datetime.now()
+        self.when_trained = datetime.now()
 
+    def actual_vs_predicted(self):
+        xtest_index = list(self.xtest.index)
+        xtest_index.sort()
+        new_xtest = pd.DataFrame()
 
-    def actualVsPredicted(self):
-        self.xtestIndex = list(self.xtest.index)
-        self.xtestIndex.sort()
-        self.newXtest = pd.DataFrame()
-        
-        self.years = list()
-        self.months = list()
-        self.days = list()
-        self.hours = list()
-        self.dateTime = list()
-        
-        for i in self.xtestIndex:
-            self.dateTime.append(i)
-            self.years.append(i.year)
-            self.months.append(i.month)
-            self.days.append(i.day)
-            self.hours.append(i.hour)
+        years = list()
+        months = list()
+        days = list()
+        hours = list()
+        date_time = list()
 
-        self.newXtest['Year'] = self.years
-        self.newXtest['Month'] = self.months
-        self.newXtest['Day'] = self.days
-        self.newXtest['Hour'] = self.hours
-        self.newXtest['DateTime'] = self.dateTime
-        self.newXtest.index = self.newXtest['DateTime']
-        self.newXtest = self.newXtest.drop(['DateTime'], axis='columns')
+        for i in xtest_index:
+            date_time.append(i)
+            years.append(i.year)
+            months.append(i.month)
+            days.append(i.day)
+            hours.append(i.hour)
 
-        self.newYtest = list()
-        for i in self.newXtest.index:
-            self.newYtest.append(self.ytest[i])        
+        new_xtest['Year'] = years
+        new_xtest['Month'] = months
+        new_xtest['Day'] = days
+        new_xtest['Hour'] = hours
+        new_xtest['DateTime'] = date_time
+        new_xtest.index = new_xtest['DateTime']
+        new_xtest = new_xtest.drop(['DateTime'], axis='columns')
 
-        self.newYtest = pd.Series(self.newYtest)
-        self.newYtest.index = self.newXtest.index
+        self.new_ytest = list()
+        for i in new_xtest.index:
+            self.new_ytest.append(self.ytest[i])
 
-        self.actual = self.newYtest
-        self.predicted = self.model.predict(self.newXtest)
+        self.new_ytest = pd.Series(self.new_ytest)
+        self.new_ytest.index = new_xtest.index
+
+        self.actual = self.new_ytest
         self.actual = list(self.actual)
+        self.predicted = self.model.predict(new_xtest)
         self.predicted = list(self.predicted)
 
         self.difference = list()
         for i in range(len(self.actual)):
             self.difference.append(abs(self.actual[i] - self.predicted[i]))
 
-        self.accuracyScore = self.model.score(self.newXtest, self.newYtest)
-        self.r2 = r2_score(self.newYtest, self.predicted)
-        self.explaindVariance = metrics.explained_variance_score(self.newYtest, self.predicted)
-        self.meanAbsoluteError = metrics.mean_absolute_error(self.newYtest, self.predicted)
-        self.meanSquaredError = metrics.mean_squared_error(self.newYtest, self.predicted)
-        self.medianAbsoluteError = metrics.median_absolute_error(self.newYtest, self.predicted)
-        self.testAgainst = []
-        for i in self.newXtest.index:
-            self.testAgainst.append(str(i))
-        
+        self.accuracy_score = self.model.score(new_xtest, self.new_ytest)
+        self.r2 = r2_score(self.new_ytest, self.predicted)
+        self.explained_variance = metrics.explained_variance_score(self.new_ytest, self.predicted)
+        self.mean_absolute_error = metrics.mean_absolute_error(self.new_ytest, self.predicted)
+        self.mean_squared_error = metrics.mean_squared_error(self.new_ytest, self.predicted)
+        self.median_absolute_error = metrics.median_absolute_error(self.new_ytest, self.predicted)
+        self.test_against = []
+        for i in new_xtest.index:
+            self.test_against.append(str(i))
 
-    def constructFutureTimeToBePredicted(self, timePeriod: int, timeFormat: str, showBy: str, startYear: str):
-        self.currTime = self.junctionData.tail(1).index[0]
-        self.currTime = pd.to_datetime(date(2018, 1, 1))
-        
-        if timeFormat == "Days":
-            self.endTime = self.currTime + pd.DateOffset(days=timePeriod) 
-        elif timeFormat == "Months":
-            self.endTime = self.currTime + pd.DateOffset(months=timePeriod) 
+    def construct_future_time_to_be_predicted(self, time_period: int, time_format: str, show_by: str, start_year: int):
+        if start_year == 0:
+            start_time = self.junction_data.tail(1).index[0]
+            start_year = start_time.year + 1
+        curr_time = pd.to_datetime(date(start_year, 1, 1))
+
+        if time_format == "Days":
+            end_time = curr_time + pd.DateOffset(days=time_period)
+        elif time_format == "Months":
+            end_time = curr_time + pd.DateOffset(months=time_period)
         else:
-            self.endTime = self.currTime + pd.DateOffset(years=timePeriod) 
+            end_time = curr_time + pd.DateOffset(years=time_period)
 
         self.time = list()
-        # print("currTime: ", self.currTime)
-        # print("endTime: ", self.endTime)
 
-        temp = self.currTime
-        # while temp != self.endTime or temp < self.endTime:
-        #     print(temp)
-        #     temp += timedelta(days=30)
+        while curr_time <= end_time:
+            self.time.append(curr_time)
+            if show_by == 'Hours':
+                curr_time += timedelta(minutes=60)
+            if show_by == 'Days':
+                curr_time += timedelta(minutes=1440)
+            if show_by == 'Weeks':
+                curr_time += timedelta(days=7)
+            if show_by == 'Months':
+                curr_time += timedelta(days=30)
+            if show_by == 'Years':
+                curr_time += timedelta(days=365)
 
-        while self.currTime <= self.endTime:
-            self.time.append(self.currTime)
-            if showBy == 'Hours':
-                self.currTime += timedelta(minutes=60)
-            if showBy == 'Days':
-                self.currTime += timedelta(minutes=1440)
-            if showBy == 'Weeks':
-                self.currTime += timedelta(days=7)
-            if showBy == 'Months':
-                self.currTime += timedelta(days=30)
-            if showBy == 'Years':
-                self.currTime += timedelta(days=365)
+    def construct_future_data_to_be_predicted(self):
+        self.to_predict = pd.DataFrame()
+        years = list()
+        months = list()
+        days = list()
+        hours = list()
+        self.date_time = list()
 
-    def constructFutureDataToBePredicted(self):
-        self.toPredict = pd.DataFrame()
-        self.years = list()
-        self.months = list()
-        self.days = list()
-        self.hours = list()
-        self.dateTime = list()
-        
         for i in self.time:
-            self.dateTime.append(i)
-            self.years.append(i.year)
-            self.months.append(i.month)
-            self.days.append(i.day)
-            self.hours.append(i.hour)
+            self.date_time.append(i)
+            years.append(i.year)
+            months.append(i.month)
+            days.append(i.day)
+            hours.append(i.hour)
 
-        self.toPredict['Year'] = self.years
-        self.toPredict['Month'] = self.months
-        self.toPredict['Day'] = self.days
-        self.toPredict['Hour'] = self.hours
-        self.toPredict['DateTime'] = self.dateTime
-        self.toPredict.index = self.toPredict['DateTime']
-        self.toPredict = self.toPredict.drop(['DateTime'], axis='columns')
+        self.to_predict['Year'] = years
+        self.to_predict['Month'] = months
+        self.to_predict['Day'] = days
+        self.to_predict['Hour'] = hours
+        self.to_predict['DateTime'] = self.date_time
+        self.to_predict.index = self.to_predict['DateTime']
+        self.to_predict = self.to_predict.drop(['DateTime'], axis='columns')
 
-
-    def predict(self, timePeriod: int, timeFormat: str, showBy: str, startYear: int):
-
-        # returns predicted data for given timePeriod and timeFormat (e.g. 2, 'Days')
+    def predict(self, time_period: int, time_format: str, show_by: str, start_year: int):
 
         if self.trained:
-            self.constructFutureTimeToBePredicted(timePeriod, timeFormat, showBy, startYear)
-            self.constructFutureDataToBePredicted()
+            self.construct_future_time_to_be_predicted(time_period, time_format, show_by, start_year)
+            self.construct_future_data_to_be_predicted()
 
-            self.futureDatesPredicted = self.model2.predict(self.toPredict)  # toPredict variable comes from data constructed
-            self.tableData = self.toPredict.copy()
+            future_dates_predicted = self.model_trained_on_complete_dataset.predict(
+                self.to_predict)  # to_predict variable comes from data constructed
+            self.table_data = self.to_predict.copy()
 
-            self.columnDateTime = list()
-            for i in self.dateTime:
-                self.columnDateTime.append(str(i))
+            column_date_time = list()
+            for i in self.date_time:
+                column_date_time.append(str(i))
 
-            self.tableData['DateTime'] = self.columnDateTime
-            self.tableData = self.tableData.reset_index(drop=True)
-            self.tableData['Vehicles'] = list(self.futureDatesPredicted)
+            self.table_data['DateTime'] = column_date_time
+            self.table_data = self.table_data.reset_index(drop=True)
+            self.table_data['Pcu'] = list(future_dates_predicted)
 
-            self.predictedData = dict()
-            self.predictedData['vehicles'] = list(self.futureDatesPredicted)
+            predicted_data = dict()
+            predicted_data['vehicles'] = list(future_dates_predicted)
 
-            self.toPredictDateTime = list()
-            for i in self.toPredict.index:
-                self.toPredictDateTime.append(str(i))
-            self.predictedData['datetime'] = self.toPredictDateTime
+            to_predict_datetime = list()
+            for i in self.to_predict.index:
+                to_predict_datetime.append(str(i))
+            predicted_data['datetime'] = to_predict_datetime
 
-            return [self.predictedData]
-
-    
-    def getRelativeChange(self, relativeChange, factor):
-        self.vehicles = self.junctionData.Vehicles
-
-        if factor == 'Mean (Average)':
-            self.modeValue = mean(self.vehicles)
-        if factor == 'Mode':
-            self.modeValue = mode(self.vehicles)
-        if factor == 'Median':
-            self.modeValue = median(self.vehicles)
-        if factor == 'First Prediction Instance':
-            self.modeValue = self.futureDatesPredicted[0]
-        if factor == 'Last pcu observation':
-            self.modeValue = self.junctionData.tail(1).Vehicles[self.junctionData.tail(1).index[0]]
-
-        # self.modeValue = median(self.vehicles)
-        # self.modeValue = self.junctionData.tail(1).Vehicles[self.junctionData.tail(1).index[0]]
-        # self.modeValue = self.futureDatesPredicted[0]
-        # print(self.futureDatesPredicted[0])
-        # self.modeValue = mode(self.vehicles)
-        self.increasingVehiclesNumber = (relativeChange / 100) * mode(self.vehicles)
-        self.currentYear = self.time[0]
-        self.currVehiclesNumber = self.increasingVehiclesNumber
-        self.array = list()
-        for i in self.time:
-            self.array.append(self.currVehiclesNumber)
-            strYear = str(i)[:4]
-            if strYear != str(self.currentYear)[:4]:
-                self.currentYear = i
-                self.currVehiclesNumber += self.increasingVehiclesNumber
-
-        self.lastElement = self.array[-1]
-        self.firstElement = self.array[0]
-
-        self.difference = self.lastElement - self.firstElement
-        self.array2 = list()
-        for i in range(len(self.array)):
-            self.firstElement += (self.difference / len(self.array))
-            self.array2.append(self.firstElement)
-
-
-        self.array3 = list()
-        for i in self.array2:
-            i += (self.modeValue - self.increasingVehiclesNumber)
-            self.array3.append(i)
-        
-        if factor == 'First Prediction Instance':
-            self.adjust = self.array3[0] - self.futureDatesPredicted[0]
-            self.array4 = list()
-            for i in self.array3:
-                self.array4.append(i - self.adjust)
-            return self.array4
-        else:
-            return self.array3
-                
+            return [predicted_data]

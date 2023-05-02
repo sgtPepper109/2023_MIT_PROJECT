@@ -20,15 +20,15 @@ export interface JunctionRoadwayWidthMap {
     roadwayWidth: number
 }
 
-export interface RoadwayWidthMaxVehiclesMap {
+export interface RoadwayWidthMaxPcuMap{
     roadwayWidth: number;
-    maxVehicles: number;
+    maxPcu: number;
 }
 
 export interface csvInstance {
     dateTime: string,
     junction: string,
-    vehicles: number
+    pcu: number
 }
 
 export interface trainingDetails {
@@ -54,4 +54,10 @@ export interface mapDataInstance {
 export interface treeInstance {
     name: string,
     children?: Array<treeInstance>
+}
+
+export interface csvParseRecord {
+    DateTime: string,
+    Junction: string,
+    Pcu: string
 }

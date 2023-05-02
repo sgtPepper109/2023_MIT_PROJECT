@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { JunctionSpecificsService } from './junction-specifics.service';
 
 describe('JunctionSpecificsService', () => {

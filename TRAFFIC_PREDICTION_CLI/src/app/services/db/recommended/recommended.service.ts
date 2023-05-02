@@ -21,8 +21,8 @@ export class RecommendedService {
 
 	public deleteRecommendation(junction: string, district: string, startYear: number, durationYears: number) {
 		return this.http.get('recommended/deleteRecommendation?junction=' + junction
-			+ '&district=' + district 
-			+ '&startYear=' + startYear 
+			+ '&district=' + district
+			+ '&startYear=' + startYear
 			+ '&durationYears=' + durationYears
 		)
 	}
@@ -30,5 +30,5 @@ export class RecommendedService {
 	public getDistrictInstancesWithStartYear(district: string, startYear: number) {
 		return this.http.get('recommended/getDistrictInstancesWithStartYear?district=' + district + '&startYear=' + startYear)
 	}
-	
+
 }

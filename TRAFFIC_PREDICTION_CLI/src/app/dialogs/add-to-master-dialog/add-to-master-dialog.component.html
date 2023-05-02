@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Confirm Add to master</h2>
+<hr>
+<mat-dialog-content class="mat-typography">
+    <div>
+        <table aria-label="modalTable" class="table table-bordered border-primary">
+            <tbody>
+                <tr>
+                    <th scope="row">Junction:</th>
+                    <td>{{ junction }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Algorithm: </th>
+                    <td>{{ algorithmToAddToMaster }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Testing Ratio: </th>
+                    <td>{{ testRatioToAddToMaster }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Accuracy: </th>
+                    <td>{{ accuracy }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <div class="form-floating">
+            <input type="number" [(ngModel)]="startYear" placeholder="2024" class="form-control" id="floatingInputInvalid">
+            <label for="floatingInputInvalid">Prediction for two years from</label>
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-flat-button color="primary" type="button" (click)="addToMaster()">Add</button>
+        <button mat-flat-button color="warn" (click)="dialogRef.close()">Close</button>
+    </div>
+</mat-dialog-content>

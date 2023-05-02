@@ -23,7 +23,7 @@ export class FlaskService {
 	public getModelSummary() {
 		return this.http.get('process/getModelSummary')
 	}
-	
+
 	public getAccuracies() {
 		return this.http.get('process/getAccuracies')
 	}
@@ -77,15 +77,15 @@ export class FlaskService {
 	}
 
 	public addToMaster(
-		junction: string, 
-		algorithm: string, 
+		junction: string,
+		algorithm: string,
 		testRatio: number,
 		startYear: number
 	) {
 		return this.http.get('process/addToMaster'
-			+ '?junction=' + junction 
-			+ '&algorithm=' + algorithm 
-			+ '&testRatio=' + testRatio 
+			+ '?junction=' + junction
+			+ '&algorithm=' + algorithm
+			+ '&testRatio=' + testRatio
 			+ '&startYear=' + startYear
 		)
 	}
@@ -105,7 +105,7 @@ export class FlaskService {
 	public getMasterTrainedDataForTable() {
 		return this.http.get('process/getMasterTrainedDataTable')
 	}
-	
+
 	public getMasterTrainedJunctionsAccuracies() {
 		return this.http.get('process/getMasterTrainedJunctionsAccuracies')
 	}
@@ -113,7 +113,7 @@ export class FlaskService {
 	public predictForHighestAccuracy(junction: string, algorithm: string, testRatio: number) {
 		return this.http.get('process/predictForHighestAccuracy?junction=' + junction + '&algorithm=' + algorithm + '&testRatio=' + testRatio)
 	}
-	
+
 	public checkIfTrained(junction: string) {
 		return this.http.get('process/checkIfTrained?junction=' + junction)
 	}

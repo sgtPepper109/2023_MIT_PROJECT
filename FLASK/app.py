@@ -1,4 +1,5 @@
 import sys
+import collections
 import Train
 import requests
 from flask import Flask, make_response, request
@@ -9,134 +10,153 @@ import numpy as np
 import pandas as pd
 import scipy
 from statsmodels.stats.stattools import jarque_bera, durbin_watson
-import statsmodels.api as sm
 from scipy.stats import skew, kurtosis
-from datetime import timedelta
-from statistics import *
+import exceptions
+from datetime import datetime
 
 app = Flask(__name__)
 cors = CORS(app)
+url_not_found_string = "Invalid URL"
+algorithms = [
+    'Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
+    'Lasso Regression', 'Bayesian Ridge Regression', 'Decision Tree Regression',
+    'K Nearest Neighbors Regression'
+]
+
 
 @app.route('/getAllAlgorithms')
-def getAllAlgorithms():
-    global algorithms
+def get_all_algorithms():
     return make_response(algorithms)
 
 
 @app.route('/getEndYearFromDataset')
-def getEndYearFromDataset():
+def get_end_year_from_dataset():
     global df
     response = list()
-    endDate = list(df.DateTime)[-1]
-    year = pd.to_datetime(endDate).year
+    end_date = list(df.DateTime)[-1]
+    year = pd.to_datetime(end_date).year
     response.append(year)
     return make_response(response)
 
 
 @app.route('/checkIfTrained')
-def checkIfTrained():
-    global allTrainedData
+def check_if_trained():
+    global all_trained_data
     args = request.args
     args = args.to_dict()
 
-    junction = args['junction']
+    junction_to_check = args['junction']
     if "%20" in args['junction']:
-        junction = args['junction'].replace("%20", " ")
+        junction_to_check = args['junction'].replace("%20", " ")
 
-    if junction in allTrainedData:
+    if junction_to_check in all_trained_data:
         return make_response([True])
     else:
         return make_response([False])
 
 
-
 @app.route("/getCsvData")
-def getCsvData():
-
+def get_csv_data():
     # get/declare global variables
-    global springUrl
+    global spring_url
     global df
     global tempdf
-    global uniqueJunctionsInDataset
-    global typeOfData
+    global unique_junctions_in_dataset
+    global type_of_data
 
+    responseString = ""
     # sets 'False' if getting csv data from spring backend is unsuccessful
     success: bool = True
-    url: str = springUrl + '/process/exchangeCsvData'
+    url: str = spring_url + '/process/exchangeCsvData'
+    url_response = None
     try:
-        uResponse: any = requests.get(url)
-    except:
-        success = False
-        return {getCsvData: "Connection Error"}
-    
-    JResponse: str = uResponse.text
-    csvData: list = json.loads(JResponse)
+        url_response: any = requests.get(url)
+    except RuntimeError:
+        exceptions.UrlNotFoundException(url_not_found_string)
 
+    json_response: str = url_response.text
+    csv_data: list = json.loads(json_response)
 
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
 
-    df = pd.DataFrame.from_dict(csvData)
+    df = pd.DataFrame.from_dict(csv_data)
     df = df._convert(numeric=True)
     if 'ID' in df.columns:
         df.drop('ID', axis=1, inplace=True)
 
-    
     tempdf = df.copy()
 
     try:
         tempdf['DateTime'] = pd.to_datetime(tempdf['DateTime'])
         tempdf = tempdf.set_index('DateTime')
 
-        timeDifference = tempdf.index[1] - tempdf.index[0]
-        timeDifference = str(timeDifference)
-        timeDifference = int(timeDifference.split(' ')[0])
+        time_difference = tempdf.index[1] - tempdf.index[0]
+        time_difference = str(time_difference)
+        time_difference = int(time_difference.split(' ')[0])
 
-        if timeDifference == 0:
-            typeOfData = 'Hours'
-        elif timeDifference == 1:
-            typeOfData = 'Days'
-        elif timeDifference == 30:
-            typeOfData = 'Months'
+        if time_difference == 0:
+            type_of_data = 'Hours'
+        elif time_difference == 1:
+            type_of_data = 'Days'
+        elif time_difference == 30:
+            type_of_data = 'Months'
 
         tempdf['Year'] = pd.Series(tempdf.index).apply(lambda x: x.year).to_list()
         tempdf['Month'] = pd.Series(tempdf.index).apply(lambda x: x.month).to_list()
         tempdf['Day'] = pd.Series(tempdf.index).apply(lambda x: x.day).to_list()
         tempdf['Hour'] = pd.Series(tempdf.index).apply(lambda x: x.hour).to_list()
-        
+
         if 'ID' in tempdf.columns:
             tempdf.drop('ID', axis=1, inplace=True)
 
+        unique_junctions_in_dataset = list(np.unique(df.Junction))
 
-        uniqueJunctionsInDataset = list(np.unique(df.Junction))
+        datetime_list = list(df.DateTime)
+        duplicates: list = [item for item, count in collections.Counter(datetime_list).items() if count > 1]
+        if duplicates == []:
+            success = True
+        else:
+            success = False
+            responseString = "Date-Time contains duplicates"
+
+        current_timestamp = pd.to_datetime(datetime.now())
+        for x in datetime_list:
+            iter_timestamp = pd.to_datetime(x)
+            if iter_timestamp > current_timestamp:
+                success = False
+                responseString = "Date-Time exceeding current date-time"
+                break
 
         dictionary = dict()
         if success:
             dictionary['getCsvData'] = "success"
             return make_response(dictionary)
         else:
-            dictionary['getCsvData'] = "fail"
+            dictionary['getCsvData'] = responseString
             return make_response(dictionary)
-    except:
-        return make_response({'getCsvData': 'fail'})
+    except ValueError:
+        exceptions.BreakDownException('Warning: Invalid dataset')
+        dictionary = dict()
+        dictionary['getCsvData'] = "Corrupted dataset"
+        return make_response(dictionary)
 
 
 @app.route('/getAllUniqueJunctions')
-def getAllUniqueJunctions():
-    global uniqueJunctionsInDataset
-    return make_response(uniqueJunctionsInDataset)
+def get_all_unique_junctions():
+    global unique_junctions_in_dataset
+    return make_response(unique_junctions_in_dataset)
 
 
-def createDict(junction):
+def create_dict(from_junction):
     global df
-    data = df[df['Junction'] == junction]
-    vehicles = list(data['Vehicles'])
+    data = df[df['Junction'] == from_junction]
+    vehicles = list(data['Pcu'])
     datetime = list(data['DateTime'])
     dictionary = dict()
     dictionary['vehicles'] = vehicles
     dictionary['datetime'] = datetime
     return [dictionary]
-
 
 
 @app.route("/plot")
@@ -146,80 +166,81 @@ def plot():
 
     response = dict()
     for i in np.unique(df.Junction):
-        response[i] = createDict(i)
+        response[i] = create_dict(i)
     return make_response(response)
-
 
 
 def f_test(x: list, y: list):
     x = np.array(x)
     y = np.array(y)
     if np.var(y, ddof=1) == 0.0:
-        f = np.var(x, ddof=1)/0.01
+        f = np.var(x, ddof=1) / 0.01
     else:
-        f = np.var(x, ddof=1)/np.var(y, ddof=1) #calculate F test statistic 
-    dfn = x.size-1 #define degrees of freedom numerator 
-    dfd = y.size-1 #define degrees of freedom denominator 
-    p = 1- scipy.stats.f.cdf(f, dfn, dfd) #find p-value of F test statistic 
+        f = np.var(x, ddof=1) / np.var(y, ddof=1)  # calculate F test statistic
+    dfn = x.size - 1  # define degrees of freedom numerator
+    dfd = y.size - 1  # define degrees of freedom denominator
+    p = 1 - scipy.stats.f.cdf(f, dfn, dfd)  # find p-value of F test statistic 
     return f, p
 
 
 @app.route('/getAllModelSummaries')
-def getAllModelSummaries():
-    global allTrainedData
+def get_all_model_summaries():
+    global all_trained_data
 
-    allModelSummaries = dict()
-    for algorithm in allTrainedData[junction]:
-        modelSummaryOfTestRatios = dict()
-        for testRatio in allTrainedData[junction][algorithm]:
-            trained = allTrainedData[junction][algorithm][testRatio]
-            fstatistic = f_test(trained.newYtest, trained.predicted)
-            modelSummary = [ { 'Property': 'Dependent Variable', 'Value': 'Vehicles' },
-                { 'Property': 'Algorithm', 'Value': trained.algorithm },
-                { 'Property': 'Testing Ratio', 'Value': trained.testSize },
-                { 'Property': 'Accuracy', 'Value': trained.accuracyScore },
-                { 'Property': 'R-Squared', 'Value': trained.r2 },
-                { 'Property': 'Date & Time of Training', 'Value': trained.whenTrained },
-                { 'Property': 'No. of Observations', 'Value': trained.data.shape[0] },
-                { 'Property': 'F-Statistic', 'Value': fstatistic[0] },
-                { 'Property': '(prob) F-Statistic', 'Value': fstatistic[1] },
-                { 'Property': 'Explained Variance', 'Value': trained.explaindVariance },
-                { 'Property': 'Mean Absolute Error', 'Value': trained.meanAbsoluteError },
-                { 'Property': 'Mean Squared Error', 'Value': trained.meanSquaredError },
-                { 'Property': 'Median Absolute Error', 'Value': trained.medianAbsoluteError },
-                { 'Property': 'Skew', 'Value': skew(list(trained.data.Vehicles), axis=0, bias=True) },
-                { 'Property': 'Kurtosis', 'Value': kurtosis(list(trained.data.Vehicles), axis=0, bias=True) },
-                { 'Property': 'Jarque-Bera (JB)', 'Value': str(jarque_bera(np.array(trained.data.Vehicles))) },
-                { 'Property': 'Durbin Watson', 'Value': durbin_watson(np.array(trained.data.Vehicles)) }
-            ]
-            modelSummaryOfTestRatios[testRatio] = modelSummary
-        allModelSummaries[algorithm] = modelSummaryOfTestRatios
+    all_model_summaries = dict()
+    for algo in all_trained_data[junction]:
+        model_summary_of_test_ratios = dict()
+        for testratio in all_trained_data[junction][algo]:
+            trained = all_trained_data[junction][algo][testratio]
+            fstatistic = f_test(trained.new_ytest, trained.predicted)
+            model_summary = [{'Property': 'Dependent Variable', 'Value': 'DateTime'},
+                             {'Property': 'Algorithm', 'Value': trained.algorithm},
+                             {'Property': 'Testing Ratio', 'Value': trained.test_size},
+                             {'Property': 'Accuracy', 'Value': trained.accuracy_score},
+                             {'Property': 'R-Squared', 'Value': trained.r2},
+                             {'Property': 'Date & Time of Training', 'Value': trained.when_trained},
+                             {'Property': 'No. of Observations', 'Value': trained.data.shape[0]},
+                             {'Property': 'F-Statistic', 'Value': fstatistic[0]},
+                             {'Property': '(prob) F-Statistic', 'Value': fstatistic[1]},
+                             {'Property': 'Explained Variance', 'Value': trained.explained_variance},
+                             {'Property': 'Mean Absolute Error', 'Value': trained.mean_absolute_error},
+                             {'Property': 'Mean Squared Error', 'Value': trained.mean_squared_error},
+                             {'Property': 'Median Absolute Error', 'Value': trained.median_absolute_error},
+                             {'Property': 'Skew', 'Value': skew(list(trained.data.Pcu), axis=0, bias=True)},
+                             {'Property': 'Kurtosis',
+                              'Value': kurtosis(list(trained.data.Pcu), axis=0, bias=True)},
+                             {'Property': 'Jarque-Bera (JB)',
+                              'Value': str(jarque_bera(np.array(trained.data.Pcu)))},
+                             {'Property': 'Durbin Watson', 'Value': durbin_watson(np.array(trained.data.Pcu))}
+                             ]
+            model_summary_of_test_ratios[testratio] = model_summary
+        all_model_summaries[algo] = model_summary_of_test_ratios
 
-    return make_response(allModelSummaries)
+    return make_response(all_model_summaries)
 
 
 @app.route('/listenTime')
-def listenTime():
-    global springUrl
+def listen_time():
+    global spring_url
     success = True
-    url = springUrl + '/process/exchangeTime'
+    url = spring_url + '/process/exchangeTime'
+    url_response = None
 
     try:
-        uResponse: any = requests.get(url)
-    except:
-        success = False
-        return "Connection Error"
-    JResponse: str = uResponse.text
-    response: list = json.loads(JResponse)
+        url_response: any = requests.get(url)
+    except RuntimeError:
+        exceptions.UrlNotFoundException(url_not_found_string)
+    json_response: str = url_response.text
+    response: list = json.loads(json_response)
 
     global time
-    global timeFormat
-    global showBy
+    global time_format
+    global show_by
 
     time = response['timePeriod']
-    timeFormat = response['timeFormat']
+    time_format = response['timeFormat']
     if "showBy" in response:
-        showBy = response['showBy']
+        show_by = response['showBy']
     dictionary = dict()
     if success:
         dictionary['gotTime'] = "success"
@@ -229,167 +250,89 @@ def listenTime():
         return make_response(dictionary)
 
 
-def getJunctionRelatedDataFromDB():
-    global springUrl
-    global junctionDistrictMaps
-    global junctionRoadwayWidthMaps
-    global roadwayWidthMaxVehiclesMaps
-    
-    junctionDistrictMaps = list()
-    junctionRoadwayWidthMaps = list()
-    roadwayWidthMaxVehiclesMaps = list()
-
-    url: str = springUrl + '/junctionSpecifics/junctionDistrict/getAllJunctionDistrictMaps'
-    try:
-        uResponse: any = requests.get(url)
-    except:
-        return "Connection Error"
-    JResponse: str = uResponse.text
-    junctionDistrictMaps = json.loads(JResponse)
-
-    url = springUrl + '/junctionSpecifics/junctionRoadwayWidth/getAllJunctionRoadwayWidthMaps'
-    try:
-        uResponse: any = requests.get(url)
-    except:
-        return "Connection Error"
-    JResponse: str = uResponse.text
-    junctionRoadwayWidthMaps = json.loads(JResponse)
-
-    url: str = springUrl + '/junctionSpecifics/roadwayWidthMaxVehicles/getAllRoadwayWidthMaxVehiclesMaps'
-    try:
-        uResponse: any = requests.get(url)
-    except:
-        return "Connection Error"
-    JResponse: str = uResponse.text
-    roadwayWidthMaxVehiclesMaps = json.loads(JResponse)
-
-
-
-@app.route('/getAccuraciesOfAllJunctions')
-def getAccuraciesOfAllJunctions():
-    global allJunctionsAccuracies
-    return make_response(allJunctionsAccuracies)
-
-
 @app.route('/predictForHighestAccuracy')
-def predictForHighestAccuracy():
+def predict_for_highest_accuracy():
+    global all_trained_data
+    global time
+    global time_format
+    global highest_accuracy_algorithm
+    global highest_accuracy_test_ratio
+    global highest_accuracy_trained
+    global show_by
+    global start_year
+    global start_year_map
     args = request.args
     args = args.to_dict()
 
-    algorithm = args['algorithm']
-    if "%20" in algorithm:
-        algorithm = algorithm.replace("%20", " ")
-    testRatio = float(args['testRatio'])
-    junction = args['junction']
+    highest_accuracy_algorithm = args['algorithm']
+    if "%20" in highest_accuracy_algorithm:
+        highest_accuracy_algorithm = highest_accuracy_algorithm.replace("%20", " ")
+    highest_accuracy_test_ratio = float(args['testRatio'])
+    which_junction = args['junction']
     if "%20" in args['junction']:
-        junction = args['junction'].replace("%20", " ")
+        which_junction = args['junction'].replace("%20", " ")
 
-    global allTrainedData
-    global time
-    global timeFormat
-    global highestAccuracyAlgorithm
-    global highestAccuracyTestRatio
-    global highestAccuracyTrained
-    global showBy
-    global startYear
-    global startYearMap
-
-    highestAccuracyAlgorithm = ""
-    highestAccuracyTestRatio = float(0)
-    highestAccuracyTrained = allTrainedData[junction][algorithm][testRatio]
-    plotResponse = highestAccuracyTrained.predict(time, timeFormat, showBy, startYear)
-    startYearMap[junction] = startYear
-    return make_response(plotResponse)
-    
+    highest_accuracy_trained = all_trained_data[which_junction][highest_accuracy_algorithm][highest_accuracy_test_ratio]
+    plot_response = highest_accuracy_trained.predict(time, time_format, show_by, start_year)
+    start_year_map[which_junction] = start_year
+    return make_response(plot_response)
 
 
 @app.route('/getStartYearMap')
-def getStartYearMap():
-    global startYearMap
-    print(startYearMap)
-    return make_response(startYearMap)
-
+def get_start_year_map():
+    global start_year_map
+    print(start_year_map)
+    return make_response(start_year_map)
 
 
 @app.route("/addToMaster")
-def addToMaster():
+def add_to_master():
     args = request.args
     args = args.to_dict()
 
-    algorithm = args['algorithm']
-    if "%20" in algorithm:
-        algorithm = algorithm.replace("%20", " ")
+    master_algorithm = args['algorithm']
+    if "%20" in master_algorithm:
+        master_algorithm = master_algorithm.replace("%20", " ")
 
-    testRatio = float(args['testRatio'])
-    # relativeChange = float(args['relativeChange'])
+    master_test_ratio = float(args['testRatio'])
 
-    global masterAlgorithmAndTestRatioForJunction
-    global allTrainedData
-    global masterData
-    global startYear
-    # global relativeChangeMap
+    global master_algorithm_and_test_ratio_for_junction
+    global all_trained_data
+    global master_data
+    global start_year
 
-    junction = args['junction']
+    master_junction = args['junction']
     if "%20" in args['junction']:
-        junction = args['junction'].replace("%20", " ")
-    masterTrainedAlgorithmAndTestRatioForJunction = (algorithm, testRatio)
-    startYear = int(args['startYear'])
+        master_junction = args['junction'].replace("%20", " ")
+    start_year = int(args['startYear'])
 
-    findTrained = allTrainedData[junction][algorithm][testRatio]
-    masterData[junction] = findTrained
-    startYearMap[junction] = startYear
-    # relativeChangeMap[junction] = relativeChange
+    find_trained = all_trained_data[master_junction][master_algorithm][master_test_ratio]
+    master_data[master_junction] = find_trained
+    start_year_map[master_junction] = start_year
     return make_response(args)
 
 
-@app.route('/getRelativeChange')
-def getRelativeChange():
-    global relativeChangeMap
-    global masterData
-
-    args = request.args
-    args = args.to_dict()
-
-    factor = args['factor']
-    if "%20" in factor:
-        factor = factor.replace("%20", " ")
-    junction = args['junction']
-    if "%20" in junction:
-        junction= junction.replace("%20", " ")
-
-    trained = masterData[junction]
-    array = trained.getRelativeChange(relativeChangeMap[junction], factor)
-
-    return make_response(array)
-
-
-@app.route('/getAllRelativeChange')
-def getAllRelativeChangePercentage():
-    global relativeChangeMap
-    return make_response(relativeChangeMap)
-
-
 @app.route("/getMasterTrainedDataPlot")
-def getMasterTrainedDataPlot():
-    global allTrainedData
-    global masterData
+def get_master_trained_data_plot():
+    global all_trained_data
+    global master_data
     global time
-    global timeFormat
-    global masterDataTable
-    global masterJunctionsAccuracies
-    global showBy
-    global startYear
-    
-    masterDataTable = dict()
+    global time_format
+    global master_data_table
+    global master_junctions_accuracies
+    global show_by
+    global start_year
+
+    master_data_table = dict()
     response = dict()
-    masterJunctionsAccuracies = dict()
-    for i in masterData:
-        trained = masterData[i]
-        response[i] = trained.predict(time, timeFormat, showBy, startYear)
-        masterJunctionsAccuracies[i] = trained.accuracyScore
+    master_junctions_accuracies = dict()
+    for i in master_data:
+        trained = master_data[i]
+        response[i] = trained.predict(time, time_format, show_by, start_year)
+        master_junctions_accuracies[i] = trained.accuracy_score
 
         table = []
-        head = trained.tableData
+        head = trained.table_data
 
         data2 = head.to_dict()
         anycol = ""
@@ -401,85 +344,83 @@ def getMasterTrainedDataPlot():
             for k in data2:
                 field[k] = data2[k][j]
             table.append(field)
-        
-        masterDataTable[i] = table
+
+        master_data_table[i] = table
 
     return make_response(response)
 
 
 @app.route("/getMasterTrainedDataTable")
-def getMasterTrainedDataTable():
-    global masterDataTable
-    return make_response(masterDataTable)
+def get_master_trained_data_table():
+    global master_data_table
+    return make_response(master_data_table)
 
 
 @app.route("/getMasterTrainedJunctionsAccuracies")
-def getMasterTrainedJunctionsAccuracies():
-    global masterJunctionsAccuracies
-    return make_response(masterJunctionsAccuracies)
+def get_master_trained_junctions_accuracies():
+    global master_junctions_accuracies
+    return make_response(master_junctions_accuracies)
 
 
 @app.route('/getTestingRatioComparisons')
-def getTestingRatioComparisons():
+def get_testing_ratio_comparisons():
     global time
-    global timeFormat
+    global time_format
     global algorithm
     global tempdf
     global junction
-    global allTrainedData
-    global algorithms
+    global all_trained_data
 
     args = request.args
     args = args.to_dict()
 
     junction = args['junction']
     if "%20" in junction:
-        junction = junction .replace("%20", " ")
+        junction = junction.replace("%20", " ")
 
     action = args['action']
 
-    possibleTestRatios = np.arange(0.1, 1, 0.1)
+    possible_test_ratios = np.arange(0.1, 1, 0.1)
 
     response = dict()
     temp = dict()
+    print(action)
 
     if action == 'clear':
         for i in algorithms:
-            testRatioComparisons = dict()
-            trainedData = dict()
-            for j in possibleTestRatios:
+            test_ratio_comparisons = dict()
+            trained_data = dict()
+            for j in possible_test_ratios:
                 j = round(j, 3)
                 trained = Train.Train(tempdf, i, junction, j)
-                trainedData[j] = trained
-                testRatioComparisons[j] = trained.accuracyScore
-            response[i] = testRatioComparisons
-            temp[i] = trainedData
+                trained_data[j] = trained
+                test_ratio_comparisons[j] = trained.accuracy_score
+            response[i] = test_ratio_comparisons
+            temp[i] = trained_data
     if action == 'append':
-        newData = tempdf.copy()
+        new_data = tempdf.copy()
         for i in algorithms:
-            testRatioComparisons = dict()
-            trainedData = dict()
-            for j in possibleTestRatios:
-                # trained = Train.Train(tempdf, i, junction, j)
-                trained = allTrainedData[junction][i][j]
-                trained.appendAndStartTraining(newData)
-                trainedData[j] = trained
-                testRatioComparisons[j] = trained.accuracyScore
-            response[i] = testRatioComparisons
-            temp[i] = trainedData
+            test_ratio_comparisons = dict()
+            trained_data = dict()
+            for j in possible_test_ratios:
+                j = round(j, 3)
+                trained = all_trained_data[junction][i][j]
+                trained.append_and_start_training(new_data)
+                trained_data[j] = trained
+                test_ratio_comparisons[j] = trained.accuracy_score
+            response[i] = test_ratio_comparisons
+            temp[i] = trained_data
 
-
-    allTrainedData[junction] = temp
+    all_trained_data[junction] = temp
     return make_response(response)
 
 
 @app.route('/getFuturePredictionsTable')
-def getFuturePredictionsTable():
-    global trainedAlgorithms
+def get_future_predictions_table():
     global algorithm
-    global highestAccuracyTrained
+    global highest_accuracy_trained
     arr = []
-    head = highestAccuracyTrained.tableData
+    head = highest_accuracy_trained.table_data
 
     data2 = head.to_dict()
     anycol = ""
@@ -494,59 +435,49 @@ def getFuturePredictionsTable():
     return make_response(arr)
 
 
-
-@app.route('/getAllJunctionsFuturePredictionsTable')
-def getAllJunctionsFuturePredictions():
-    global allJunctionsTableData
-    return make_response(allJunctionsTableData)
-
-
 @app.route('/getActualVsPredictedComparison')
-def getActualVsPredictedComparison():
-    global allTrainedData
-    global allActualVsPredicted
+def get_actual_vs_predicted_comparison():
+    global all_trained_data
     global junction
 
-    allActualVsPredicted = dict()
-    for algorithm in allTrainedData[junction]:
-        actualVsPredictedForTestRatio = dict()
-        for testRatio in allTrainedData[junction][algorithm]:
-            trained = allTrainedData[junction][algorithm][testRatio]
-            actualPred = dict()
-            actualPred['actual'] = trained.actual
-            actualPred['predicted'] = trained.predicted
-            actualPred['difference'] = trained.difference
-            actualPred['labels'] = trained.testAgainst
-            actualVsPredictedForTestRatio[testRatio] = actualPred
-        allActualVsPredicted[algorithm] = actualVsPredictedForTestRatio
+    all_actual_vs_predicted = dict()
+    for algo in all_trained_data[junction]:
+        actual_vs_predicted_for_test_ratio = dict()
+        for testratio in all_trained_data[junction][algo]:
+            trained = all_trained_data[junction][algo][testratio]
+            actual_pred = dict()
+            actual_pred['actual'] = trained.actual
+            actual_pred['predicted'] = trained.predicted
+            actual_pred['difference'] = trained.difference
+            actual_pred['labels'] = trained.test_against
+            actual_vs_predicted_for_test_ratio[testratio] = actual_pred
+        all_actual_vs_predicted[algo] = actual_vs_predicted_for_test_ratio
     
-    return make_response(allActualVsPredicted)
-
+    return make_response(all_actual_vs_predicted)
 
 
 @app.route('/getActualVsPredictedComparisonTableData')
-def getActualVsPredictedComparisonTableData():
-    global allTrainedData
-    global allActualVsPredictedTable
+def get_actual_vs_predicted_comparison_table_data():
+    global all_trained_data
     global junction
 
-    allActualVsPredictedTable = dict()
-    for algorithm in allTrainedData[junction]:
-        actualVsPredictedForTestRatio = dict()
-        for testRatio in allTrainedData[junction][algorithm]:
-            trained = allTrainedData[junction][algorithm][testRatio]
-            actualPred = list()
+    all_actual_vs_predicted_table = dict()
+    for algo in all_trained_data[junction]:
+        actual_vs_predicted_for_test_ratio = dict()
+        for testratio in all_trained_data[junction][algo]:
+            trained = all_trained_data[junction][algo][testratio]
+            actual_pred = list()
             for i in range(len(trained.actual)):
-                actualPredInstance = {
+                actual_pred_instance = {
                     'actual': trained.actual[i],
                     'predicted': trained.predicted[i],
                     'difference': trained.difference[i]
                 }
-                actualPred.append(actualPredInstance)
-            actualVsPredictedForTestRatio[testRatio] = actualPred
-        allActualVsPredictedTable[algorithm] = actualVsPredictedForTestRatio
-    
-    return make_response(allActualVsPredictedTable)
+                actual_pred.append(actual_pred_instance)
+            actual_vs_predicted_for_test_ratio[testratio] = actual_pred
+        all_actual_vs_predicted_table[algo] = actual_vs_predicted_for_test_ratio
+
+    return make_response(all_actual_vs_predicted_table)
 
 
 if __name__ == "__main__":
@@ -554,63 +485,65 @@ if __name__ == "__main__":
     global df
     global tempdf
     global time
-    global timeFormat
-    global testRatio
+    global time_format
+    global test_ratio
     global junction
     global algorithm
     global trained
-    global autoTrainedModels
-    global autoTrainedForJunctions
-    global trainedMap
-    global accuraciesMap
-    global masterAlgorithmAndTestRatioForJunction
-    global masterData
-    global masterDataTable
-    global allTrainedData
-    global masterJunctionsAccuracies
-    global highestAccuracyAlgorithm
-    global highestAccuracyTestRatio
-    global springUrl
-    global showBy
-    global relativeChangeMap
-    global allJunctionsCsvData
-    global algorithms
-    global startYear
-    global startYearMap
-    algorithms = ['Linear Regression', 'Random Forest Regression', 'Gradient Boosting Regression', 'Ridge Regression',
-                'Lasso Regression', 'Bayesian Ridge Regression', 'Decision Tree Regression', 
-                'K Nearest Neighbors Regression', 'Support Vector Regression'
-                #   'Gaussian Process Regression'
-    ]
-
-    startYear: int = 0
-    startYearMap = dict()
-    showBy: str = ""
-    highestAccuracyAlgorithm = ""
-    highestAccuracyTestRatio = float(0)
-
-    springUrl = ""
-    allTrainedData = dict()
-    trainedMap = dict()
-    accuraciesMap = dict()
+    global auto_trained_models
+    global auto_trained_for_junctions
+    global trained_map
+    global accuracies_map
+    global master_algorithm_and_test_ratio_for_junction
+    global master_data
+    global master_data_table
+    global all_trained_data
+    global master_junctions_accuracies
+    global highest_accuracy_algorithm
+    global highest_accuracy_test_ratio
+    global spring_url
+    global show_by
+    global relative_change_map
+    global all_junctions_csv_data
+    global start_year
+    global start_year_map
+    global unique_junctions_in_dataset
+    global type_of_data
+    global junction_district_maps
+    global junction_roadway_width_maps
+    global roadway_width_max_vehicles_maps
+    global highest_accuracy_trained
+    
+    highest_accuracy_trained = None
+    junction_district_maps = list()
+    junction_roadway_width_maps = list()
+    roadway_width_max_vehicles_maps = list()
+    start_year: int = 0
+    type_of_data: str = ""
+    start_year_map = dict()
+    show_by: str = ""
+    highest_accuracy_algorithm = ""
+    highest_accuracy_test_ratio = float(0)
+    unique_junctions_in_dataset = list()
+    spring_url = ""
+    all_trained_data = dict()
+    trained_map = dict()
+    accuracies_map = dict()
     df = pd.DataFrame()
     tempdf = pd.DataFrame()
-    masterTrainedAlgorithmAndTestRatioForJunction = tuple()
-    masterData = dict()
-    masterDataTable = dict()
-    masterJunctionsAccuracies = dict()
-    relativeChangeMap = dict()
-    allJunctionsCsvData = dict()
+    master_trained_algorithm_and_test_ratio_for_junction = tuple()
+    master_data = dict()
+    master_data_table = dict()
+    master_junctions_accuracies = dict()
+    relative_change_map = dict()
+    all_junctions_csv_data = dict()
 
-
-    if (len(sys.argv) == 1 or sys.argv[1] == 'DEV'):
-        springUrl = config.spring_dev_url
-        getJunctionRelatedDataFromDB()
+    if len(sys.argv) == 1 or sys.argv[1] == 'DEV':
+        spring_url = config.spring_dev_url
         app.run()
-    elif (sys.argv[1] == 'PROD'):
+    elif sys.argv[1] == 'PROD':
         # will work only after spring deployment is done
-        springUrl = config.spring_prod_url
-        getJunctionRelatedDataFromDB()
+        spring_url = config.spring_prod_url
         app.run(debug=True, host='0.0.0.0')
     else:
-        raise Exception('Argument not identified')
+        raise exceptions.BadRequest("Bad request")

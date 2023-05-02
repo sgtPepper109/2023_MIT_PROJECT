@@ -3,21 +3,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PredictionsComponent } from './predictions.component';
 
 describe('Page2Component', () => {
-  let component: PredictionsComponent;
-  let fixture: ComponentFixture<PredictionsComponent>;
+	let component: PredictionsComponent;
+	let fixture: ComponentFixture<PredictionsComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ PredictionsComponent ]
-    })
-    .compileComponents();
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			declarations: [PredictionsComponent]
+		})
+			.compileComponents();
 
-    fixture = TestBed.createComponent(PredictionsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(PredictionsComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });
